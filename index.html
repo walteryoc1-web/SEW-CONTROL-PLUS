@@ -15,9 +15,9 @@
             --gris-texto: #7f8c8d;
         }
         
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; padding: 0; margin: 0; text-align: center; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 0; margin: 0; text-align: center; color: #333; }
         
-        /* Contenedores */
+        /* Tarjetas Principales */
         .card-compacta { 
             background: white; padding: 30px; border-radius: 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
@@ -33,6 +33,7 @@
         h2 { color: var(--azul-corp); margin: 0; font-size: 22px; letter-spacing: 1px; }
         .sub-plus { font-size: 11px; color: var(--gris-texto); font-weight: bold; letter-spacing: 1.5px; margin-bottom: 20px; display: block; text-transform: uppercase; }
 
+        /* Campos de Entrada */
         input, select { 
             width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; 
             border: 2px solid #eee; font-size: 16px; box-sizing: border-box; 
@@ -51,6 +52,7 @@
         .btn:active { transform: scale(0.97); }
         .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
 
+        /* Botón de Salida Rojo */
         .btn-salir { 
             background: #fff; color: var(--rojo-error); border: 2px solid var(--rojo-error);
             margin-top: 25px; padding: 12px; width: 100%; border-radius: 12px; 
@@ -58,7 +60,7 @@
         }
         .btn-salir:hover { background: var(--rojo-error); color: white; }
         
-        /* Cuadro de Información de Cliente */
+        /* Cuadro Info Cliente */
         #cliente-box { 
             font-weight: bold; color: var(--azul-corp); margin: 10px 0; 
             display: none; padding: 15px; background: var(--celeste-fondo); 
@@ -66,7 +68,7 @@
             text-align: left; font-size: 14px; line-height: 1.5;
         }
 
-        /* Monitor Supervisor */
+        /* Monitor de Supervisor */
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .pildora { 
             background: white; padding: 15px 5px; border-radius: 15px; flex: 1; 
@@ -84,7 +86,7 @@
 </head>
 <body>
 
-    <!-- SECCIÓN DE LOGIN -->
+    <!-- PANTALLA 1: LOGIN -->
     <div id="login" class="card-compacta">
         <h2>PORTAFOLIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS CLIENTES</span>
@@ -93,27 +95,24 @@
         <button class="btn" onclick="entrar()">INGRESAR AL SISTEMA</button>
     </div>
 
-    <!-- SECCIÓN OPERADOR (CAPTURA) -->
+    <!-- PANTALLA 2: CAPTURA (OPERADOR) -->
     <div id="ui-app" class="card-compacta" style="display:none;">
         <h3 style="margin:0; color:var(--azul-corp);">Captura de Clientes</h3>
-        <span class="sub-plus">REGISTRO DIARIO DE MOVIMIENTOS</span>
+        <span class="sub-plus">REGISTRO DE OPERACIONES</span>
         
-        <input type="text" id="id-in" placeholder="INGRESE ID (101 o 102)" oninput="check()">
+        <input type="text" id="id-in" placeholder="INGRESE ID CLIENTE (101/102)" oninput="check()">
         
-        <!-- Aquí se mostrará la info del cliente -->
         <div id="cliente-box"></div>
         
         <select id="mov">
             <option>1) ENTRADA</option>
             <option>2) SALIDA</option>
             <option>3) DEVOLUCIÓN</option>
-            <option>4) REEMPLAZO</option>
         </select>
 
         <select id="prod">
             <option>PRODUCTO A</option>
             <option>PRODUCTO B</option>
-            <option>PRODUCTO C</option>
             <option>SERVICIOS</option>
         </select>
 
@@ -124,10 +123,10 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- SECCIÓN MONITOR (SUPERVISOR) -->
+    <!-- PANTALLA 3: MONITOR (SUPERVISOR) -->
     <div id="ui-supervisor" class="card-full">
         <span class="sub-plus">PANEL DE CONTROL LOGÍSTICO</span>
-        <div class="live-status"><div class="dot"></div> MONITOR EN TIEMPO REAL</div>
+        <div class="live-status"><div class="dot"></div> MONITOR EN VIVO</div>
         
         <div class="pildoras-horizontal">
             <div class="pildora"><h3>PENDIENTES</h3><p id="count-pendientes">00</p></div>
@@ -135,25 +134,25 @@
             <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>COMPLETADOS</h3><p id="count-despachadas">00</p></div>
         </div>
 
-        <div id="reloj" style="display:inline-block; margin-bottom:20px;">00:00:00</div>
+        <div id="reloj" style="display:inline-block; margin-bottom:10px;">00:00:00</div>
         <div id="fecha-actual" style="font-weight:bold; color:var(--gris-texto); margin-bottom:20px;">...</div>
 
-        <div style="background:#f9f9f9; padding:40px; border-radius:15px; color:#bbb; border:2px dashed #eee;">
-            GRÁFICA DE RENDIMIENTO
+        <div style="background:#f9f9f9; padding:30px; border-radius:15px; color:#bbb; border:2px dashed #eee;">
+            [ GRÁFICA DE RENDIMIENTO ]
         </div>
 
-        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
+        <button class="btn-salir" onclick="location.reload()">VOLVER AL PANEL</button>
     </div>
 
     <script>
-        // BASE DE DATOS DE CLIENTES
+        // BASE DE DATOS LOCAL
         const clientes = { 
             "101": { n: "JUAN PEREZ", t: "MISELANEA LUCERO", c: "MAYORISTA", p: "DPI2" }, 
             "102": { n: "PEDRO PICAPIEDRA", t: "TIENDA GABRIELA", c: "MINORISTA", p: "DPI1" } 
         };
 
-        // COLOQUE AQUÍ SU URL DE GOOGLE SHEETS (/exec)
-        const URL_SCRIPT = "TU_URL_AQUÍ"; 
+        // URL PARA CONECTAR A GOOGLE (VACÍA POR AHORA)
+        const URL_SCRIPT = ""; 
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
@@ -168,10 +167,9 @@
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj();
             }
-            else { alert("Acceso Incorrecto"); }
+            else { alert("Usuario o Contraseña incorrectos"); }
         }
 
-        // FUNCIÓN QUE BUSCA AL CLIENTE POR ID
         function check() {
             const idInput = document.getElementById('id-in').value.trim();
             const box = document.getElementById('cliente-box');
@@ -194,48 +192,31 @@
             setInterval(() => {
                 const ahora = new Date();
                 document.getElementById('reloj').innerText = ahora.toLocaleTimeString();
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             }, 1000);
         }
 
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
-            if(!clientes[id]) return alert("ID no válido");
+            if(!clientes[id]) return alert("❌ Por favor ingrese un ID válido");
             
             const btn = document.getElementById('btn-env');
-            btn.innerText = "REGISTRANDO..."; 
+            btn.innerText = "SIMULANDO ENVÍO..."; 
             btn.disabled = true;
 
-            const datos = {
-                id: id,
-                nombre: clientes[id].n,
-                negocio: clientes[id].t,
-                tipo: clientes[id].c,
-                doc: clientes[id].p,
-                mov: document.getElementById('mov').value,
-                prod: document.getElementById('prod').value,
-                ref1: document.getElementById('CicloTer').value,
-                ref2: document.getElementById('CicloEPQ').value,
-                timestamp: new Date().toLocaleString()
-            };
-
-            fetch(URL_SCRIPT, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: new URLSearchParams(datos)
-            }).then(() => {
-                alert("✅ DATOS GUARDADOS PARA: " + clientes[id].n);
+            // Simulación de guardado (mientras no hay URL)
+            setTimeout(() => {
+                alert("✅ DATOS PROCESADOS\nCliente: " + clientes[id].n + "\nEstado: En espera de URL real.");
+                
                 // Limpiar campos
                 document.getElementById('id-in').value = "";
                 document.getElementById('CicloTer').value = "";
                 document.getElementById('CicloEPQ').value = "";
                 document.getElementById('cliente-box').style.display = 'none';
-            }).catch(() => {
-                alert("Error de conexión con el servidor");
-            }).finally(() => {
+                
                 btn.innerText = "REGISTRAR DATOS 🚀";
                 btn.disabled = false;
-            });
+            }, 1500);
         }
     </script>
 </body>
