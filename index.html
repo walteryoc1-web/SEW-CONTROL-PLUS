@@ -100,14 +100,14 @@
         <h3 style="margin:0; color:var(--azul-corp);">Captura de Clientes</h3>
         <span class="sub-plus">REGISTRO DE OPERACIONES</span>
         
-        <input type="text" id="id-in" placeholder="INGRESE ID CLIENTE (101/102)" oninput="check()">
+        <input type="text" id="id-in" placeholder="INGRESE ID CLIENTE" oninput="check()">
         
         <div id="cliente-box"></div>
         
         <select id="mov">
-            <option>1) ENTRADA</option>
-            <option>2) SALIDA</option>
-            <option>3) DEVOLUCIÓN</option>
+            <option>ENTRADA</option>
+            <option>SALIDA</option>
+            <option>DEVOLUCIÓN</option>
         </select>
 
         <select id="prod">
@@ -125,13 +125,13 @@
 
     <!-- PANTALLA 3: MONITOR (SUPERVISOR) -->
     <div id="ui-supervisor" class="card-full">
-        <span class="sub-plus">PANEL DE CONTROL LOGÍSTICO</span>
+        <span class="sub-plus">PANEL DE CONTROL DE VENTAS</span>
         <div class="live-status"><div class="dot"></div> MONITOR EN VIVO</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora"><h3>PENDIENTES</h3><p id="count-pendientes">00</p></div>
-            <div class="pildora" style="border-bottom-color: var(--naranja);"><h3>EN PROCESO</h3><p id="count-proceso">00</p></div>
-            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>COMPLETADOS</h3><p id="count-despachadas">00</p></div>
+            <div class="pildora"><h3>PEDIDOS</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: var(--naranja);"><h3>DESPACHADO</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>PENDIENTE DE DESPACHO</h3><p id="count-despachadas">00</p></div>
         </div>
 
         <div id="reloj" style="display:inline-block; margin-bottom:10px;">00:00:00</div>
@@ -141,7 +141,7 @@
             [ GRÁFICA DE RENDIMIENTO ]
         </div>
 
-        <button class="btn-salir" onclick="location.reload()">VOLVER AL PANEL</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESION</button>
     </div>
 
     <script>
