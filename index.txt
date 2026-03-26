@@ -45,3 +45,131 @@
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESO</button>
     </div>
+
+    <div id="ui-app" class="card-compacta" style="display:none;">
+        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
+        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
+        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <div id="piloto-box"></div>
+        
+        <select id="mov">
+            <option>1) Arribo</option>
+            <option>2) Entrada</option>
+            <option>3) Control 1</option>
+            <option>4) Salida</option>
+        </select>
+
+        <select id="prod">
+            <option>SBM</option>
+            <option>YC (USA)</option>
+            <option>SBW (ARG)</option>
+            <option>YC (BR)</option>
+            <option>YC (ARG)</option>
+        </select>
+<div style="margin-top: 15px;">
+    <input type="text" id="CicloTer" placeholder="Ciclo Terpac" style="width: 100%; margin-bottom: 10px;">
+    
+    <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
+</div>        
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+    </div>
+
+    <div id="ui-supervisor" class="card-full">
+        <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
+        <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
+        
+        <div class="pildoras-horizontal">
+            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente Ingreso</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso Carga</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total Despachadas</h3><p id="count-despachadas">00</p></div>
+        </div>
+
+        <div class="reloj-container">
+            <div id="fecha-actual">Cargando...</div>
+            <div id="reloj">00:00:00</div>
+        </div>
+
+        <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
+
+        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
+    </div>
+
+    <script>
+        const pilotos = { "101": { n: "Carlos Hernandez", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-834BPT" }, 
+                        "102": { n: "Mynor Josue Guzman Rivera", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-826BZQ" } };
+        // URL ACTUALIZADA
+        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxYMpx1428fTz4g7esBgP5WLHFkm9kSZaIQjUFjDgGoMBMt5Emb1pSamzDOauCt7mE/exec';
+
+        function entrar() {
+            const user = document.getElementById('u').value.toLowerCase().trim();
+            const pass = document.getElementById('p').value;
+
+            if(user == "operador 1" && pass == "terpac1") {
+                document.getElementById('login').style.display='none'; 
+                document.getElementById('ui-app').style.display='block';
+            } 
+            else if(user == "supervisor 1" && pass == "terpac2") {
+                document.getElementById('login').style.display='none'; 
+                document.getElementById('ui-supervisor').style.display='block';
+                iniciarReloj();
+                actualizarPildoras();
+            }
+            else { alert("Acceso Incorrecto"); }
+        }
+
+        async function actualizarPildoras() {
+            try {
+                // Hacemos una petición GET al script para obtener los conteos
+                const response = await fetch(URL_SCRIPT);
+                const data = await response.json();
+                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
+                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
+                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
+            } catch (e) { console.log("Error cargando pildoras"); }
+        }
+
+        function iniciarReloj() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }, 1000);
+        }
+
+        function check() {
+            const id = document.getElementById('id-in').value.trim();
+            const box = document.getElementById('piloto-box');
+            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
+        }
+
+        function enviar() {
+            const id = document.getElementById('id-in').value.trim();
+            if(!pilotos[id]) return alert("ID no encontrado");
+            const btn = document.getElementById('btn-env');
+            btn.innerText = "Enviando..."; btn.disabled = true;
+
+            const mov = document.getElementById('mov').value;
+            const prod = document.getElementById('prod').value;
+            const cTer = document.getElementById('CicloTer').value;
+            const cEPQ = document.getElementById('CicloEPQ').value;
+            const textoFinal = `ID: ${id} | Piloto: ${pilotos[id].n} | Mov: ${mov} | Prod: ${prod} | Transp: ${pilotos[id].t} | Cliente: ${pilotos[id].c} | Placa: ${pilotos[id].p} | Ciclo Terpac: ${cTer} | Ciclo E.P.Q: ${cEPQ}`;
+
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: textoFinal
+            }).then(() => {
+                alert("✅ Registro Exitoso");
+                document.getElementById('id-in').value = "";
+                document.getElementById('piloto-box').style.display='none';
+            }).catch(() => {
+                alert("Error de envío");
+            }).finally(() => {
+                btn.innerText = "REGISTRAR DATOS 🚀";
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
