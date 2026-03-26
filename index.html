@@ -178,12 +178,19 @@
         }
 
         function check() {
-            const id = document.getElementById('id-in').value.trim();
-            const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { 
-                box.innerHTML = `👨‍✈️ <b>Piloto:</b> ${pilotos[id].n}<br>🚛 <b>Placa:</b> ${pilotos[id].p}`; 
-                box.style.display='block'; 
-            } else { box.style.display='none'; }
+    const idInput = document.getElementById('id-in').value.trim(); // Trim elimina espacios accidentales
+    const box = document.getElementById('piloto-box');
+    
+    // Verificamos si el ID existe en nuestro objeto de pilotos
+    if (pilotos[idInput]) { 
+        const p = pilotos[idInput];
+        box.innerHTML = `👨‍✈️ <b>Piloto:</b> ${p.n}<br>🚛 <b>Placa:</b> ${p.p}`; 
+        box.style.display = 'block'; // Esto lo hace visible
+    } else { 
+        box.style.display = 'none'; // Si no existe o está vacío, se oculta
+    }
+}
+
         }
 
         function iniciarReloj() {
