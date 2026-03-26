@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PORTAFOLIO SEW-CONTROL PLUS</title>
+    <title>SISTEMA TERPAC LTDA</title>
     <style>
-        :root { --verde: #53a0b5; --verde-oscuro: #339bb8; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
+        :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
         
         .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
@@ -39,148 +39,9 @@
 <body>
 
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--verde-oscuro); margin-top:0; margin-bottom:5px;">TERPAC USUARIO</h2>
-        <span class="sub-plus">SEW-CONTROL PLUS PORTAFOLIO</span>
+        <h2 style="color:var(--AZUL CLARO-); margin-top:0; margin-bottom:5px;">PORTAFOLIO</h2>
+        <span class="sub-plus">SEW-CONTROL PLUS</span>
         <input type="text" id="u" placeholder="Usuario">
         <input type="password" id="p" placeholder="Contraseña">
-        <button class="btn" onclick="entrar()">INGRESAR</button>
+        <button class="btn" onclick="entrar()">INGRESO</button>
     </div>
-
-    <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
-        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
-        <input type="text" id="id-in" placeholder="CODIGO" oninput="check()">
-        <div id="piloto-box"></div>
-        
-        <select id="mov">
-            <option>ENTRADA</option>
-            <option>EN PROCESO</option>
-            <option>TRAMITES</option>
-            <option>SALIDA</option>
-        </select>
-
-        <select id="prod">
-            <option>SBM</option>
-            <option>GALLETA</option>
-            <option>JUGO</option>
-            <option>DULCE</option>
-            <option>GASEOSAS</option>
-            <option>CEREALES</option>
-            <option>MERCERIA</option>
-        </select>
-<div style="margin-top: 15px;">
-    <input type="text" id="CicloTer" placeholder="PEDIDO" style="width: 100%; margin-bottom: 10px;">
-    
-    <input type="text" id="CicloEPQ" placeholder="ID DE CLIENTE" style="width: 100%;">
-</div>        
-        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR PEDIDO 🚀</button>
-        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
-    </div>
-
-    <div id="ui-supervisor" class="card-full">
-        <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
-        <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
-        
-        <div class="pildoras-horizontal">
-            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente Ingreso</h3><p id="count-pendientes">00</p></div>
-            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso Carga</h3><p id="count-proceso">00</p></div>
-            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total Despachadas</h3><p id="count-despachadas">00</p></div>
-        </div>
-
-        <div class="reloj-container">
-            <div id="fecha-actual">Cargando...</div>
-            <div id="reloj">00:00:00</div>
-        </div>
-
-        <div id="contenedor-grafica">TOTAL DE PEDIDOS O DESPACHOS</div>
-
-        <button class="btn-salir" onclick="location.reload()">SALIR</button>
-    </div>
-
-    <script>
-        const pilotos = { 
-  "01": { n: "JUAN PEREZ", t: "SANTA LUCIA", c: "MAYORISTA", p: "CLIENTE 1" }, 
-  "02": { n: "PEDRO GARCIA", t: "ESCUINTLA", c: "MINORISTA", p: "CLIENTE 2" } 
-};
-
-        // PEGAR AQUI URL
-        const URL_SCRIPT =
-
-        function entrar() {
-            const user = document.getElementById('u').value.toLowerCase().trim();
-            const pass = document.getElementById('p').value;
-
-                    if(user == "usuario 1" && pass == "walter") {
-                document.getElementById('login').style.display='none'; 
-                document.getElementById('ui-app').style.display='block';
-            } 
-                else if((user == "usuario 2" && pass == "walter") {
-                document.getElementById('login').style.display='none'; 
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj();
-                actualizarPildoras();
-
-            else if(user == "administrador" && pass == "yocalfaro") {
-                document.getElementById('login').style.display='none'; 
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj();
-                actualizarPildoras();
-            }
-            else { alert("Acceso Incorrecto"); }
-        }
-
-        async function actualizarPildoras() {
-            try {
-                // Hacemos una petición GET al script para obtener los conteos
-                const response = await fetch(URL_SCRIPT);
-                const data = await response.json();
-                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
-                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
-                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
-            } catch (e) { console.log("Error cargando pildoras"); }
-        }
-
-        function iniciarReloj() {
-            setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }, 1000);
-        }
-
-        function check() {
-            const id = document.getElementById('id-in').value.trim();
-            const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
-        }
-
-        function enviar() {
-            const id = document.getElementById('id-in').value.trim();
-            if(!pilotos[id]) return alert("ID no encontrado");
-            const btn = document.getElementById('btn-env');
-            btn.innerText = "Enviando..."; btn.disabled = true;
-
-            const mov = document.getElementById('mov').value;
-            const prod = document.getElementById('prod').value;
-            const cTer = document.getElementById('CicloTer').value;
-            const cEPQ = document.getElementById('CicloEPQ').value;
-            const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
-
-            fetch(URL_SCRIPT, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: textoFinal
-            }).then(() => {
-                alert("✅ Registro Exitoso");
-                document.getElementById('id-in').value = "";
-                document.getElementById('piloto-box').style.display='none';
-            }).catch(() => {
-                alert("Error de envío");
-            }).finally(() => {
-                btn.innerText = "REGISTRAR PEDIDO 🚀";
-                btn.disabled = false;
-            });
-        }
-    </script>
-</body>
-</html>
