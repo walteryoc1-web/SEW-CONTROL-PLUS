@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA TERPAC LTDA</title>
+    <title>SEW CONTROL PLUS</title>
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
@@ -12,77 +12,77 @@
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
         
         input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
+        .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; margin-top: 10px; }
         .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; font-size: 14px; width: 100%; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; max-width: 300px; }
         
-        #piloto-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; }
+        #piloto-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; font-size: 14px; line-height: 1.4; }
 
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; padding: 0 10px; }
-        .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 150px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
-        .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
-        .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
+        .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 120px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
+        .pildora h3 { font-size: 12px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
+        .pildora p { font-size: 30px; font-weight: bold; margin: 0; color: #222; }
         
-        .reloj-container { margin: 20px 0 10px 0; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        #reloj { font-size: 24px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 8px 20px; border-radius: 30px; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
-        #fecha-actual { font-size: 16px; color: #555; font-weight: bold; text-transform: capitalize; }
+        .reloj-container { margin: 20px 0; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        #reloj { font-size: 20px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 8px 15px; border-radius: 30px; }
+        #fecha-actual { font-size: 14px; color: #555; font-weight: bold; }
 
-        #contenedor-grafica { width: 100%; height: 350px; background: #fdfdfd; border: 2px solid #eee; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 18px; margin-top: 10px; }
+        #contenedor-grafica { width: 100%; height: 200px; background: #fdfdfd; border: 2px solid #eee; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #bbb; margin-top: 10px; }
 
-        .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 20px 0; }
+        .live-status { color: #2ecc71; font-size: 13px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 15px; }
         .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
-        /* Estilo para los nuevos subtitulos */
-        .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
+        .sub-plus { font-size: 11px; color: #888; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px; display: block; }
     </style>
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--AZUL CLARO-); margin-top:0; margin-bottom:5px;">PORTAFOLIO</h2>
+        <h2 style="color:#3498db; margin:0;">PORTAFOLIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS</span>
         <input type="text" id="u" placeholder="Usuario">
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESO</button>
     </div>
 
+    <!-- APP OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
+        <h3 style="margin:0; color:var(--verde-oscuro);">Captura Terpac</h3>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
-        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <input type="text" id="id-in" placeholder="ID PILOTO (101 o 102)" oninput="check()">
         <div id="piloto-box"></div>
         
         <select id="mov">
-            <option>1) Arribo</option>
-            <option>2) Entrada</option>
-            <option>3) Control 1</option>
-            <option>4) Salida</option>
+            <option>1) ENTRADA</option>
+            <option>2) GARITA 1</option>
+            <option>3) GARITA 2</option>
+            <option>4) GARITA 3</option>
         </select>
 
         <select id="prod">
             <option>SBM</option>
-            <option>YC (USA)</option>
-            <option>SBW (ARG)</option>
-            <option>YC (BR)</option>
-            <option>YC (ARG)</option>
+            <option>MAÍZ (USA)</option>
+            <option>TRIGO (ARG)</option>
+            <option>SOYA (BR)</option>
+            <option>SORGO (GUA)</option>
         </select>
-<div style="margin-top: 15px;">
-    <input type="text" id="CicloTer" placeholder="Ciclo Terpac" style="width: 100%; margin-bottom: 10px;">
-    
-    <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
-</div>        
+
+        <input type="text" id="CicloTer" placeholder="Ciclo Terpac">
+        <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
+        
         <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
+    <!-- MONITOR SUPERVISOR -->
     <div id="ui-supervisor" class="card-full">
-        <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
-        <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
+        <span class="sub-plus">SEW-CONTROL PLUS SC-MON-RT-01</span>
+        <div class="live-status"><div class="dot"></div> MONITOR TERPAC (EN VIVO)</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente Ingreso</h3><p id="count-pendientes">00</p></div>
-            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso Carga</h3><p id="count-proceso">00</p></div>
-            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total Despachadas</h3><p id="count-despachadas">00</p></div>
+            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: #3498db;"><h3>Proceso</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total</h3><p id="count-despachadas">00</p></div>
         </div>
 
         <div class="reloj-container">
@@ -90,26 +90,29 @@
             <div id="reloj">00:00:00</div>
         </div>
 
-        <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
-
+        <div id="contenedor-grafica">Área de Gráfica Logística</div>
         <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
     </div>
 
     <script>
-        const pilotos = { "101": { n: "Carlos Hernandez", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-834BPT" }, 
-                        "102": { n: "Mynor Josue Guzman Rivera", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-826BZQ" } };
-        // URL ACTUALIZADA
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxYMpx1428fTz4g7esBgP5WLHFkm9kSZaIQjUFjDgGoMBMt5Emb1pSamzDOauCt7mE/exec';
+        // BASE DE DATOS LOCAL
+        const pilotos = { 
+            "101": { n: "Carlos Hernandez", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-834BPT" }, 
+            "102": { n: "Mynor Josue Guzman Rivera", t: "Inter transportes", c: "Agribrands Purina Guatemala S.A", p: "C-826BZQ" } 
+        };
+
+        // REEMPLAZA ESTO CON TU URL DE GOOGLE APPS SCRIPT
+        const URL_SCRIPT = "TU_URL_DE_GOOGLE_AQUI"; 
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
             const pass = document.getElementById('p').value;
 
-            if(user == "operador 1" && pass == "terpac1") {
+            if(user === "operador 1" && pass === "terpac1") {
                 document.getElementById('login').style.display='none'; 
                 document.getElementById('ui-app').style.display='block';
             } 
-            else if(user == "supervisor 1" && pass == "terpac2") {
+            else if(user === "supervisor 1" && pass === "terpac2") {
                 document.getElementById('login').style.display='none'; 
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj();
@@ -118,9 +121,28 @@
             else { alert("Acceso Incorrecto"); }
         }
 
+        function check() {
+            const id = document.getElementById('id-in').value.trim();
+            const box = document.getElementById('piloto-box');
+            if(pilotos[id]) { 
+                box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; 
+                box.style.display='block'; 
+            } else { 
+                box.style.display='none'; 
+            }
+        }
+
+        function iniciarReloj() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('reloj').innerText = ahora.toLocaleTimeString();
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString();
+            }, 1000);
+        }
+
         async function actualizarPildoras() {
+            if(URL_SCRIPT === "TU_URL_DE_GOOGLE_AQUI") return;
             try {
-                // Hacemos una petición GET al script para obtener los conteos
                 const response = await fetch(URL_SCRIPT);
                 const data = await response.json();
                 document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
@@ -129,39 +151,38 @@
             } catch (e) { console.log("Error cargando pildoras"); }
         }
 
-        function iniciarReloj() {
-            setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }, 1000);
-        }
-
-        function check() {
-            const id = document.getElementById('id-in').value.trim();
-            const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
-        }
-
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
             if(!pilotos[id]) return alert("ID no encontrado");
+            
             const btn = document.getElementById('btn-env');
-            btn.innerText = "Enviando..."; btn.disabled = true;
+            btn.innerText = "Enviando..."; 
+            btn.disabled = true;
 
-            const mov = document.getElementById('mov').value;
-            const prod = document.getElementById('prod').value;
-            const cTer = document.getElementById('CicloTer').value;
-            const cEPQ = document.getElementById('CicloEPQ').value;
-            const textoFinal = `ID: ${id} | Piloto: ${pilotos[id].n} | Mov: ${mov} | Prod: ${prod} | Transp: ${pilotos[id].t} | Cliente: ${pilotos[id].c} | Placa: ${pilotos[id].p} | Ciclo Terpac: ${cTer} | Ciclo E.P.Q: ${cEPQ}`;
+            const datos = {
+                id: id,
+                piloto: pilotos[id].n,
+                mov: document.getElementById('mov').value,
+                prod: document.getElementById('prod').value,
+                transp: pilotos[id].t,
+                cliente: pilotos[id].c,
+                placa: pilotos[id].p,
+                cTer: document.getElementById('CicloTer').value,
+                cEPQ: document.getElementById('CicloEPQ').value
+            };
+
+            // Convertir a formato que Google Sheets entiende fácilmente
+            const cuerpo = new URLSearchParams(datos);
 
             fetch(URL_SCRIPT, {
                 method: 'POST',
                 mode: 'no-cors',
-                body: textoFinal
+                body: cuerpo
             }).then(() => {
                 alert("✅ Registro Exitoso");
                 document.getElementById('id-in').value = "";
+                document.getElementById('CicloTer').value = "";
+                document.getElementById('CicloEPQ').value = "";
                 document.getElementById('piloto-box').style.display='none';
             }).catch(() => {
                 alert("Error de envío");
