@@ -221,24 +221,25 @@
         }
 
         function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
-            const btn = document.getElementById('btn-env');
-            const nom = clientes[id].n;
-            const urlFinal = `${URL_SCRIPT}?id=${id}&nombre=${nom}&mov=${mov}&prod=${prod}&placa=${placa}&ref=${ref}&lat=${lat}&lng=${lng}`;
+    const btn = document.getElementById('btn-env');
+    const nom = clientes[id].n;
+    
+    // USÁ ESTA LÍNEA EXACTA (Copiá y pegá)
+    const urlFinal = URL_SCRIPT + "?id=" + id + "&nombre=" + nom + "&mov=" + mov + "&prod=" + prod + "&placa=" + placa + "&ref=" + ref + "&lat=" + lat + "&lng=" + lng;
 
-            fetch(urlFinal)
-            .then(() => {
-                alert(`✅ REGISTRO ENVIADO\nPiloto: ${nom}\nEstado: ${mov}`);
-                limpiar();
-            })
-            .catch(err => {
-                alert("❌ Error de Conexión (Sin Datos).");
-            })
-            .finally(() => {
-                btn.innerText = "REGISTRAR MOVIMIENTO 🚀";
-                btn.disabled = false;
-            });
-        }
-
+    fetch(urlFinal, { mode: 'no-cors' }) // El 'no-cors' ayuda a que el cel no se ponga necio con la seguridad
+    .then(() => {
+        alert("✅ REGISTRO ENVIADO A LA NUBE");
+        limpiar();
+    })
+    .catch(err => {
+        alert("❌ Error de Conexión en la App.");
+    })
+    .finally(() => {
+        btn.innerText = "REGISTRAR MOVIMIENTO 🚀";
+        btn.disabled = false;
+    });
+}
         function limpiar() {
             document.getElementById('id-in').value = "";
             document.getElementById('CicloTer').value = "";
