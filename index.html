@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SEW CONTROL PLUS - CLIENTES</title>
+    <title>SEW CONTROL PLUS - CLIENTES (MOD GPS)</title>
     <style>
         :root { 
             --azul-corp: #2c3e50; 
@@ -33,7 +33,6 @@
         h2 { color: var(--azul-corp); margin: 0; font-size: 22px; letter-spacing: 1px; }
         .sub-plus { font-size: 11px; color: var(--gris-texto); font-weight: bold; letter-spacing: 1.5px; margin-bottom: 20px; display: block; text-transform: uppercase; }
 
-        /* Campos de Entrada */
         input, select { 
             width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; 
             border: 2px solid #eee; font-size: 16px; box-sizing: border-box; 
@@ -41,7 +40,6 @@
         }
         input:focus { border-color: var(--azul-brillante); outline: none; background: white; }
         
-        /* Botones Naranjas */
         .btn { 
             background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro)); 
             border: none; padding: 18px; width: 100%; border-radius: 12px; 
@@ -52,7 +50,6 @@
         .btn:active { transform: scale(0.97); }
         .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
 
-        /* Botón de Salida Rojo */
         .btn-salir { 
             background: #fff; color: var(--rojo-error); border: 2px solid var(--rojo-error);
             margin-top: 25px; padding: 12px; width: 100%; border-radius: 12px; 
@@ -60,7 +57,6 @@
         }
         .btn-salir:hover { background: var(--rojo-error); color: white; }
         
-        /* Cuadro Info Cliente */
         #cliente-box { 
             font-weight: bold; color: var(--azul-corp); margin: 10px 0; 
             display: none; padding: 15px; background: var(--celeste-fondo); 
@@ -68,7 +64,6 @@
             text-align: left; font-size: 14px; line-height: 1.5;
         }
 
-        /* Monitor de Supervisor */
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .pildora { 
             background: white; padding: 15px 5px; border-radius: 15px; flex: 1; 
@@ -97,48 +92,49 @@
 
     <!-- PANTALLA 2: CAPTURA (OPERADOR) -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="margin:0; color:var(--azul-corp);">Captura de Clientes</h3>
-        <span class="sub-plus">REGISTRO DE OPERACIONES</span>
+        <h3 style="margin:0; color:var(--azul-corp);">Captura de Viajes</h3>
+        <span class="sub-plus">CONTROL DE DISTRIBUCIÓN</span>
         
-        <input type="text" id="id-in" placeholder="INGRESE ID CLIENTE" oninput="check()">
+        <input type="text" id="id-in" placeholder="INGRESE ID PILOTO/CLIENTE" oninput="check()">
         
         <div id="cliente-box"></div>
         
         <select id="mov">
-            <option>ENTRADA</option>
-            <option>SALIDA</option>
-            <option>DEVOLUCIÓN</option>
+            <option>INICIO DE VIAJE</option>
+            <option>LLEGADA A CLIENTE</option>
+            <option>FINALIZAR DESCARGA</option>
+            <option>REGRESO A PLANTA</option>
         </select>
 
         <select id="prod">
-            <option>PRODUCTO A</option>
-            <option>PRODUCTO B</option>
-            <option>SERVICIOS</option>
+            <option>SBM - Harina de Soya</option>
+            <option>MAIZ - Amarillo</option>
+            <option>SERVICIOS / OTROS</option>
         </select>
 
-        <input type="text" id="CicloTer" placeholder="Referencia Interna">
-        <input type="text" id="CicloEPQ" placeholder="Referencia Externa">
+        <input type="text" id="CicloTer" placeholder="Placa de Vehículo">
+        <input type="text" id="CicloEPQ" placeholder="Referencia de Carga">
         
-        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR MOVIMIENTO 🚀</button>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
     <!-- PANTALLA 3: MONITOR (SUPERVISOR) -->
     <div id="ui-supervisor" class="card-full">
-        <span class="sub-plus">PANEL DE CONTROL DE VENTAS</span>
+        <span class="sub-plus">PANEL DE CONTROL DE LOGÍSTICA</span>
         <div class="live-status"><div class="dot"></div> MONITOR EN VIVO</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora"><h3>PEDIDOS</h3><p id="count-pendientes">00</p></div>
-            <div class="pildora" style="border-bottom-color: var(--naranja);"><h3>DESPACHADO</h3><p id="count-proceso">00</p></div>
-            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>PENDIENTE DE DESPACHO</h3><p id="count-despachadas">00</p></div>
+            <div class="pildora"><h3>VIAJES</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: var(--naranja);"><h3>EN RUTA</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>ENTREGADOS</h3><p id="count-despachadas">00</p></div>
         </div>
 
         <div id="reloj" style="display:inline-block; margin-bottom:10px;">00:00:00</div>
         <div id="fecha-actual" style="font-weight:bold; color:var(--gris-texto); margin-bottom:20px;">...</div>
 
         <div style="background:#f9f9f9; padding:30px; border-radius:15px; color:#bbb; border:2px dashed #eee;">
-            [ GRÁFICA DE RENDIMIENTO ]
+            [ VISUALIZACIÓN GPS EN DESARROLLO ]
         </div>
 
         <button class="btn-salir" onclick="location.reload()">CERRAR SESION</button>
@@ -148,11 +144,12 @@
         // BASE DE DATOS LOCAL
         const clientes = { 
             "101": { n: "JUAN PEREZ", t: "MISELANEA LUCERO", c: "MAYORISTA", p: "DPI2" }, 
-            "102": { n: "PEDRO PICAPIEDRA", t: "TIENDA GABRIELA", c: "MINORISTA", p: "DPI1" } 
+            "102": { n: "PEDRO PICAPIEDRA", t: "TIENDA GABRIELA", c: "MINORISTA", p: "DPI1" },
+            "117": { n: "REGINALDO GARCIA", t: "TRANSPORTE PESADO", c: "PILOTO", p: "GPS-LIVE" }
         };
 
-        // URL PARA CONECTAR A GOOGLE (VACÍA POR AHORA)
-        const URL_SCRIPT = ""; 
+        // --- REEMPLAZA ESTO CON TU URL DE GOOGLE APPS SCRIPT ---
+        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzlQOXIFz9DcAobNiWyLVKJqrXi2bPwAO3qzABG4PKzTAXrNo5lrVfyS6QWM2I9aGaY/exec"; 
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
@@ -179,8 +176,7 @@
                 box.innerHTML = `
                     👤 <b>Nombre:</b> ${cli.n}<br>
                     🏪 <b>Negocio:</b> ${cli.t}<br>
-                    🏷️ <b>Categoría:</b> ${cli.c}<br>
-                    🆔 <b>Documento:</b> ${cli.p}
+                    🏷️ <b>Categoría:</b> ${cli.c}
                 `; 
                 box.style.display = 'block'; 
             } else { 
@@ -198,25 +194,56 @@
 
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
+            const mov = document.getElementById('mov').value;
+            const prod = document.getElementById('prod').value;
+            const placa = document.getElementById('CicloTer').value;
+            const ref = document.getElementById('CicloEPQ').value;
+            const btn = document.getElementById('btn-env');
+
             if(!clientes[id]) return alert("❌ Por favor ingrese un ID válido");
             
-            const btn = document.getElementById('btn-env');
-            btn.innerText = "SIMULANDO ENVÍO..."; 
+            btn.innerText = "CAPTURANDO GPS..."; 
             btn.disabled = true;
 
-            // Simulación de guardado (mientras no hay URL)
-            setTimeout(() => {
-                alert("✅ DATOS PROCESADOS\nCliente: " + clientes[id].n + "\nEstado: En espera de URL real.");
-                
-                // Limpiar campos
-                document.getElementById('id-in').value = "";
-                document.getElementById('CicloTer').value = "";
-                document.getElementById('CicloEPQ').value = "";
-                document.getElementById('cliente-box').style.display = 'none';
-                
-                btn.innerText = "REGISTRAR DATOS 🚀";
+            // CAPTURA DE GPS REAL
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { enviarFinal(id, mov, prod, placa, ref, pos.coords.latitude, pos.coords.longitude); },
+                    (err) => { 
+                        alert("⚠️ GPS no disponible (Sin Datos). Enviando con 0,0");
+                        enviarFinal(id, mov, prod, placa, ref, "0", "0"); 
+                    },
+                    { timeout: 5000 }
+                );
+            } else {
+                enviarFinal(id, mov, prod, placa, ref, "No soportado", "No soportado");
+            }
+        }
+
+        function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
+            const btn = document.getElementById('btn-env');
+            const nom = clientes[id].n;
+            const urlFinal = `${URL_SCRIPT}?id=${id}&nombre=${nom}&mov=${mov}&prod=${prod}&placa=${placa}&ref=${ref}&lat=${lat}&lng=${lng}`;
+
+            fetch(urlFinal)
+            .then(() => {
+                alert(`✅ REGISTRO ENVIADO\nPiloto: ${nom}\nEstado: ${mov}`);
+                limpiar();
+            })
+            .catch(err => {
+                alert("❌ Error de Conexión (Sin Datos).");
+            })
+            .finally(() => {
+                btn.innerText = "REGISTRAR MOVIMIENTO 🚀";
                 btn.disabled = false;
-            }, 1500);
+            });
+        }
+
+        function limpiar() {
+            document.getElementById('id-in').value = "";
+            document.getElementById('CicloTer').value = "";
+            document.getElementById('CicloEPQ').value = "";
+            document.getElementById('cliente-box').style.display = 'none';
         }
     </script>
 </body>
