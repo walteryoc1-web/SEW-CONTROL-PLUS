@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SEW CONTROL PLUS - CLIENTES MOD GPS)</title>
+    <title>SEW CONTROL PLUS - CLIENTES (SISTEMA GPS)</title>
     <style>
         :root { 
             --azul-corp: #2c3e50; 
@@ -33,6 +33,7 @@
         h2 { color: var(--azul-corp); margin: 0; font-size: 22px; letter-spacing: 1px; }
         .sub-plus { font-size: 11px; color: var(--gris-texto); font-weight: bold; letter-spacing: 1.5px; margin-bottom: 20px; display: block; text-transform: uppercase; }
 
+        /* Campos de Entrada */
         input, select { 
             width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; 
             border: 2px solid #eee; font-size: 16px; box-sizing: border-box; 
@@ -40,6 +41,7 @@
         }
         input:focus { border-color: var(--azul-brillante); outline: none; background: white; }
         
+        /* Botones Naranjas */
         .btn { 
             background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro)); 
             border: none; padding: 18px; width: 100%; border-radius: 12px; 
@@ -50,6 +52,7 @@
         .btn:active { transform: scale(0.97); }
         .btn:disabled { background: #ccc; cursor: not-allowed; opacity: 0.7; }
 
+        /* Botón de Salida Rojo */
         .btn-salir { 
             background: #fff; color: var(--rojo-error); border: 2px solid var(--rojo-error);
             margin-top: 25px; padding: 12px; width: 100%; border-radius: 12px; 
@@ -57,6 +60,7 @@
         }
         .btn-salir:hover { background: var(--rojo-error); color: white; }
         
+        /* Cuadro Info Cliente */
         #cliente-box { 
             font-weight: bold; color: var(--azul-corp); margin: 10px 0; 
             display: none; padding: 15px; background: var(--celeste-fondo); 
@@ -64,6 +68,7 @@
             text-align: left; font-size: 14px; line-height: 1.5;
         }
 
+        /* Monitor de Supervisor */
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
         .pildora { 
             background: white; padding: 15px 5px; border-radius: 15px; flex: 1; 
@@ -92,10 +97,10 @@
 
     <!-- PANTALLA 2: CAPTURA (OPERADOR) -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="margin:0; color:var(--azul-corp);">Captura de Viajes</h3>
-        <span class="sub-plus">CONTROL DE DISTRIBUCIÓN</span>
+        <h3 style="margin:0; color:var(--azul-corp);">Captura de Clientes</h3>
+        <span class="sub-plus">REGISTRO DE OPERACIONES</span>
         
-        <input type="text" id="id-in" placeholder="INGRESE ID PILOTO/CLIENTE" oninput="check()">
+        <input type="text" id="id-in" placeholder="INGRESE ID CLIENTE" oninput="check()">
         
         <div id="cliente-box"></div>
         
@@ -112,16 +117,16 @@
             <option>SERVICIOS / OTROS</option>
         </select>
 
-        <input type="text" id="CicloTer" placeholder="Placa de Vehículo">
-        <input type="text" id="CicloEPQ" placeholder="Referencia de Carga">
+        <input type="text" id="CicloTer" placeholder="Placa Vehículo">
+        <input type="text" id="CicloEPQ" placeholder="Referencia Interna">
         
-        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR MOVIMIENTO 🚀</button>
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
     <!-- PANTALLA 3: MONITOR (SUPERVISOR) -->
     <div id="ui-supervisor" class="card-full">
-        <span class="sub-plus">PANEL DE CONTROL DE LOGÍSTICA</span>
+        <span class="sub-plus">PANEL DE CONTROL DE VENTAS</span>
         <div class="live-status"><div class="dot"></div> MONITOR EN VIVO</div>
         
         <div class="pildoras-horizontal">
@@ -134,7 +139,7 @@
         <div id="fecha-actual" style="font-weight:bold; color:var(--gris-texto); margin-bottom:20px;">...</div>
 
         <div style="background:#f9f9f9; padding:30px; border-radius:15px; color:#bbb; border:2px dashed #eee;">
-            [ VISUALIZACIÓN GPS EN DESARROLLO ]
+            [ GRÁFICA DE RENDIMIENTO ]
         </div>
 
         <button class="btn-salir" onclick="location.reload()">CERRAR SESION</button>
@@ -148,7 +153,7 @@
             "117": { n: "REGINALDO GARCIA", t: "TRANSPORTE PESADO", c: "PILOTO", p: "GPS-LIVE" }
         };
 
-        // --- REEMPLAZA ESTO CON TU URL DE GOOGLE APPS SCRIPT ---
+        // --- TU LLAVE DE GOOGLE ---
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzlQOXIFz9DcAobNiWyLVKJqrXi2bPwAO3qzABG4PKzTAXrNo5lrVfyS6QWM2I9aGaY/exec"; 
 
         function entrar() {
@@ -201,6 +206,7 @@
             const btn = document.getElementById('btn-env');
 
             if(!clientes[id]) return alert("❌ Por favor ingrese un ID válido");
+            if(!placa) return alert("❌ Ingrese la placa del vehículo");
             
             btn.innerText = "CAPTURANDO GPS..."; 
             btn.disabled = true;
@@ -210,7 +216,7 @@
                 navigator.geolocation.getCurrentPosition(
                     (pos) => { enviarFinal(id, mov, prod, placa, ref, pos.coords.latitude, pos.coords.longitude); },
                     (err) => { 
-                        alert("⚠️ GPS no disponible (Sin Datos). Enviando con 0,0");
+                        alert("⚠️ GPS no disponible. Enviando con coordenadas 0,0.");
                         enviarFinal(id, mov, prod, placa, ref, "0", "0"); 
                     },
                     { timeout: 5000 }
@@ -219,27 +225,30 @@
                 enviarFinal(id, mov, prod, placa, ref, "No soportado", "No soportado");
             }
         }
-        
-        function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
-    const btn = document.getElementById('btn-env');
-    const nom = clientes[id].n;
-    
-    // USÁ ESTA LÍNEA EXACTA (Copiá y pegá)
-    const urlFinal = URL_SCRIPT + "?id=" + id + "&nombre=" + nom + "&mov=" + mov + "&prod=" + prod + "&placa=" + placa + "&ref=" + ref + "&lat=" + lat + "&lng=" + lng;
 
-    fetch(urlFinal, { mode: 'no-cors' }) // El 'no-cors' ayuda a que el cel no se ponga necio con la seguridad
-    .then(() => {
-        alert("✅ REGISTRO ENVIADO A LA NUBE");
-        limpiar();
-    })
-    .catch(err => {
-        alert("❌ Error de Conexión en la App.");
-    })
-    .finally(() => {
-        btn.innerText = "REGISTRAR MOVIMIENTO 🚀";
-        btn.disabled = false;
-    });
-}
+        function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
+            const btn = document.getElementById('btn-env');
+            const nom = clientes[id].n;
+            
+            // Construcción robusta de la URL
+            const urlLimpia = URL_SCRIPT.trim();
+            const params = `?id=${encodeURIComponent(id)}&nombre=${encodeURIComponent(nom)}&mov=${encodeURIComponent(mov)}&prod=${encodeURIComponent(prod)}&placa=${encodeURIComponent(placa)}&ref=${encodeURIComponent(ref)}&lat=${lat}&lng=${lng}`;
+
+            fetch(urlLimpia + params, { mode: 'no-cors' })
+            .then(() => {
+                alert(`✅ REGISTRO ENVIADO\nPiloto: ${nom}\nEstado: ${mov}`);
+                limpiar();
+            })
+            .catch(err => {
+                alert("❌ Error de Red. Verifique sus datos móviles.");
+                console.error(err);
+            })
+            .finally(() => {
+                btn.innerText = "REGISTRAR DATOS 🚀";
+                btn.disabled = false;
+            });
+        }
+
         function limpiar() {
             document.getElementById('id-in').value = "";
             document.getElementById('CicloTer').value = "";
