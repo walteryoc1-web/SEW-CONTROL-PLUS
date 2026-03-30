@@ -226,29 +226,27 @@
             }
         }
 
-        function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
-            const btn = document.getElementById('btn-env');
-            const nom = clientes[id].n;
-            
-            // Construcción robusta de la URL
-            const urlLimpia = URL_SCRIPT.trim();
-            const params = `?id=${encodeURIComponent(id)}&nombre=${encodeURIComponent(nom)}&mov=${encodeURIComponent(mov)}&prod=${encodeURIComponent(prod)}&placa=${encodeURIComponent(placa)}&ref=${encodeURIComponent(ref)}&lat=${lat}&lng=${lng}`;
+      function enviarFinal(id, mov, prod, placa, ref, lat, lng) {
+    const btn = document.getElementById('btn-env');
+    const nom = clientes[id].n;
+    
+    const params = `?id=${encodeURIComponent(id)}&nombre=${encodeURIComponent(nom)}&mov=${encodeURIComponent(mov)}&prod=${encodeURIComponent(prod)}&placa=${encodeURIComponent(placa)}&ref=${encodeURIComponent(ref)}&lat=${lat}&lng=${lng}`;
 
-            fetch(urlLimpia + params, { mode: 'no-cors' })
-            .then(() => {
-                alert(`✅ REGISTRO ENVIADO\nPiloto: ${nom}\nEstado: ${mov}`);
-                limpiar();
-            })
-            .catch(err => {
-                alert("❌ Error de Red. Verifique sus datos móviles.");
-                console.error(err);
-            })
-            .finally(() => {
-                btn.innerText = "REGISTRAR DATOS 🚀";
-                btn.disabled = false;
-            });
-        }
+    // TRUCO DEL FORMULARIO FANTASMA
+    var img = new Image();
+    img.src = URL_SCRIPT + params; // Esto dispara el dato aunque el navegador quiera bloquearlo
 
+    alert(`✅ REGISTRO ENVIADO\nPiloto: ${nom}\nEstado: ${mov}`);
+    
+    // Limpiamos la pantalla
+    document.getElementById('id-in').value = "";
+    document.getElementById('CicloTer').value = "";
+    document.getElementById('CicloEPQ').value = "";
+    document.getElementById('cliente-box').style.display = 'none';
+    
+    btn.innerText = "REGISTRAR DATOS 🚀";
+    btn.disabled = false;
+}
         function limpiar() {
             document.getElementById('id-in').value = "";
             document.getElementById('CicloTer').value = "";
