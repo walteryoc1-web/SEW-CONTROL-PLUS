@@ -86,7 +86,7 @@
         <button class="btn" style="background:#eee; color:#333; max-width:200px;" onclick="location.reload()">CERRAR MONITOR</button>
     </div>
 
-    <script>
+            <script>
         // URL DEL CLON
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzlQOXIFz9DcAobNiWyLVKJqrXi2bPwAO3qzABG4PKzTAXrNo5lrVfyS6QWM2I9aGaY/exec"; 
         
@@ -112,7 +112,10 @@
         }
 
         function iniciarReloj() {
-            setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000);
+            setInterval(() => { 
+                const relojObj = document.getElementById('reloj');
+                if(relojObj) relojObj.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
         }
 
         function capturarYEnviar() {
@@ -125,7 +128,10 @@
 
             navigator.geolocation.getCurrentPosition(
                 (pos) => { enviarASheets(id, pos.coords.latitude, pos.coords.longitude); },
-                () => { alert("GPS no disponible"); enviarASheets(id, 0, 0); }
+                () => { 
+                    alert("GPS no disponible"); 
+                    enviarASheets(id, 0, 0); 
+                }
             );
         }
 
@@ -143,44 +149,43 @@
         }
 
         function iniciarMapa() {
-            mapaMonitor = L.map('mapa-monitor').setView([14.15, -90.75], 9);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaMonitor);
-            L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
+            if (!mapaMonitor) {
+                mapaMonitor = L.map('mapa-monitor').setView([14.15, -90.75], 9);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaMonitor);
+                L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
+            }
         }
 
-      async function descargarCSV() {
-    const inicio = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
-    if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
+        async function descargarCSV() {
+            const inicio = document.getElementById('f-inicio').value;
+            const fin = document.getElementById('f-fin').value;
+            if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
 
-    try {
-        // Agregamos un timestamp (?t=...) para obligar a traer datos frescos
-        const response = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
-        const data = await response.json();
-        
-        // Vaciamos y filtramos
-        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-        
-        if(filtrados.length === 0) return alert("No hay datos para esas fechas en el clon.");
+            try {
+                const response = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
+                const data = await response.json();
+                
+                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+                
+                if(filtrados.length === 0) return alert("No hay datos para esas fechas en el clon.");
 
-        // Reiniciamos el contenido del CSV desde cero
-        let csvContent = "FECHA,HORA,ID;NOMBRE;MOV;PROD;PLACA;REF;LAT;LNG\n";
-        
-        filtrados.forEach(r => { 
-            csvContent += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
-        });
+                let csvContent = "FECHA,HORA,ID;NOMBRE;MOV;PROD;PLACA;REF;LAT;LNG\n";
+                
+                filtrados.forEach(r => { 
+                    csvContent += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
+                });
 
-        // Generamos el archivo con un nombre único para evitar que se confunda con el anterior
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `Reporte_Clon_${inicio}_${new Date().getTime()}.csv`);
-        link.click();
-        
-        console.log("Reporte generado con " + filtrados.length + " filas.");
-    } catch (e) { 
-        alert("Error al bajar reporte del clon. Revisá tu conexión."); 
-    }
-}
-    </body>
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", `Reporte_Clon_${inicio}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) { 
+                alert("Error al bajar reporte del clon."); 
+            }
+        }
+    </script>
+</body>
 </html>
