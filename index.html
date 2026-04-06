@@ -3,188 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SEW CONTROL PLUS - CLON PROFESIONAL</title>
-    
-    <!-- LIBRERÍA DEL MAPA -->
-    <link rel="stylesheet" href="https://unpkg.com" />
-    <script src="https://unpkg.com"></script>
-
+    <title>SISTEMA TERPAC LTDA CLON</title>
     <style>
-        :root { 
-            --azul-corp: #2c3e50; --azul-brillante: #3498db; 
-            --naranja: #f39c12; --naranja-oscuro: #d35400;
-            --rojo: #e74c3c; --gris: #7f8c8d;
-        }
+        :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
+        body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
         
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 0; margin: 0; text-align: center; }
-        
-        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 95%; max-width: 400px; margin: 30px auto; border-top: 8px solid var(--azul-brillante); box-sizing: border-box; }
-        .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; display: none; box-sizing: border-box; }
+        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
+        .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
         
         input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        .btn { background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro)); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; margin-top: 10px; }
+        .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
+        .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; font-size: 14px; width: 100%; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; max-width: 300px; }
         
-        .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 15px; }
-        .pildora { background: #fff; padding: 10px; border-radius: 12px; flex: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-bottom: 5px solid var(--azul-brillante); }
-        .pildora h3 { font-size: 10px; color: var(--gris); margin: 0; text-transform: uppercase; }
-        .pildora p { font-size: 22px; font-weight: bold; margin: 5px 0 0 0; color: var(--azul-corp); }
-        
-        #mapa-monitor { width: 100%; height: 350px; border-radius: 15px; margin: 15px 0; border: 2px solid var(--azul-brillante); z-index: 1; background: #eee; }
-        
-        .live-status { color: var(--naranja); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
-        .dot { width: 10px; height: 10px; background: var(--naranja); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        #reloj { font-weight: bold; color: var(--azul-corp); margin-bottom: 10px; display: block; font-size: 20px; }
+        #piloto-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; }
 
-        .box-descarga { background: #f9f9f9; padding: 15px; border-radius: 15px; border: 1px dashed #ccc; margin-bottom: 15px; }
-        .input-f { width: 48% !important; display: inline-block !important; padding: 10px !important; margin: 5px 1% !important; font-size: 14px !important; }
+        .pildoras-horizontal { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; padding: 0 10px; }
+        .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 150px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
+        .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
+        .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
+        
+       .reloj-container { 
+    margin: 20px 0; 
+    display: flex; 
+    flex-direction: column; /* Pone uno abajo del otro */
+    align-items: flex-start; /* Alinea a la izquierda */
+    padding: 0 25px; 
+}
+
+#reloj { 
+    font-size: 22px; 
+    font-weight: bold; 
+    color: white; 
+    background: var(--azul-reloj); 
+    padding: 5px 15px; 
+    border-radius: 15px; 
+    margin-top: 5px; /* Separa un poco de la fecha */
+}
+
+#fecha-actual { 
+    font-size: 14px; 
+    color: #555; 
+    font-weight: bold; 
+}
+
+
+        #contenedor-grafica { width: 100%; height: 350px; background: #fdfdfd; border: 2px solid #eee; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 18px; margin-top: 10px; }
+
+        .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 5px 0; }
+        .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
+
+        /* ESTILO PARA DESCARGA */
+        .box-descarga { 
+    background: #eee; 
+    padding: 10px 15px; 
+    border-radius: 15px; 
+    margin: 5px 25px 15px auto; /* La empuja a la derecha */
+    max-width: 500px; /* Aumentamos un poco para que quepa la fila */
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* CONTENEDOR PARA ALINEAR EN FILA */
+.fila-descarga {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Espacio entre calendarios y botón */
+    margin-top: 10px;
+}
+
+.input-fecha { 
+    width: 130px !important; 
+    padding: 8px !important; 
+    margin: 0 !important; 
+    font-size: 12px !important;
+}
+
+.btn-csv { 
+    background: #27ae60; 
+    color: white; 
+    border: none; 
+    padding: 10px 15px; 
+    border-radius: 10px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    width: auto; 
+    margin: 0 !important; /* Quitamos márgenes para que no salte de línea */
+    font-size: 12px;
+    white-space: nowrap; /* Evita que el texto del botón se parta */
+}
+
+.input-fecha { 
+    width: 120px !important; /* Más pequeños para que quepan en la tarjeta */
+    display: inline-block !important; 
+    padding: 8px !important; 
+    margin: 5px !important; 
+    font-size: 12px !important;
+}
+
+.btn-csv { 
+    background: #27ae60; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 10px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    width: auto; 
+    margin-top: 10px; 
+    font-size: 13px;
+ }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN -->
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--azul-corp); margin:0;">SEW CONTROL</h2>
-        <p style="font-size:12px; color:var(--gris);">SISTEMA DE GESTIÓN CLON</p>
+        <h2 style="color:var(--verde-oscuro); margin-top:0; margin-bottom:5px;">TERPAC USUARIO</h2>
+        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
         <input type="text" id="u" placeholder="Usuario">
         <input type="password" id="p" placeholder="Contraseña">
-        <button class="btn" onclick="entrar()">INGRESAR AL SISTEMA</button>
+        <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
 
-    <!-- PANTALLA OPERADOR -->
-    <div id="ui-operador" class="card-compacta" style="display:none;">
-        <h3 style="margin:0;">REGISTRO DE PILOTOS</h3>
-        <input type="text" id="id-in" placeholder="ID PILOTO">
+    <div id="ui-app" class="card-compacta" style="display:none;">
+        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
+        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
+        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <div id="piloto-box"></div>
+        
         <select id="mov">
-            <option>INICIO DE VIAJE</option>
-            <option>LLEGADA A DESTINO</option>
-            <option>REGRESO A PLANTA</option>
+            <option>Arribo</option>
+            <option>Entrada</option>
+            <option>Control 1</option>
+            <option>Salida</option>
         </select>
-        <input type="text" id="placa" placeholder="PLACA DEL VEHÍCULO">
-        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR MOVIMIENTO 🚀</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--rojo); cursor:pointer; margin-top:15px; font-weight:bold;">Cerrar Sesión</button>
+
+        <select id="prod">
+            <option>SBM</option>
+            <option>YC (USA)</option>
+            <option>SBW (ARG)</option>
+            <option>YC (BR)</option>
+            <option>YC (ARG)</option>
+            <option>SRW</option>
+            <option>DDGS</option>
+        </select>
+        <div style="margin-top: 15px;">
+            <input type="text" id="CicloTer" placeholder="Ciclo Terpac" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
+        </div>        
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- PANTALLA SUPERVISOR -->
     <div id="ui-supervisor" class="card-full">
-        <h3 style="margin:0;">CENTRO DE MONITOREO</h3>
-        <div class="live-status"><div class="dot"></div> RADAR SATELITAL ACTIVO</div>
+        <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
+        <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora"><h3>FLOTA</h3><p id="total-v">00</p></div>
-            <div class="pildora" style="border-color:var(--naranja)"><h3>EN RUTA</h3><p id="en-ruta-v">00</p></div>
+            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente Ingreso</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso Carga</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total Despachadas</h3><p id="count-despachadas">00</p></div>
         </div>
 
-        <span id="reloj">00:00:00</span>
+        <div class="reloj-container">
+            <div id="fecha-actual">Cargando...</div>
+            <div id="reloj">00:00:00</div>
+        </div>
 
+        <!-- FILTRO DE DESCARGA -->
         <div class="box-descarga">
-            <p style="margin:0; font-size:11px; font-weight:bold;">REPORTE POR FECHAS</p>
-            <input type="date" id="f-inicio" class="input-f">
-            <input type="date" id="f-fin" class="input-f">
-            <button class="btn" style="padding:10px; background: #27ae60;" onclick="descargarCSV()">📥 DESCARGAR EXCEL (CSV)</button>
+            <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold;">SELECCIONAR FECHAS</p>
+            <input type="date" id="f-inicio" class="input-fecha">
+            <input type="date" id="f-fin" class="input-fecha">
+            <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR REPORTE </button>
         </div>
 
-        <div id="mapa-monitor"></div>
+        <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
 
-        <button class="btn" style="background:#eee; color:#333; max-width:200px;" onclick="location.reload()">CERRAR MONITOR</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESION</button>
     </div>
 
     <script>
-        // URL DEL CLON (Asegúrate de que el Apps Script tenga doGet y doPost)
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw5-S4nyR607XJV4Gg2ikHPW7QR4hXs5wimYgLtU2NpiZSDBO3-JIX167xaf5ZzxqUO/exec"; 
-        
-        let mapaMonitor;
+        const pilotos = { 
+            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
+            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
+            "121": { n: "OSVALDO OBREGON ARRIOLA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "265BQM" }, 
+            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "603BJC" },          
+            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "474BKX" }, 
+            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "363BPP" }, 
+            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "826BZQ" }, 
+            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "795BPZ" }, 
+            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "635BGC" }, 
+            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "666BZJ" }, 
+            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "490BPP" }, 
+            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "026BBF" }, 
+            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "775BMT" }, 
+            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "015BYS" }, 
+            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "092BNN" }, 
+            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "360BWD" }, 
+            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "346BWB" }, 
+            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "781BMQ" }, 
+            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "634BGC" }, 
+            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "904BXF" }, 
+            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
+            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
+        };
+
+        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbw5-S4nyR607XJV4Gg2ikHPW7QR4hXs5wimYgLtU2NpiZSDBO3-JIX167xaf5ZzxqUO/exec';
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
             const pass = document.getElementById('p').value;
 
-            if(user === "operador" && pass === "operador1") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-operador').style.display='block';
+            if(user == "operador" && pass == "terpac") {
+                document.getElementById('login').style.display='none'; 
+                document.getElementById('ui-app').style.display='block';
             } 
-            else if(user === "supervisor" && pass === "supervisor1") {
-                document.getElementById('login').style.display='none';
+            else if(user == "supervisor" && pass == "terpac1") {
+                document.getElementById('login').style.display='none'; 
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj();
-                setTimeout(iniciarMapa, 500); 
-                actualizarDatos();
-            } else {
-                alert("Credenciales incorrectas");
+                actualizarPildoras();
             }
+            else { alert("Acceso Incorrecto"); }
+        }
+
+        async function actualizarPildoras() {
+            try {
+                const response = await fetch(URL_SCRIPT);
+                const data = await response.json();
+                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
+                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
+                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
+            } catch (e) { console.log("Error cargando pildoras"); }
         }
 
         function iniciarReloj() {
-            setInterval(() => { 
-                const r = document.getElementById('reloj');
-                if(r) r.innerText = new Date().toLocaleTimeString(); 
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             }, 1000);
         }
 
-        // GUARDAR DATOS (USA POST -> VA AL DOPOST DEL SCRIPT)
+        function check() {
+            const id = document.getElementById('id-in').value.trim();
+            const box = document.getElementById('piloto-box');
+            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
+        }
+
         function enviar() {
-            const id = document.getElementById('id-in').value;
-            const mov = document.getElementById('mov').value;
-            const placa = document.getElementById('placa').value;
+            const id = document.getElementById('id-in').value.trim();
+            if(!pilotos[id]) return alert("ID no encontrado");
             const btn = document.getElementById('btn-env');
+            btn.innerText = "Enviando..."; btn.disabled = true;
 
-            if(!id) return alert("Ingrese ID");
-            btn.innerText = "ENVIANDO..."; btn.disabled = true;
-
-            const textoFinal = `${id};${mov};${placa}`;
+            const mov = document.getElementById('mov').value;
+            const prod = document.getElementById('prod').value;
+            const cTer = document.getElementById('CicloTer').value;
+            const cEPQ = document.getElementById('CicloEPQ').value;
+            const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
 
             fetch(URL_SCRIPT, {
                 method: 'POST',
                 mode: 'no-cors',
                 body: textoFinal
             }).then(() => {
-                alert("✅ REGISTRO EXITOSO EN CLON");
-                location.reload();
-            }).catch(e => {
+                alert("✅ Registro Exitoso");
+                document.getElementById('id-in').value = "";
+                document.getElementById('CicloTer').value = "";
+                document.getElementById('CicloEPQ').value = "";
+                document.getElementById('piloto-box').style.display='none';
+            }).catch(() => {
                 alert("Error de envío");
-                btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false;
+            }).finally(() => {
+                btn.innerText = "REGISTRAR DATOS 🚀";
+                btn.disabled = false;
             });
         }
 
-        function iniciarMapa() {
-            mapaMonitor = L.map('mapa-monitor').setView([14.15, -90.75], 9);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaMonitor);
-            L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
-        }
+       async function descargarCSV() {
+    const inicio = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!inicio || !fin) return alert("Seleccioná las fechas.");
 
-        async function actualizarDatos() {
-            try {
-                const response = await fetch(URL_SCRIPT);
-                const data = await response.json();
-                // Aquí podrías actualizar píldoras si tu script manda los conteos
-            } catch (e) { console.log("Sincronizando..."); }
-        }
+    try {
+        const response = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await response.json();
+        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+        if(filtrados.length === 0) return alert("No hay datos en ese rango.");
 
-        // DESCARGAR REPORTE (USA GET -> VA AL DOGET DEL SCRIPT)
-        async function descargarCSV() {
-            const inicio = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            if(!inicio || !fin) return alert("Seleccioná las fechas");
+        // ENCABEZADOS DE COLUMNAS PARA EXCEL
+        let csv = "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
+        
+        filtrados.forEach(r => {
+            // Reemplazamos el ";" por "," para que Excel entienda que son columnas distintas
+            let detalleColumnas = r.datos.replace(/;/g, ',');
+            csv += `${r.fecha},${r.hora},${detalleColumnas}\n`;
+        });
 
-            try {
-                const response = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
-                const data = await response.json();
-                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-                
-                if(filtrados.length === 0) return alert("No hay datos en este rango");
-
-                let csv = "FECHA,HORA,DATOS_REPORTADOS\n";
-                filtrados.forEach(r => { 
-                    csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `Reporte_Clon_${inicio}.csv`);
-                link.click();
-            } catch (e) { alert("Error al bajar reporte del clon"); }
-        }
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Reporte_Terpac_${inicio}_${fin}.csv`);
+        link.click();
+    } catch (e) { alert("Error al procesar el reporte."); }
+}
     </script>
 </body>
 </html>
