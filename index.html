@@ -156,10 +156,10 @@
             }
         }
 
-        async function descargarCSV() {
+       async function descargarCSV() {
     const inicio = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
-    if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
+    if(!inicio || !fin) return alert("Seleccioná las fechas.");
 
     try {
         const resp = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
@@ -168,17 +168,21 @@
         
         if(filtrados.length === 0) return alert("No hay datos en ese rango.");
 
-        let csv = "FECHA,HORA,DATOS\n";
-        filtrados.forEach(r => { csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`; });
+        let csv = "FECHA,HORA,DATOS_REPORTADOS\n";
+        filtrados.forEach(r => {
+            csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`;
+        });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
         link.setAttribute("download", `Reporte_Clon.csv`);
         link.click();
-    } catch (e) { alert("Error: " + e.message); }
+        alert("✅ Reporte descargado con éxito");
+    } catch (e) { 
+        alert("Error de conexión: " + e.message); 
+    }
 }
-
     </script>
 </body>
 </html>
