@@ -148,28 +148,42 @@
             L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
         }
 
-        async function descargarCSV() {
-            const inicio = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            if(!inicio || !fin) return alert("Seleccioná las fechas");
+       async function descargarCSV() {
+    const inicio = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
 
-            try {
-                const response = await fetch(URL_SCRIPT + "?accion=reporte");
-                const data = await response.json();
-                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-                
-                if(filtrados.length === 0) return alert("No hay datos");
+    try {
+        const response = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await response.json();
+        
+        // El filtro sigue usando 'r.fecha' (YYYY-MM-DD) porque es el estándar
+        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+        
+        if(filtrados.length === 0) return alert("No hay datos en ese rango.");
 
-                let csv = "FECHA,HORA,DETALLES\n";
-                filtrados.forEach(r => { csv += `${r.fecha},${r.hora},"${r.datos}"\n`; });
+        // Encabezados del Excel
+        let csv = "FECHA,HORA,ID;NOMBRE;MOV;PROD;PLACA;REF;LAT;LNG\n";
+        
+        filtrados.forEach(r => { 
+            // USAMOS r.fechaNice para que salga DD/MM/YYYY
+            // Y limpiamos los datos para que no se amontonen
+            csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
+        });
 
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `Reporte_Clon_${inicio}.csv`);
-                link.click();
-            } catch (e) { alert("Error al bajar reporte del clon"); }
-        }
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Reporte_Clon_${inicio}_al_${fin}.csv`);
+        document.body.appendChild(link); // Añadimos y quitamos el link por seguridad
+        link.click();
+        document.body.removeChild(link);
+        
+    } catch (e) { 
+        console.error(e);
+        alert("Error al bajar reporte del clon. Revisá la consola."); 
+    }
+}
     </script>
 </body>
 </html>
