@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SEW CONTROL PLUS - MONITOR SATELITAL</title>
+    <title>SEW CONTROL PLUS - CLON PROFESIONAL</title>
     
     <!-- LIBRERÍA DEL MAPA -->
     <link rel="stylesheet" href="https://unpkg.com" />
@@ -29,7 +29,7 @@
         .pildora h3 { font-size: 10px; color: var(--gris); margin: 0; text-transform: uppercase; }
         .pildora p { font-size: 22px; font-weight: bold; margin: 5px 0 0 0; color: var(--azul-corp); }
         
-        #mapa-monitor { width: 100%; height: 400px; border-radius: 15px; margin: 15px 0; border: 2px solid var(--azul-brillante); z-index: 1; background: #eee; }
+        #mapa-monitor { width: 100%; height: 350px; border-radius: 15px; margin: 15px 0; border: 2px solid var(--azul-brillante); z-index: 1; background: #eee; }
         
         .live-status { color: var(--naranja); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
         .dot { width: 10px; height: 10px; background: var(--naranja); border-radius: 50%; animation: pulse 2s infinite; }
@@ -42,6 +42,7 @@
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="login" class="card-compacta">
         <h2 style="color:var(--azul-corp); margin:0;">SEW CONTROL</h2>
         <p style="font-size:12px; color:var(--gris);">SISTEMA DE GESTIÓN CLON</p>
@@ -50,6 +51,7 @@
         <button class="btn" onclick="entrar()">INGRESAR AL SISTEMA</button>
     </div>
 
+    <!-- PANTALLA OPERADOR -->
     <div id="ui-operador" class="card-compacta" style="display:none;">
         <h3 style="margin:0;">REGISTRO DE PILOTOS</h3>
         <input type="text" id="id-in" placeholder="ID PILOTO">
@@ -59,23 +61,24 @@
             <option>REGRESO A PLANTA</option>
         </select>
         <input type="text" id="placa" placeholder="PLACA DEL VEHÍCULO">
-        <button id="btn-env" class="btn" onclick="capturarYEnviar()">REGISTRAR MOVIMIENTO 🚀</button>
-        <button onclick="location.reload()" style="background:none; border:none; color:var(--rojo); cursor:pointer; margin-top:15px;">Cerrar Sesión</button>
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR MOVIMIENTO 🚀</button>
+        <button onclick="location.reload()" style="background:none; border:none; color:var(--rojo); cursor:pointer; margin-top:15px; font-weight:bold;">Cerrar Sesión</button>
     </div>
 
+    <!-- PANTALLA SUPERVISOR -->
     <div id="ui-supervisor" class="card-full">
         <h3 style="margin:0;">CENTRO DE MONITOREO</h3>
         <div class="live-status"><div class="dot"></div> RADAR SATELITAL ACTIVO</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora"><h3>FLOTA</h3><p>00</p></div>
-            <div class="pildora" style="border-color:var(--naranja)"><h3>EN RUTA</h3><p id="en-ruta-val">00</p></div>
+            <div class="pildora"><h3>FLOTA</h3><p id="total-v">00</p></div>
+            <div class="pildora" style="border-color:var(--naranja)"><h3>EN RUTA</h3><p id="en-ruta-v">00</p></div>
         </div>
 
         <span id="reloj">00:00:00</span>
 
         <div class="box-descarga">
-            <p style="margin:0; font-size:11px; font-weight:bold;">REPORTES LOGÍSTICOS</p>
+            <p style="margin:0; font-size:11px; font-weight:bold;">REPORTE POR FECHAS</p>
             <input type="date" id="f-inicio" class="input-f">
             <input type="date" id="f-fin" class="input-f">
             <button class="btn" style="padding:10px; background: #27ae60;" onclick="descargarCSV()">📥 DESCARGAR EXCEL (CSV)</button>
@@ -87,11 +90,10 @@
     </div>
 
     <script>
-        // URL DEL CLON
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzlQOXIFz9DcAobNiWyLVKJqrXi2bPwAO3qzABG4PKzTAXrNo5lrVfyS6QWM2I9aGaY/exec"; 
+        // URL DEL CLON (Asegúrate de que el Apps Script tenga doGet y doPost)
+        const URL_SCRIPT = "TU_URL_DEL_APPS_SCRIPT_CLON_AQUI"; 
         
         let mapaMonitor;
-        let marcadores = {};
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
@@ -106,40 +108,42 @@
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj();
                 setTimeout(iniciarMapa, 500); 
+                actualizarDatos();
             } else {
                 alert("Credenciales incorrectas");
             }
         }
 
         function iniciarReloj() {
-            setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000);
+            setInterval(() => { 
+                const r = document.getElementById('reloj');
+                if(r) r.innerText = new Date().toLocaleTimeString(); 
+            }, 1000);
         }
 
-        function capturarYEnviar() {
+        // GUARDAR DATOS (USA POST -> VA AL DOPOST DEL SCRIPT)
+        function enviar() {
             const id = document.getElementById('id-in').value;
-            const btn = document.getElementById('btn-env');
-            if(!id) return alert("Ingrese ID");
-
-            btn.innerText = "CAPTURANDO GPS...";
-            btn.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                (pos) => { enviarASheets(id, pos.coords.latitude, pos.coords.longitude); },
-                () => { alert("GPS no disponible"); enviarASheets(id, 0, 0); }
-            );
-        }
-
-        function enviarASheets(id, lat, lng) {
             const mov = document.getElementById('mov').value;
             const placa = document.getElementById('placa').value;
-            const urlFinal = `${URL_SCRIPT}?id=${id}&mov=${mov}&placa=${placa}&lat=${lat}&lng=${lng}`;
+            const btn = document.getElementById('btn-env');
 
-            fetch(urlFinal, { mode: 'no-cors' })
-            .then(() => {
+            if(!id) return alert("Ingrese ID");
+            btn.innerText = "ENVIANDO..."; btn.disabled = true;
+
+            const textoFinal = `${id};${mov};${placa}`;
+
+            fetch(URL_SCRIPT, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: textoFinal
+            }).then(() => {
                 alert("✅ REGISTRO EXITOSO EN CLON");
                 location.reload();
-            })
-            .catch(() => alert("❌ Error de conexión"));
+            }).catch(e => {
+                alert("Error de envío");
+                btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false;
+            });
         }
 
         function iniciarMapa() {
@@ -148,20 +152,31 @@
             L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
         }
 
+        async function actualizarDatos() {
+            try {
+                const response = await fetch(URL_SCRIPT);
+                const data = await response.json();
+                // Aquí podrías actualizar píldoras si tu script manda los conteos
+            } catch (e) { console.log("Sincronizando..."); }
+        }
+
+        // DESCARGAR REPORTE (USA GET -> VA AL DOGET DEL SCRIPT)
         async function descargarCSV() {
             const inicio = document.getElementById('f-inicio').value;
             const fin = document.getElementById('f-fin').value;
             if(!inicio || !fin) return alert("Seleccioná las fechas");
 
             try {
-                const response = await fetch(URL_SCRIPT + "?accion=reporte");
+                const response = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
                 const data = await response.json();
                 const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
                 
-                if(filtrados.length === 0) return alert("No hay datos");
+                if(filtrados.length === 0) return alert("No hay datos en este rango");
 
-                let csv = "FECHA,HORA,DETALLES\n";
-                filtrados.forEach(r => { csv += `${r.fecha},${r.hora},"${r.datos}"\n`; });
+                let csv = "FECHA,HORA,DATOS_REPORTADOS\n";
+                filtrados.forEach(r => { 
+                    csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
+                });
 
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
