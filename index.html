@@ -157,35 +157,28 @@
         }
 
         async function descargarCSV() {
-            const inicio = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
+    const inicio = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!inicio || !fin) return alert("Seleccioná las fechas, Walter.");
 
-            try {
-                const response = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
-                const data = await response.json();
-                
-                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-                
-                if(filtrados.length === 0) return alert("No hay datos para esas fechas en el clon.");
+    try {
+        const resp = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
+        const data = await resp.json();
+        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+        
+        if(filtrados.length === 0) return alert("No hay datos en ese rango.");
 
-                let csvContent = "FECHA,HORA,ID;NOMBRE;MOV;PROD;PLACA;REF;LAT;LNG\n";
-                
-                filtrados.forEach(r => { 
-                    csvContent += `${r.fechaNice},${r.hora},"${r.datos}"\n`; 
-                });
+        let csv = "FECHA,HORA,DATOS\n";
+        filtrados.forEach(r => { csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`; });
 
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `Reporte_Clon_${inicio}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (e) { 
-                alert("Error al bajar reporte del clon."); 
-            }
-        }
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Reporte_Clon.csv`);
+        link.click();
+    } catch (e) { alert("Error: " + e.message); }
+}
+
     </script>
 </body>
 </html>
