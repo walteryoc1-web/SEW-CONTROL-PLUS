@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SEW CONTROL PLUS - MONITOR SATELITAL</title>
     
-    <!-- LIBRERÍA DEL MAPA -->
+    <!-- LIBRERÍA DEL MAPA (GRATIS) -->
     <link rel="stylesheet" href="https://unpkg.com" />
     <script src="https://unpkg.com"></script>
 
@@ -18,41 +18,42 @@
         
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 0; margin: 0; text-align: center; }
         
+        /* Contenedores */
         .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 95%; max-width: 400px; margin: 30px auto; border-top: 8px solid var(--azul-brillante); box-sizing: border-box; }
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; display: none; box-sizing: border-box; }
         
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        /* Inputs y Botones */
+        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 2px solid #eee; font-size: 16px; box-sizing: border-box; }
         .btn { background: linear-gradient(135deg, var(--naranja), var(--naranja-oscuro)); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; margin-top: 10px; }
         
+        /* Monitor de Supervisor */
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 15px; }
         .pildora { background: #fff; padding: 10px; border-radius: 12px; flex: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-bottom: 5px solid var(--azul-brillante); }
         .pildora h3 { font-size: 10px; color: var(--gris); margin: 0; text-transform: uppercase; }
         .pildora p { font-size: 22px; font-weight: bold; margin: 5px 0 0 0; color: var(--azul-corp); }
         
-        #mapa-monitor { width: 100%; height: 400px; border-radius: 15px; margin: 15px 0; border: 2px solid var(--azul-brillante); z-index: 1; background: #eee; }
+        #mapa-monitor { width: 100%; height: 450px; border-radius: 15px; margin: 15px 0; border: 2px solid var(--azul-brillante); z-index: 1; background: #eee; }
         
         .live-status { color: var(--naranja); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
         .dot { width: 10px; height: 10px; background: var(--naranja); border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        #reloj { font-weight: bold; color: var(--azul-corp); margin-bottom: 10px; display: block; font-size: 20px; }
-
-        .box-descarga { background: #f9f9f9; padding: 15px; border-radius: 15px; border: 1px dashed #ccc; margin-bottom: 15px; }
-        .input-f { width: 48% !important; display: inline-block !important; padding: 10px !important; margin: 5px 1% !important; font-size: 14px !important; }
+        #reloj { font-weight: bold; color: var(--azul-corp); margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
 
+    <!-- PANTALLA 1: LOGIN -->
     <div id="login" class="card-compacta">
         <h2 style="color:var(--azul-corp); margin:0;">SEW CONTROL</h2>
-        <p style="font-size:12px; color:var(--gris);">SISTEMA DE GESTIÓN CLON</p>
+        <p style="font-size:12px; color:var(--gris);">GEOLOCALIZACIÓN DE FLOTA</p>
         <input type="text" id="u" placeholder="Usuario">
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR AL SISTEMA</button>
     </div>
-
+    <!-- PANTALLA 2: OPERADOR (ENVÍO) -->
     <div id="ui-operador" class="card-compacta" style="display:none;">
         <h3 style="margin:0;">REGISTRO DE PILOTOS</h3>
-        <input type="text" id="id-in" placeholder="ID PILOTO">
+        <input type="text" id="id-in" placeholder="ID PILOTO (Ej: 117)">
         <select id="mov">
             <option>INICIO DE VIAJE</option>
             <option>LLEGADA A DESTINO</option>
@@ -63,35 +64,29 @@
         <button onclick="location.reload()" style="background:none; border:none; color:var(--rojo); cursor:pointer; margin-top:15px;">Cerrar Sesión</button>
     </div>
 
+    <!-- PANTALLA 3: SUPERVISOR (MONITOR) -->
     <div id="ui-supervisor" class="card-full">
         <h3 style="margin:0;">CENTRO DE MONITOREO</h3>
         <div class="live-status"><div class="dot"></div> RADAR SATELITAL ACTIVO</div>
         
         <div class="pildoras-horizontal">
-            <div class="pildora"><h3>FLOTA</h3><p>00</p></div>
-            <div class="pildora" style="border-color:var(--naranja)"><h3>EN RUTA</h3><p id="en-ruta-val">00</p></div>
+            <div class="pildora"><h3>FLOTA TOTAL</h3><p>03</p></div>
+            <div class="pildora" style="border-color:var(--naranja)"><h3>EN RUTA</h3><p id="en-ruta-val">02</p></div>
         </div>
 
         <span id="reloj">00:00:00</span>
 
-        <div class="box-descarga">
-            <p style="margin:0; font-size:11px; font-weight:bold;">REPORTES LOGÍSTICOS</p>
-            <input type="date" id="f-inicio" class="input-f">
-            <input type="date" id="f-fin" class="input-f">
-            <button class="btn" style="padding:10px; background: #27ae60;" onclick="descargarCSV()">📥 DESCARGAR EXCEL (CSV)</button>
-        </div>
-
+        <!-- EL MAPA GEOGRÁFICO -->
         <div id="mapa-monitor"></div>
 
         <button class="btn" style="background:#eee; color:#333; max-width:200px;" onclick="location.reload()">CERRAR MONITOR</button>
     </div>
 
-            <script>
-        // URL DEL CLON
-        const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbw5-S4nyR607XJV4Gg2ikHPW7QR4hXs5wimYgLtU2NpiZSDBO3-JIX167xaf5ZzxqUO/exec"; 
-        
+    <script>
+        // CONFIGURACIÓN GLOBAL
+        const URL_SCRIPT = "TU_URL_DE_APPS_SCRIPT_AQUI"; // <--- PEGA TU URL DE AYER
         let mapaMonitor;
-        let marcadores = {};
+        let marcadores = {}; // Para guardar y mover los camiones
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
@@ -105,19 +100,17 @@
                 document.getElementById('login').style.display='none';
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj();
-                setTimeout(iniciarMapa, 500); 
+                iniciarMapa(); // Arranca el mapa geográfico
             } else {
                 alert("Credenciales incorrectas");
             }
         }
 
         function iniciarReloj() {
-            setInterval(() => { 
-                const relojObj = document.getElementById('reloj');
-                if(relojObj) relojObj.innerText = new Date().toLocaleTimeString(); 
-            }, 1000);
+            setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000);
         }
 
+        // --- LÓGICA DEL OPERADOR (CAPTURA GPS) ---
         function capturarYEnviar() {
             const id = document.getElementById('id-in').value;
             const btn = document.getElementById('btn-env');
@@ -127,10 +120,14 @@
             btn.disabled = true;
 
             navigator.geolocation.getCurrentPosition(
-                (pos) => { enviarASheets(id, pos.coords.latitude, pos.coords.longitude); },
-                () => { 
-                    alert("GPS no disponible"); 
-                    enviarASheets(id, 0, 0); 
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    enviarASheets(id, lat, lng);
+                },
+                () => {
+                    alert("GPS no disponible, enviando con 0,0");
+                    enviarASheets(id, 0, 0);
                 }
             );
         }
@@ -142,47 +139,48 @@
 
             fetch(urlFinal, { mode: 'no-cors' })
             .then(() => {
-                alert("✅ REGISTRO EXITOSO EN CLON");
+                alert("✅ REGISTRO EXITOSO");
                 location.reload();
             })
             .catch(() => alert("❌ Error de conexión"));
         }
 
+        // --- LÓGICA DEL SUPERVISOR (MAPA EN VIVO) ---
         function iniciarMapa() {
-            if (!mapaMonitor) {
-                mapaMonitor = L.map('mapa-monitor').setView([14.15, -90.75], 9);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaMonitor);
-                L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRO DE CONTROL CLON</b>');
-            }
+            // Centrado en Escuintla/Puerto Quetzal
+            mapaMonitor = L.map('mapa-monitor').setView([14.15, -90.75], 9);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(mapaMonitor);
+
+            // Marcador de la base (Fijo)
+            L.marker([14.15, -90.75]).addTo(mapaMonitor).bindPopup('<b>CENTRAL PUERTO QUETZAL</b>');
+
+            // Inicia el rastreo automático cada 30 segundos
+            rastrearPilotos();
+            setInterval(rastrearPilotos, 30000);
         }
 
-       async function descargarCSV() {
-    const inicio = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
-    if(!inicio || !fin) return alert("Seleccioná las fechas.");
-
-    try {
-        const resp = await fetch(URL_SCRIPT + "?accion=reporte&t=" + new Date().getTime());
-        const data = await resp.json();
-        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-        
-        if(filtrados.length === 0) return alert("No hay datos en ese rango.");
-
-        let csv = "FECHA,HORA,DATOS_REPORTADOS\n";
-        filtrados.forEach(r => {
-            csv += `${r.fechaNice},${r.hora},"${r.datos}"\n`;
-        });
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `Reporte_Clon.csv`);
-        link.click();
-        alert("✅ Reporte descargado con éxito");
-    } catch (e) { 
-        alert("Error de conexión: " + e.message); 
-    }
-}
+        function rastrearPilotos() {
+            // Le pide los datos al Apps Script (Sin parámetros de envío)
+            fetch(URL_SCRIPT)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(p => {
+                    if(p.lat && p.lng && p.lat != 0) {
+                        // Si el camión ya está en el mapa, lo movemos. Si no, lo creamos.
+                        if (marcadores[p.id]) {
+                            marcadores[p.id].setLatLng([p.lat, p.lng]);
+                        } else {
+                            marcadores[p.id] = L.marker([p.lat, p.lng]).addTo(mapaMonitor)
+                                .bindPopup(`<b>PILOTO: ${p.nombre || p.id}</b><br>Estado: ${p.mov}<br>Placa: ${p.placa}`);
+                        }
+                    }
+                });
+            })
+            .catch(err => console.log("Sincronizando radar..."));
+        }
     </script>
 </body>
 </html>
