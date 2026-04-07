@@ -366,7 +366,36 @@ function crearCheck(texto) {
                 boxPiloto.style.display='none';
             }).catch(() => { alert("Error de envío"); }).finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
         }
+function enviarPermiso() {
+    const fase = document.getElementById('p-fase').value;
+    const ubicacion = document.getElementById('p-ubicacion').value;
+    const tipoTrabajo = document.getElementById('p-tipo').value;
+    const descripcion = document.getElementById('p-descripcion').value.trim();
+    
+    if (!fase || !ubicacion || !tipoTrabajo || descripcion === "") {
+        return alert("⚠️ Complete todos los campos de seguridad.");
+    }
 
+    const inputsTecnicos = document.querySelectorAll('.p-id-clase');
+    let listaTecnicos = [];
+    inputsTecnicos.forEach(input => {
+        if(input.value.trim() !== "") listaTecnicos.push(input.value.trim());
+    });
+
+    const checkboxes = document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked');
+    let listaCheck = Array.from(checkboxes).map(cb => cb.parentElement.innerText.trim());
+
+    // Formato para SSO (Inicia con "PERMISO" para que el Sheets sepa a qué hoja ir)
+    const textoFinal = `PERMISO;${fase};${ubicacion};${tipoTrabajo};${descripcion};${listaTecnicos.join("/")};${listaCheck.join("/")}`;
+
+    const btn = document.querySelector("#ui-seguridad .btn");
+    btn.innerText = "Enviando..."; btn.disabled = true;
+
+    fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal }).then(() => {
+        alert("✅ Permiso SSO Registrado");
+        location.reload();
+    }).catch(() => alert("Error de envío SSO")).finally(() => { btn.innerText = "🚀 GENERAR PERMISO"; btn.disabled = false; });
+}
         async function actualizarPildoras() {
             try {
                 const response = await fetch(URL_SCRIPT);
