@@ -188,55 +188,45 @@
         <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
     </div> <!-- CIERRE CORRECTO DEL SUPERVISOR -->
 
-    <!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
-    <div id="ui-seguridad" class="card-full" style="display:none;">
-        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
-        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
+    <<!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
+<div id="ui-seguridad" class="card-full" style="display:none;">
+    <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
+    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
 
-        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-    <div id="contenedor-ejecutores">
-        <!-- El primer ejecutor siempre está -->
-        <div class="grupo-ejecutor" style="margin-bottom: 15px;">
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-                <button onclick="agregarFilaEjecutor()" style="background:var(--azul-brillante); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:20px;">+</button>
+    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+        <div id="contenedor-ejecutores">
+            <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                    <button onclick="agregarFilaEjecutor()" style="background:var(--azul-brillante); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:20px;">+</button>
+                </div>
+                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+                <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
             </div>
-            <!-- Cuadros de respuesta dinámicos -->
-            <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-            <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
-        
         </div>
+        
+        <label><b>Tipo de Riesgo:</b></label>
+        <select id="p-tipo">
+            <option>Trabajo en Alturas</option>
+            <option>Trabajo en Caliente (Soldadura)</option>
+            <option>Espacios Confinados</option>
+            <option>Mantenimiento Eléctrico</option>
+        </select>
+
+        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
+            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
+            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
+            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
+            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+        </div>
+
+        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
+    </div> <!-- ESTE CIERRA LA CARD-COMPACTA -->
     
-    <!-- Aquí siguen los demás campos como Tipo de Riesgo, Checklist, etc. -->
-</div>
+    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN1</button>
+</div> <!-- ESTE CIERRA EL UI-SEGURIDAD -->
 
-<!-- Cuadro para la Empresa -->
-<div id="empresa-box" style="font-weight:bold; color:#555; margin:0 0 10px 0; display:none; padding:12px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; text-align:left; font-size:13px;">
-</div>
-
-            
-            <label><b>Tipo de Riesgo:</b></label>
-            <select id="p-tipo">
-                <option>Trabajo en Alturas</option>
-                <option>Trabajo en Caliente (Soldadura)</option>
-                <option>Espacios Confinados</option>
-                <option>Mantenimiento Eléctrico</option>
-            </select>
-
-            <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
-                <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
-                <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
-                <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
-            </div>
-
-                   <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-    </div> <!-- Este cierra la card-compacta -->
-    
-    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
-</div> 
-
-<script> 
+<script>
         // BASE DE DATOS PILOTOS
         const pilotos = { 
             "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
