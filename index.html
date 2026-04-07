@@ -166,8 +166,12 @@
 
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
             <label><b>Personal ejecutor:</b></label>
-            <input type="text" id="p-nombre" placeholder="Nombre completo">
-            <input type="text" id="p-empresa" placeholder="Empresa o Contratista">
+<input type="text" id="p-id" placeholder="INGRESE CÓDIGO (Ej: S001)" oninput="checkSSO()">
+<div id="personal-box" style="font-weight:bold; color:var(--verde-oscuro); margin:10px 0; display:none; padding:15px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); text-align:left;">
+    <!-- Aquí aparecerá el nombre automáticamente -->
+</div>
+<input type="text" id="p-empresa" placeholder="Empresa (se cargará sola)" readonly style="background:#f9f9f9;">
+
             
             <label><b>Tipo de Riesgo:</b></label>
             <select id="p-tipo">
@@ -215,6 +219,12 @@
             "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
             "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
         };
+        const personalSeguridad = { 
+    "S001": { n: "JUAN PEREZ", e: "MANTENIMIENTO INTERNO" }, 
+    "S002": { n: "CARLOS LOPEZ", e: "CONTRATISTA ABC" }, 
+    "S003": { n: "MARIO GOMEZ", e: "ELECTRO-SOLUCIONES" }
+    // Agregá aquí todos los códigos que necesités
+};
 
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
 
@@ -299,7 +309,20 @@
                 btn.disabled = false;
             });
         }
+        function checkSSO() {
+    const id = document.getElementById('p-id').value.trim().toUpperCase();
+    const box = document.getElementById('personal-box');
+    const empresaInput = document.getElementById('p-empresa');
 
+    if(personalSeguridad[id]) { 
+        box.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
+        box.style.display = 'block'; 
+        empresaInput.value = personalSeguridad[id].e; // Carga la empresa automáticamente
+    } else { 
+        box.style.display = 'none'; 
+        empresaInput.value = "";
+    }
+}
        async function descargarCSV() {
     const inicio = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
