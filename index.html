@@ -128,6 +128,7 @@
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
 
+        <!-- INTERFAZ OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
         <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
@@ -158,7 +159,8 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <div id="ui-supervisor" class="card-full">
+    <!-- INTERFAZ SUPERVISOR -->
+    <div id="ui-supervisor" class="card-full" style="display:none;">
         <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
         <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
         
@@ -172,48 +174,39 @@
             <div id="fecha-actual">Cargando...</div>
             <div id="reloj">00:00:00</div>
         </div>
-<!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
-<div id="ui-seguridad" class="card-full" style="display:none;">
-    <h3 style="margin-top:0; color:var(--azul-corp);">PERMISO DE TRABAJO SEGURO</h3>
-    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
-
-    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-        <label><b>Personal ejecutor:</b></label>
-        <input type="text" id="p-nombre" placeholder="Nombre completo">
-        <input type="text" id="p-empresa" placeholder="Empresa o Contratista">
         
-        <label><b>Tipo de Riesgo:</b></label>
-        <select id="p-tipo">
-            <option>Trabajo en Alturas</option>
-            <option>Trabajo en Caliente (Soldadura)</option>
-            <option>Espacios Confinados</option>
-            <option>Mantenimiento Eléctrico</option>
-        </select>
+        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
+    </div> <!-- AQUÍ CERRAMOS CORRECTAMENTE EL SUPERVISOR -->
 
-        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
-            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
-            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
-            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
-            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+    <!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
+    <div id="ui-seguridad" class="card-full" style="display:none;">
+        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
+        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
+
+        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+            <label><b>Personal ejecutor:</b></label>
+            <input type="text" id="p-nombre" placeholder="Nombre completo">
+            <input type="text" id="p-empresa" placeholder="Empresa o Contratista">
+            
+            <label><b>Tipo de Riesgo:</b></label>
+            <select id="p-tipo">
+                <option>Trabajo en Alturas</option>
+                <option>Trabajo en Caliente (Soldadura)</option>
+                <option>Espacios Confinados</option>
+                <option>Mantenimiento Eléctrico</option>
+            </select>
+
+            <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
+                <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
+                <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
+                <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+            </div>
+
+            <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
         </div>
-
-        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-    </div>
-    
-    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
-</div>
-
-        <!-- FILTRO DE DESCARGA -->
-        <div class="box-descarga">
-            <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold;">SELECCIONAR FECHAS</p>
-            <input type="date" id="f-inicio" class="input-fecha">
-            <input type="date" id="f-fin" class="input-fecha">
-            <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR REPORTE </button>
-        </div>
-
-        <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
-
-        <button class="btn-salir" onclick="location.reload()">CERRAR SESION</button>
+        
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
     <script>
