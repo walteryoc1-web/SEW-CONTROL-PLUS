@@ -344,10 +344,10 @@ function crearCheck(texto) {
             const id = input.value.trim().toUpperCase();
             const grupo = input.parentElement.parentElement;
             const pBox = grupo.querySelector('.personal-box-clase');
-            const eBox = grupo.querySelector('.empresa-box-clase');
+            const eBox = grupo.querySelector('.departamento-box-clase');
             if(personalSeguridad[id]) { 
                 pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
-                eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
+                eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
             } else { pBox.style.display = 'none'; eBox.style.display = 'none'; }
         }
 
