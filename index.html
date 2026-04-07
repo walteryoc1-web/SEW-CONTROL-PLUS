@@ -170,6 +170,18 @@
                 <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
                 <div id="lista-checks-epp"></div>
             </div>
+<!-- 6. DESCRIPCIÓN MANUAL DEL TRABAJO -->
+<div style="margin: 15px 0; text-align: left;">
+    <label style="font-weight: bold; font-size: 13px; color: #333; margin-bottom: 5px; display: block;">
+        Descripción detallada del trabajo:
+    </label>
+    <textarea id="p-descripcion" rows="3" 
+        placeholder="Escriba aquí las actividades específicas a realizar..." 
+        style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; font-family: sans-serif; font-size: 14px; box-sizing: border-box; resize: none;"></textarea>
+</div>
+
+<!-- Botón Generar Permiso (ya lo tienes) -->
+<button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
 
             <!-- Cuadro Herramientas -->
             <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
@@ -396,7 +408,7 @@ function crearCheck(texto) {
             } catch (e) { alert("Error al procesar el reporte."); }
         }
 
-       function actualizarUbicaciones() {
+    function actualizarUbicaciones() {
     const fase = document.getElementById('p-fase').value;
     const uSelect = document.getElementById('p-ubicacion');
     uSelect.options.length = 0; // Limpia la lista
@@ -410,21 +422,30 @@ function crearCheck(texto) {
 
     if(fase && ops[fase]) {
         uSelect.disabled = false;
-        
-        // Agregamos el título bloqueado al segundo cuadro
         let titulo = new Option("Lugar específico", "");
         titulo.disabled = true;
         titulo.selected = true;
         uSelect.add(titulo);
-
-        // Agregamos las opciones reales
         ops[fase].forEach(l => uSelect.add(new Option(l, l)));
     } else { 
         uSelect.disabled = true; 
         uSelect.add(new Option("Lugar específico", "")); 
     }
 }
-        function enviarPermiso() { alert("Módulo de generación de PDF en construcción 📄"); }
+
+function enviarPermiso() { 
+    // Capturamos el texto del cuadro de descripción
+    const descripcion = document.getElementById('p-descripcion').value.trim();
+
+    // Validamos si está vacío
+    if(descripcion === "") {
+        alert("⚠️ Por favor, describa el trabajo a realizar antes de generar el permiso.");
+        return;
+    }
+
+    // Si tiene texto, mostramos la alerta de éxito
+    alert("📄 Generando permiso para el trabajo:\n" + descripcion); 
+}
     </script>
 </body>
 </html>
