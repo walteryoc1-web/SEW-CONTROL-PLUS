@@ -127,7 +127,36 @@
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
+<!-- INTERFAZ OPERADOR -->
+    <div id="ui-app" class="card-compacta" style="display:none;">
+        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
+        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
+        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <div id="piloto-box"></div>
+        
+        <select id="mov">
+            <option>Arribo</option>
+            <option>Entrada</option>
+            <option>Control 1</option>
+            <option>Salida</option>
+        </select>
 
+        <select id="prod">
+            <option>SBM</option>
+            <option>YC (USA)</option>
+            <option>SBW (ARG)</option>
+            <option>YC (BR)</option>
+            <option>YC (ARG)</option>
+            <option>SRW</option>
+            <option>DDGS</option>
+        </select>
+        <div style="margin-top: 15px;">
+            <input type="text" id="CicloTer" placeholder="Ciclo Terpac" style="width: 100%; margin-bottom: 10px;">
+            <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
+        </div>        
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+    </div>
            <!-- INTERFAZ SUPERVISOR (CORREGIDA Y COMPLETA) -->
     <div id="ui-supervisor" class="card-full" style="display:none;">
         <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
