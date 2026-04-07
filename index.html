@@ -421,6 +421,36 @@ function checkSSO_Dinamico(inputElement) {
                 link.click();
             } catch (e) { alert("Error al procesar el reporte."); }
         }
+    function actualizarUbicaciones() {
+    const fase = document.getElementById('p-fase').value;
+    const ubicacionSelect = document.getElementById('p-ubicacion');
+    
+    // Diccionario de datos
+    const opciones = {
+        "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"],
+        "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller de Maquinaria", "Taller de Mantenimiento"],
+        "Fase 3": ["Domo 1", "Domo 2", "Angar", "Tolvas"],
+        "Otro": ["Bodegas Externas"]
+    };
+
+    // Limpiar el selector de ubicación
+    ubicacionSelect.innerHTML = "";
+    
+    if (fase && opciones[fase]) {
+        ubicacionSelect.disabled = false;
+        opciones[fase].forEach(lugar => {
+            let opt = document.createElement("option");
+            opt.value = lugar;
+            opt.innerText = lugar;
+            ubicacionSelect.appendChild(opt);
+        });
+    } else {
+        ubicacionSelect.disabled = true;
+        let opt = document.createElement("option");
+        opt.innerText = "Esperando Fase...";
+        ubicacionSelect.appendChild(opt);
+    }
+}
     </script>
 </body>
 </html>
