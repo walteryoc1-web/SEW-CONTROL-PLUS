@@ -386,6 +386,7 @@ function enviarPermiso() {
     let listaCheck = Array.from(checkboxes).map(cb => cb.parentElement.innerText.trim());
 
     // Formato para SSO (Inicia con "PERMISO" para que el Sheets sepa a qué hoja ir)
+    // Verifica que tu HTML tenga esta línea exacta:
     const textoFinal = `PERMISO;${fase};${ubicacion};${tipoTrabajo};${descripcion};${listaTecnicos.join("/")};${listaCheck.join("/")}`;
 
     const btn = document.querySelector("#ui-seguridad .btn");
