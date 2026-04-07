@@ -225,7 +225,7 @@
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
 
 
-        function actualizarChecklist() {
+function actualizarChecklist() {
     const tipo = document.getElementById('p-tipo').value;
     const quiereHerramientas = document.getElementById('check-usar-herramientas').checked;
     const quiereColectiva = document.getElementById('check-usar-colectiva').checked;
@@ -241,26 +241,27 @@
     const datos = {
         "altura": {
             epp: ["EPP Completo", "Casco con barbuquejo", "Arnés", "Línea de vida"],
-            herramientas: ["Andamio", "Tablones", "Escalera de extensión", "Cuerdas de vida"],
-            colectiva: ["Redes de seguridad", "Barandas perimetrales", "Cintas amarillas", "Puntos de anclaje"]
+            herramientas: ["Andamio", "Tablones", "Escalera de extensión"],
+            colectiva: ["Redes de seguridad", "Cintas amarillas", "Barandas"]
         },
         "caliente": {
-            epp: ["EPP Completo", "Guantes de cuero", "Gabacha", "Careta", "Visor"],
-            herramientas: ["Máquina de soldar", "Amoladora / Esmeril", "Cables de potencia", "Extintor cercano"],
-            colectiva: ["Biombos ignífugos", "Mantas térmicas", "Ventilación forzada", "Señalización de peligro"]
+            epp: ["EPP Completo", "Guantes de cuero", "Gabacha", "Careta"],
+            herramientas: ["Máquina de soldar", "Amoladora / Esmeril", "Extintor"],
+            colectiva: ["Biombos ignífugos", "Mantas térmicas", "Señalización"]
         },
         "confinado": {
             epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración"],
-            herramientas: ["Trípode", "Ventilador de tiro forzado", "Iluminación de 12V"],
-            colectiva: ["Barreras de acceso", "Conos", "Señalización de atmósfera peligrosa", "Vigía de seguridad"]
+            herramientas: ["Trípode", "Ventilador", "Iluminación 12V"],
+            colectiva: ["Conos", "Vigía de seguridad", "Barreras"]
         },
         "electrico": {
-            epp: ["EPP Completo", "Guantes dieléctricos", "Careta protectora"],
-            herramientas: ["Multímetro", "Pértiga", "Kit LOTO (Candados)", "Herramientas aisladas"],
-            colectiva: ["Cintas de peligro", "Alfombra aislante", "Pantallas protectoras", "Bloqueo de tableros"]
+            epp: ["EPP Completo", "Guantes dieléctricos", "Botas dieléctricas"],
+            herramientas: ["Multímetro", "Pértiga", "Kit LOTO"],
+            colectiva: ["Cintas de peligro", "Alfombra aislante", "Bloqueos"]
         }
     };
 
+    // Limpiar listas para evitar acumulaciones
     listaEpp.innerHTML = "";
     listaHerramientas.innerHTML = "";
     listaColectiva.innerHTML = "";
@@ -268,7 +269,7 @@
     if (datos[tipo]) {
         contenedorGral.style.display = 'block'; 
 
-        // 1. EPP
+        // 1. Cargar EPP
         datos[tipo].epp.forEach(item => listaEpp.appendChild(crearCheck(item)));
 
         // 2. Herramientas
@@ -277,7 +278,7 @@
             datos[tipo].herramientas.forEach(item => listaHerramientas.appendChild(crearCheck(item)));
         } else { boxHerramientas.style.display = 'none'; }
 
-        // 3. Protección Colectiva
+        // 3. Colectiva
         if (quiereColectiva) {
             boxColectiva.style.display = 'block';
             datos[tipo].colectiva.forEach(item => listaColectiva.appendChild(crearCheck(item)));
@@ -287,34 +288,14 @@
         contenedorGral.style.display = 'none';
     }
 }
-    listaEpp.innerHTML = "";
-    listaHerramientas.innerHTML = "";
 
-    if (datos[tipo]) {
-        contenedorGral.style.display = 'block'; 
-
-        // 1. Siempre cargar y mostrar EPP
-        datos[tipo].epp.forEach(item => listaEpp.appendChild(crearCheck(item)));
-
-        // 2. Solo cargar y mostrar herramientas si el checkbox está marcado
-        if (quiereHerramientas) {
-            boxHerramientas.style.display = 'block';
-            datos[tipo].herramientas.forEach(item => listaHerramientas.appendChild(crearCheck(item)));
-        } else {
-            boxHerramientas.style.display = 'none';
-        }
-    } else {
-        contenedorGral.style.display = 'none';
-    }
-}
-
+// Función auxiliar indispensable
 function crearCheck(texto) {
     const div = document.createElement('div');
     div.style.margin = "8px 0";
     div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`;
     return div;
 }
-
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
             const pass = document.getElementById('p').value;
