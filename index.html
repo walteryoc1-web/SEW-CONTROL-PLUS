@@ -399,17 +399,17 @@ function enviarPermiso() {
     const checkboxes = document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked');
     let listaCheck = Array.from(checkboxes).map(cb => cb.parentElement.innerText.trim());
 
-    // SÍ lleva "PERMISO" al inicio
+    // Esta línea es la CLAVE: Debe llevar el "PERMISO;" al inicio
     const textoFinal = `PERMISO;${fase};${ubicacion};${tipoTrabajo};${descripcion};${listaTecnicos.join("/")};${listaCheck.join("/")}`;
 
-    // Buscamos el botón de SSO específicamente
     const btnSso = document.querySelector("#ui-seguridad .btn");
     btnSso.innerText = "Enviando..."; btnSso.disabled = true;
 
+    // Aquí es donde ocurre la magia del envío
     fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
     .then(() => {
-        alert("✅ Permiso SSO Registrado");
-        location.reload();
+        alert("✅ Permiso SSO Registrado en la nube");
+        location.reload(); // Limpia el formulario tras éxito
     })
     .catch(() => alert("Error de envío SSO"))
     .finally(() => { 
@@ -419,6 +419,7 @@ function enviarPermiso() {
         }
     });
 }
+
         async function actualizarPildoras() {
             try {
                 const response = await fetch(URL_SCRIPT);
