@@ -196,10 +196,14 @@
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
             <label><b>Personal ejecutor:</b></label>
 <input type="text" id="p-id" placeholder="INGRESE CÓDIGO (Ej: S001)" oninput="checkSSO()">
-<div id="personal-box" style="font-weight:bold; color:var(--verde-oscuro); margin:10px 0; display:none; padding:15px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); text-align:left;">
-    <!-- Aquí aparecerá el nombre automáticamente -->
+
+<!-- Cuadro para el Nombre -->
+<div id="personal-box" style="font-weight:bold; color:var(--verde-oscuro); margin:10px 0 5px 0; display:none; padding:12px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); text-align:left;">
 </div>
-<input type="text" id="p-empresa" placeholder="Empresa (se cargará sola)" readonly style="background:#f9f9f9;">
+
+<!-- Cuadro para la Empresa -->
+<div id="empresa-box" style="font-weight:bold; color:#555; margin:0 0 10px 0; display:none; padding:12px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; text-align:left; font-size:13px;">
+</div>
 
             
             <label><b>Tipo de Riesgo:</b></label>
@@ -340,9 +344,23 @@
         }
         function checkSSO() {
     const id = document.getElementById('p-id').value.trim().toUpperCase();
-    const box = document.getElementById('personal-box');
-    const empresaInput = document.getElementById('p-empresa');
+    const pBox = document.getElementById('personal-box');
+    const eBox = document.getElementById('empresa-box');
 
+    if(personalSeguridad[id]) { 
+        // Llenamos y mostramos el cuadro del nombre
+        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
+        pBox.style.display = 'block'; 
+        
+        // Llenamos y mostramos el cuadro de la empresa
+        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
+        eBox.style.display = 'block'; 
+    } else { 
+        // Si el código no existe, ocultamos ambos
+        pBox.style.display = 'none'; 
+        eBox.style.display = 'none'; 
+    }
+}
     if(personalSeguridad[id]) { 
         box.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
         box.style.display = 'block'; 
