@@ -128,19 +128,18 @@
         </div>
 
         <!-- 2. UBICACIÓN (Fase y Lugar específico) -->
-        <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-            <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-                <option value="" disabled selected>Area de Labores</option>
-                <option value="Fase 1">Fase 1</option>
-                <option value="Fase 2">Fase 2</option>
-                <option value="Fase 3">Fase 3</option>
-                <option value="Otro">Otro</option>
-            </select>
-            <select id="p-ubicacion" disabled style="flex: 1;">
-                <option value="" disabled selected>Lugar específico</option>
-            </select>
-        </div>
-
+<div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
+    <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+        <option value="" disabled selected>Area de Labores</option>
+        <option value="Fase 1">Fase 1</option>
+        <option value="Fase 2">Fase 2</option>
+        <option value="Fase 3">Fase 3</option>
+        <option value="Otro">Otro</option>
+    </select>
+    <select id="p-ubicacion" disabled style="flex: 1;">
+        <option value="" disabled selected>Lugar específico</option>
+    </select>
+</div>
         <!-- 3. TIPO DE TRABAJO (Dentro del cuadro) -->
         <select id="p-tipo" style="margin-bottom: 15px;">
             <option value="" disabled selected>Tipo de Trabajo</option>
@@ -301,10 +300,8 @@
        function actualizarUbicaciones() {
     const fase = document.getElementById('p-fase').value;
     const uSelect = document.getElementById('p-ubicacion');
-    
-    // Limpiar opciones actuales
-    uSelect.options.length = 0;
-    
+    uSelect.options.length = 0; // Limpia la lista
+
     const ops = { 
         "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], 
         "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], 
@@ -315,20 +312,19 @@
     if(fase && ops[fase]) {
         uSelect.disabled = false;
         
-        // Crear la opción de título (no seleccionable)
-        const titulo = new Option("Area de Labores", "");
+        // Agregamos el título bloqueado al segundo cuadro
+        let titulo = new Option("Lugar específico", "");
         titulo.disabled = true;
         titulo.selected = true;
         uSelect.add(titulo);
-        
-        // Agregar las opciones reales
+
+        // Agregamos las opciones reales
         ops[fase].forEach(l => uSelect.add(new Option(l, l)));
     } else { 
         uSelect.disabled = true; 
-        uSelect.add(new Option("Lugar de trabajo", "")); 
+        uSelect.add(new Option("Lugar específico", "")); 
     }
 }
-
         function enviarPermiso() { alert("Módulo de generación de PDF en construcción 📄"); }
     </script>
 </body>
