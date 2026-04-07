@@ -331,9 +331,9 @@ function crearCheck(texto) {
             contenedor.appendChild(nuevaFila);
         }
 
-        function checkSSO_Dinamico(input) {
+                function checkSSO_Dinamico(input) {
             const id = input.value.trim().toUpperCase();
-            const grupo = input.parentElement.parentElement;
+            const grupo = input.closest('.grupo-ejecutor');
             const pBox = grupo.querySelector('.personal-box-clase');
             const eBox = grupo.querySelector('.departamento-box-clase');
             if(personalSeguridad[id]) { 
@@ -350,6 +350,7 @@ function crearCheck(texto) {
 
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
+            const boxPiloto = document.getElementById('piloto-box');
             if(!pilotos[id]) return alert("ID no encontrado");
             const btn = document.getElementById('btn-env');
             btn.innerText = "Enviando..."; btn.disabled = true;
@@ -358,9 +359,11 @@ function crearCheck(texto) {
             const cTer = document.getElementById('CicloTer').value;
             const cEPQ = document.getElementById('CicloEPQ').value;
             const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
+            
             fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal }).then(() => {
                 alert("✅ Registro Exitoso");
-                document.getElementById('id-in').value = ""; box.style.display='none';
+                document.getElementById('id-in').value = ""; 
+                boxPiloto.style.display='none';
             }).catch(() => { alert("Error de envío"); }).finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
         }
 
@@ -377,8 +380,10 @@ function crearCheck(texto) {
         function iniciarReloj() {
             setInterval(() => {
                 const ahora = new Date();
-                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                const relojElement = document.getElementById('reloj');
+                const fechaElement = document.getElementById('fecha-actual');
+                if(relojElement) relojElement.innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
+                if(fechaElement) fechaElement.innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             }, 1000);
         }
 
@@ -399,41 +404,39 @@ function crearCheck(texto) {
             } catch (e) { alert("Error al procesar el reporte."); }
         }
 
-    function actualizarUbicaciones() {
-    const fase = document.getElementById('p-fase').value;
-    const uSelect = document.getElementById('p-ubicacion');
-    uSelect.options.length = 0; // Limpia la lista
+        function actualizarUbicaciones() {
+            const fase = document.getElementById('p-fase').value;
+            const uSelect = document.getElementById('p-ubicacion');
+            if(!uSelect) return;
+            uSelect.options.length = 0; 
+            const ops = { 
+                "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], 
+                "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], 
+                "Fase 3": ["Domo 1", "Domo 2", "Tolvas"], 
+                "Otro": ["Bodegas Externas"] 
+            };
+            if(fase && ops[fase]) {
+                uSelect.disabled = false;
+                let titulo = new Option("Lugar específico", "");
+                titulo.disabled = true; titulo.selected = true;
+                uSelect.add(titulo);
+                ops[fase].forEach(l => uSelect.add(new Option(l, l)));
+            } else { 
+                uSelect.disabled = true; 
+                uSelect.add(new Option("Lugar específico", "")); 
+            }
+        }
 
-    const ops = { 
-        "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], 
-        "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], 
-        "Fase 3": ["Domo 1", "Domo 2", "Tolvas"], 
-        "Otro": ["Bodegas Externas"] 
-    };
-
-    if(fase && ops[fase]) {
-        uSelect.disabled = false;
-        let titulo = new Option("Lugar específico", "");
-        titulo.disabled = true;
-        titulo.selected = true;
-        uSelect.add(titulo);
-        ops[fase].forEach(l => uSelect.add(new Option(l, l)));
-    } else { 
-        uSelect.disabled = true; 
-        uSelect.add(new Option("Lugar específico", "")); 
-    }
-}
-
-function enviarPermiso() { 
-    // Capturamos el texto del cuadro de descripción
-    const descripcion = document.getElementById('p-descripcion').value.trim();
-
-    // Validamos si está vacío
-    if(descripcion === "") {
-        alert("⚠️ Por favor, describa el trabajo a realizar antes de generar el permiso.");
-        return;
-    }
+        function enviarPermiso() { 
+            const descElement = document.getElementById('p-descripcion');
+            if(!descElement) return;
+            const descripcion = descElement.value.trim();
+            if(descripcion === "") {
+                alert("⚠️ Por favor, describa el trabajo a realizar antes de generar el permiso.");
+                return;
+            }
+            alert("📄 Generando permiso para el trabajo:\n" + descripcion);
+        } // <--- ESTA LLAVE FALTABA Y BLOQUEABA TODO
     </script>
 </body>
 </html>
-   
