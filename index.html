@@ -126,19 +126,18 @@
                 </div>
             </div>
 
-            <label><b>Ubicación del Trabajo:</b></label>
             <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-                <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-                    <option value="">Seleccione Fase...</option>
-                    <option value="Fase 1">Fase 1</option>
-                    <option value="Fase 2">Fase 2</option>
-                    <option value="Fase 3">Fase 3</option>
-                    <option value="Otro">Otro</option>
-                </select>
-                <select id="p-ubicacion" disabled style="flex: 1;">
-                    <option value="">Esperando Fase...</option>
-                </select>
-            </div>
+    <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+        <option value="">Lugar de trabajo</option>
+        <option value="Fase 1">Fase 1</option>
+        <option value="Fase 2">Fase 2</option>
+        <option value="Fase 3">Fase 3</option>
+        <option value="Otro">Otro</option>
+    </select>
+    <select id="p-ubicacion" disabled style="flex: 1;">
+        <option value="">Lugar de trabajo</option>
+    </select>
+</div>
 
             <label><b>Tipo de Riesgo:</b></label>
             <select id="p-tipo">
@@ -301,9 +300,9 @@
             uSelect.options.length = 0;
             const ops = { "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], "Fase 3": ["Domo 1", "Domo 2", "Tolvas"], "Otro": ["Bodegas Externas"] };
             if(fase && ops[fase]) {
-                uSelect.disabled = false; uSelect.add(new Option("Seleccione lugar...", ""));
+                uSelect.disabled = false; uSelect.add(new Option("Area de Labores", ""));
                 ops[fase].forEach(l => uSelect.add(new Option(l, l)));
-            } else { uSelect.disabled = true; uSelect.add(new Option("Esperando Fase...", "")); }
+            } else { uSelect.disabled = true; uSelect.add(new Option("Lugar de trabajo", "")); }
         }
 
         function enviarPermiso() { alert("Módulo de generación de PDF en construcción 📄"); }
