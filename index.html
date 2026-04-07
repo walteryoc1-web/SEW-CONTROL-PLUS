@@ -360,12 +360,21 @@ function crearCheck(texto) {
             const cEPQ = document.getElementById('CicloEPQ').value;
             const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
             
-          fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal }).then(() => {
-                alert("✅ Registro Exitoso");
-                document.getElementById('id-in').value = ""; 
-                boxPiloto.style.display='none';
-            }).catch(() => { alert("Error de envío"); }).finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
-        }
+          console.log("DEBUG - Datos preparados:", textoFinal); // Esto muestra la cadena en la consola (F12)
+
+fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
+    .then(() => {
+        alert("✅ El navegador intentó enviar: " + textoFinal);
+        // Aquí puedes ver si el formato es correcto
+    })
+    .catch((err) => { 
+        console.error("Error detallado:", err);
+        alert("❌ Error de envío. Revisa la consola con F12"); 
+    })
+    .finally(() => { 
+        btn.innerText = "REGISTRAR DATOS 🚀"; 
+        btn.disabled = false; 
+    });
 
 function enviarPermiso() {
     const fase = document.getElementById('p-fase').value;
