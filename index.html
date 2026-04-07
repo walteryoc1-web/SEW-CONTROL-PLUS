@@ -316,33 +316,32 @@ function crearCheck(texto) {
             } else { alert("Acceso Incorrecto"); }
         }
 
-        function agregarFilaEjecutor() {
-            const contenedor = document.getElementById('contenedor-ejecutores');
-            const nuevaFila = document.createElement('div');
-            nuevaFila.className = 'grupo-ejecutor';
-            nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
-            nuevaFila.innerHTML = `
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
-                    <button onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
-                </div>
-                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-                <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
-            contenedor.appendChild(nuevaFila);
-        }
+      function agregarFilaEjecutor() {
+    const contenedor = document.getElementById('contenedor-ejecutores');
+    const nuevaFila = document.createElement('div');
+    nuevaFila.className = 'grupo-ejecutor';
+    nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
+    nuevaFila.innerHTML = `
+        <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
+            <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px; cursor:pointer;">-</button>
+        </div>
+        <div class="personal-box-clase" style="font-weight:bold; color:#1b5e20; margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed #4caf50; font-size:13px;"></div>
+        <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
+    contenedor.appendChild(nuevaFila);
+}
 
-               function checkSSO_Dinamico(input) {
+function checkSSO_Dinamico(input) {
     const id = input.value.trim().toUpperCase();
     const grupo = input.closest('.grupo-ejecutor');
-    
-    // Cambiamos a 'empresa-box-clase' que es la que existe en tu innerHTML
     const pBox = grupo.querySelector('.personal-box-clase');
-    const eBox = grupo.querySelector('.empresa-box-clase'); 
+    const eBox = grupo.querySelector('.empresa-box-clase');
 
-    if(personalSeguridad && personalSeguridad[id]) { 
+    // Validamos que el ID no esté vacío y que la base de datos 'personalSeguridad' exista
+    if (id !== "" && typeof personalSeguridad !== 'undefined' && personalSeguridad[id]) { 
         pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
         pBox.style.display = 'block'; 
-        eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; 
+        eBox.innerHTML = "🏢 Depto: " + (personalSeguridad[id].e || "N/A"); 
         eBox.style.display = 'block'; 
     } else { 
         pBox.style.display = 'none'; 
@@ -350,29 +349,34 @@ function crearCheck(texto) {
     }
 }
 
-// 2. FUNCIÓN ENVIAR MEJORADA (Para capturar los ejecutores extra)
 function enviar() {
-    const idPrincipal = document.getElementById('id-in').value.trim();
-    if(!pilotos[idPrincipal]) return alert("ID de piloto no encontrado");
+    const idPrincipal = document.getElementById('id-in').value.trim().toUpperCase();
     
-    // Capturar IDs de los ejecutores adicionales
+    // Verificamos que el piloto principal exista antes de seguir
+    if(!pilotos || !pilotos[idPrincipal]) {
+        return alert("ID de piloto no encontrado o base de datos no cargada");
+    }
+    
+    const btn = document.getElementById('btn-env');
+    btn.innerText = "Enviando..."; 
+    btn.disabled = true;
+
+    // Recolectar IDs de ejecutores adicionales
     const inputsExtra = document.querySelectorAll('.p-id-clase');
     let idsExtra = [];
     inputsExtra.forEach(input => {
-        if(input.value.trim() !== "") idsExtra.push(input.value.trim().toUpperCase());
+        let val = input.value.trim().toUpperCase();
+        if(val !== "") idsExtra.push(val);
     });
 
-    const btn = document.getElementById('btn-env');
-    btn.innerText = "Enviando..."; btn.disabled = true;
-    
     const mov = document.getElementById('mov').value;
     const prod = document.getElementById('prod').value;
     const cTer = document.getElementById('CicloTer').value;
     const cEPQ = document.getElementById('CicloEPQ').value;
 
-    // Agregamos los IDs extra al final de la cadena, separados por comas o punto y coma
     const extraString = idsExtra.length > 0 ? idsExtra.join(",") : "NINGUNO";
 
+    // Cadena de datos para Google Sheets
     const textoFinal = `${idPrincipal};${pilotos[idPrincipal].n};${mov};${prod};${pilotos[idPrincipal].t};${pilotos[idPrincipal].c};${pilotos[idPrincipal].p};${cTer};${cEPQ};${extraString}`;
     
     fetch(URL_SCRIPT, { 
@@ -382,18 +386,20 @@ function enviar() {
     })
     .then(() => {
         alert("✅ Registro de Logística Exitoso");
-        // Limpiar todo
         document.getElementById('id-in').value = ""; 
-        document.getElementById('contenedor-ejecutores').innerHTML = ""; // Limpia filas extras
-        if(document.getElementById('piloto-box')) document.getElementById('piloto-box').style.display='none';
+        document.getElementById('contenedor-ejecutores').innerHTML = ""; 
+        const boxPiloto = document.getElementById('piloto-box');
+        if(boxPiloto) boxPiloto.style.display='none';
     })
-    .catch(() => { alert("Error de envío"); })
+    .catch(err => { 
+        console.error(err);
+        alert("Error de envío. Revisa tu conexión."); 
+    })
     .finally(() => { 
         btn.innerText = "REGISTRAR DATOS 🚀"; 
         btn.disabled = false; 
     });
 }
-
 
         async function actualizarPildoras() {
             try {
