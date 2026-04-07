@@ -204,7 +204,35 @@
                 <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
             </div>
         </div>
-        
+        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+    
+    <!-- 1. BLOQUE DE EJECUTORES (Lo que ya tienes) -->
+    <div id="contenedor-ejecutores">
+        <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:#ffffff !important; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; display:flex; align-items:center; justify-content:center;">+</button>
+            </div>
+            <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+            <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
+        </div>
+    </div>
+
+    <!-- 2. NUEVO BLOQUE: UBICACIÓN EN CASCADA (Aquí lo agregas) -->
+    <label><b>Ubicación del Trabajo:</b></label>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
+        <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+            <option value="">Seleccione Fase...</option>
+            <option value="Fase 1">Fase 1</option>
+            <option value="Fase 2">Fase 2</option>
+            <option value="Fase 3">Fase 3</option>
+            <option value="Otro">Otro</option>
+        </select>
+
+        <select id="p-ubicacion" disabled style="flex: 1;">
+            <option value="">Esperando Fase...</option>
+        </select>
+    </div>
         <label><b>Tipo de Riesgo:</b></label>
         <select id="p-tipo">
             <option>Trabajo en Alturas</option>
