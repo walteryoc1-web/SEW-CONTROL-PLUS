@@ -348,39 +348,43 @@ function crearCheck(texto) {
             if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
         }
 
-        function enviar() {
-            const id = document.getElementById('id-in').value.trim();
-            const boxPiloto = document.getElementById('piloto-box');
-            if(!pilotos[id]) return alert("ID no encontrado");
-            const btn = document.getElementById('btn-env');
-            btn.innerText = "Enviando..."; btn.disabled = true;
-            const mov = document.getElementById('mov').value;
-            const prod = document.getElementById('prod').value;
-            const cTer = document.getElementById('CicloTer').value;
-            const cEPQ = document.getElementById('CicloEPQ').value;
-            const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
-            
-          console.log("DEBUG - Datos preparados:", textoFinal); // Esto muestra la cadena en la consola (F12)
+        // --- FUNCIÓN PARA LOGÍSTICA (OPERADOR) ---
+function enviar() {
+    const id = document.getElementById('id-in').value.trim();
+    const boxPiloto = document.getElementById('piloto-box');
+    if(!pilotos[id]) return alert("ID no encontrado");
+    
+    const btn = document.getElementById('btn-env');
+    btn.innerText = "Enviando..."; btn.disabled = true;
+    
+    const mov = document.getElementById('mov').value;
+    const prod = document.getElementById('prod').value;
+    const cTer = document.getElementById('CicloTer').value;
+    const cEPQ = document.getElementById('CicloEPQ').value;
 
-fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
+    // NO lleva "PERMISO" al inicio
+    const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
+    
+    fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
     .then(() => {
-        alert("✅ El navegador intentó enviar: " + textoFinal);
-        // Aquí puedes ver si el formato es correcto
+        alert("✅ Registro de Logística Exitoso");
+        document.getElementById('id-in').value = ""; 
+        if(boxPiloto) boxPiloto.style.display='none';
     })
-    .catch((err) => { 
-        console.error("Error detallado:", err);
-        alert("❌ Error de envío. Revisa la consola con F12"); 
-    })
+    .catch(() => { alert("Error de envío"); })
     .finally(() => { 
         btn.innerText = "REGISTRAR DATOS 🚀"; 
         btn.disabled = false; 
     });
+}
 
+// --- FUNCIÓN PARA SEGURIDAD (SSO) ---
 function enviarPermiso() {
     const fase = document.getElementById('p-fase').value;
     const ubicacion = document.getElementById('p-ubicacion').value;
     const tipoTrabajo = document.getElementById('p-tipo').value;
-    const descripcion = document.getElementById('p-descripcion').value.trim();
+    const descElement = document.getElementById('p-descripcion');
+    const descripcion = descElement ? descElement.value.trim() : "";
     
     if (!fase || !ubicacion || !tipoTrabajo || descripcion === "") {
         return alert("⚠️ Complete todos los campos de seguridad.");
@@ -395,17 +399,25 @@ function enviarPermiso() {
     const checkboxes = document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked');
     let listaCheck = Array.from(checkboxes).map(cb => cb.parentElement.innerText.trim());
 
-    // Formato para SSO (Inicia con "PERMISO" para que el Sheets sepa a qué hoja ir)
-    // Verifica que tu HTML tenga esta línea exacta:
+    // SÍ lleva "PERMISO" al inicio
     const textoFinal = `PERMISO;${fase};${ubicacion};${tipoTrabajo};${descripcion};${listaTecnicos.join("/")};${listaCheck.join("/")}`;
 
-    const btn = document.querySelector("#ui-seguridad .btn");
-    btn.innerText = "Enviando..."; btn.disabled = true;
+    // Buscamos el botón de SSO específicamente
+    const btnSso = document.querySelector("#ui-seguridad .btn");
+    btnSso.innerText = "Enviando..."; btnSso.disabled = true;
 
-    fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal }).then(() => {
+    fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
+    .then(() => {
         alert("✅ Permiso SSO Registrado");
         location.reload();
-    }).catch(() => alert("Error de envío SSO")).finally(() => { btn.innerText = "🚀 GENERAR PERMISO"; btn.disabled = false; });
+    })
+    .catch(() => alert("Error de envío SSO"))
+    .finally(() => { 
+        if(btnSso) {
+            btnSso.innerText = "🚀 GENERAR PERMISO"; 
+            btnSso.disabled = false; 
+        }
+    });
 }
         async function actualizarPildoras() {
             try {
