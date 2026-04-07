@@ -268,7 +268,7 @@
     // Definimos la variable para no repetir código
     const pantallaLogin = document.getElementById('login');
 
-    if(user == "operador" && pass == "terpac") {
+        if(user == "operador" && pass == "terpac") {
         pantallaLogin.style.display = 'none'; 
         document.getElementById('ui-app').style.display = 'block';
     } 
@@ -281,14 +281,32 @@
     else if(user == "sso" && pass == "seguridad1") { 
         pantallaLogin.style.display = 'none'; 
         document.getElementById('ui-seguridad').style.display = 'block';
-        // Aquí podrías llamar a una función para cargar historial de permisos si quisieras
     }
     else { 
-        alert("Acceso Incorrecto, Walter. Revisá bien el usuario o clave."); 
+        alert("Acceso Incorrecto"); 
     }
 }
 
+function checkSSO() {
+    const id = document.getElementById('p-id').value.trim().toUpperCase();
+    const pBox = document.getElementById('personal-box');
+    const eBox = document.getElementById('empresa-box');
 
+    if(personalSeguridad[id]) { 
+        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
+        pBox.style.display = 'block'; 
+        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
+        eBox.style.display = 'block'; 
+    } else { 
+        pBox.style.display = 'none'; 
+        eBox.style.display = 'none'; 
+    }
+}
+
+// Agregué esta función vacía para que no te dé error el botón de Generar Permiso
+function enviarPermiso() {
+    alert("en contruccion");
+}
         async function actualizarPildoras() {
             try {
                 const response = await fetch(URL_SCRIPT);
