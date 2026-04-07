@@ -228,6 +228,8 @@
     </div>
 
     <script>
+            <script>
+        // BASE DE DATOS PILOTOS
         const pilotos = { 
             "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
             "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
@@ -252,77 +254,53 @@
             "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
             "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
         };
+
+        // BASE DE DATOS PERSONAL SEGURIDAD
         const personalSeguridad = { 
-    "S001": { n: "JUAN PEREZ", e: "MANTENIMIENTO INTERNO" }, 
-    "S002": { n: "CARLOS LOPEZ", e: "CONTRATISTA ABC" }, 
-    "S003": { n: "MARIO GOMEZ", e: "ELECTRO-SOLUCIONES" }
-    // Agregá aquí todos los códigos que necesités
-};
+            "S001": { n: "JUAN PEREZ", e: "MANTENIMIENTO INTERNO" }, 
+            "S002": { n: "CARLOS LOPEZ", e: "CONTRATISTA ABC" }, 
+            "S003": { n: "MARIO GOMEZ", e: "ELECTRO-SOLUCIONES" }
+        };
 
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
 
+        // --- FUNCIONES DE ACCESO ---
         function entrar() {
-    const user = document.getElementById('u').value.toLowerCase().trim();
-    const pass = document.getElementById('p').value;
-    
-    // Definimos la variable para no repetir código
-    const pantallaLogin = document.getElementById('login');
+            const user = document.getElementById('u').value.toLowerCase().trim();
+            const pass = document.getElementById('p').value;
+            const pantallaLogin = document.getElementById('login');
 
-        if(user == "operador" && pass == "terpac") {
-        pantallaLogin.style.display = 'none'; 
-        document.getElementById('ui-app').style.display = 'block';
-    } 
-    else if(user == "supervisor" && pass == "terpac1") {
-        pantallaLogin.style.display = 'none'; 
-        document.getElementById('ui-supervisor').style.display = 'block';
-        iniciarReloj();
-        actualizarPildoras();
-    }
-    else if(user == "sso" && pass == "seguridad1") { 
-        pantallaLogin.style.display = 'none'; 
-        document.getElementById('ui-seguridad').style.display = 'block';
-    }
-    else { 
-        alert("Acceso Incorrecto"); 
-    }
-}
-
-function checkSSO() {
-    const id = document.getElementById('p-id').value.trim().toUpperCase();
-    const pBox = document.getElementById('personal-box');
-    const eBox = document.getElementById('empresa-box');
-
-    if(personalSeguridad[id]) { 
-        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-        pBox.style.display = 'block'; 
-        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
-        eBox.style.display = 'block'; 
-    } else { 
-        pBox.style.display = 'none'; 
-        eBox.style.display = 'none'; 
-    }
-}
-
-// Agregué esta función vacía para que no te dé error el botón de Generar Permiso
-function enviarPermiso() {
-    alert("en contruccion");
-}
-        async function actualizarPildoras() {
-            try {
-                const response = await fetch(URL_SCRIPT);
-                const data = await response.json();
-                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
-                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
-                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
-            } catch (e) { console.log("Error cargando pildoras"); }
+            if(user == "operador" && pass == "terpac") {
+                pantallaLogin.style.display = 'none'; 
+                document.getElementById('ui-app').style.display = 'block';
+            } 
+            else if(user == "supervisor" && pass == "terpac1") {
+                pantallaLogin.style.display = 'none'; 
+                document.getElementById('ui-supervisor').style.display = 'block';
+                iniciarReloj();
+                actualizarPildoras();
+            }
+            else if(user == "sso" && pass == "terpac2") { 
+                pantallaLogin.style.display = 'none'; 
+                document.getElementById('ui-seguridad').style.display = 'block';
+            }
+            else { alert("Acceso Incorrecto"); }
         }
 
-        function iniciarReloj() {
-            setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }, 1000);
+        // --- BUSCADORES ---
+        function checkSSO() {
+            const id = document.getElementById('p-id').value.trim().toUpperCase();
+            const pBox = document.getElementById('personal-box');
+            const eBox = document.getElementById('empresa-box');
+            if(personalSeguridad[id]) { 
+                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
+                pBox.style.display = 'block'; 
+                eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
+                eBox.style.display = 'block'; 
+            } else { 
+                pBox.style.display = 'none'; 
+                eBox.style.display = 'none'; 
+            }
         }
 
         function check() {
@@ -331,6 +309,7 @@ function enviarPermiso() {
             if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
         }
 
+        // --- ENVÍOS ---
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
             if(!pilotos[id]) return alert("ID no encontrado");
@@ -353,68 +332,54 @@ function enviarPermiso() {
                 document.getElementById('CicloTer').value = "";
                 document.getElementById('CicloEPQ').value = "";
                 document.getElementById('piloto-box').style.display='none';
-            }).catch(() => {
-                alert("Error de envío");
-            }).finally(() => {
-                btn.innerText = "REGISTRAR DATOS 🚀";
-                btn.disabled = false;
-            });
+            }).catch(() => { alert("Error de envío"); })
+              .finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
         }
-        function checkSSO() {
-    const id = document.getElementById('p-id').value.trim().toUpperCase();
-    const pBox = document.getElementById('personal-box');
-    const eBox = document.getElementById('empresa-box');
 
-    if(personalSeguridad[id]) { 
-        // Llenamos y mostramos el cuadro del nombre
-        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-        pBox.style.display = 'block'; 
-        
-        // Llenamos y mostramos el cuadro de la empresa
-        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
-        eBox.style.display = 'block'; 
-    } else { 
-        // Si el código no existe, ocultamos ambos
-        pBox.style.display = 'none'; 
-        eBox.style.display = 'none'; 
-    }
-}
-    if(personalSeguridad[id]) { 
-        box.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-        box.style.display = 'block'; 
-        empresaInput.value = personalSeguridad[id].e; // Carga la empresa automáticamente
-    } else { 
-        box.style.display = 'none'; 
-        empresaInput.value = "";
-    }
-}
-       async function descargarCSV() {
-    const inicio = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
-    if(!inicio || !fin) return alert("Seleccioná las fechas.");
+        function enviarPermiso() {
+            alert("Módulo de generación de PDF en construcción 📄");
+        }
 
-    try {
-        const response = await fetch(URL_SCRIPT + "?accion=reporte");
-        const data = await response.json();
-        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-        if(filtrados.length === 0) return alert("No hay datos en ese rango.");
+        // --- MONITOR ---
+        async function actualizarPildoras() {
+            try {
+                const response = await fetch(URL_SCRIPT);
+                const data = await response.json();
+                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
+                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
+                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
+            } catch (e) { console.log("Error cargando pildoras"); }
+        }
 
-        // ENCABEZADOS DE COLUMNAS PARA EXCEL
-        let csv = "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
-        
-        filtrados.forEach(r => {
-            // Reemplazamos el ";" por "," para que Excel entienda que son columnas distintas
-            let detalleColumnas = r.datos.replace(/;/g, ',');
-            csv += `${r.fecha},${r.hora},${detalleColumnas}\n`;
-        });
+        function iniciarReloj() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }, 1000);
+        }
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `Reporte_Terpac_${inicio}_${fin}.csv`);
-        link.click();
-    } catch (e) { alert("Error al procesar el reporte."); }
-}
+        async function descargarCSV() {
+            const inicio = document.getElementById('f-inicio').value;
+            const fin = document.getElementById('f-fin').value;
+            if(!inicio || !fin) return alert("Seleccioná las fechas.");
+            try {
+                const response = await fetch(URL_SCRIPT + "?accion=reporte");
+                const data = await response.json();
+                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+                if(filtrados.length === 0) return alert("No hay datos en ese rango.");
+                let csv = "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
+                filtrados.forEach(r => {
+                    let detalleColumnas = r.datos.replace(/;/g, ',');
+                    csv += `${r.fecha},${r.hora},${detalleColumnas}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", `Reporte_Terpac_${inicio}_${fin}.csv`);
+                link.click();
+            } catch (e) { alert("Error al procesar el reporte."); }
+        }
     </script>
 </body>
 </html>
