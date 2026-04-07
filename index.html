@@ -298,7 +298,12 @@ function agregarFilaEjecutor() {
     nuevaFila.innerHTML = `
         <div style="display: flex; gap: 10px; align-items: center;">
             <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-            <button onclick="this.parentElement.parentElement.remove()" style="background:var(--rojo); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">×</button>
+            
+            <!-- EL BOTÓN DE ELIMINAR (EL SIGNO - O ×) -->
+            <button onclick="this.parentElement.parentElement.remove()" 
+                style="background:#e74c3c; color:white !important; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; display:flex; align-items:center; justify-content:center; line-height:1;">
+                -
+            </button>
         </div>
         <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
         <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
