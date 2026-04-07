@@ -228,6 +228,11 @@
                 iniciarReloj();
                 actualizarPildoras();
             }
+                }
+    else if(user == "sso" && pass == "seguridad1") { // <--- EL NUEVO PERFIL
+        pantallaLogin.style.display = 'none'; 
+        document.getElementById('ui-seguridad').style.display = 'block';
+    }
             else { alert("Acceso Incorrecto"); }
         }
 
