@@ -151,26 +151,36 @@
             <option value="electrico">Mantenimiento Eléctrico</option>
         </select>
 
-        <!-- 4. OPCIONES DINÁMICAS (Checkboxes Maestros) -->
-        <div style="margin: 10px 0; text-align: left; padding: 0 5px; display: flex; flex-direction: column; gap: 10px;">
-            <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-                ¿Requiere uso de Herramientas?
-            </label>
-            <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="check-usar-colectiva" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-                ¿Requiere Protección Colectiva?
-            </label>
-        </div>
+       <div style="margin: 10px 0; text-align: left; padding: 0 5px; display: flex; flex-direction: column; gap: 10px;">
+    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
+        ¿Requiere uso de Herramientas?
+    </label>
+    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" id="check-usar-colectiva" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
+        ¿Requiere Protección Colectiva?
+    </label>
+</div>
 
-        <!-- 5. CONTENEDOR DE LISTADOS DINÁMICOS -->
-        <div id="contenedor-checklist" style="display:none;">
-            <!-- Cuadro EPP -->
-            <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
-                <div id="lista-checks-epp"></div>
-            </div>
-<!-- 6. DESCRIPCIÓN MANUAL DEL TRABAJO -->
+<!-- 5. CONTENEDOR DE LISTADOS DINÁMICOS -->
+<div id="contenedor-checklist" style="display:none;">
+    <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
+        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
+        <div id="lista-checks-epp"></div>
+    </div>
+
+    <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
+        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
+        <div id="lista-checks-herramientas"></div>
+    </div>
+
+    <div id="box-colectiva" style="background:#e7f3ff; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #b8daff; display:none;">
+        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#004085;">🚧 PROTECCIÓN COLECTIVA:</p>
+        <div id="lista-checks-colectiva"></div>
+    </div>
+</div>
+
+<!-- 6. DESCRIPCIÓN MANUAL DEL TRABAJO (Fuera del contenedor para que no se oculte) -->
 <div style="margin: 15px 0; text-align: left;">
     <label style="font-weight: bold; font-size: 13px; color: #333; margin-bottom: 5px; display: block;">
         Descripción detallada del trabajo:
@@ -180,27 +190,8 @@
         style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; font-family: sans-serif; font-size: 14px; box-sizing: border-box; resize: none;"></textarea>
 </div>
 
-<!-- Botón Generar Permiso (ya lo tienes) -->
 <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-
-            <!-- Cuadro Herramientas -->
-            <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
-                <div id="lista-checks-herramientas"></div>
-            </div>
-
-            <!-- Cuadro Protección Colectiva -->
-            <div id="box-colectiva" style="background:#e7f3ff; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #b8daff; display:none;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#004085;">🚧 PROTECCIÓN COLECTIVA:</p>
-                <div id="lista-checks-colectiva"></div>
-            </div>
-        </div>
-
-        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-    </div>
-    
-    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
-</div>
+<button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
 
     <script>
         const pilotos = { 
@@ -228,7 +219,7 @@
             "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
         };
 
-        onst personalSeguridad = { 
+        const personalSeguridad = { 
             "16814": { n: "OLGA IDANIA DE LEON DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
             "60046": { n: "WALTER WALDEMAR YOC ALFARO", e: "LOGISTICA" }, 
             "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" }
