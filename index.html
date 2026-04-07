@@ -148,7 +148,29 @@
     <option value="confinado">En Espacios Confinados</option>
     <option value="electrico">Mantenimiento Eléctrico</option>
 </select>
+<!-- Checkbox para activar herramientas -->
+<div style="margin: 10px 0; text-align: left; padding: 0 5px;">
+    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+        <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
+        ¿Requiere uso de Herramientas?
+    </label>
+</div>
 
+<div id="contenedor-checklist" style="display:none;">
+    <!-- Cuadro de EPP (Este siempre se ve si hay tipo de trabajo) -->
+    <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
+        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
+        <div id="lista-checks-epp"></div>
+    </div>
+
+    <!-- Cuadro de Herramientas (Este se oculta/muestra con el checkbox) -->
+    <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
+        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
+        <div id="lista-checks-herramientas"></div>
+    </div>
+</div>
+
+        
 <!-- 4. CONTENEDOR DE CHECKLIST (Ponlo justo debajo del select) -->
 <div id="contenedor-checklist" style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0; text-align:left; display:none;">
     <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#333;">VERIFICACIÓN DE EPP REQUERIDO:</p>
@@ -197,34 +219,61 @@
 
 
         function actualizarChecklist() {
-            const tipo = document.getElementById('p-tipo').value;
-            const contenedor = document.getElementById('contenedor-checklist');
-            const lista = document.getElementById('lista-checks');
-            
-            const equipos = {
-                "altura": ["EPP Completo", "Casco con barbuquejo", "Prenda reflectiva", "Calzado industrial", "Pantalón de lona", "Arnés", "Línea de vida"],
-                "caliente": ["EPP Completo", "Casco", "Prenda reflectiva", "Calzado industrial", "Pantalón de lona", "Guantes de cuero", "Gabacha", "Careta", "Visor"],
-                "confinado": ["EPP Completo", "Monitor de gases", "Equipo de respiración", "Arnés de rescate", "Vigía externo"],
-                "electrico": ["EPP Completo", "Guantes dieléctricos", "Careta protectora", "Herramientas aisladas", "Alfombra aislante"]
-            };
-
-            lista.innerHTML = ""; 
-
-            if (equipos[tipo]) {
-                contenedor.style.display = 'block'; 
-                equipos[tipo].forEach(item => {
-                    const div = document.createElement('div');
-                    div.style.margin = "10px 0";
-                    div.innerHTML = `
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
-                            <input type="checkbox" style="width: 20px; height: 20px; margin: 0;"> ${item}
-                        </label>`;
-                    lista.appendChild(div);
-                });
-            } else {
-                contenedor.style.display = 'none';
-            }
+    const tipo = document.getElementById('p-tipo').value;
+    const quiereHerramientas = document.getElementById('check-usar-herramientas').checked;
+    
+    const contenedorGral = document.getElementById('contenedor-checklist');
+    const boxHerramientas = document.getElementById('box-herramientas');
+    
+    const listaEpp = document.getElementById('lista-checks-epp');
+    const listaHerramientas = document.getElementById('lista-checks-herramientas');
+    
+    const datos = {
+        "altura": {
+            epp: ["EPP Completo", "Casco con barbuquejo", "Arnés", "Línea de vida"],
+            herramientas: ["Andamio", "Tablones", "Escalera de extensión", "Cuerdas de vida"]
+        },
+        "caliente": {
+            epp: ["EPP Completo", "Guantes de cuero", "Gabacha", "Careta", "Visor"],
+            herramientas: ["Máquina de soldar", "Amoladora / Esmeril", "Cables de potencia", "Extintor cercano"]
+        },
+        "confinado": {
+            epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración"],
+            herramientas: ["Trípode", "Ventilador de tiro forzado", "Iluminación de 12V"]
+        },
+        "electrico": {
+            epp: ["EPP Completo", "Guantes dieléctricos", "Careta protectora"],
+            herramientas: ["Multímetro", "Pértiga", "Kit LOTO (Candados)", "Herramientas aisladas"]
         }
+    };
+
+    listaEpp.innerHTML = "";
+    listaHerramientas.innerHTML = "";
+
+    if (datos[tipo]) {
+        contenedorGral.style.display = 'block'; 
+
+        // 1. Siempre cargar y mostrar EPP
+        datos[tipo].epp.forEach(item => listaEpp.appendChild(crearCheck(item)));
+
+        // 2. Solo cargar y mostrar herramientas si el checkbox está marcado
+        if (quiereHerramientas) {
+            boxHerramientas.style.display = 'block';
+            datos[tipo].herramientas.forEach(item => listaHerramientas.appendChild(crearCheck(item)));
+        } else {
+            boxHerramientas.style.display = 'none';
+        }
+    } else {
+        contenedorGral.style.display = 'none';
+    }
+}
+
+function crearCheck(texto) {
+    const div = document.createElement('div');
+    div.style.margin = "8px 0";
+    div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`;
+    return div;
+}
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
