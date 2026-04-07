@@ -440,45 +440,48 @@ function enviarPermiso() {
             }, 1000);
         }
 
-        async function descargarCSV() {
-            const inicio = document.getElementById('f-inicio').value;
-            const fin = document.getElementById('f-fin').value;
-            if(!inicio || !fin) return alert("Seleccioná las fechas.");
-            try {
-                const response = await fetch(URL_SCRIPT + "?accion=reporte");
-                const data = await response.json();
-                const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-                if(filtrados.length === 0) return alert("No hay datos en ese rango.");
-                let csv = "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
-                filtrados.forEach(r => { let dc = r.datos.replace(/;/g, ','); csv += `${r.fecha},${r.hora},${dc}\n`; });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `Reporte_${inicio}_${fin}.csv`); link.click();
-            } catch (e) { alert("Error al procesar el reporte."); }
+       async function descargarCSV() {
+    const inicio = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!inicio || !fin) return alert("Seleccioná las fechas.");
+
+    try {
+        const response = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await response.json();
+        
+        // Filtrar datos por el rango de fechas seleccionado
+        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
+        
+        if(filtrados.length === 0) {
+            return alert("No hay datos en ese rango de fechas en la hoja LOGISTICA.");
         }
 
-        function actualizarUbicaciones() {
-            const fase = document.getElementById('p-fase').value;
-            const uSelect = document.getElementById('p-ubicacion');
-            if(!uSelect) return;
-            uSelect.options.length = 0; 
-            const ops = { 
-                "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], 
-                "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], 
-                "Fase 3": ["Domo 1", "Domo 2", "Tolvas"], 
-                "Otro": ["Bodegas Externas"] 
-            };
-            if(fase && ops[fase]) {
-                uSelect.disabled = false;
-                let titulo = new Option("Lugar específico", "");
-                titulo.disabled = true; titulo.selected = true;
-                uSelect.add(titulo);
-                ops[fase].forEach(l => uSelect.add(new Option(l, l)));
-            } else { 
-                uSelect.disabled = true; 
-                uSelect.add(new Option("Lugar específico", "")); 
-            }
-        }
+        // Encabezados según las columnas de tu hoja LOGISTICA
+        let csv = "\uFEFF"; // BOM para que Excel reconozca tildes y eñes
+        csv += "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
+        
+        filtrados.forEach(r => { 
+            // Convertimos los ";" que vienen de la base de datos a "," para el CSV
+            let dc = r.datos.replace(/;/g, ','); 
+            csv += `${r.fecha},${r.hora},${dc}\n`; 
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Reporte_Logistica_${inicio}_${fin}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (e) { 
+        console.error("Error descarga:", e);
+        alert("Error al obtener el reporte. Asegúrate de haber publicado el Apps Script como 'Nueva Versión'."); 
+    }
+}
 
     </script>
 </body>
