@@ -140,22 +140,20 @@
         <option value="" disabled selected>Lugar específico</option>
     </select>
 </div>
-        <!-- 3. TIPO DE TRABAJO (Dentro del cuadro) -->
-        <select id="p-tipo" style="margin-bottom: 15px;">
-            <option value="" disabled selected>Tipo de Trabajo</option>
-            <option>En Alturas</option>
-            <option>En Caliente (Soldadura)</option>
-            <option>En Espacios Confinados</option>
-            <option>Mantenimiento Eléctrico</option>
-        </select>
+      <!-- 3. TIPO DE TRABAJO -->
+<select id="p-tipo" onchange="actualizarChecklist()" style="margin-bottom: 15px;">
+    <option value="" disabled selected>Tipo de Trabajo</option>
+    <option value="altura">En Alturas</option>
+    <option value="caliente">En Caliente (Soldadura)</option>
+    <option value="confinado">En Espacios Confinados</option>
+    <option value="electrico">Mantenimiento Eléctrico</option>
+</select>
 
-        <!-- 4. CHECKLIST -->
-        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
-            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
-            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
-            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
-            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
-        </div>
+<!-- 4. CONTENEDOR DE CHECKLIST (Ponlo justo debajo del select) -->
+<div id="contenedor-checklist" style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0; text-align:left; display:none;">
+    <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#333;">VERIFICACIÓN DE EPP REQUERIDO:</p>
+    <div id="lista-checks"></div>
+</div>
 
         <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
     </div>
@@ -196,6 +194,42 @@
         };
 
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
+        // ... (aquí termina tu lista de pilotos y personalSeguridad)
+
+        const URL_SCRIPT = '...';
+
+    <script>
+        // --- COLÓCALA AQUÍ ABAJO ---
+
+        function actualizarChecklist() {
+            const tipo = document.getElementById('p-tipo').value;
+            const contenedor = document.getElementById('contenedor-checklist');
+            const lista = document.getElementById('lista-checks');
+            
+            const equipos = {
+                "altura": ["EPP Completo", "Casco con barbuquejo", "Prenda reflectiva", "Calzado industrial", "Pantalón de lona", "Arnés", "Línea de vida"],
+                "caliente": ["EPP Completo", "Casco", "Prenda reflectiva", "Calzado industrial", "Pantalón de lona", "Guantes de cuero", "Gabacha", "Careta", "Visor"],
+                "confinado": ["EPP Completo", "Monitor de gases", "Equipo de respiración", "Arnés de rescate", "Vigía externo"],
+                "electrico": ["EPP Completo", "Guantes dieléctricos", "Careta protectora", "Herramientas aisladas", "Alfombra aislante"]
+            };
+
+            lista.innerHTML = ""; 
+
+            if (equipos[tipo]) {
+                contenedor.style.display = 'block'; 
+                equipos[tipo].forEach(item => {
+                    const div = document.createElement('div');
+                    div.style.margin = "10px 0";
+                    div.innerHTML = `
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px;">
+                            <input type="checkbox" style="width: 20px; height: 20px; margin: 0;"> ${item}
+                        </label>`;
+                    lista.appendChild(div);
+                });
+            } else {
+                contenedor.style.display = 'none';
+            }
+        }
 
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
