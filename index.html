@@ -110,55 +110,59 @@
     </div>
 
     <!-- INTERFAZ SSO -->
-    <div id="ui-seguridad" class="card-full" style="display:none;">
-        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
-        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
+<div id="ui-seguridad" class="card-full" style="display:none;">
+    <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
+    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
 
-        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-            <div id="contenedor-ejecutores">
-                <div class="grupo-ejecutor" style="margin-bottom: 15px;">
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-                        <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">+</button>
-                     </div>
-                    <div class="personal-box-clase"></div>
-                    <div class="empresa-box-clase"></div>
-                </div>
+    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+        <!-- 1. PERSONAL EJECUTOR -->
+        <div id="contenedor-ejecutores">
+            <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                    <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">+</button>
+                 </div>
+                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+                <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
             </div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-    <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-        <option value="">Area de Labores</option>
-        <option value="Fase 1">Fase 1</option>
-        <option value="Fase 2">Fase 2</option>
-        <option value="Fase 3">Fase 3</option>
-        <option value="Otro">Otro</option>
-    </select>
-    <select id="p-ubicacion" disabled style="flex: 1;">
-        <option value="">Lugar especifico de trabajo</option>
-    </select>
-</div>
-
-            <label><b>Tipo de Trabajo:</b></label>
-            <select id="p-tipo">
-                <option>En Alturas</option>
-                <option>En Caliente (Soldadura)</option>
-                <option>En Espacios Confinados</option>
-                <option>Mantenimiento Eléctrico</option>
-            </select>
-
-            <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
-                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
-                <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
-                <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
-                <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
-            </div>
-
-            <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
         </div>
-        
-        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+
+        <!-- 2. UBICACIÓN (Fase y Lugar específico) -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
+            <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+                <option value="" disabled selected>Area de Labores</option>
+                <option value="Fase 1">Fase 1</option>
+                <option value="Fase 2">Fase 2</option>
+                <option value="Fase 3">Fase 3</option>
+                <option value="Otro">Otro</option>
+            </select>
+            <select id="p-ubicacion" disabled style="flex: 1;">
+                <option value="" disabled selected>Lugar específico</option>
+            </select>
+        </div>
+
+        <!-- 3. TIPO DE TRABAJO (Dentro del cuadro) -->
+        <select id="p-tipo" style="margin-bottom: 15px;">
+            <option value="" disabled selected>Tipo de Trabajo</option>
+            <option>En Alturas</option>
+            <option>En Caliente (Soldadura)</option>
+            <option>En Espacios Confinados</option>
+            <option>Mantenimiento Eléctrico</option>
+        </select>
+
+        <!-- 4. CHECKLIST -->
+        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
+            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
+            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
+            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
+            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+        </div>
+
+        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
     </div>
+    
+    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+</div>
 
     <script>
         const pilotos = { 
