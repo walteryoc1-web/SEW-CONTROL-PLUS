@@ -172,6 +172,36 @@
             <div id="fecha-actual">Cargando...</div>
             <div id="reloj">00:00:00</div>
         </div>
+<!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
+<div id="ui-seguridad" class="card-full" style="display:none;">
+    <h3 style="margin-top:0; color:var(--azul-corp);">PERMISO DE TRABAJO SEGURO</h3>
+    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
+
+    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+        <label><b>Personal ejecutor:</b></label>
+        <input type="text" id="p-nombre" placeholder="Nombre completo">
+        <input type="text" id="p-empresa" placeholder="Empresa o Contratista">
+        
+        <label><b>Tipo de Riesgo:</b></label>
+        <select id="p-tipo">
+            <option>Trabajo en Alturas</option>
+            <option>Trabajo en Caliente (Soldadura)</option>
+            <option>Espacios Confinados</option>
+            <option>Mantenimiento Eléctrico</option>
+        </select>
+
+        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
+            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
+            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
+            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
+            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+        </div>
+
+        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
+    </div>
+    
+    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+</div>
 
         <!-- FILTRO DE DESCARGA -->
         <div class="box-descarga">
