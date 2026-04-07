@@ -22,104 +22,25 @@
         .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
         .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
         
-       .reloj-container { 
-    margin: 20px 0; 
-    display: flex; 
-    flex-direction: column; /* Pone uno abajo del otro */
-    align-items: flex-start; /* Alinea a la izquierda */
-    padding: 0 25px; 
-}
-
-#reloj { 
-    font-size: 22px; 
-    font-weight: bold; 
-    color: white; 
-    background: var(--azul-reloj); 
-    padding: 5px 15px; 
-    border-radius: 15px; 
-    margin-top: 5px; /* Separa un poco de la fecha */
-}
-
-#fecha-actual { 
-    font-size: 14px; 
-    color: #555; 
-    font-weight: bold; 
-}
-
+        .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
+        #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
+        #fecha-actual { font-size: 14px; color: #555; font-weight: bold; }
 
         #contenedor-grafica { width: 100%; height: 350px; background: #fdfdfd; border: 2px solid #eee; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 18px; margin-top: 10px; }
-
         .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 5px 0; }
         .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-
         .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
 
-        /* ESTILO PARA DESCARGA */
-        .box-descarga { 
-    background: #eee; 
-    padding: 10px 15px; 
-    border-radius: 15px; 
-    margin: 5px 25px 15px auto; /* La empuja a la derecha */
-    max-width: 500px; /* Aumentamos un poco para que quepa la fila */
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* CONTENEDOR PARA ALINEAR EN FILA */
-.fila-descarga {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px; /* Espacio entre calendarios y botón */
-    margin-top: 10px;
-}
-
-.input-fecha { 
-    width: 130px !important; 
-    padding: 8px !important; 
-    margin: 0 !important; 
-    font-size: 12px !important;
-}
-
-.btn-csv { 
-    background: #27ae60; 
-    color: white; 
-    border: none; 
-    padding: 10px 15px; 
-    border-radius: 10px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    width: auto; 
-    margin: 0 !important; /* Quitamos márgenes para que no salte de línea */
-    font-size: 12px;
-    white-space: nowrap; /* Evita que el texto del botón se parta */
-}
-
-.input-fecha { 
-    width: 120px !important; /* Más pequeños para que quepan en la tarjeta */
-    display: inline-block !important; 
-    padding: 8px !important; 
-    margin: 5px !important; 
-    font-size: 12px !important;
-}
-
-.btn-csv { 
-    background: #27ae60; 
-    color: white; 
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 10px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    width: auto; 
-    margin-top: 10px; 
-    font-size: 13px;
- }
+        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 5px 25px 15px auto; max-width: 500px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .fila-descarga { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .input-fecha { width: 120px !important; display: inline-block !important; padding: 8px !important; margin: 5px !important; font-size: 12px !important; }
+        .btn-csv { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: auto; margin-top: 10px; font-size: 13px; }
     </style>
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="login" class="card-compacta">
         <h2 style="color:var(--verde-oscuro); margin-top:0; margin-bottom:5px;">TERPAC USUARIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
@@ -127,7 +48,8 @@
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
-<!-- INTERFAZ OPERADOR -->
+
+    <!-- INTERFAZ OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
         <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
@@ -155,9 +77,10 @@
             <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
         </div>        
         <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
-        <button class="btn-salir" onclick="location.reload()">CERRAR1</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
-           <!-- INTERFAZ SUPERVISOR (CORREGIDA Y COMPLETA) -->
+
+    <!-- INTERFAZ SUPERVISOR -->
     <div id="ui-supervisor" class="card-full" style="display:none;">
         <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
         <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
@@ -173,7 +96,6 @@
             <div id="reloj">00:00:00</div>
         </div>
 
-        <!-- FILTRO DE DESCARGA (AQUÍ ESTÁ DE VUELTA) -->
         <div class="box-descarga">
             <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold;">REPORTE POR FECHAS</p>
             <div class="fila-descarga">
@@ -184,66 +106,62 @@
         </div>
 
         <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
-
         <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
-    </div> <!-- CIERRE CORRECTO DEL SUPERVISOR -->
-
-    <<!-- INTERFAZ PARA EL USUARIO DE SEGURIDAD (SSO) -->
-<div id="ui-seguridad" class="card-full" style="display:none;">
-    <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
-    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
-
-    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-        <div id="contenedor-ejecutores">
-            <div class="grupo-ejecutor" style="margin-bottom: 15px;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-                    <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:#ffffff !important; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">+</button>
-                 </div>
-                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-                <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
-            </div>
-        </div>
-        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-
-            <!-- 2. NUEVO BLOQUE: UBICACIÓN EN CASCADA (Aquí lo agregas) -->
-    <label><b>Ubicación del Trabajo:</b></label>
-    <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-        <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-            <option value="">Seleccione Fase...</option>
-            <option value="Fase 1">Fase 1</option>
-            <option value="Fase 2">Fase 2</option>
-            <option value="Fase 3">Fase 3</option>
-            <option value="Otro">Otro</option>
-        </select>
-
-        <select id="p-ubicacion" disabled style="flex: 1;">
-            <option value="">Esperando Fase...</option>
-        </select>
     </div>
-        <label><b>Tipo de Riesgo:</b></label>
-        <select id="p-tipo">
-            <option>Trabajo en Alturas</option>
-            <option>Trabajo en Caliente (Soldadura)</option>
-            <option>Espacios Confinados</option>
-            <option>Mantenimiento Eléctrico</option>
-        </select>
 
-        <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
-            <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
-            <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
-            <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
-            <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+    <!-- INTERFAZ SSO -->
+    <div id="ui-seguridad" class="card-full" style="display:none;">
+        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
+        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
+
+        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+            <div id="contenedor-ejecutores">
+                <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                        <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">+</button>
+                     </div>
+                    <div class="personal-box-clase"></div>
+                    <div class="empresa-box-clase"></div>
+                </div>
+            </div>
+
+            <label><b>Ubicación del Trabajo:</b></label>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
+                <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+                    <option value="">Seleccione Fase...</option>
+                    <option value="Fase 1">Fase 1</option>
+                    <option value="Fase 2">Fase 2</option>
+                    <option value="Fase 3">Fase 3</option>
+                    <option value="Otro">Otro</option>
+                </select>
+                <select id="p-ubicacion" disabled style="flex: 1;">
+                    <option value="">Esperando Fase...</option>
+                </select>
+            </div>
+
+            <label><b>Tipo de Riesgo:</b></label>
+            <select id="p-tipo">
+                <option>Trabajo en Alturas</option>
+                <option>Trabajo en Caliente (Soldadura)</option>
+                <option>Espacios Confinados</option>
+                <option>Mantenimiento Eléctrico</option>
+            </select>
+
+            <div style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px;">VERIFICACIÓN (Checklist):</p>
+                <label><input type="checkbox" id="check-epp"> ¿EPP Completo?</label><br><br>
+                <label><input type="checkbox" id="check-herramienta"> ¿Herramientas OK?</label><br><br>
+                <label><input type="checkbox" id="check-area"> ¿Área Delimitada?</label>
+            </div>
+
+            <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
         </div>
+        
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+    </div>
 
-        <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-    </div> <!-- ESTE CIERRA LA CARD-COMPACTA -->
-    
-    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN1</button>
-</div> <!-- ESTE CIERRA EL UI-SEGURIDAD -->
-
-<script>
-        // BASE DE DATOS PILOTOS
+    <script>
         const pilotos = { 
             "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
             "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
@@ -269,119 +187,79 @@
             "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
         };
 
-        // BASE DE DATOS PERSONAL SEGURIDAD
         const personalSeguridad = { 
             "S001": { n: "JUAN PEREZ", e: "MANTENIMIENTO INTERNO" }, 
             "S002": { n: "CARLOS LOPEZ", e: "CONTRATISTA ABC" }, 
             "S003": { n: "MARIO GOMEZ", e: "ELECTRO-SOLUCIONES" }
         };
 
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
+        const URL_SCRIPT = 'https://google.com';
 
-        // --- FUNCIONES DE ACCESO ---
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
             const pass = document.getElementById('p').value;
-            const pantallaLogin = document.getElementById('login');
-
+            const login = document.getElementById('login');
             if(user == "operador" && pass == "terpac") {
-                pantallaLogin.style.display = 'none'; 
+                login.style.display = 'none'; 
                 document.getElementById('ui-app').style.display = 'block';
-            } 
-            else if(user == "supervisor" && pass == "terpac1") {
-                pantallaLogin.style.display = 'none'; 
+            } else if(user == "supervisor" && pass == "terpac1") {
+                login.style.display = 'none'; 
                 document.getElementById('ui-supervisor').style.display = 'block';
-                iniciarReloj();
-                actualizarPildoras();
-            }
-            else if(user == "sso" && pass == "terpac2") { 
-                pantallaLogin.style.display = 'none'; 
+                iniciarReloj(); actualizarPildoras();
+            } else if(user == "sso" && pass == "terpac2") { 
+                login.style.display = 'none'; 
                 document.getElementById('ui-seguridad').style.display = 'block';
-            }
-            else { alert("Acceso Incorrecto"); }
+            } else { alert("Acceso Incorrecto"); }
         }
 
-        // --- BUSCADORES ---
-        // FUNCIÓN PARA AGREGAR MÁS PERSONAS
-function agregarFilaEjecutor() {
-    const contenedor = document.getElementById('contenedor-ejecutores');
-    const nuevaFila = document.createElement('div');
-    nuevaFila.className = 'grupo-ejecutor';
-    nuevaFila.style.marginBottom = "15px";
-    nuevaFila.style.borderTop = "1px solid #eee";
-    nuevaFila.style.paddingTop = "10px";
+        function agregarFilaEjecutor() {
+            const contenedor = document.getElementById('contenedor-ejecutores');
+            const nuevaFila = document.createElement('div');
+            nuevaFila.className = 'grupo-ejecutor';
+            nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
+            nuevaFila.innerHTML = `
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
+                    <button onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
+                </div>
+                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+                <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
+            contenedor.appendChild(nuevaFila);
+        }
 
-    nuevaFila.innerHTML = `
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-            
-            <!-- EL BOTÓN DE ELIMINAR (EL SIGNO - O ×) -->
-            <button onclick="this.parentElement.parentElement.remove()" 
-                style="background:#e74c3c; color:white !important; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; display:flex; align-items:center; justify-content:center; line-height:1;">
-                -
-            </button>
-        </div>
-        <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-        <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
-    `;
-    contenedor.appendChild(nuevaFila);
-}
+        function checkSSO_Dinamico(input) {
+            const id = input.value.trim().toUpperCase();
+            const grupo = input.parentElement.parentElement;
+            const pBox = grupo.querySelector('.personal-box-clase');
+            const eBox = grupo.querySelector('.empresa-box-clase');
+            if(personalSeguridad[id]) { 
+                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
+                eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
+            } else { pBox.style.display = 'none'; eBox.style.display = 'none'; }
+        }
 
-// FUNCIÓN DE BÚSQUEDA DINÁMICA
-function checkSSO_Dinamico(inputElement) {
-    const id = inputElement.value.trim().toUpperCase();
-    const grupo = inputElement.parentElement.parentElement;
-    const pBox = grupo.querySelector('.personal-box-clase');
-    const eBox = grupo.querySelector('.empresa-box-clase');
-
-    if(personalSeguridad[id]) { 
-        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-        pBox.style.display = 'block'; 
-        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
-        eBox.style.display = 'block'; 
-    } else { 
-        pBox.style.display = 'none'; 
-        eBox.style.display = 'none'; 
-    }
-}
         function check() {
             const id = document.getElementById('id-in').value.trim();
             const box = document.getElementById('piloto-box');
             if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
         }
 
-        // --- ENVÍOS ---
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
             if(!pilotos[id]) return alert("ID no encontrado");
             const btn = document.getElementById('btn-env');
             btn.innerText = "Enviando..."; btn.disabled = true;
-
             const mov = document.getElementById('mov').value;
             const prod = document.getElementById('prod').value;
             const cTer = document.getElementById('CicloTer').value;
             const cEPQ = document.getElementById('CicloEPQ').value;
             const textoFinal = `${id};${pilotos[id].n};${mov};${prod};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${cTer};${cEPQ}`;
-
-            fetch(URL_SCRIPT, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: textoFinal
-            }).then(() => {
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal }).then(() => {
                 alert("✅ Registro Exitoso");
-                document.getElementById('id-in').value = "";
-                document.getElementById('CicloTer').value = "";
-                document.getElementById('CicloEPQ').value = "";
-                document.getElementById('piloto-box').style.display='none';
-            }).catch(() => { alert("Error de envío"); })
-              .finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
+                document.getElementById('id-in').value = ""; box.style.display='none';
+            }).catch(() => { alert("Error de envío"); }).finally(() => { btn.innerText = "REGISTRAR DATOS 🚀"; btn.disabled = false; });
         }
 
-        function enviarPermiso() {
-            alert("Módulo de generación de PDF en construcción 📄");
-        }
-
-        // --- MONITOR ---
         async function actualizarPildoras() {
             try {
                 const response = await fetch(URL_SCRIPT);
@@ -410,47 +288,26 @@ function checkSSO_Dinamico(inputElement) {
                 const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
                 if(filtrados.length === 0) return alert("No hay datos en ese rango.");
                 let csv = "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
-                filtrados.forEach(r => {
-                    let detalleColumnas = r.datos.replace(/;/g, ',');
-                    csv += `${r.fecha},${r.hora},${detalleColumnas}\n`;
-                });
+                filtrados.forEach(r => { let dc = r.datos.replace(/;/g, ','); csv += `${r.fecha},${r.hora},${dc}\n`; });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.setAttribute("download", `Reporte_Terpac_${inicio}_${fin}.csv`);
-                link.click();
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", `Reporte_${inicio}_${fin}.csv`); link.click();
             } catch (e) { alert("Error al procesar el reporte."); }
         }
-    function actualizarUbicaciones() {
-    const fase = document.getElementById('p-fase').value;
-    const ubicacionSelect = document.getElementById('p-ubicacion');
-    
-    // Diccionario de datos
-    const opciones = {
-        "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"],
-        "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller de Maquinaria", "Taller de Mantenimiento"],
-        "Fase 3": ["Domo 1", "Domo 2", "Angar", "Tolvas"],
-        "Otro": ["Bodegas Externas"]
-    };
 
-    // Limpiar el selector de ubicación
-    ubicacionSelect.innerHTML = "";
-    
-    if (fase && opciones[fase]) {
-        ubicacionSelect.disabled = false;
-        opciones[fase].forEach(lugar => {
-            let opt = document.createElement("option");
-            opt.value = lugar;
-            opt.innerText = lugar;
-            ubicacionSelect.appendChild(opt);
-        });
-    } else {
-        ubicacionSelect.disabled = true;
-        let opt = document.createElement("option");
-        opt.innerText = "Esperando Fase...";
-        ubicacionSelect.appendChild(opt);
-    }
-}
+        function actualizarUbicaciones() {
+            const fase = document.getElementById('p-fase').value;
+            const uSelect = document.getElementById('p-ubicacion');
+            uSelect.options.length = 0;
+            const ops = { "Fase 1": ["Silos", "Angares", "Bodega 1", "Bodega 2"], "Fase 2": ["Bodega 3", "Bodega 4", "Silo Cónico", "Taller"], "Fase 3": ["Domo 1", "Domo 2", "Tolvas"], "Otro": ["Bodegas Externas"] };
+            if(fase && ops[fase]) {
+                uSelect.disabled = false; uSelect.add(new Option("Seleccione lugar...", ""));
+                ops[fase].forEach(l => uSelect.add(new Option(l, l)));
+            } else { uSelect.disabled = true; uSelect.add(new Option("Esperando Fase...", "")); }
+        }
+
+        function enviarPermiso() { alert("Módulo de generación de PDF en construcción 📄"); }
     </script>
 </body>
 </html>
+   
