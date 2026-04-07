@@ -194,11 +194,20 @@
         <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
 
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-            <label><b>Personal ejecutor:</b></label>
-<input type="text" id="p-id" placeholder="INGRESE CÓDIGO (Ej: S001)" oninput="checkSSO()">
-
-<!-- Cuadro para el Nombre -->
-<div id="personal-box" style="font-weight:bold; color:var(--verde-oscuro); margin:10px 0 5px 0; display:none; padding:12px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); text-align:left;">
+    <div id="contenedor-ejecutores">
+        <!-- El primer ejecutor siempre está -->
+        <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                <button onclick="agregarFilaEjecutor()" style="background:var(--azul-brillante); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:20px;">+</button>
+            </div>
+            <!-- Cuadros de respuesta dinámicos -->
+            <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+            <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
+        </div>
+    </div>
+    
+    <!-- Aquí siguen los demás campos como Tipo de Riesgo, Checklist, etc. -->
 </div>
 
 <!-- Cuadro para la Empresa -->
@@ -287,21 +296,43 @@
         }
 
         // --- BUSCADORES ---
-        function checkSSO() {
-            const id = document.getElementById('p-id').value.trim().toUpperCase();
-            const pBox = document.getElementById('personal-box');
-            const eBox = document.getElementById('empresa-box');
-            if(personalSeguridad[id]) { 
-                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-                pBox.style.display = 'block'; 
-                eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
-                eBox.style.display = 'block'; 
-            } else { 
-                pBox.style.display = 'none'; 
-                eBox.style.display = 'none'; 
-            }
-        }
+        // FUNCIÓN PARA AGREGAR MÁS PERSONAS
+function agregarFilaEjecutor() {
+    const contenedor = document.getElementById('contenedor-ejecutores');
+    const nuevaFila = document.createElement('div');
+    nuevaFila.className = 'grupo-ejecutor';
+    nuevaFila.style.marginBottom = "15px";
+    nuevaFila.style.borderTop = "1px solid #eee";
+    nuevaFila.style.paddingTop = "10px";
 
+    nuevaFila.innerHTML = `
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+            <button onclick="this.parentElement.parentElement.remove()" style="background:var(--rojo); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">×</button>
+        </div>
+        <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+        <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
+    `;
+    contenedor.appendChild(nuevaFila);
+}
+
+// FUNCIÓN DE BÚSQUEDA DINÁMICA
+function checkSSO_Dinamico(inputElement) {
+    const id = inputElement.value.trim().toUpperCase();
+    const grupo = inputElement.parentElement.parentElement;
+    const pBox = grupo.querySelector('.personal-box-clase');
+    const eBox = grupo.querySelector('.empresa-box-clase');
+
+    if(personalSeguridad[id]) { 
+        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
+        pBox.style.display = 'block'; 
+        eBox.innerHTML = "🏢 Empresa: " + personalSeguridad[id].e; 
+        eBox.style.display = 'block'; 
+    } else { 
+        pBox.style.display = 'none'; 
+        eBox.style.display = 'none'; 
+    }
+}
         function check() {
             const id = document.getElementById('id-in').value.trim();
             const box = document.getElementById('piloto-box');
