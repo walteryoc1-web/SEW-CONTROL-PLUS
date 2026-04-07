@@ -480,16 +480,6 @@ function enviarPermiso() {
             }
         }
 
-        function enviarPermiso() { 
-            const descElement = document.getElementById('p-descripcion');
-            if(!descElement) return;
-            const descripcion = descElement.value.trim();
-            if(descripcion === "") {
-                alert("⚠️ Por favor, describa el trabajo a realizar antes de generar el permiso.");
-                return;
-            }
-            alert("📄 Generando permiso para el trabajo:\n" + descripcion);
-        } // <--- ESTA LLAVE FALTABA Y BLOQUEABA TODO
     </script>
 </body>
 </html>
