@@ -316,7 +316,7 @@ function crearCheck(texto) {
             } else { alert("Acceso Incorrecto"); }
         }
 
-      function agregarFilaEjecutor() {
+     function agregarFilaEjecutor() {
     const contenedor = document.getElementById('contenedor-ejecutores');
     const nuevaFila = document.createElement('div');
     nuevaFila.className = 'grupo-ejecutor';
@@ -324,9 +324,9 @@ function crearCheck(texto) {
     nuevaFila.innerHTML = `
         <div style="display:flex; gap:10px; align-items:center;">
             <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
-            <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px; cursor:pointer;">-</button>
+            <button onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
         </div>
-        <div class="personal-box-clase" style="font-weight:bold; color:#1b5e20; margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed #4caf50; font-size:13px;"></div>
+        <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
         <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
     contenedor.appendChild(nuevaFila);
 }
@@ -335,17 +335,13 @@ function checkSSO_Dinamico(input) {
     const id = input.value.trim().toUpperCase();
     const grupo = input.closest('.grupo-ejecutor');
     const pBox = grupo.querySelector('.personal-box-clase');
-    const eBox = grupo.querySelector('.empresa-box-clase');
+    const eBox = grupo.querySelector('.empresa-box-clase'); // <--- Esta es la corrección fija
 
-    // Validamos que el ID no esté vacío y que la base de datos 'personalSeguridad' exista
-    if (id !== "" && typeof personalSeguridad !== 'undefined' && personalSeguridad[id]) { 
-        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; 
-        pBox.style.display = 'block'; 
-        eBox.innerHTML = "🏢 Depto: " + (personalSeguridad[id].e || "N/A"); 
-        eBox.style.display = 'block'; 
+    if(personalSeguridad[id]) { 
+        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
+        eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
     } else { 
-        pBox.style.display = 'none'; 
-        eBox.style.display = 'none'; 
+        pBox.style.display = 'none'; eBox.style.display = 'none'; 
     }
 }
 
