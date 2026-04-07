@@ -109,12 +109,13 @@
         <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
     </div>
 
-    <!-- INTERFAZ SSO -->
+   <!-- INTERFAZ SSO -->
 <div id="ui-seguridad" class="card-full" style="display:none;">
     <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
     <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
 
     <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+        
         <!-- 1. PERSONAL EJECUTOR -->
         <div id="contenedor-ejecutores">
             <div class="grupo-ejecutor" style="margin-bottom: 15px;">
@@ -127,85 +128,61 @@
             </div>
         </div>
 
-        <!-- 2. UBICACIÓN (Fase y Lugar específico) -->
-<div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-    <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-        <option value="" disabled selected>Area de Labores</option>
-        <option value="Fase 1">Fase 1</option>
-        <option value="Fase 2">Fase 2</option>
-        <option value="Fase 3">Fase 3</option>
-        <option value="Otro">Otro</option>
-    </select>
-    <select id="p-ubicacion" disabled style="flex: 1;">
-        <option value="" disabled selected>Lugar específico</option>
-    </select>
-</div>
-      <!-- 3. TIPO DE TRABAJO -->
-<select id="p-tipo" onchange="actualizarChecklist()" style="margin-bottom: 15px;">
-    <option value="" disabled selected>Tipo de Trabajo</option>
-    <option value="altura">En Alturas</option>
-    <option value="caliente">En Caliente (Soldadura)</option>
-    <option value="confinado">En Espacios Confinados</option>
-    <option value="electrico">Mantenimiento Eléctrico</option>
-</select>
-<!-- Checkbox para activar herramientas -->
-<div style="margin: 10px 0; text-align: left; padding: 0 5px;">
-    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-        ¿Requiere uso de Herramientas?
-    </label>
-</div>
+        <!-- 2. UBICACIÓN -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
+            <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
+                <option value="" disabled selected>Area de Labores</option>
+                <option value="Fase 1">Fase 1</option>
+                <option value="Fase 2">Fase 2</option>
+                <option value="Fase 3">Fase 3</option>
+                <option value="Otro">Otro</option>
+            </select>
+            <select id="p-ubicacion" disabled style="flex: 1;">
+                <option value="" disabled selected>Lugar específico</option>
+            </select>
+        </div>
 
-<div id="contenedor-checklist" style="display:none;">
-    <!-- Cuadro de EPP (Este siempre se ve si hay tipo de trabajo) -->
-    <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
-        <div id="lista-checks-epp"></div>
-    </div>
+        <!-- 3. TIPO DE TRABAJO -->
+        <select id="p-tipo" onchange="actualizarChecklist()" style="margin-bottom: 15px;">
+            <option value="" disabled selected>Tipo de Trabajo</option>
+            <option value="altura">En Alturas</option>
+            <option value="caliente">En Caliente (Soldadura)</option>
+            <option value="confinado">En Espacios Confinados</option>
+            <option value="electrico">Mantenimiento Eléctrico</option>
+        </select>
 
-    <!-- Cuadro de Herramientas (Este se oculta/muestra con el checkbox) -->
-    <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
-        <div id="lista-checks-herramientas"></div>
-    </div>
-</div>
-<!-- Checkboxes para activar bloques dinámicos -->
-<div style="margin: 10px 0; text-align: left; padding: 0 5px; display: flex; flex-direction: column; gap: 10px;">
-    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-        ¿Requiere uso de Herramientas?
-    </label>
-    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="check-usar-colectiva" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-        ¿Requiere Protección Colectiva?
-    </label>
-</div>
+        <!-- 4. OPCIONES DINÁMICAS (Checkboxes Maestros) -->
+        <div style="margin: 10px 0; text-align: left; padding: 0 5px; display: flex; flex-direction: column; gap: 10px;">
+            <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
+                ¿Requiere uso de Herramientas?
+            </label>
+            <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="check-usar-colectiva" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
+                ¿Requiere Protección Colectiva?
+            </label>
+        </div>
 
-<div id="contenedor-checklist" style="display:none;">
-    <!-- Cuadro de EPP (Verde) -->
-    <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
-        <div id="lista-checks-epp"></div>
-    </div>
+        <!-- 5. CONTENEDOR DE LISTADOS DINÁMICOS -->
+        <div id="contenedor-checklist" style="display:none;">
+            <!-- Cuadro EPP -->
+            <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
+                <div id="lista-checks-epp"></div>
+            </div>
 
-    <!-- Cuadro de Herramientas (Amarillo) -->
-    <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
-        <div id="lista-checks-herramientas"></div>
-    </div>
+            <!-- Cuadro Herramientas -->
+            <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
+                <div id="lista-checks-herramientas"></div>
+            </div>
 
-    <!-- Cuadro de Protección Colectiva (Azul) -->
-    <div id="box-colectiva" style="background:#e7f3ff; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #b8daff; display:none;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#004085;">🚧 PROTECCIÓN COLECTIVA:</p>
-        <div id="lista-checks-colectiva"></div>
-    </div>
-</div>
-        
-<!-- CONTENEDOR DE CHECKLIST  -->
-<div id="contenedor-checklist" style="background:#f1f4f9; padding:15px; border-radius:12px; margin:10px 0; text-align:left; display:none;">
-    <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#333;">VERIFICACIÓN DE EPP REQUERIDO:</p>
-    <div id="lista-checks"></div>
-</div>
+            <!-- Cuadro Protección Colectiva -->
+            <div id="box-colectiva" style="background:#e7f3ff; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #b8daff; display:none;">
+                <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#004085;">🚧 PROTECCIÓN COLECTIVA:</p>
+                <div id="lista-checks-colectiva"></div>
+            </div>
+        </div>
 
         <button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
     </div>
