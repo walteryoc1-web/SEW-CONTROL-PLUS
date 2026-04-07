@@ -215,26 +215,32 @@
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
 
         function entrar() {
-            const user = document.getElementById('u').value.toLowerCase().trim();
-            const pass = document.getElementById('p').value;
+    const user = document.getElementById('u').value.toLowerCase().trim();
+    const pass = document.getElementById('p').value;
+    
+    // Definimos la variable para no repetir código
+    const pantallaLogin = document.getElementById('login');
 
-            if(user == "operador" && pass == "terpac") {
-                document.getElementById('login').style.display='none'; 
-                document.getElementById('ui-app').style.display='block';
-            } 
-            else if(user == "supervisor" && pass == "terpac1") {
-                document.getElementById('login').style.display='none'; 
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj();
-                actualizarPildoras();
-            }
-                }
-    else if(user == "sso" && pass == "seguridad1") { // <--- EL NUEVO PERFIL
+    if(user == "operador" && pass == "terpac") {
+        pantallaLogin.style.display = 'none'; 
+        document.getElementById('ui-app').style.display = 'block';
+    } 
+    else if(user == "supervisor" && pass == "terpac1") {
+        pantallaLogin.style.display = 'none'; 
+        document.getElementById('ui-supervisor').style.display = 'block';
+        iniciarReloj();
+        actualizarPildoras();
+    }
+    else if(user == "sso" && pass == "seguridad1") { 
         pantallaLogin.style.display = 'none'; 
         document.getElementById('ui-seguridad').style.display = 'block';
+        // Aquí podrías llamar a una función para cargar historial de permisos si quisieras
     }
-            else { alert("Acceso Incorrecto"); }
-        }
+    else { 
+        alert("Acceso Incorrecto, Walter. Revisá bien el usuario o clave."); 
+    }
+}
+
 
         async function actualizarPildoras() {
             try {
