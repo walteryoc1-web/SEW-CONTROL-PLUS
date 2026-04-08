@@ -268,18 +268,24 @@
     }
 
    function enviarPermisoSSO() {
-    // 1. Obtener nombres de técnicos para el mensaje
+    // 1. Obtener nombres + departamentos + línea de firma
     const inputsExtra = document.querySelectorAll('.p-id-clase');
     let listaLegible = [];
+    
     inputsExtra.forEach(input => {
         let id = input.value.trim().toUpperCase();
         if (id !== "" && personalSeguridad[id]) {
-            listaLegible.push(`${personalSeguridad[id].n}`);
+            // Agregamos Nombre, Departamento y espacio para firma
+            listaLegible.push(`${personalSeguridad[id].n} (${personalSeguridad[id].e}) ____________________`);
         }
     });
     
-    const primerNombre = listaLegible.length > 0 ? listaLegible[0] : "Permiso";
-    const ejecutoresFinales = listaLegible.join(", ");
+    // Usamos el primer nombre para el nombre del archivo PDF
+    const primerNombre = listaLegible.length > 0 ? listaLegible[0].split(' (')[0] : "Permiso";
+    
+    // UNIMOS CON \n para que en el PDF salgan en cascada
+    const ejecutoresFinales = listaLegible.join("\n"); 
+
     const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked'))
                           .map(chk => chk.parentElement.innerText.trim())
                           .join(" | ");
@@ -303,7 +309,7 @@
             const linkSource = `data:application/pdf;base64,${base64Data}`;
             const downloadLink = document.createElement("a");
             
-            // Nombre del archivo dinámico
+            // Nombre del archivo dinámico (limpiamos espacios)
             const fileName = `Folio_SSO_${primerNombre.replace(/ /g,"_")}.pdf`;
 
             downloadLink.href = linkSource;
