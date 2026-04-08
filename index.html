@@ -83,14 +83,23 @@
         </div>
     </div>
 
-        <div class="box-descarga">
-        <p style="margin:0; font-size:12px; font-weight:bold;">HISTORIAL DE PERMISOS SSO</p>
-        <div class="fila-descarga">
-            <input type="date" id="f-ini-sso" class="input-fecha">
-            <input type="date" id="f-fin-sso" class="input-fecha">
-            <button class="btn-csv" onclick="descargarCSV_SSO()" style="background:#3498db;">📥 DESCARGAR SSO</button>
+    <!-- ESTO ES LO QUE FALTABA: El lugar donde se listan los permisos para cerrar -->
+    <div style="margin: 20px auto; max-width: 500px;">
+        <p style="margin:0; font-size:12px; font-weight:bold; color:#555;">PERMISOS ACTIVOS PARA CIERRE</p>
+        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:50px; margin-top:5px; max-height:250px; overflow-y:auto;">
+            <!-- Los botones de cierre se generarán aquí automáticamente -->
         </div>
     </div>
+
+    <div class="box-descarga">
+        <p style="margin:0; font-size:12px; font-weight:bold;">HISTORIAL DE PERMISOS SSO</p>
+        <div style="display:flex; gap:10px; justify-content:center; align-items:center; margin-top:10px;">
+            <input type="date" id="f-ini-sso" style="width:130px;">
+            <input type="date" id="f-fin-sso" style="width:130px;">
+            <button class="btn" onclick="descargarCSV_SSO()" style="background:#3498db; width:auto; padding:10px; font-size:12px;">📥 DESCARGAR SSO</button>
+        </div>
+    </div>
+
     <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
 </div>
 
