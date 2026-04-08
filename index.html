@@ -7,35 +7,20 @@
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
-        
         .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
-        
-        input, select { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
+        input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
         .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
         .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; font-size: 14px; width: 100%; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; max-width: 300px; }
-        
         #piloto-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; }
-
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; padding: 0 10px; }
         .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 150px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
         .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
         .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
-        
         .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
         #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
         #fecha-actual { font-size: 14px; color: #555; font-weight: bold; }
-
-        #contenedor-grafica { width: 100%; height: 350px; background: #fdfdfd; border: 2px solid #eee; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 18px; margin-top: 10px; }
-        .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 5px 0; }
-        .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
-
-        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 5px 25px 15px auto; max-width: 500px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .fila-descarga { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
-        .input-fecha { width: 120px !important; display: inline-block !important; padding: 8px !important; margin: 5px !important; font-size: 12px !important; }
-        .btn-csv { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: auto; margin-top: 10px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -55,411 +40,109 @@
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
         <div id="piloto-box"></div>
-        
         <select id="mov">
-            <option>Arribo</option>
-            <option>Entrada</option>
-            <option>Control 1</option>
-            <option>Salida</option>
+            <option>Arribo</option><option>Entrada</option><option>Control 1</option><option>Salida</option>
         </select>
-
         <select id="prod">
-            <option>SBM</option>
-            <option>YC (USA)</option>
-            <option>SBW (ARG)</option>
-            <option>YC (BR)</option>
-            <option>YC (ARG)</option>
-            <option>SRW</option>
-            <option>DDGS</option>
+            <option>SBM</option><option>YC (USA)</option><option>SBW (ARG)</option><option>YC (BR)</option><option>YC (ARG)</option><option>SRW</option><option>DDGS</option>
         </select>
-        <div style="margin-top: 15px;">
-            <input type="text" id="CicloTer" placeholder="Ciclo Terpac" style="width: 100%; margin-bottom: 10px;">
-            <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q" style="width: 100%;">
-        </div>        
+        <input type="text" id="CicloTer" placeholder="Ciclo Terpac">
+        <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
         <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- INTERFAZ SUPERVISOR -->
-    <div id="ui-supervisor" class="card-full" style="display:none;">
-        <span class="sub-plus" style="margin-top:10px; margin-bottom:0;">SEW-CONTROL PLUS SC-MON-RT-01</span>
-        <div class="live-status"><div class="dot"></div> MONITOR TERPAC - PUERTO QUETZAL (EN VIVO)</div>
-        
-        <div class="pildoras-horizontal">
-            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente Ingreso</h3><p id="count-pendientes">00</p></div>
-            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso Carga</h3><p id="count-proceso">00</p></div>
-            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Total Despachadas</h3><p id="count-despachadas">00</p></div>
-        </div>
-
-        <div class="reloj-container">
-            <div id="fecha-actual">Cargando...</div>
-            <div id="reloj">00:00:00</div>
-        </div>
-
-        <div class="box-descarga">
-            <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold;">REPORTE POR FECHAS</p>
-            <div class="fila-descarga">
-                <input type="date" id="f-inicio" class="input-fecha">
-                <input type="date" id="f-fin" class="input-fecha">
-                <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR</button>
+    <!-- INTERFAZ SSO -->
+    <div id="ui-seguridad" class="card-full" style="display:none;">
+        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
+        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC</span>
+        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+            <div id="contenedor-ejecutores">
+                <div class="grupo-ejecutor" style="margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
+                        <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px;">+</button>
+                    </div>
+                    <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+                    <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
+                </div>
             </div>
-        </div>
-
-        <div id="contenedor-grafica">Área para Gráfica de Rendimiento Logístico</div>
-        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
-    </div>
-
-   <!-- INTERFAZ SSO -->
-<div id="ui-seguridad" class="card-full" style="display:none;">
-    <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
-    <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC CLON</span>
-
-    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-        
-        <!-- 1. PERSONAL EJECUTOR -->
-        <div id="contenedor-ejecutores">
-            <div class="grupo-ejecutor" style="margin-bottom: 15px;">
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" class="p-id-clase" placeholder="ID del personal ejecutor (Ej: S001)" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-                    <button onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">+</button>
-                 </div>
-                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-                <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
+            <select id="p-tipo" onchange="actualizarChecklist()">
+                <option value="" disabled selected>Tipo de Trabajo</option>
+                <option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">En Espacios Confinados</option><option value="electrico">Mantenimiento Eléctrico</option>
+            </select>
+            <div id="contenedor-checklist" style="display:none;">
+                <div id="lista-checks-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #c3e6cb;"></div>
             </div>
+            <textarea id="p-descripcion" rows="3" placeholder="Descripción detallada..."></textarea>
+            <button class="btn" onclick="alert('Permiso Generado (Simulación)')">🚀 GENERAR PERMISO</button>
+            <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
-
-        <!-- 2. UBICACIÓN -->
-        <div style="display: flex; gap: 10px; margin-bottom: 15px; margin-top: 5px;">
-            <select id="p-fase" onchange="actualizarUbicaciones()" style="flex: 1;">
-                <option value="" disabled selected>Area de Labores</option>
-                <option value="Fase 1">Fase 1</option>
-                <option value="Fase 2">Fase 2</option>
-                <option value="Fase 3">Fase 3</option>
-                <option value="Otro">Otro</option>
-            </select>
-            <select id="p-ubicacion" disabled style="flex: 1;">
-                <option value="" disabled selected>Lugar específico</option>
-            </select>
-        </div>
-
-        <!-- 3. TIPO DE TRABAJO -->
-        <select id="p-tipo" onchange="actualizarChecklist()" style="margin-bottom: 15px;">
-            <option value="" disabled selected>Tipo de Trabajo</option>
-            <option value="altura">En Alturas</option>
-            <option value="caliente">En Caliente (Soldadura)</option>
-            <option value="confinado">En Espacios Confinados</option>
-            <option value="electrico">Mantenimiento Eléctrico</option>
-        </select>
-
-       <div style="margin: 10px 0; text-align: left; padding: 0 5px; display: flex; flex-direction: column; gap: 10px;">
-    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="check-usar-herramientas" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-        ¿Requiere uso de Herramientas?
-    </label>
-    <label style="font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
-        <input type="checkbox" id="check-usar-colectiva" onchange="actualizarChecklist()" style="width: 20px; height: 20px;"> 
-        ¿Requiere Protección Colectiva?
-    </label>
-</div>
-
-<!-- 5. CONTENEDOR DE LISTADOS DINÁMICOS -->
-<div id="contenedor-checklist" style="display:none;">
-    <div style="background:#f0fdf0; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #c3e6cb;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#155724;">✅ VERIFICACIÓN DE EPP:</p>
-        <div id="lista-checks-epp"></div>
     </div>
-
-    <div id="box-herramientas" style="background:#fff3cd; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #ffeeba; display:none;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#856404;">🛠️ HERRAMIENTAS REQUERIDAS:</p>
-        <div id="lista-checks-herramientas"></div>
-    </div>
-
-    <div id="box-colectiva" style="background:#e7f3ff; padding:15px; border-radius:12px; margin:10px 0; border: 1px solid #b8daff; display:none;">
-        <p style="margin:0 0 10px 0; font-weight:bold; font-size:13px; color:#004085;">🚧 PROTECCIÓN COLECTIVA:</p>
-        <div id="lista-checks-colectiva"></div>
-    </div>
-</div>
-
-<!-- 6. DESCRIPCIÓN MANUAL DEL TRABAJO (Fuera del contenedor para que no se oculte) -->
-<div style="margin: 15px 0; text-align: left;">
-    <label style="font-weight: bold; font-size: 13px; color: #333; margin-bottom: 5px; display: block;">
-        Descripción detallada del trabajo:
-    </label>
-    <textarea id="p-descripcion" rows="3" 
-        placeholder="Escriba aquí las actividades específicas a realizar..." 
-        style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ccc; font-family: sans-serif; font-size: 14px; box-sizing: border-box; resize: none;"></textarea>
-</div>
-
-<button class="btn" onclick="enviarPermiso()">🚀 GENERAR PERMISO</button>
-<button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
 
     <script>
-        const pilotos = { 
-            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
-            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
-            "121": { n: "OSVALDO OBREGON ARRIOLA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "265BQM" }, 
-            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "603BJC" },          
-            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "474BKX" }, 
-            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "363BPP" }, 
-            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "826BZQ" }, 
-            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "795BPZ" }, 
-            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "635BGC" }, 
-            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "666BZJ" }, 
-            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "490BPP" }, 
-            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "026BBF" }, 
-            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "775BMT" }, 
-            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "015BYS" }, 
-            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "092BNN" }, 
-            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "360BWD" }, 
-            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "346BWB" }, 
-            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "781BMQ" }, 
-            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "634BGC" }, 
-            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "904BXF" }, 
-            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
-            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
-        };
+        const pilotos = { "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS", p: "198CBM" }, "102": { n: "CESAR MIRANDA", t: "SANTA MONICA", c: "AGRIBRANDS", p: "129BZH" } };
+        const personalSeguridad = { "16814": { n: "OLGA IDANIA DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" } };
+        const URL_SCRIPT = 'TU_URL_AQUI';
 
-        const personalSeguridad = { 
-            "16814": { n: "OLGA IDANIA DE LEON DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
-            "60046": { n: "WALTER WALDEMAR YOC ALFARO", e: "LOGISTICA" }, 
-            "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" }
-        };
-        
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
-
-
-function actualizarChecklist() {
-    const tipo = document.getElementById('p-tipo').value;
-    const quiereHerramientas = document.getElementById('check-usar-herramientas').checked;
-    const quiereColectiva = document.getElementById('check-usar-colectiva').checked;
-    
-    const contenedorGral = document.getElementById('contenedor-checklist');
-    const boxHerramientas = document.getElementById('box-herramientas');
-    const boxColectiva = document.getElementById('box-colectiva');
-    
-    const listaEpp = document.getElementById('lista-checks-epp');
-    const listaHerramientas = document.getElementById('lista-checks-herramientas');
-    const listaColectiva = document.getElementById('lista-checks-colectiva');
-    
-    const datos = {
-        "altura": {
-            epp: ["EPP Completo", "Casco con barbuquejo", "Arnés", "Línea de vida"],
-            herramientas: ["Andamio", "Tablones", "Escalera de extensión"],
-            colectiva: ["Redes de seguridad", "Cintas amarillas", "Barandas"]
-        },
-        "caliente": {
-            epp: ["EPP Completo", "Guantes de cuero", "Gabacha", "Careta"],
-            herramientas: ["Máquina de soldar", "Amoladora / Esmeril", "Extintor"],
-            colectiva: ["Biombos ignífugos", "Mantas térmicas", "Señalización"]
-        },
-        "confinado": {
-            epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración"],
-            herramientas: ["Trípode", "Ventilador", "Iluminación 12V"],
-            colectiva: ["Conos", "Vigía de seguridad", "Barreras"]
-        },
-        "electrico": {
-            epp: ["EPP Completo", "Guantes dieléctricos", "Botas dieléctricas"],
-            herramientas: ["Multímetro", "Pértiga", "Kit LOTO"],
-            colectiva: ["Cintas de peligro", "Alfombra aislante", "Bloqueos"]
-        }
-    };
-
-    // Limpiar listas para evitar acumulaciones
-    listaEpp.innerHTML = "";
-    listaHerramientas.innerHTML = "";
-    listaColectiva.innerHTML = "";
-
-    if (datos[tipo]) {
-        contenedorGral.style.display = 'block'; 
-
-        // 1. Cargar EPP
-        datos[tipo].epp.forEach(item => listaEpp.appendChild(crearCheck(item)));
-
-        // 2. Herramientas
-        if (quiereHerramientas) {
-            boxHerramientas.style.display = 'block';
-            datos[tipo].herramientas.forEach(item => listaHerramientas.appendChild(crearCheck(item)));
-        } else { boxHerramientas.style.display = 'none'; }
-
-        // 3. Colectiva
-        if (quiereColectiva) {
-            boxColectiva.style.display = 'block';
-            datos[tipo].colectiva.forEach(item => listaColectiva.appendChild(crearCheck(item)));
-        } else { boxColectiva.style.display = 'none'; }
-
-    } else {
-        contenedorGral.style.display = 'none';
-    }
-}
-
-// Función auxiliar indispensable
-function crearCheck(texto) {
-    const div = document.createElement('div');
-    div.style.margin = "8px 0";
-    div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`;
-    return div;
-}
         function entrar() {
             const user = document.getElementById('u').value.toLowerCase().trim();
             const pass = document.getElementById('p').value;
-            const login = document.getElementById('login');
-            if(user == "operador" && pass == "terpac") {
-                login.style.display = 'none'; 
-                document.getElementById('ui-app').style.display = 'block';
-            } else if(user == "supervisor" && pass == "terpac1") {
-                login.style.display = 'none'; 
-                document.getElementById('ui-supervisor').style.display = 'block';
-                iniciarReloj(); actualizarPildoras();
-            } else if(user == "sso" && pass == "terpac2") { 
-                login.style.display = 'none'; 
-                document.getElementById('ui-seguridad').style.display = 'block';
-            } else { alert("Acceso Incorrecto"); }
+            if(user == "operador" && pass == "terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
+            else if(user == "sso" && pass == "terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
+            else { alert("Acceso Incorrecto"); }
         }
 
-     function agregarFilaEjecutor() {
-    const contenedor = document.getElementById('contenedor-ejecutores');
-    const nuevaFila = document.createElement('div');
-    nuevaFila.className = 'grupo-ejecutor';
-    nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
-    nuevaFila.innerHTML = `
-        <div style="display:flex; gap:10px; align-items:center;">
-            <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
-            <button onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
-        </div>
-        <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-        <div class="empresa-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
-    contenedor.appendChild(nuevaFila);
-}
-
-function checkSSO_Dinamico(input) {
-    const id = input.value.trim().toUpperCase();
-    const grupo = input.closest('.grupo-ejecutor');
-    const pBox = grupo.querySelector('.personal-box-clase');
-    const eBox = grupo.querySelector('.empresa-box-clase'); // <--- Esta es la corrección fija
-
-    if(personalSeguridad[id]) { 
-        pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
-        eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
-    } else { 
-        pBox.style.display = 'none'; eBox.style.display = 'none'; 
-    }
-}
-
-function enviar() {
-    const idPrincipal = document.getElementById('id-in').value.trim().toUpperCase();
-    
-    // Verificamos que el piloto principal exista antes de seguir
-    if(!pilotos || !pilotos[idPrincipal]) {
-        return alert("ID de piloto no encontrado o base de datos no cargada");
-    }
-    
-    const btn = document.getElementById('btn-env');
-    btn.innerText = "Enviando..."; 
-    btn.disabled = true;
-
-    // Recolectar IDs de ejecutores adicionales
-    const inputsExtra = document.querySelectorAll('.p-id-clase');
-    let idsExtra = [];
-    inputsExtra.forEach(input => {
-        let val = input.value.trim().toUpperCase();
-        if(val !== "") idsExtra.push(val);
-    });
-
-    const mov = document.getElementById('mov').value;
-    const prod = document.getElementById('prod').value;
-    const cTer = document.getElementById('CicloTer').value;
-    const cEPQ = document.getElementById('CicloEPQ').value;
-
-    const extraString = idsExtra.length > 0 ? idsExtra.join(",") : "NINGUNO";
-
-    // Cadena de datos para Google Sheets
-    const textoFinal = `${idPrincipal};${pilotos[idPrincipal].n};${mov};${prod};${pilotos[idPrincipal].t};${pilotos[idPrincipal].c};${pilotos[idPrincipal].p};${cTer};${cEPQ};${extraString}`;
-    
-    fetch(URL_SCRIPT, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: textoFinal 
-    })
-    .then(() => {
-        alert("✅ Registro de Logística Exitoso");
-        document.getElementById('id-in').value = ""; 
-        document.getElementById('contenedor-ejecutores').innerHTML = ""; 
-        const boxPiloto = document.getElementById('piloto-box');
-        if(boxPiloto) boxPiloto.style.display='none';
-    })
-    .catch(err => { 
-        console.error(err);
-        alert("Error de envío. Revisa tu conexión."); 
-    })
-    .finally(() => { 
-        btn.innerText = "REGISTRAR DATOS 🚀"; 
-        btn.disabled = false; 
-    });
-}
-
-        async function actualizarPildoras() {
-            try {
-                const response = await fetch(URL_SCRIPT);
-                const data = await response.json();
-                document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
-                document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
-                document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
-            } catch (e) { console.log("Error cargando pildoras"); }
+        function check() {
+            const id = document.getElementById('id-in').value.trim().toUpperCase();
+            const box = document.getElementById('piloto-box');
+            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
         }
 
-        function iniciarReloj() {
-            setInterval(() => {
-                const ahora = new Date();
-                const relojElement = document.getElementById('reloj');
-                const fechaElement = document.getElementById('fecha-actual');
-                if(relojElement) relojElement.innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                if(fechaElement) fechaElement.innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }, 1000);
+        function agregarFilaEjecutor() {
+            const contenedor = document.getElementById('contenedor-ejecutores');
+            const nuevaFila = document.createElement('div');
+            nuevaFila.className = 'grupo-ejecutor';
+            nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
+            nuevaFila.innerHTML = `
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
+                </div>
+                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+                <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
+            contenedor.appendChild(nuevaFila);
         }
 
-       async function descargarCSV() {
-    const inicio = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
-    if(!inicio || !fin) return alert("Seleccioná las fechas.");
-
-    try {
-        const response = await fetch(URL_SCRIPT + "?accion=reporte");
-        const data = await response.json();
-        
-        // Filtrar datos por el rango de fechas seleccionado
-        const filtrados = data.filter(r => r.fecha >= inicio && r.fecha <= fin);
-        
-        if(filtrados.length === 0) {
-            return alert("No hay datos en ese rango de fechas en la hoja LOGISTICA.");
+        function checkSSO_Dinamico(input) {
+            const id = input.value.trim().toUpperCase();
+            const grupo = input.closest('.grupo-ejecutor');
+            const pBox = grupo.querySelector('.personal-box-clase');
+            const eBox = grupo.querySelector('.departamento-box-clase');
+            if(personalSeguridad[id]) { 
+                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
+                eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
+            } else { pBox.style.display = 'none'; eBox.style.display = 'none'; }
         }
 
-        // Encabezados según las columnas de tu hoja LOGISTICA
-        let csv = "\uFEFF"; // BOM para que Excel reconozca tildes y eñes
-        csv += "FECHA,HORA,ID_PILOTO,NOMBRE_PILOTO,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ\n";
-        
-        filtrados.forEach(r => { 
-            // Convertimos los ";" que vienen de la base de datos a "," para el CSV
-            let dc = r.datos.replace(/;/g, ','); 
-            csv += `${r.fecha},${r.hora},${dc}\n`; 
-        });
+        function enviar() {
+            const id = document.getElementById('id-in').value.trim().toUpperCase();
+            if(!pilotos[id]) return alert("ID no encontrado");
+            const btn = document.getElementById('btn-env');
+            btn.innerText = "Enviando..."; btn.disabled = true;
+            const extraIds = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+            const textoFinal = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extraIds}`;
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
+            .then(() => { alert("✅ Registro Exitoso"); location.reload(); })
+            .catch(() => { alert("Error de envío"); btn.disabled = false; });
+        }
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute("href", url);
-        link.setAttribute("download", `Reporte_Logistica_${inicio}_${fin}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (e) { 
-        console.error("Error descarga:", e);
-        alert("Error al obtener el reporte. Asegúrate de haber publicado el Apps Script como 'Nueva Versión'."); 
-    }
-}
-
+        function actualizarChecklist() {
+            const lista = document.getElementById('lista-checks-epp');
+            document.getElementById('contenedor-checklist').style.display = 'block';
+            lista.innerHTML = "<b>EPP sugerido:</b> Casco, Guantes, Chaleco.";
+        }
     </script>
 </body>
 </html>
+      
