@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA TERPAC LTDA CLON</title>
+    <title>SISTEMA TERPAC LTDA</title>
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
@@ -24,7 +24,7 @@
         .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
-        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 5px 25px 15px auto; max-width: 500px; text-align: center; }
+        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 20px auto; max-width: 500px; }
         .fila-descarga { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
         .input-fecha { width: 120px !important; padding: 8px !important; font-size: 12px !important; }
         .btn-csv { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; }
@@ -32,6 +32,7 @@
 </head>
 <body>
 
+    <!-- LOGIN -->
     <div id="login" class="card-compacta">
         <h2 style="color:var(--verde-oscuro); margin:0;">TERPAC USUARIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
@@ -40,9 +41,9 @@
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
 
+    <!-- INTERFAZ OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
-        <span class="sub-plus">SC-APP-V1</span>
+        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3><span class="sub-plus">SC-APP-V1</span>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
         <div id="piloto-box"></div>
         <select id="mov"><option>Arribo</option><option>Entrada</option><option>Control 1</option><option>Salida</option></select>
@@ -52,6 +53,7 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
+    <!-- INTERFAZ MONITOR (SUPERVISOR) -->
     <div id="ui-supervisor" class="card-full" style="display:none;">
         <span class="sub-plus">SC-MON-RT-01</span>
         <div class="live-status"><div class="dot"></div> MONITOR TERPAC (EN VIVO)</div>
@@ -62,18 +64,18 @@
         </div>
         <div class="reloj-container"><div id="fecha-actual"></div><div id="reloj">00:00:00</div></div>
         <div class="box-descarga">
-            <p style="margin:0; font-size:12px; font-weight:bold;">REPORTE POR FECHAS</p>
+            <p style="margin:0; font-size:12px; font-weight:bold;">REPORTE LOGÍSTICA</p>
             <div class="fila-descarga">
                 <input type="date" id="f-inicio" class="input-fecha"><input type="date" id="f-fin" class="input-fecha">
-                <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR</button>
+                <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR CSV</button>
             </div>
         </div>
-        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
+        <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
 
+    <!-- INTERFAZ SSO -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
-        <span class="sub-plus">GESTIÓN DE RIESGOS</span>
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
             <div id="contenedor-ejecutores">
                 <div class="grupo-ejecutor" style="margin-bottom:15px;">
@@ -85,42 +87,44 @@
                     <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
                 </div>
             </div>
-            <select id="p-tipo" onchange="actualizarChecklist()"><option value="" disabled selected>Tipo de Trabajo</option><option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">En Espacios Confinados</option><option value="electrico">Mantenimiento Eléctrico</option></select>
-            <textarea id="p-descripcion" rows="3" placeholder="Descripción detallada..."></textarea>
-            <button class="btn" onclick="alert('Permiso Generado')">🚀 GENERAR PERMISO</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <select id="p-fase" style="flex: 1;"><option>Fase 1</option><option>Fase 2</option><option>Fase 3</option></select>
+                <select id="p-tipo" onchange="actualizarChecklist()" style="flex: 1;"><option value="" disabled selected>Tipo Trabajo</option><option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">Confinado</option><option value="electrico">Eléctrico</option></select>
+            </div>
+            <div style="margin-bottom:15px;">
+                <label style="font-size:14px; cursor:pointer;"><input type="checkbox" id="check-herramientas" onchange="actualizarChecklist()"> Herramientas</label>
+                <label style="font-size:14px; cursor:pointer; margin-left:15px;"><input type="checkbox" id="check-colectiva" onchange="actualizarChecklist()"> Prot. Colectiva</label>
+            </div>
+            <div id="contenedor-checklist" style="display:none; margin-bottom:15px;">
+                <div id="lista-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; border:1px solid #c3e6cb; margin-bottom:5px;"></div>
+                <div id="lista-herramientas" style="background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:5px; display:none;"></div>
+                <div id="lista-colectiva" style="background:#e7f3ff; padding:10px; border-radius:10px; border:1px solid #b8daff; margin-bottom:5px; display:none;"></div>
+            </div>
+            <textarea id="p-descripcion" rows="3" placeholder="Descripción de labores..."></textarea>
+            <button id="btn-sso" class="btn" onclick="enviarPermisoSSO()">🚀 REGISTRAR PERMISO</button>
             <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
     <script>
+        // BASE DE DATOS PILOTOS
         const pilotos = { 
-            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
-            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
-            "121": { n: "OSVALDO OBREGON ARRIOLA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "265BQM" }, 
-            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "603BJC" },          
-            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "474BKX" }, 
-            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "363BPP" }, 
-            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "826BZQ" }, 
-            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "795BPZ" }, 
-            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "635BGC" }, 
-            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "666BZJ" }, 
-            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "490BPP" }, 
-            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "026BBF" }, 
-            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "775BMT" }, 
-            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "015BYS" }, 
-            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "092BNN" }, 
-            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "360BWD" }, 
-            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "346BWB" }, 
-            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "781BMQ" }, 
-            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "634BGC" }, 
-            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "904BXF" }, 
-            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
-            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
+            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, "102": { n: "CESAR MIRANDA", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
+            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" },
+            "105": { n: "MYNOR GUZMAN", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" },
+            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" },
+            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" },
+            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" },
+            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" },
+            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" },
+            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, "118": { n: "RICARDO MIRANDA", t: "SANTA MONICA", c: "PURINA", p: "904BXF" },
+            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" },
+            "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
         };
-
+        // BASE DE DATOS TÉCNICOS
         const personalSeguridad = { 
-            "16814": { n: "OLGA IDANIA DE LEON DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
-            "60046": { n: "WALTER WALDEMAR YOC ALFARO", e: "LOGISTICA" }, 
+            "16814": { n: "OLGA DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
+            "60046": { n: "WALTER YOC", e: "LOGISTICA" }, 
             "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" }
         };
 
@@ -129,17 +133,16 @@
         function entrar() {
             const u = document.getElementById('u').value.toLowerCase().trim();
             const p = document.getElementById('p').value;
-            const log = document.getElementById('login');
-            if(u=="operador" && p=="terpac") { log.style.display='none'; document.getElementById('ui-app').style.display='block'; }
-            else if(u=="supervisor" && p=="terpac1") { log.style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
-            else if(u=="sso" && p=="terpac2") { log.style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
+            if(u=="operador" && p=="terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
+            else if(u=="supervisor" && p=="terpac1") { document.getElementById('login').style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
+            else if(u=="sso" && p=="terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
             else alert("Acceso Incorrecto");
         }
 
         function check() {
             const id = document.getElementById('id-in').value.trim();
             const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none';
+            if(pilotos[id]) { box.innerHTML = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none';
         }
 
         function agregarFilaEjecutor() {
@@ -170,32 +173,48 @@
 
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
-            if(!pilotos[id]) return alert("ID no encontrado");
-            const btn = document.getElementById('btn-env');
-            btn.innerText = "Enviando..."; btn.disabled = true;
+            if(!pilotos[id]) return alert("ID piloto no válido");
+            const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
             const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
             const texto = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
             fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: texto }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
         }
 
-        function iniciarReloj() {
-            setInterval(() => {
-                const ahora = new Date();
-                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
-                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            }, 1000);
+        function enviarPermisoSSO() {
+            const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+            if(!ids) return alert("Ingrese al menos un técnico.");
+            const btn = document.getElementById('btn-sso'); btn.innerText = "Registrando..."; btn.disabled = true;
+            const datos = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: datos }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
         }
 
-        async function actualizarPildoras() {
-            try {
-                const res = await fetch(URL_SCRIPT); const d = await res.json();
-                document.getElementById('count-pendientes').innerText = d.pendientes.toString().padStart(2,'0');
-                document.getElementById('count-proceso').innerText = d.proceso.toString().padStart(2,'0');
-                document.getElementById('count-despachadas').innerText = d.despachadas.toString().padStart(2,'0');
-            } catch(e) {}
+        function actualizarChecklist() {
+            const tipo = document.getElementById('p-tipo').value;
+            const h = document.getElementById('check-herramientas').checked;
+            const c = document.getElementById('check-colectiva').checked;
+            document.getElementById('contenedor-checklist').style.display='block';
+            document.getElementById('lista-epp').innerHTML = "<b>EPP Requerido:</b> Casco, Guantes, Chaleco, Botas.";
+            const lH = document.getElementById('lista-herramientas'); lH.style.display = h ? 'block' : 'none'; lH.innerHTML = "<b>Herramientas:</b> Manuales y Eléctricas.";
+            const lC = document.getElementById('lista-colectiva'); lC.style.display = c ? 'block' : 'none'; lC.innerHTML = "<b>Protección:</b> Conos y Cintas.";
         }
-        function descargarCSV() { alert("Reporte en proceso..."); }
-        function actualizarChecklist() {}
+
+        async function descargarCSV() {
+            const ini = document.getElementById('f-inicio').value; const fin = document.getElementById('f-fin').value;
+            if(!ini || !fin) return alert("Seleccione el rango de fechas");
+            try {
+                const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json();
+                const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
+                if(fil.length === 0) return alert("No hay registros en esas fechas");
+                let csv = "\uFEFFFECHA,HORA,ID,NOMBRE,MOV,PROD,T-PORT,CTE,PLACA,C-TER,C-EPQ,EXTRA\n";
+                fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+                link.download = `Reporte_${ini}_${fin}.csv`; link.click();
+            } catch(e) { alert("Error al descargar reporte."); }
+        }
+
+        function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString('es-GT', {weekday:'long', day:'numeric', month:'long'}); }, 1000); }
+        async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
     </script>
 </body>
 </html>
