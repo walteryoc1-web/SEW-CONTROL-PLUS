@@ -63,6 +63,41 @@
         </div>
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
+<!-- INTERFAZ MONITOR SUPERVISOR SSO -->
+<div id="ui-monitor-sso" class="card-full" style="display:none;">
+    <span class="sub-plus">SC-MON-SSO-RT-01</span>
+    <div class="live-status"><div class="dot" style="background:#3498db;"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
+    
+    <div class="pildoras-horizontal">
+        <div class="pildora" style="border-bottom-color: #e67e22;">
+            <h3>Permisos Generados</h3>
+            <p id="sso-pnd">00</p>
+        </div>
+        <div class="pildora" style="border-bottom-color: #9b59b6;">
+            <h3>Trabajos de Riesgo</h3>
+            <p id="sso-riesgo">00</p>
+        </div>
+        <div class="pildora" style="border-bottom-color: #16a085;">
+            <h3>Técnicos en Área</h3>
+            <p id="sso-personal">00</p>
+        </div>
+    </div>
+
+    <div class="reloj-container">
+        <div id="fecha-sso"></div>
+        <div id="reloj-sso" style="font-size: 22px; font-weight: bold; color: white; background: #3498db; padding: 5px 15px; border-radius: 15px;">00:00:00</div>
+    </div>
+
+    <div class="box-descarga">
+        <p style="margin:0; font-size:12px; font-weight:bold;">HISTORIAL DE PERMISOS SSO</p>
+        <div class="fila-descarga">
+            <input type="date" id="f-ini-sso" class="input-fecha">
+            <input type="date" id="f-fin-sso" class="input-fecha">
+            <button class="btn-csv" onclick="descargarCSV_SSO()" style="background:#3498db;">📥 DESCARGAR SSO</button>
+        </div>
+    </div>
+    <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
+</div>
 
     <!-- SSO -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
@@ -181,6 +216,15 @@
         
                setInterval(actualizarPildoras, 30000); 
     } 
+        
+    else if(u=="supervisor_sso" && p=="sso123") { 
+    document.getElementById('login').style.display='none'; 
+    document.getElementById('ui-monitor-sso').style.display='block'; 
+    iniciarReloj(); 
+    actualizarPildorasSSO(); // Esta función la crearemos abajo
+    setInterval(actualizarPildorasSSO, 30000); 
+}
+
     else if(u=="sso" && p=="terpac2") { 
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-seguridad').style.display='block'; 
@@ -359,6 +403,39 @@
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte.csv"; link.click();
         } catch(e) { alert("Error en descarga"); }
     }
+        async function actualizarPildorasSSO() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=monitorSSO");
+        const d = await res.json();
+        document.getElementById('sso-pnd').innerText = d.total.toString().padStart(2, '0');
+        document.getElementById('sso-riesgo').innerText = d.riesgo.toString().padStart(2, '0');
+        document.getElementById('sso-personal').innerText = d.personal.toString().padStart(2, '0');
+    } catch(e) { console.error("Error pildoras SSO"); }
+}
+
+async function descargarCSV_SSO() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("Seleccione fechas");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
+        
+        if(fil.length === 0) return alert("Sin registros en esas fechas");
+
+        let csv = "\uFEFFFECHA,HORA,FOLIO,EJECUTORES,FASE,UBICACION,TIPO,DESCRIPCION,CHECKS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Reporte_SSO_${ini}.csv`;
+        link.click();
+    } catch(e) { alert("Error reporte SSO"); }
+}
+
 </script>
 </body>
 </html>
