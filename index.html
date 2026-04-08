@@ -268,37 +268,29 @@
     }
 
    function enviarPermisoSSO() {
-    // 1. Capturar IDs y convertirlos en Nombres + Deptos
+    // 1. Obtener nombres de técnicos para el mensaje
     const inputsExtra = document.querySelectorAll('.p-id-clase');
     let listaLegible = [];
-
     inputsExtra.forEach(input => {
         let id = input.value.trim().toUpperCase();
-        if (id !== "") {
-            // Si el ID existe en nuestra base de datos, sacamos nombre y depto
-            if (personalSeguridad[id]) {
-                listaLegible.push(`${personalSeguridad[id].n} (${personalSeguridad[id].e})`);
-            } else {
-                // Si no existe, dejamos el ID tal cual
-                listaLegible.push(id);
-            }
+        if (id !== "" && personalSeguridad[id]) {
+            listaLegible.push(`${personalSeguridad[id].n}`);
         }
     });
     
+    const primerNombre = listaLegible.length > 0 ? listaLegible[0] : "Permiso";
     const ejecutoresFinales = listaLegible.join(", ");
-
-    // 2. Capturar Checklist marcados
     const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked'))
                           .map(chk => chk.parentElement.innerText.trim())
                           .join(" | ");
 
-    if(listaLegible.length === 0) return alert("Debe ingresar al menos un técnico.");
+    if(listaLegible.length === 0) return alert("Ingrese al menos un técnico.");
 
     const btn = document.getElementById('btn-sso');
     btn.innerText = "Generando PDF..."; 
     btn.disabled = true;
 
-    // 3. Armar la cadena (Ahora enviamos nombres reales en lugar de solo IDs)
+    // 2. Armar cadena (El orden debe coincidir con el split(";") del Script)
     const d = `PERMISO;${ejecutoresFinales};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
 
     fetch(URL_SCRIPT, { method: 'POST', body: d })
@@ -307,14 +299,18 @@
         if(base64Data.startsWith("ERROR")) {
             alert("Error: " + base64Data);
         } else {
+            // 3. DESCARGA AUTOMÁTICA
             const linkSource = `data:application/pdf;base64,${base64Data}`;
             const downloadLink = document.createElement("a");
-            const fileName = `Permiso_SSO_${new Date().getTime()}.pdf`;
+            
+            // Nombre del archivo dinámico
+            const fileName = `Folio_SSO_${primerNombre.replace(/ /g,"_")}.pdf`;
+
             downloadLink.href = linkSource;
             downloadLink.download = fileName;
             downloadLink.click();
             
-            alert("✅ Registro exitoso. El PDF contiene los nombres completos.");
+            alert("✅ Registro exitoso y PDF descargado.");
             location.reload();
         }
     })
@@ -324,6 +320,7 @@
         btn.innerText = "🚀 REGISTRAR PERMISO";
     });
 }
+
     function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
     async function actualizarPildoras() {
     try {
