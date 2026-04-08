@@ -267,42 +267,50 @@
         fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
     }
 
-    function enviarPermisoSSO() {
-    // 1. Obtener IDs de ejecutores
+   function enviarPermisoSSO() {
+    // 1. Capturar Técnicos
     const ids = Array.from(document.querySelectorAll('.p-id-clase'))
                      .map(i => i.value.trim())
                      .filter(v => v !== "")
-                     .join(",");
-
-    if(!ids) return alert("Ingrese al menos un técnico ejecutor.");
-
-    // 2. Recolectar todos los CHECKS marcados (EPP, Herramientas, Colectiva)
-    const contenedorChecklist = document.getElementById('contenedor-checklist');
-    const marcados = Array.from(contenedorChecklist.querySelectorAll('input[type="checkbox"]:checked'))
-                          .map(chk => chk.parentElement.innerText.trim());
+                     .join(", ");
     
-    const stringChecks = marcados.length > 0 ? marcados.join(" | ") : "NINGUNO SELECCIONADO";
+    // 2. Capturar Checklist (EPP, Herramientas, etc.)
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked'))
+                          .map(chk => chk.parentElement.innerText.trim())
+                          .join(" | ");
 
-    const btn = document.getElementById('btn-sso'); 
-    btn.innerText = "Enviando..."; 
+    if(!ids) return alert("Debe ingresar al menos un técnico.");
+
+    const btn = document.getElementById('btn-sso');
+    btn.innerText = "Generando PDF..."; 
     btn.disabled = true;
 
-    // 3. Armar la cadena final (incluyendo los checks marcados)
-    // Formato: PERMISO; IDs; Fase; Ubicacion; Tipo; Descripcion; ElementosMarcados
-    const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${stringChecks}`;
+    // 3. Armar la cadena de datos
+    const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
 
-    fetch(URL_SCRIPT, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: d 
+    // 4. Enviar y recibir el PDF
+    fetch(URL_SCRIPT, { method: 'POST', body: d })
+    .then(res => res.text()) // Recibimos el texto Base64 del PDF
+    .then(base64Data => {
+        if(base64Data.startsWith("ERROR")) {
+            alert("Error: " + base64Data);
+        } else {
+            // DESCARGA AUTOMÁTICA
+            const linkSource = `data:application/pdf;base64,${base64Data}`;
+            const downloadLink = document.createElement("a");
+            const fileName = `Permiso_SSO_${new Date().getTime()}.pdf`;
+
+            downloadLink.href = linkSource;
+            downloadLink.download = fileName;
+            downloadLink.click();
+            
+            alert("✅ Registro exitoso. El PDF se ha descargado.");
+            location.reload();
+        }
     })
-    .then(() => { 
-        alert("✅ Permiso SSO y Checklist registrados con éxito"); 
-        location.reload(); 
-    })
-    .catch(() => { 
-        alert("❌ Error al registrar el permiso"); 
-        btn.disabled = false; 
+    .catch(() => {
+        alert("Error de conexión con el servidor.");
+        btn.disabled = false;
         btn.innerText = "🚀 REGISTRAR PERMISO";
     });
 }
