@@ -235,18 +235,21 @@
 }
 
 
-// Función para actualizar el Monitor de LOGÍSTICA
-async function actualizarPildoras() {
+async function actualizarPildorasSSO() {
     try {
         const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime());
+        if (!res.ok) throw new Error("Fallo en servidor");
         const d = await res.json();
         
-        // Actualiza las píldoras de Logística
-        document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0');
-        document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0');
-        document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0');
-    } catch(e) { console.error("Error al cargar píldoras Logística"); }
+        // Asignación segura con valores por defecto
+        document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0');
+        document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
+        document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0');
+    } catch(e) { 
+        console.error("Error pildoras SSO:", e);
+    }
 }
+
 
 // Función para actualizar el Monitor de SSO
 async function actualizarPildorasSSO() {
