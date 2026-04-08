@@ -20,46 +20,64 @@
         .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
         #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
         #fecha-actual { font-size: 14px; color: #555; font-weight: bold; }
+        .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 5px 0; }
+        .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
+        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 5px 25px 15px auto; max-width: 500px; text-align: center; }
+        .fila-descarga { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .input-fecha { width: 120px !important; padding: 8px !important; font-size: 12px !important; }
+        .btn-csv { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN -->
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--verde-oscuro); margin-top:0; margin-bottom:5px;">TERPAC USUARIO</h2>
+        <h2 style="color:var(--verde-oscuro); margin:0;">TERPAC USUARIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
         <input type="text" id="u" placeholder="Usuario">
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
 
-    <!-- INTERFAZ OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="margin-top:0; margin-bottom:5px; color:var(--verde-oscuro);">Captura Terpac</h3>
-        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
+        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
+        <span class="sub-plus">SC-APP-V1</span>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
         <div id="piloto-box"></div>
-        <select id="mov">
-            <option>Arribo</option><option>Entrada</option><option>Control 1</option><option>Salida</option>
-        </select>
-        <select id="prod">
-            <option>SBM</option><option>YC (USA)</option><option>SBW (ARG)</option><option>YC (BR)</option><option>YC (ARG)</option><option>SRW</option><option>DDGS</option>
-        </select>
-        <input type="text" id="CicloTer" placeholder="Ciclo Terpac">
-        <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
+        <select id="mov"><option>Arribo</option><option>Entrada</option><option>Control 1</option><option>Salida</option></select>
+        <select id="prod"><option>SBM</option><option>YC (USA)</option><option>SBW (ARG)</option><option>YC (BR)</option><option>YC (ARG)</option><option>SRW</option><option>DDGS</option></select>
+        <input type="text" id="CicloTer" placeholder="Ciclo Terpac"><input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
         <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- INTERFAZ SSO -->
+    <div id="ui-supervisor" class="card-full" style="display:none;">
+        <span class="sub-plus">SC-MON-RT-01</span>
+        <div class="live-status"><div class="dot"></div> MONITOR TERPAC (EN VIVO)</div>
+        <div class="pildoras-horizontal">
+            <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente</h3><p id="count-pendientes">00</p></div>
+            <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso</h3><p id="count-proceso">00</p></div>
+            <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Despachadas</h3><p id="count-despachadas">00</p></div>
+        </div>
+        <div class="reloj-container"><div id="fecha-actual"></div><div id="reloj">00:00:00</div></div>
+        <div class="box-descarga">
+            <p style="margin:0; font-size:12px; font-weight:bold;">REPORTE POR FECHAS</p>
+            <div class="fila-descarga">
+                <input type="date" id="f-inicio" class="input-fecha"><input type="date" id="f-fin" class="input-fecha">
+                <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR</button>
+            </div>
+        </div>
+        <button class="btn-salir" onclick="location.reload()">SALIR AL PANEL</button>
+    </div>
+
     <div id="ui-seguridad" class="card-full" style="display:none;">
-        <h3 style="margin-top:0; color:var(--verde-oscuro);">PERMISO DE TRABAJO SEGURO</h3>
-        <span class="sub-plus">GESTIÓN DE RIESGOS - TERPAC</span>
+        <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
+        <span class="sub-plus">GESTIÓN DE RIESGOS</span>
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
             <div id="contenedor-ejecutores">
-                <div class="grupo-ejecutor" style="margin-bottom: 15px;">
-                    <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="grupo-ejecutor" style="margin-bottom:15px;">
+                    <div style="display:flex; gap:10px; align-items:center;">
                         <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
                         <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px;">+</button>
                     </div>
@@ -67,36 +85,61 @@
                     <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
                 </div>
             </div>
-            <select id="p-tipo" onchange="actualizarChecklist()">
-                <option value="" disabled selected>Tipo de Trabajo</option>
-                <option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">En Espacios Confinados</option><option value="electrico">Mantenimiento Eléctrico</option>
-            </select>
-            <div id="contenedor-checklist" style="display:none;">
-                <div id="lista-checks-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #c3e6cb;"></div>
-            </div>
+            <select id="p-tipo" onchange="actualizarChecklist()"><option value="" disabled selected>Tipo de Trabajo</option><option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">En Espacios Confinados</option><option value="electrico">Mantenimiento Eléctrico</option></select>
             <textarea id="p-descripcion" rows="3" placeholder="Descripción detallada..."></textarea>
-            <button class="btn" onclick="alert('Permiso Generado (Simulación)')">🚀 GENERAR PERMISO</button>
+            <button class="btn" onclick="alert('Permiso Generado')">🚀 GENERAR PERMISO</button>
             <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
         </div>
     </div>
 
     <script>
-        const pilotos = { "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS", p: "198CBM" }, "102": { n: "CESAR MIRANDA", t: "SANTA MONICA", c: "AGRIBRANDS", p: "129BZH" } };
-        const personalSeguridad = { "16814": { n: "OLGA IDANIA DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" } };
-        const URL_SCRIPT = 'TU_URL_AQUI';
+        const pilotos = { 
+            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "198CBM" }, 
+            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "129BZH" }, 
+            "121": { n: "OSVALDO OBREGON ARRIOLA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "265BQM" }, 
+            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "603BJC" },          
+            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "474BKX" }, 
+            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "363BPP" }, 
+            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "826BZQ" }, 
+            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "795BPZ" }, 
+            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "635BGC" }, 
+            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "666BZJ" }, 
+            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "490BPP" }, 
+            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "026BBF" }, 
+            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "775BMT" }, 
+            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "015BYS" }, 
+            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "092BNN" }, 
+            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "360BWD" }, 
+            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "346BWB" }, 
+            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "781BMQ" }, 
+            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "634BGC" }, 
+            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "904BXF" }, 
+            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "488BVM" }, 
+            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "AGRIBRANDS PURINA DE GUATEMALA S.A.", p: "146BQR" }
+        };
+
+        const personalSeguridad = { 
+            "16814": { n: "OLGA IDANIA DE LEON DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
+            "60046": { n: "WALTER WALDEMAR YOC ALFARO", e: "LOGISTICA" }, 
+            "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" }
+        };
+
+        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
 
         function entrar() {
-            const user = document.getElementById('u').value.toLowerCase().trim();
-            const pass = document.getElementById('p').value;
-            if(user == "operador" && pass == "terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
-            else if(user == "sso" && pass == "terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
-            else { alert("Acceso Incorrecto"); }
+            const u = document.getElementById('u').value.toLowerCase().trim();
+            const p = document.getElementById('p').value;
+            const log = document.getElementById('login');
+            if(u=="operador" && p=="terpac") { log.style.display='none'; document.getElementById('ui-app').style.display='block'; }
+            else if(u=="supervisor" && p=="terpac1") { log.style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
+            else if(u=="sso" && p=="terpac2") { log.style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
+            else alert("Acceso Incorrecto");
         }
 
         function check() {
-            const id = document.getElementById('id-in').value.trim().toUpperCase();
+            const id = document.getElementById('id-in').value.trim();
             const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else { box.style.display='none'; }
+            if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none';
         }
 
         function agregarFilaEjecutor() {
@@ -120,29 +163,39 @@
             const pBox = grupo.querySelector('.personal-box-clase');
             const eBox = grupo.querySelector('.departamento-box-clase');
             if(personalSeguridad[id]) { 
-                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display = 'block'; 
-                eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display = 'block'; 
-            } else { pBox.style.display = 'none'; eBox.style.display = 'none'; }
+                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; 
+                eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; 
+            } else { pBox.style.display='none'; eBox.style.display='none'; }
         }
 
         function enviar() {
-            const id = document.getElementById('id-in').value.trim().toUpperCase();
+            const id = document.getElementById('id-in').value.trim();
             if(!pilotos[id]) return alert("ID no encontrado");
             const btn = document.getElementById('btn-env');
             btn.innerText = "Enviando..."; btn.disabled = true;
-            const extraIds = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-            const textoFinal = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extraIds}`;
-            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: textoFinal })
-            .then(() => { alert("✅ Registro Exitoso"); location.reload(); })
-            .catch(() => { alert("Error de envío"); btn.disabled = false; });
+            const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+            const texto = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: texto }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
         }
 
-        function actualizarChecklist() {
-            const lista = document.getElementById('lista-checks-epp');
-            document.getElementById('contenedor-checklist').style.display = 'block';
-            lista.innerHTML = "<b>EPP sugerido:</b> Casco, Guantes, Chaleco.";
+        function iniciarReloj() {
+            setInterval(() => {
+                const ahora = new Date();
+                document.getElementById('reloj').innerText = ahora.toLocaleTimeString('es-GT', { hour12: false });
+                document.getElementById('fecha-actual').innerText = ahora.toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }, 1000);
         }
+
+        async function actualizarPildoras() {
+            try {
+                const res = await fetch(URL_SCRIPT); const d = await res.json();
+                document.getElementById('count-pendientes').innerText = d.pendientes.toString().padStart(2,'0');
+                document.getElementById('count-proceso').innerText = d.proceso.toString().padStart(2,'0');
+                document.getElementById('count-despachadas').innerText = d.despachadas.toString().padStart(2,'0');
+            } catch(e) {}
+        }
+        function descargarCSV() { alert("Reporte en proceso..."); }
+        function actualizarChecklist() {}
     </script>
 </body>
 </html>
-      
