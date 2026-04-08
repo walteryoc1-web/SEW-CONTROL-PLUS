@@ -498,14 +498,20 @@ async function cargarPermisosParaCerrar() {
 
 async function cerrarPermiso(folio) {
     if(!confirm("¿Cerrar permiso " + folio + "?")) return;
-    const btn = event.target;
-    btn.innerText = "..."; btn.disabled = true;
-
-    fetch(URL_SCRIPT, { method: 'POST', body: `CERRAR_PERMISO;${folio}` })
-    .then(() => {
-        actualizarPildorasSSO();
-        cargarPermisosParaCerrar();
-    });
+    
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: `CERRAR_PERMISO;${folio}` });
+        const texto = await res.text();
+        if(texto.includes("OK_CIERRE")) {
+            alert("✅ Permiso " + folio + " cerrado con éxito.");
+            actualizarPildorasSSO();
+            cargarPermisosParaCerrar();
+        } else {
+            alert("⚠️ El servidor respondió: " + texto);
+        }
+    } catch(e) {
+        alert("❌ Error de conexión al intentar cerrar.");
+    }
 }
 
 async function descargarCSV_SSO() {
