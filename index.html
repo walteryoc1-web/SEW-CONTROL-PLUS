@@ -211,12 +211,13 @@
         setInterval(actualizarPildoras, 30000);
     } 
     else if(u=="supervisor sso" && p=="terpac3") { 
-        login.style.display = 'none'; 
-        document.getElementById('ui-monitor-sso').style.display = 'block';
-        iniciarReloj(); 
-        actualizarPildorasSSO(); // Llama a SSO
-        setInterval(actualizarPildorasSSO, 30000);
-    } 
+    document.getElementById('login').style.display='none'; 
+    document.getElementById('ui-monitor-sso').style.display='block'; 
+    actualizarPildorasSSO(); 
+    cargarPermisosParaCerrar(); // <-- Esta carga la lista de botones
+    setInterval(actualizarPildorasSSO, 30000);
+}
+
     else if(u=="sso" && p=="terpac2") { 
         login.style.display = 'none'; 
         document.getElementById('ui-seguridad').style.display = 'block';
@@ -451,6 +452,51 @@ async function actualizarPildoras() {
         console.error(e);
         alert("Error en la descarga del reporte."); 
     }
+}
+async function cargarPermisosParaCerrar() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const contenedor = document.getElementById('contenedor-tabla-sso');
+        contenedor.innerHTML = "";
+
+        // Filtrar solo los que están en datos con estado "ABIERTO" (basado en tu estructura de join(";"))
+        const activos = data.filter(r => !r.datos.includes("CERRADO"));
+
+        if(activos.length === 0) {
+            contenedor.innerHTML = "<p style='font-size:12px; color:#999; padding:10px;'>No hay permisos abiertos.</p>";
+            return;
+        }
+
+        activos.forEach(p => {
+            const partes = p.datos.split(";");
+            const folio = partes[0]; // El Folio es el primer dato después de la fecha
+            const tecnico = partes[1].split("\n")[0]; // Toma el primer nombre
+
+            const fila = document.createElement('div');
+            fila.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;";
+            fila.innerHTML = `
+                <div style="text-align:left;">
+                    <b style="color:var(--azul-reloj);">${folio}</b><br>
+                    <small>${tecnico}...</small>
+                </div>
+                <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:11px;">CERRAR</button>
+            `;
+            contenedor.appendChild(fila);
+        });
+    } catch(e) { console.log("Error lista activos"); }
+}
+
+async function cerrarPermiso(folio) {
+    if(!confirm("¿Cerrar permiso " + folio + "?")) return;
+    const btn = event.target;
+    btn.innerText = "..."; btn.disabled = true;
+
+    fetch(URL_SCRIPT, { method: 'POST', body: `CERRAR_PERMISO;${folio}` })
+    .then(() => {
+        actualizarPildorasSSO();
+        cargarPermisosParaCerrar();
+    });
 }
 
 async function descargarCSV_SSO() {
