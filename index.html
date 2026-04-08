@@ -19,20 +19,14 @@
         .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
         .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
         #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
-        #fecha-actual { font-size: 14px; color: #555; font-weight: bold; }
-        .live-status { color: #2ecc71; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; justify-content: center; margin: 5px 0; }
-        .dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
         .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 20px auto; max-width: 500px; }
-        .fila-descarga { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
-        .input-fecha { width: 120px !important; padding: 8px !important; font-size: 12px !important; }
-        .btn-csv { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .chk-label { font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+        .chk-input { width: 20px !important; height: 20px !important; margin: 0 !important; }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN -->
     <div id="login" class="card-compacta">
         <h2 style="color:var(--verde-oscuro); margin:0;">TERPAC USUARIO</h2>
         <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
@@ -41,9 +35,9 @@
         <button class="btn" onclick="entrar()">INGRESAR</button>
     </div>
 
-    <!-- INTERFAZ OPERADOR -->
+    <!-- OPERADOR -->
     <div id="ui-app" class="card-compacta" style="display:none;">
-        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3><span class="sub-plus">SC-APP-V1</span>
+        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
         <div id="piloto-box"></div>
         <select id="mov"><option>Arribo</option><option>Entrada</option><option>Control 1</option><option>Salida</option></select>
@@ -53,10 +47,8 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
 
-    <!-- INTERFAZ MONITOR (SUPERVISOR) -->
+    <!-- SUPERVISOR -->
     <div id="ui-supervisor" class="card-full" style="display:none;">
-        <span class="sub-plus">SC-MON-RT-01</span>
-        <div class="live-status"><div class="dot"></div> MONITOR TERPAC (EN VIVO)</div>
         <div class="pildoras-horizontal">
             <div class="pildora" style="border-bottom-color: #f1c40f;"><h3>Pendiente</h3><p id="count-pendientes">00</p></div>
             <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso</h3><p id="count-proceso">00</p></div>
@@ -64,16 +56,15 @@
         </div>
         <div class="reloj-container"><div id="fecha-actual"></div><div id="reloj">00:00:00</div></div>
         <div class="box-descarga">
-            <p style="margin:0; font-size:12px; font-weight:bold;">REPORTE LOGÍSTICA</p>
-            <div class="fila-descarga">
-                <input type="date" id="f-inicio" class="input-fecha"><input type="date" id="f-fin" class="input-fecha">
-                <button class="btn-csv" onclick="descargarCSV()">📥 DESCARGAR CSV</button>
+            <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+                <input type="date" id="f-inicio" style="width:130px;"><input type="date" id="f-fin" style="width:130px;">
+                <button class="btn" style="padding:10px; width:auto; font-size:12px;" onclick="descargarCSV()">📥 DESCARGAR</button>
             </div>
         </div>
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
 
-    <!-- INTERFAZ SSO -->
+    <!-- SSO -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
         <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
@@ -81,54 +72,79 @@
                 <div class="grupo-ejecutor" style="margin-bottom:15px;">
                     <div style="display:flex; gap:10px; align-items:center;">
                         <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)" style="margin:0;">
-                        <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold; font-size:24px;">+</button>
+                        <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer; font-weight:bold;">+</button>
                     </div>
                     <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
                     <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <select id="p-fase" style="flex: 1;"><option>Fase 1</option><option>Fase 2</option><option>Fase 3</option></select>
-                <select id="p-tipo" onchange="actualizarChecklist()" style="flex: 1;"><option value="" disabled selected>Tipo Trabajo</option><option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">Confinado</option><option value="electrico">Eléctrico</option></select>
+
+            <div style="display:flex; gap:10px;">
+                <select id="p-fase" onchange="actualizarUbicaciones()" style="flex:1;">
+                    <option value="" disabled selected>Area Labores</option>
+                    <option value="Fase 1">Fase 1</option><option value="Fase 2">Fase 2</option><option value="Fase 3">Fase 3</option>
+                </select>
+                <select id="p-ubicacion" disabled style="flex:1;"><option value="">Lugar específico</option></select>
             </div>
-            <div style="margin-bottom:15px;">
-                <label style="font-size:14px; cursor:pointer;"><input type="checkbox" id="check-herramientas" onchange="actualizarChecklist()"> Herramientas</label>
-                <label style="font-size:14px; cursor:pointer; margin-left:15px;"><input type="checkbox" id="check-colectiva" onchange="actualizarChecklist()"> Prot. Colectiva</label>
+
+            <select id="p-tipo" onchange="actualizarChecklist()">
+                <option value="" disabled selected>Tipo de Trabajo</option>
+                <option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">Confinado</option><option value="electrico">Eléctrico</option>
+            </select>
+
+            <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
+                <label class="chk-label"><input type="checkbox" id="check-herramientas" class="chk-input" onchange="actualizarChecklist()"> ¿Usa Herramientas?</label>
+                <label class="chk-label"><input type="checkbox" id="check-colectiva" class="chk-input" onchange="actualizarChecklist()"> ¿Protección Colectiva?</label>
             </div>
-            <div id="contenedor-checklist" style="display:none; margin-bottom:15px;">
-                <div id="lista-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; border:1px solid #c3e6cb; margin-bottom:5px;"></div>
-                <div id="lista-herramientas" style="background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:5px; display:none;"></div>
-                <div id="lista-colectiva" style="background:#e7f3ff; padding:10px; border-radius:10px; border:1px solid #b8daff; margin-bottom:5px; display:none;"></div>
+
+            <div id="contenedor-checklist" style="display:none;">
+                <div id="lista-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; border:1px solid #c3e6cb; margin-bottom:5px; font-size:13px;"></div>
+                <div id="lista-herramientas" style="background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:5px; display:none; font-size:13px;"></div>
+                <div id="lista-colectiva" style="background:#e7f3ff; padding:10px; border-radius:10px; border:1px solid #b8daff; margin-bottom:5px; display:none; font-size:13px;"></div>
             </div>
-            <textarea id="p-descripcion" rows="3" placeholder="Descripción de labores..."></textarea>
+
+            <textarea id="p-descripcion" rows="2" placeholder="Descripción detallada..."></textarea>
             <button id="btn-sso" class="btn" onclick="enviarPermisoSSO()">🚀 REGISTRAR PERMISO</button>
-            <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+            <button class="btn-salir" onclick="location.reload()">CERRAR</button>
         </div>
     </div>
 
     <script>
-        // BASE DE DATOS PILOTOS
         const pilotos = { 
-            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, "102": { n: "CESAR MIRANDA", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
-            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" },
-            "105": { n: "MYNOR GUZMAN", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" },
-            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" },
-            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" },
-            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" },
-            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" },
-            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" },
-            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, "118": { n: "RICARDO MIRANDA", t: "SANTA MONICA", c: "PURINA", p: "904BXF" },
-            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" },
-            "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
-        };
-        // BASE DE DATOS TÉCNICOS
-        const personalSeguridad = { 
-            "16814": { n: "OLGA DE LEON", e: "SALUD Y SEGURIDAD OCUPACIONAL" }, 
-            "60046": { n: "WALTER YOC", e: "LOGISTICA" }, 
-            "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" }
+            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, 
+            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
+            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, 
+            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" },
+            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, 
+            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" },
+            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, 
+            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" },
+            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, 
+            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" },
+            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, 
+            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" },
+            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, 
+            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" },
+            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, 
+            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" },
+            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, 
+            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "904BXF" },
+            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, 
+            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" },
+            "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
+            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
         };
 
+        const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
+
+        const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
+        const checklistData = { 
+            "altura": { epp: "Casco con barbuquejo, Arnés, Línea de vida", herr: "Andamio, Escalera", col: "Cinta perimetral, Redes" },
+            "caliente": { epp: "Careta, Guantes de cuero, Gabacha", herr: "Extintor, Máquina soldar", col: "Mantas ignífugas" },
+            "electrico": { epp: "Guantes dieléctricos, Botas dieléctricas", herr: "LOTO, Multímetro", col: "Alfombra aislante" },
+            "confinado": { epp: "Monitor de gas, Respirador", herr: "Tripode, Ventilador", col: "Vigía de seguridad" }
+        };
 
         function entrar() {
             const u = document.getElementById('u').value.toLowerCase().trim();
@@ -139,82 +155,70 @@
             else alert("Acceso Incorrecto");
         }
 
-        function check() {
-            const id = document.getElementById('id-in').value.trim();
-            const box = document.getElementById('piloto-box');
-            if(pilotos[id]) { box.innerHTML = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none';
+        function actualizarUbicaciones() {
+            const fase = document.getElementById('p-fase').value;
+            const selectUbi = document.getElementById('p-ubicacion');
+            selectUbi.innerHTML = ""; selectUbi.disabled = false;
+            ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; selectUbi.appendChild(opt); });
         }
 
+        function actualizarChecklist() {
+            const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
+            const h = document.getElementById('check-herramientas').checked;
+            const c = document.getElementById('check-colectiva').checked;
+            document.getElementById('contenedor-checklist').style.display='block';
+            document.getElementById('lista-epp').innerHTML = "✅ <b>EPP:</b> " + checklistData[tipo].epp;
+            const lH = document.getElementById('lista-herramientas'); lH.style.display = h ? 'block' : 'none'; lH.innerHTML = "🛠️ <b>HERR:</b> " + checklistData[tipo].herr;
+            const lC = document.getElementById('lista-colectiva'); lC.style.display = c ? 'block' : 'none'; lC.innerHTML = "🚧 <b>COL:</b> " + checklistData[tipo].col;
+        }
+
+        function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
+        
         function agregarFilaEjecutor() {
             const contenedor = document.getElementById('contenedor-ejecutores');
-            const nuevaFila = document.createElement('div');
-            nuevaFila.className = 'grupo-ejecutor';
-            nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
+            const nuevaFila = document.createElement('div'); nuevaFila.className = 'grupo-ejecutor'; nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
             nuevaFila.innerHTML = `
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; font-weight:bold; font-size:24px;">-</button>
-                </div>
+                <div style="display:flex; gap:10px; align-items:center;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button></div>
                 <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
                 <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
             contenedor.appendChild(nuevaFila);
         }
 
         function checkSSO_Dinamico(input) {
-            const id = input.value.trim().toUpperCase();
-            const grupo = input.closest('.grupo-ejecutor');
-            const pBox = grupo.querySelector('.personal-box-clase');
-            const eBox = grupo.querySelector('.departamento-box-clase');
-            if(personalSeguridad[id]) { 
-                pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; 
-                eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; 
-            } else { pBox.style.display='none'; eBox.style.display='none'; }
+            const id = input.value.trim().toUpperCase(); const grupo = input.closest('.grupo-ejecutor');
+            const pBox = grupo.querySelector('.personal-box-clase'); const eBox = grupo.querySelector('.departamento-box-clase');
+            if(personalSeguridad[id]) { pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; } 
+            else { pBox.style.display='none'; eBox.style.display='none'; }
         }
 
         function enviar() {
-            const id = document.getElementById('id-in').value.trim();
-            if(!pilotos[id]) return alert("ID piloto no válido");
+            const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
             const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
             const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-            const texto = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
-            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: texto }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
+            const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
         }
 
         function enviarPermisoSSO() {
             const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-            if(!ids) return alert("Ingrese al menos un técnico.");
-            const btn = document.getElementById('btn-sso'); btn.innerText = "Registrando..."; btn.disabled = true;
-            const datos = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
-            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: datos }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
+            const btn = document.getElementById('btn-sso'); btn.innerText = "Enviando..."; btn.disabled = true;
+            const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
+            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: d }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
         }
 
-        function actualizarChecklist() {
-            const tipo = document.getElementById('p-tipo').value;
-            const h = document.getElementById('check-herramientas').checked;
-            const c = document.getElementById('check-colectiva').checked;
-            document.getElementById('contenedor-checklist').style.display='block';
-            document.getElementById('lista-epp').innerHTML = "<b>EPP Requerido:</b> Casco, Guantes, Chaleco, Botas.";
-            const lH = document.getElementById('lista-herramientas'); lH.style.display = h ? 'block' : 'none'; lH.innerHTML = "<b>Herramientas:</b> Manuales y Eléctricas.";
-            const lC = document.getElementById('lista-colectiva'); lC.style.display = c ? 'block' : 'none'; lC.innerHTML = "<b>Protección:</b> Conos y Cintas.";
-        }
-
+        function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
+        async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
+        
         async function descargarCSV() {
-            const ini = document.getElementById('f-inicio').value; const fin = document.getElementById('f-fin').value;
-            if(!ini || !fin) return alert("Seleccione el rango de fechas");
+            const i = document.getElementById('f-inicio').value; const f = document.getElementById('f-fin').value;
             try {
                 const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json();
-                const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
-                if(fil.length === 0) return alert("No hay registros en esas fechas");
-                let csv = "\uFEFFFECHA,HORA,ID,NOMBRE,MOV,PROD,T-PORT,CTE,PLACA,C-TER,C-EPQ,EXTRA\n";
-                fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
+                const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
+                let csv = "\uFEFFFECHA,HORA,DATOS\n"; fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-                link.download = `Reporte_${ini}_${fin}.csv`; link.click();
-            } catch(e) { alert("Error al descargar reporte."); }
+                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte.csv"; link.click();
+            } catch(e) { alert("Error en descarga"); }
         }
-
-        function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString('es-GT', {weekday:'long', day:'numeric', month:'long'}); }, 1000); }
-        async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
     </script>
 </body>
 </html>
