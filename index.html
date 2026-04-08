@@ -83,12 +83,7 @@
         </div>
     </div>
 
-    <div class="reloj-container">
-        <div id="fecha-sso"></div>
-        <div id="reloj-sso" style="font-size: 22px; font-weight: bold; color: white; background: #3498db; padding: 5px 15px; border-radius: 15px;">00:00:00</div>
-    </div>
-
-    <div class="box-descarga">
+        <div class="box-descarga">
         <p style="margin:0; font-size:12px; font-weight:bold;">HISTORIAL DE PERMISOS SSO</p>
         <div class="fila-descarga">
             <input type="date" id="f-ini-sso" class="input-fecha">
@@ -215,7 +210,7 @@
         actualizarPildoras(); // Llama a logística
         setInterval(actualizarPildoras, 30000);
     } 
-    else if(u=="supervisor_sso" && p=="sso123") { 
+    else if(u=="supervisor sso" && p=="terpac3") { 
         login.style.display = 'none'; 
         document.getElementById('ui-monitor-sso').style.display = 'block';
         iniciarReloj(); 
@@ -392,23 +387,32 @@ async function actualizarPildorasSSO() {
     });
 }
 
-    function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
-    async function actualizarPildoras() {
+   function iniciarReloj() {
+    setInterval(() => {
+        const a = new Date();
+        const reloj = document.getElementById('reloj');
+        const fecha = document.getElementById('fecha-actual');
+
+        // Solo actualiza si los elementos existen en la interfaz actual
+        if (reloj) reloj.innerText = a.toLocaleTimeString();
+        if (fecha) fecha.innerText = a.toLocaleDateString();
+    }, 1000);
+}
+
+async function actualizarPildoras() {
     try {
-        // Agregamos un "timestamp" para evitar que el navegador guarde una respuesta vieja (caché)
         const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
         const d = await res.json();
         
-        // Verificamos que los elementos existan antes de escribir
         const pnd = document.getElementById('count-pendientes');
         const prc = document.getElementById('count-proceso');
         const dsp = document.getElementById('count-despachadas');
 
+        // Solo escribe si los elementos están presentes (Interfaz Logística)
         if(pnd) pnd.innerText = (d.pendientes || 0).toString().padStart(2, '0');
         if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
         if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
 
-        console.log("Píldoras actualizadas:", d);
     } catch (e) {
         console.error("Error al actualizar píldoras:", e);
     }
