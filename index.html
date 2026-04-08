@@ -110,115 +110,165 @@
     </div>
 
     <script>
-        const pilotos = { 
-            "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, 
-            "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
-            "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, 
-            "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" },
-            "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, 
-            "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" },
-            "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, 
-            "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" },
-            "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, 
-            "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" },
-            "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, 
-            "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" },
-            "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, 
-            "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" },
-            "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, 
-            "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" },
-            "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, 
-            "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "904BXF" },
-            "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, 
-            "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" },
-            "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
-            "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
-        };
+    const pilotos = { 
+        "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, 
+        "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
+        "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, 
+        "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" },
+        "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, 
+        "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" },
+        "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, 
+        "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" },
+        "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, 
+        "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" },
+        "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, 
+        "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" },
+        "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, 
+        "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" },
+        "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, 
+        "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" },
+        "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, 
+        "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "904BXF" },
+        "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, 
+        "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" },
+        "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
+        "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
+    };
 
-        const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbxA2-j8f9kM5qi8lH9n9mUNv4GlfyK9tyYyruUi_SpvXtUctJQRdF4DHAHb9vUCobqg/exec';
+    const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
+    const URL_SCRIPT = 'TU_URL_AQUI';
 
-        const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
-        const checklistData = { 
-            "altura": { epp: "Casco con barbuquejo, Arnés, Línea de vida", herr: "Andamio, Escalera", col: "Cinta perimetral, Redes" },
-            "caliente": { epp: "Careta, Guantes de cuero, Gabacha", herr: "Extintor, Máquina soldar", col: "Mantas ignífugas" },
-            "electrico": { epp: "Guantes dieléctricos, Botas dieléctricas", herr: "LOTO, Multímetro", col: "Alfombra aislante" },
-            "confinado": { epp: "Monitor de gas, Respirador", herr: "Tripode, Ventilador", col: "Vigía de seguridad" }
-        };
-
-        function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            if(u=="operador" && p=="terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
-            else if(u=="supervisor" && p=="terpac1") { document.getElementById('login').style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
-            else if(u=="sso" && p=="terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
-            else alert("Acceso Incorrecto");
+    const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
+    
+    // DATOS EN FORMATO ARRAY PARA GENERAR LOS CHECKS
+    const checklistData = { 
+        "altura": { 
+            epp: ["EPP Completo", "Casco con barbuquejo", "Arnés de seguridad", "Línea de vida"], 
+            herr: ["Andamio", "Tablones", "Escalera de extensión"], 
+            col: ["Redes de seguridad", "Cintas amarillas de peligro", "Barandas"] 
+        },
+        "caliente": { 
+            epp: ["EPP Completo", "Guantes de cuero", "Gabacha de cuero", "Careta para soldar"], 
+            herr: ["Máquina de soldar", "Amoladora / Esmeril", "Extintor PQS"], 
+            col: ["Biombos ignífugos", "Mantas térmicas", "Señalización"] 
+        },
+        "electrico": { 
+            epp: ["EPP Completo", "Guantes dieléctricos", "Botas dieléctricas", "Careta protección facial"], 
+            herr: ["Multímetro", "Pértiga de maniobra", "Kit de bloqueo LOTO"], 
+            col: ["Cintas de peligro rojas", "Alfombra aislante", "Bloqueos físicos"] 
+        },
+        "confinado": { 
+            epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración autocontenido"], 
+            herr: ["Trípode de rescate", "Ventilador/Extractor", "Iluminación 12V"], 
+            col: ["Conos de seguridad", "Vigía de seguridad", "Barreras rígidas"] 
         }
+    };
 
-        function actualizarUbicaciones() {
-            const fase = document.getElementById('p-fase').value;
-            const selectUbi = document.getElementById('p-ubicacion');
-            selectUbi.innerHTML = ""; selectUbi.disabled = false;
-            ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; selectUbi.appendChild(opt); });
-        }
+    function entrar() {
+        const u = document.getElementById('u').value.toLowerCase().trim();
+        const p = document.getElementById('p').value;
+        if(u=="operador" && p=="terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
+        else if(u=="supervisor" && p=="terpac1") { document.getElementById('login').style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
+        else if(u=="sso" && p=="terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
+        else alert("Acceso Incorrecto");
+    }
 
-        function actualizarChecklist() {
-            const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
-            const h = document.getElementById('check-herramientas').checked;
-            const c = document.getElementById('check-colectiva').checked;
-            document.getElementById('contenedor-checklist').style.display='block';
-            document.getElementById('lista-epp').innerHTML = "✅ <b>EPP:</b> " + checklistData[tipo].epp;
-            const lH = document.getElementById('lista-herramientas'); lH.style.display = h ? 'block' : 'none'; lH.innerHTML = "🛠️ <b>HERR:</b> " + checklistData[tipo].herr;
-            const lC = document.getElementById('lista-colectiva'); lC.style.display = c ? 'block' : 'none'; lC.innerHTML = "🚧 <b>COL:</b> " + checklistData[tipo].col;
-        }
+    function actualizarUbicaciones() {
+        const fase = document.getElementById('p-fase').value;
+        const selectUbi = document.getElementById('p-ubicacion');
+        selectUbi.innerHTML = ""; selectUbi.disabled = false;
+        ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; selectUbi.appendChild(opt); });
+    }
 
-        function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
+    // FUNCIÓN PARA CREAR CHECKS INDIVIDUALES
+    function crearCheck(texto) {
+        const div = document.createElement('div');
+        div.style.margin = "5px 0";
+        div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`;
+        return div;
+    }
+
+    function actualizarChecklist() {
+        const tipo = document.getElementById('p-tipo').value;
+        if(!tipo) return;
         
-        function agregarFilaEjecutor() {
-            const contenedor = document.getElementById('contenedor-ejecutores');
-            const nuevaFila = document.createElement('div'); nuevaFila.className = 'grupo-ejecutor'; nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
-            nuevaFila.innerHTML = `
-                <div style="display:flex; gap:10px; align-items:center;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button></div>
-                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
-                <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
-            contenedor.appendChild(nuevaFila);
-        }
-
-        function checkSSO_Dinamico(input) {
-            const id = input.value.trim().toUpperCase(); const grupo = input.closest('.grupo-ejecutor');
-            const pBox = grupo.querySelector('.personal-box-clase'); const eBox = grupo.querySelector('.departamento-box-clase');
-            if(personalSeguridad[id]) { pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; } 
-            else { pBox.style.display='none'; eBox.style.display='none'; }
-        }
-
-        function enviar() {
-            const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
-            const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
-            const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-            const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
-            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
-        }
-
-        function enviarPermisoSSO() {
-            const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-            const btn = document.getElementById('btn-sso'); btn.innerText = "Enviando..."; btn.disabled = true;
-            const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
-            fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: d }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
-        }
-
-        function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
-        async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
+        const hCheck = document.getElementById('check-herramientas').checked;
+        const cCheck = document.getElementById('check-colectiva').checked;
         
-        async function descargarCSV() {
-            const i = document.getElementById('f-inicio').value; const f = document.getElementById('f-fin').value;
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json();
-                const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
-                let csv = "\uFEFFFECHA,HORA,DATOS\n"; fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte.csv"; link.click();
-            } catch(e) { alert("Error en descarga"); }
-        }
-    </script>
+        document.getElementById('contenedor-checklist').style.display='block';
+        
+        const lEpp = document.getElementById('lista-epp');
+        const lHerr = document.getElementById('lista-herramientas');
+        const lCol = document.getElementById('lista-colectiva');
+
+        // Limpiar para refrescar
+        lEpp.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#155724;'>✅ EPP REQUERIDO:</p>";
+        lHerr.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#856404;'>🛠️ HERRAMIENTAS:</p>";
+        lCol.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#004085;'>🚧 PROTECCIÓN COLECTIVA:</p>";
+
+        // Generar checks de EPP
+        checklistData[tipo].epp.forEach(item => lEpp.appendChild(crearCheck(item)));
+
+        // Generar checks de Herramientas
+        if(hCheck) {
+            lHerr.style.display = 'block';
+            checklistData[tipo].herr.forEach(item => lHerr.appendChild(crearCheck(item)));
+        } else { lHerr.style.display = 'none'; }
+
+        // Generar checks de Colectiva
+        if(cCheck) {
+            lCol.style.display = 'block';
+            checklistData[tipo].col.forEach(item => lCol.appendChild(crearCheck(item)));
+        } else { lCol.style.display = 'none'; }
+    }
+
+    function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
+    
+    function agregarFilaEjecutor() {
+        const contenedor = document.getElementById('contenedor-ejecutores');
+        const nuevaFila = document.createElement('div'); nuevaFila.className = 'grupo-ejecutor'; nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
+        nuevaFila.innerHTML = `
+            <div style="display:flex; gap:10px; align-items:center;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button></div>
+            <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div>
+            <div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
+        contenedor.appendChild(nuevaFila);
+    }
+
+    function checkSSO_Dinamico(input) {
+        const id = input.value.trim().toUpperCase(); const grupo = input.closest('.grupo-ejecutor');
+        const pBox = grupo.querySelector('.personal-box-clase'); const eBox = grupo.querySelector('.departamento-box-clase');
+        if(personalSeguridad[id]) { pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; } 
+        else { pBox.style.display='none'; eBox.style.display='none'; }
+    }
+
+    function enviar() {
+        const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
+        const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
+        const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+        const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
+    }
+
+    function enviarPermisoSSO() {
+        const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+        const btn = document.getElementById('btn-sso'); btn.innerText = "Enviando..."; btn.disabled = true;
+        const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: d }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
+    }
+
+    function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
+    async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
+    
+    async function descargarCSV() {
+        const i = document.getElementById('f-inicio').value; const f = document.getElementById('f-fin').value;
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json();
+            const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
+            let csv = "\uFEFFFECHA,HORA,DATOS\n"; fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte.csv"; link.click();
+        } catch(e) { alert("Error en descarga"); }
+    }
+</script>
 </body>
 </html>
