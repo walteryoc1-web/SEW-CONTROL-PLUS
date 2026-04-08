@@ -165,13 +165,31 @@
     };
 
     function entrar() {
-        const u = document.getElementById('u').value.toLowerCase().trim();
-        const p = document.getElementById('p').value;
-        if(u=="operador" && p=="terpac") { document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; }
-        else if(u=="supervisor" && p=="terpac1") { document.getElementById('login').style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); }
-        else if(u=="sso" && p=="terpac2") { document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block'; }
-        else alert("Acceso Incorrecto");
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    
+    if(u=="operador" && p=="terpac") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-app').style.display='block'; 
+    } 
+    else if(u=="supervisor" && p=="terpac1") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-supervisor').style.display='block'; 
+        
+        iniciarReloj(); 
+        actualizarPildoras(); // Carga los datos de inmediato al entrar
+        
+               setInterval(actualizarPildoras, 30000); 
+    } 
+    else if(u=="sso" && p=="terpac2") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-seguridad').style.display='block'; 
+    } 
+    else { 
+        alert("Acceso Incorrecto"); 
     }
+}
+
 
     function actualizarUbicaciones() {
         const fase = document.getElementById('p-fase').value;
@@ -290,8 +308,27 @@
 }
 
     function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
-    async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
-    
+    async function actualizarPildoras() {
+    try {
+        // Agregamos un "timestamp" para evitar que el navegador guarde una respuesta vieja (caché)
+        const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
+        const d = await res.json();
+        
+        // Verificamos que los elementos existan antes de escribir
+        const pnd = document.getElementById('count-pendientes');
+        const prc = document.getElementById('count-proceso');
+        const dsp = document.getElementById('count-despachadas');
+
+        if(pnd) pnd.innerText = (d.pendientes || 0).toString().padStart(2, '0');
+        if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
+        if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
+
+        console.log("Píldoras actualizadas:", d);
+    } catch (e) {
+        console.error("Error al actualizar píldoras:", e);
+    }
+}
+
     async function descargarCSV() {
         const i = document.getElementById('f-inicio').value; const f = document.getElementById('f-fin').value;
         try {
