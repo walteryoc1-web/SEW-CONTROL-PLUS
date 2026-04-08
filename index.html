@@ -250,11 +250,44 @@
     }
 
     function enviarPermisoSSO() {
-        const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-        const btn = document.getElementById('btn-sso'); btn.innerText = "Enviando..."; btn.disabled = true;
-        const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value}`;
-        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: d }).then(() => { alert("Permiso SSO Registrado"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
-    }
+    // 1. Obtener IDs de ejecutores
+    const ids = Array.from(document.querySelectorAll('.p-id-clase'))
+                     .map(i => i.value.trim())
+                     .filter(v => v !== "")
+                     .join(",");
+
+    if(!ids) return alert("Ingrese al menos un técnico ejecutor.");
+
+    // 2. Recolectar todos los CHECKS marcados (EPP, Herramientas, Colectiva)
+    const contenedorChecklist = document.getElementById('contenedor-checklist');
+    const marcados = Array.from(contenedorChecklist.querySelectorAll('input[type="checkbox"]:checked'))
+                          .map(chk => chk.parentElement.innerText.trim());
+    
+    const stringChecks = marcados.length > 0 ? marcados.join(" | ") : "NINGUNO SELECCIONADO";
+
+    const btn = document.getElementById('btn-sso'); 
+    btn.innerText = "Enviando..."; 
+    btn.disabled = true;
+
+    // 3. Armar la cadena final (incluyendo los checks marcados)
+    // Formato: PERMISO; IDs; Fase; Ubicacion; Tipo; Descripcion; ElementosMarcados
+    const d = `PERMISO;${ids};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${stringChecks}`;
+
+    fetch(URL_SCRIPT, { 
+        method: 'POST', 
+        mode: 'no-cors', 
+        body: d 
+    })
+    .then(() => { 
+        alert("✅ Permiso SSO y Checklist registrados con éxito"); 
+        location.reload(); 
+    })
+    .catch(() => { 
+        alert("❌ Error al registrar el permiso"); 
+        btn.disabled = false; 
+        btn.innerText = "🚀 REGISTRAR PERMISO";
+    });
+}
 
     function iniciarReloj() { setInterval(() => { const a = new Date(); document.getElementById('reloj').innerText = a.toLocaleTimeString(); document.getElementById('fecha-actual').innerText = a.toLocaleDateString(); }, 1000); }
     async function actualizarPildoras() { try { const res = await fetch(URL_SCRIPT); const d = await res.json(); document.getElementById('count-pendientes').innerText = d.pendientes || 0; document.getElementById('count-proceso').innerText = d.proceso || 0; document.getElementById('count-despachadas').innerText = d.despachadas || 0; } catch(e){} }
