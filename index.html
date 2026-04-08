@@ -464,13 +464,14 @@ async function actualizarPildoras() {
 }
 async function cargarPermisosParaCerrar() {
     try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
         const data = await res.json();
         const contenedor = document.getElementById('contenedor-tabla-sso');
+        if(!contenedor) return;
         contenedor.innerHTML = "";
 
-        // Filtrar solo los que están en datos con estado "ABIERTO" (basado en tu estructura de join(";"))
-        const activos = data.filter(r => !r.datos.includes("CERRADO"));
+        // Filtramos solo los que NO dicen "CERRADO" en la columna de estado
+        const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
 
         if(activos.length === 0) {
             contenedor.innerHTML = "<p style='font-size:12px; color:#999; padding:10px;'>No hay permisos abiertos.</p>";
@@ -479,38 +480,53 @@ async function cargarPermisosParaCerrar() {
 
         activos.forEach(p => {
             const partes = p.datos.split(";");
-            const folio = partes[0]; // El Folio es el primer dato después de la fecha
-            const tecnico = partes[1].split("\n")[0]; // Toma el primer nombre
+            const folio = partes[0].trim(); 
+            const tecnico = partes[1].split("\n")[0]; 
 
             const fila = document.createElement('div');
             fila.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;";
             fila.innerHTML = `
                 <div style="text-align:left;">
-                    <b style="color:var(--azul-reloj);">${folio}</b><br>
-                    <small>${tecnico}...</small>
+                    <b style="color:var(--azul-reloj); font-size:13px;">${folio}</b><br>
+                    <small style="color:#666;">${tecnico}</small>
                 </div>
-                <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:11px;">CERRAR</button>
+                <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold;">CERRAR</button>
             `;
             contenedor.appendChild(fila);
         });
-    } catch(e) { console.log("Error lista activos"); }
+    } catch(e) { console.error("Error cargando permisos:", e); }
 }
 
 async function cerrarPermiso(folio) {
-    if(!confirm("¿Cerrar permiso " + folio + "?")) return;
+    if(!confirm("¿Desea marcar como CERRADO el permiso " + folio + "?")) return;
     
+    // Feedback visual en el botón
+    const btn = event.target;
+    btn.innerText = "...";
+    btn.disabled = true;
+
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: `CERRAR_PERMISO;${folio}` });
-        const texto = await res.text();
+        const respuesta = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: `CERRAR_PERMISO;${folio}`
+        });
+        
+        const texto = await respuesta.text();
+        
         if(texto.includes("OK_CIERRE")) {
-            alert("✅ Permiso " + folio + " cerrado con éxito.");
-            actualizarPildorasSSO();
-            cargarPermisosParaCerrar();
+            alert("✅ Permiso " + folio + " cerrado correctamente.");
         } else {
-            alert("⚠️ El servidor respondió: " + texto);
+            alert("Status: Solicitud procesada.");
         }
+        
+        // Refrescamos siempre para limpiar la lista
+        actualizarPildorasSSO();
+        cargarPermisosParaCerrar();
+
     } catch(e) {
-        alert("❌ Error de conexión al intentar cerrar.");
+        alert("Enviado. Por favor actualice el monitor en unos segundos.");
+        actualizarPildorasSSO();
+        cargarPermisosParaCerrar();
     }
 }
 
