@@ -393,47 +393,75 @@
     }
 }
 
-    async function descargarCSV() {
-        const i = document.getElementById('f-inicio').value; const f = document.getElementById('f-fin').value;
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json();
-            const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
-            let csv = "\uFEFFFECHA,HORA,DATOS\n"; fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte.csv"; link.click();
-        } catch(e) { alert("Error en descarga"); }
-    }
-        async function actualizarPildorasSSO() {
+  async function descargarCSV() {
+    const i = document.getElementById('f-inicio').value; 
+    const f = document.getElementById('f-fin').value;
+    
+    if(!i || !f) return alert("Por favor, seleccione el rango de fechas.");
+
     try {
-        const res = await fetch(URL_SCRIPT + "?accion=monitorSSO");
-        const d = await res.json();
-        document.getElementById('sso-pnd').innerText = d.total.toString().padStart(2, '0');
-        document.getElementById('sso-riesgo').innerText = d.riesgo.toString().padStart(2, '0');
-        document.getElementById('sso-personal').innerText = d.personal.toString().padStart(2, '0');
-    } catch(e) { console.error("Error pildoras SSO"); }
+        const res = await fetch(URL_SCRIPT + "?accion=reporte"); 
+        const data = await res.json();
+        const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
+        
+        if(fil.length === 0) return alert("No hay registros en las fechas seleccionadas.");
+
+        // BOM para Excel (tildes y eñes)
+        let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ,EXTRAS\n"; 
+        
+        fil.forEach(r => {
+            // Limpieza de saltos de línea y cambio de separador para Logística
+            let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
+            csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a"); 
+        link.href = URL.createObjectURL(blob); 
+        link.download = `Reporte_Logistica_${i}_al_${f}.csv`; 
+        link.click();
+        
+        URL.revokeObjectURL(link.href);
+    } catch(e) { 
+        console.error(e);
+        alert("Error en la descarga del reporte."); 
+    }
 }
 
 async function descargarCSV_SSO() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
-    if(!ini || !fin) return alert("Seleccione fechas");
+    
+    if(!ini || !fin) return alert("Por favor, seleccione las fechas para el reporte SSO.");
 
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
         const data = await res.json();
         const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
         
-        if(fil.length === 0) return alert("Sin registros en esas fechas");
+        if(fil.length === 0) return alert("Sin registros SSO en esas fechas");
 
+        // Encabezados con FOLIO incluido
         let csv = "\uFEFFFECHA,HORA,FOLIO,EJECUTORES,FASE,UBICACION,TIPO,DESCRIPCION,CHECKS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ',')}\n`);
+        
+        fil.forEach(r => {
+            // CORRECCIÓN CLAVE: Eliminamos saltos de línea para que los ejecutores 
+            // se queden en una sola celda y no se pierda el FOLIO.
+            let datosLimpiosSSO = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
+            csv += `${r.fecha},${r.hora},${datosLimpiosSSO}\n`;
+        });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `Reporte_SSO_${ini}.csv`;
+        link.download = `Reporte_SSO_${ini}_al_${fin}.csv`;
         link.click();
-    } catch(e) { alert("Error reporte SSO"); }
+        
+        URL.revokeObjectURL(link.href);
+    } catch(e) { 
+        console.error(e);
+        alert("Error al generar el reporte SSO."); 
+    }
 }
 
 </script>
