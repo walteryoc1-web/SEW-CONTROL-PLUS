@@ -293,69 +293,80 @@ function checkInvolucrado(input) {
 }
 
 async function enviarIncidenteCompleto() {
-    const folioIn = document.getElementById('inc-folio');
-    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Digite el Folio");
-    
-    const folio = folioIn.value.trim().toUpperCase();
-
-    // Captura de datos vinculados con respaldo N/A
-    const faseOri = window.datosVinculados ? window.datosVinculados.fase : "N/A";
-    const ubiOri = window.datosVinculados ? window.datosVinculados.ubi : "N/A";
-    const tipoOri = window.datosVinculados ? window.datosVinculados.tipo : "N/A";
-
-    // Captura de colaboradores
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
-    const involucrados = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ");
-
     const btn = document.getElementById('btn-env-inc');
-    btn.disabled = true; 
-    btn.innerText = "ENVIANDO...";
+    if (!btn) return alert("Error: Botón no encontrado");
 
-    // ESTRUCTURA DE CARGA (PAYLOAD) CORREGIDA SEGÚN TUS IDS DE HTML
+    // 1. Captura del Folio con validación inmediata
+    const folioIn = document.getElementById('inc-folio');
+    const folio = folioIn ? folioIn.value.trim().toUpperCase() : "";
+    if (folio === "") return alert("❌ Debe ingresar un Folio SSO");
+
+    // 2. Captura de colaboradores
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.trim().toUpperCase())
+                     .filter(v => personalSeguridad[v]);
+    
+    const involucrados = ids.length > 0 
+        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
+        : "SIN AFECTADOS";
+
+    // 3. Bloqueo preventivo del botón
+    btn.disabled = true; 
+    btn.innerText = "PROCESANDO... ⏳";
+
+    // 4. Captura Segura de Datos (Evita que la función se rompa si un ID falta)
+    const getVal = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : "N/A";
+    };
+
     const payload = {
         action: "registrarIncidente",
         folio: folio,
-        faseOriginal: faseOri,
-        ubicacionOriginal: ubiOri,
-        tipoTrabajoOriginal: tipoOri,
-        involucrados: involucrados || "SIN AFECTADOS",
-        salud: document.getElementById('inc-salud').value,
-        intervencionMomento: document.getElementById('inc-intervencion').value, // ID Corregido
-        tipoEvento: document.getElementById('inc-tipo').value,
-        gravedad: document.getElementById('inc-gravedad').value,
-        riesgo: document.getElementById('inc-riesgo').value,
-        contaminacion: document.getElementById('inc-contaminacion').value,
-        estructura: document.getElementById('inc-estructura').value,
-        reparacion: document.getElementById('inc-reparacion').value,
-        obsEstructura: document.getElementById('inc-obs-estructura').value,
-        perdida: document.getElementById('inc-perdida').value, // ID Corregido
-        seguridadInd: document.getElementById('inc-seguridad').value, // ID Corregido
-        recomendacion: document.getElementById('inc-recomendacion').value,
-        estadoFinal: document.getElementById('inc-estado-final').value
+        faseOriginal: (window.datosVinculados && window.datosVinculados.fase) ? window.datosVinculados.fase : "N/A",
+        ubicacionOriginal: (window.datosVinculados && window.datosVinculados.ubi) ? window.datosVinculados.ubi : "N/A",
+        tipoTrabajoOriginal: (window.datosVinculados && window.datosVinculados.tipo) ? window.datosVinculados.tipo : "N/A",
+        involucrados: involucrados,
+        salud: getVal('inc-salud'),
+        intervencionMomento: getVal('inc-intervencion'),
+        tipoEvento: getVal('inc-tipo'),
+        gravedad: getVal('inc-gravedad'),
+        riesgo: getVal('inc-riesgo'),
+        contaminacion: getVal('inc-contaminacion'),
+        estructura: getVal('inc-estructura'),
+        reparacion: getVal('inc-reparacion'),
+        obsEstructura: getVal('inc-obs-estructura') || "Sin observación",
+        perdida: getVal('inc-perdida'),
+        seguridadInd: getVal('inc-seguridad'),
+        recomendacion: getVal('inc-recomendacion'),
+        estadoFinal: getVal('inc-estado-final')
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
+        // Enviar datos
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(payload)
         });
         
-        const respuestaTexto = await res.text();
+        const texto = await res.text();
         
-        if(respuestaTexto.includes("OK_INCIDENTE")) {
-            alert("✅ REPORTE REGISTRADO EXITOSAMENTE");
-            location.reload(); 
+        if (texto.includes("OK_INCIDENTE")) {
+            alert("✅ REPORTE TÉCNICO REGISTRADO");
+            location.reload(); // Limpieza total
         } else {
-            alert("⚠️ Registro procesado en la hoja.");
-            location.reload();
+            alert("⚠️ Servidor: " + texto);
+            btn.disabled = false;
+            btn.innerText = "REGISTRAR INFORME FINAL 🚩";
         }
-    } catch(e) {
-        console.error("Error de envío:", e);
-        alert("⚠️ Error de conexión. Verifique la hoja de Excel.");
+    } catch (e) {
+        console.error("Error crítico:", e);
+        alert("❌ Error de red: No se pudo conectar con el servidor.");
         btn.disabled = false;
         btn.innerText = "REGISTRAR INFORME FINAL 🚩";
     }
 }
+
 
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
