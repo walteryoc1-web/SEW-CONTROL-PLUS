@@ -94,46 +94,63 @@
     </div>
 
     <!-- UI FORMULARIO INCIDENTES (NUEVO) -->
-<div id="ui-incidentes-sso" class="card-full" style="display:none; background:#fff5f5;">
-    <h3 style="color:#d63031; margin-top:20px;">Registro de Incidente / Accidente</h3>
-    <span class="sub-plus">REPORTE OPERATIVO CRÍTICO</span>
+<div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff;">
+    <div style="background:#d63031; color:white; padding:20px; margin:-20px -20px 20px -20px;">
+        <h2 style="margin:0;">INFORME TÉCNICO DE INCIDENTE/ACCIDENTE</h2>
+        <span style="font-size:12px; opacity:0.8;">VINCULACIÓN DE DATOS SSO EN TIEMPO REAL</span>
+    </div>
 
-    <div class="card-compacta" style="margin-top:20px; border-top: 8px solid #d63031;">
-        <p style="margin:0; font-size:12px; font-weight:bold; color:#d63031;">VÍNCULO CON PERMISO DE TRABAJO</p>
-        <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO (Ej: SSO-2026...)">
-
-        <p style="margin:10px 0 0 0; font-size:12px; font-weight:bold; color:#555;">COLABORADORES INVOLUCRADOS</p>
-        <div id="contenedor-involucrados-inc">
-            <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
-                <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
-                <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
+    <div style="max-width:1000px; margin:auto; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+        
+        <!-- BLOQUE 1: VINCULACIÓN -->
+        <div class="box-descarga" style="background:#fdf2f2; border:1px solid #fab1a0;">
+            <p style="font-weight:bold; color:#d63031; margin-top:0;">1. DATOS DEL PERMISO ORIGEN</p>
+            <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO PARA VINCULAR" oninput="vincularDatosPermiso(this.value)" style="border:2px solid #d63031;">
+            <div id="datos-vinculados-sso" style="font-size:13px; color:#555; line-height:1.6;">
+                <p>⚠️ Ingrese un folio válido para cargar datos del área...</p>
             </div>
         </div>
-        
-        <select id="tipo-inc">
-            <option disabled selected>Tipo de Evento</option>
-            <option>Incidente (Casi accidente)</option>
-            <option>Accidente (Con lesión)</option>
-            <option>Condición Insegura</option>
-        </select>
 
-        <select id="nivel-inc">
-            <option disabled selected>Nivel de Gravedad</option>
-            <option>Bajo</option><option>Medio</option><option>Alto</option>
-        </select>
+        <!-- BLOQUE 2: COLABORADORES AFECTADOS -->
+        <div class="box-descarga">
+            <p style="font-weight:bold; margin-top:0;">2. PERSONAL AFECTADO / INVOLUCRADO</p>
+            <div id="contenedor-involucrados-inc">
+                <div class="grupo-involucrado" style="display:flex; gap:10px; margin-top:5px;">
+                    <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)">
+                    <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:10px; padding:0 15px;">+</button>
+                </div>
+            </div>
+        </div>
 
-        <select id="area-inc">
-            <option disabled selected>Área del Suceso</option>
-            <option>Muelles</option><option>Patios</option><option>Básculas</option>
-        </select>
+        <!-- BLOQUE 3: EVALUACIÓN DE DAÑOS Y RIESGOS -->
+        <div class="box-descarga">
+            <p style="font-weight:bold; margin-top:0;">3. EVALUACIÓN Y DAÑOS</p>
+            <select id="inc-gravedad"><option disabled selected>Grado de Gravedad</option><option>Leve</option><option>Moderado</option><option>Crítico</option></select>
+            <select id="inc-contaminacion"><option disabled selected>Control de Contaminación</option><option>Sin afectación</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
+            <select id="inc-estructura"><option disabled selected>Riesgo de Estructura</option><option>Nulo</option><option>Daño estético</option><option>Daño estructural</option></select>
+            <select id="inc-economica"><option disabled selected>Pérdida Económica Est.</option><option>Baja</option><option>Media</option><option>Alta</option></select>
+        </div>
 
-        <textarea id="desc-inc" placeholder="Descripción detallada..." rows="4"></textarea>
-        
-        <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidente()">REGISTRAR INCIDENTE 🚩</button>
-        <button class="btn-salir" style="background:#777;" onclick="volverMonitorSSO()">VOLVER</button>
+        <!-- BLOQUE 4: ESTADO MÉDICO -->
+        <div class="box-descarga">
+            <p style="font-weight:bold; margin-top:0;">4. ESTADO DE COLABORADORES</p>
+            <select id="inc-medico">
+                <option disabled selected>Estatus Médico</option>
+                <option>Atención en Clínica Médica</option>
+                <option>Traslado a IGSS</option>
+                <option>Suspensión Clínica Médica</option>
+                <option>Suspensión IGSS</option>
+                <option>Retorno a labores</option>
+            </select>
+            <textarea id="inc-recomendacion" placeholder="Recomendaciones técnicas y observaciones..." rows="3"></textarea>
+        </div>
+    </div>
+
+    <div style="margin-top:20px; text-align:center;">
+        <button id="btn-env-inc" class="btn" style="background:#d63031; color:white; width:300px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME FINAL 🚩</button>
+        <button class="btn-salir" onclick="volverMonitorSSO()">CANCELAR</button>
     </div>
 </div>
-
 
     <!-- UI OPERADOR SSO (PERMISOS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
@@ -398,6 +415,34 @@ async function enviarIncidente() {
         if(!confirm("¿Cerrar folio " + folio + "?")) return;
         try { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + folio }); alert("Cerrado"); location.reload(); } catch(e) { alert("Error"); }
     }
+
+       async function vincularDatosPermiso(folio) {
+    const display = document.getElementById('datos-vinculados-sso');
+    if (folio.length < 5) return;
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const permiso = data.find(r => r.datos.split(";")[0].trim() === folio.trim().toUpperCase());
+
+        if (permiso) {
+            const d = permiso.datos.split(";");
+            // Estructura: 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubicacion, 4:Tipo, 5:Desc
+            display.innerHTML = `
+                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71;">
+                    ✅ <b>PERMISO VINCULADO:</b><br>
+                    📍 <b>Área:</b> ${d[2]} - ${d[3]}<br>
+                    🛠️ <b>Trabajo:</b> ${d[4]}<br>
+                    📝 <b>Original:</b> ${d[5]}
+                </div>
+            `;
+            // Guardamos estos datos en variables ocultas para el envío final
+            window.datosPermisoVinculado = { area: d[2], ubicacion: d[3], tipoTrabajo: d[4] };
+        } else {
+            display.innerHTML = "❌ Folio no encontrado en registros activos.";
+        }
+    } catch(e) { console.error(e); }
+}
 
     async function descargarCSV_SSO() {
         const ini = document.getElementById('f-ini-sso').value, fin = document.getElementById('f-fin-sso').value;
