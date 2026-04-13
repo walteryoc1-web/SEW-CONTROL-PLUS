@@ -93,45 +93,72 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
     </div>
 
-   <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:30px;">
-    <h2 style="color:#d63031;">INFORME TÉCNICO DE INCIDENTE / ACCIDENTE (SSO)</h2>
+   <!-- INTERFAZ DASHBOARD DE INCIDENTES (3 COLUMNAS) -->
+<div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#f4f7f6; padding:20px; border-top:none;">
     
-    <!-- SECCIÓN 1 -->
-    <input type="text" id="inc-folio" placeholder="DIGITE FOLIO SSO" oninput="vincularDatosPermiso(this.value)">
-    <div id="datos-vinculados-sso">Esperando vinculación...</div>
-
-    <!-- SECCIÓN 2 -->
-    <div id="contenedor-involucrados-inc">
-        <div style="display:flex; gap:10px;">
-            <input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)">
-            <button type="button" onclick="agregarFilaInvolucrado()">+</button>
-        </div>
+    <div style="background:#d63031; color:white; padding:15px; border-radius:12px; margin-bottom:20px; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="margin:0; font-size:22px; letter-spacing:1px;">INFORME TÉCNICO DE INCIDENTE / ACCIDENTE</h2>
     </div>
-    <select id="inc-salud">
-        <option>SIN_AFECTADOS</option><option>Atención en Clínica</option><option>Traslado a IGSS</option>
-    </select>
 
-    <!-- SECCIÓN 3 -->
-    <input type="text" id="inc-intervencion" placeholder="Intervención técnica">
-    <select id="inc-tipo"><option>Incidente</option><option>Accidente</option></select>
-    <select id="inc-gravedad"><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
-    <select id="inc-riesgo"><option>Bajo</option><option>Medio</option><option>Alto</option></select>
-    <select id="inc-contaminacion"><option>Nulo</option><option>Derrame</option></select>
+    <!-- GRID MAESTRO DE 3 COLUMNAS -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; max-width: 1400px; margin: auto;">
+        
+        <!-- COLUMNA 1: ORIGEN Y PERSONAL -->
+        <div class="pildora" style="border-bottom:none; border-top:6px solid #d63031; text-align:left; padding:15px;">
+            <p style="font-weight:bold; color:#d63031; margin:0 0 10px 0;">1. ORIGEN Y AFECTADOS</p>
+            <input type="text" id="inc-folio" placeholder="DIGITE FOLIO SSO" oninput="vincularDatosPermiso(this.value)" style="border:2px solid #d63031;">
+            <div id="datos-vinculados-sso" style="font-size:12px; background:#fff5f5; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #feb2b2; min-height:60px;">Esperando vinculación...</div>
+            
+            <div id="contenedor-involucrados-inc">
+                <div style="display:flex; gap:5px; margin-bottom:5px;">
+                    <input type="text" class="inc-id-clase" placeholder="ID Personal" oninput="checkInvolucrado(this)">
+                    <button class="btn" style="width:40px; padding:0; background:#3498db; color:white;" onclick="agregarFilaInvolucrado()">+</button>
+                </div>
+            </div>
+            <select id="inc-salud">
+                <option value="SIN_AFECTADOS">No hay afectados</option>
+                <option>Atención en Clínica</option>
+                <option>Traslado a IGSS</option>
+                <option>Suspensión Clínica</option>
+                <option>Suspensión IGSS</option>
+            </select>
+        </div>
 
-    <!-- SECCIÓN 4 -->
-    <select id="inc-estructura"><option>Sin daños</option><option>Daño superficial</option></select>
-    <select id="inc-reparacion"><option>No requerida</option><option>Mantenimiento</option></select>
-    <input type="text" id="inc-obs-estructura" placeholder="Observaciones">
-    <input type="text" id="inc-perdida" placeholder="Pérdida Económica">
-    <input type="text" id="inc-seguridad" placeholder="Seguridad Industrial">
+        <!-- COLUMNA 2: ACCIONES Y EVALUACIÓN -->
+        <div class="pildora" style="border-bottom:none; border-top:6px solid #e67e22; text-align:left; padding:15px;">
+            <p style="font-weight:bold; color:#e67e22; margin:0 0 10px 0;">2. EVALUACIÓN TÉCNICA</p>
+            <input type="text" id="inc-intervencion" placeholder="Intervención en el momento">
+            <select id="inc-tipo"><option disabled selected>Tipo de Evento</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option><option>Acto Inseguro</option></select>
+            <select id="inc-gravedad"><option disabled selected>Gravedad</option><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
+            <select id="inc-riesgo"><option disabled selected>Evaluación Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
+            <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame</option><option>Fuga Mayor</option></select>
+        </div>
 
-    <!-- SECCIÓN 5 -->
-    <textarea id="inc-recomendacion" placeholder="Recomendaciones"></textarea>
-    <select id="inc-estado-final"><option>Caso cerrado</option><option>Seguimiento</option></select>
+        <!-- COLUMNA 3: INFRAESTRUCTURA Y CIERRE -->
+        <div class="pildora" style="border-bottom:none; border-top:6px solid #636e72; text-align:left; padding:15px;">
+            <p style="font-weight:bold; color:#636e72; margin:0 0 10px 0;">3. IMPACTO Y CIERRE</p>
+            <div style="display:flex; gap:5px;">
+                <select id="inc-estructura" style="flex:1;"><option disabled selected>Estructura</option><option>Sin daños</option><option>Superficial</option><option>Crítico</option></select>
+                <select id="inc-reparacion" style="flex:1;"><option disabled selected>Reparación</option><option>No</option><option>Preventivo</option><option>Mayor</option></select>
+            </div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="inc-perdida" placeholder="Pérdida Q" style="flex:1;">
+                <input type="text" id="inc-seguridad" placeholder="Seg. Industrial" style="flex:1;">
+            </div>
+            <textarea id="inc-recomendacion" placeholder="Recomendaciones finales..." rows="3" style="margin-bottom:8px;"></textarea>
+            <select id="inc-estado-final">
+                <option disabled selected>Estado Final</option>
+                <option>Caso cerrado</option><option>Investigación</option><option>Seguimiento</option>
+            </select>
+        </div>
 
-    <!-- EL BOTÓN CLAVE CON EL ID QUE DABA ERROR -->
-    <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME FINAL 🚩</button>
-    <button type="button" class="btn-salir" onclick="volverMonitorSSO()">CANCELAR</button>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN FLOTANTES O CENTRADOS -->
+    <div style="margin-top:20px; text-align:center; display:flex; justify-content:center; gap:20px;">
+        <button id="btn-env-inc" class="btn" style="background:#d63031; color:white; width:280px; font-size:16px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
+        <button class="btn-salir" style="width:150px; margin-top:0;" onclick="volverMonitorSSO()">CANCELAR</button>
+    </div>
 </div>
 
     <!-- UI OPERADOR SSO (PERMISOS) -->
