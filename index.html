@@ -94,39 +94,44 @@
     </div>
 
     <!-- UI FORMULARIO INCIDENTES (NUEVO) -->
+<div id="ui-incidentes-sso" class="card-full" style="display:none; background:#fff5f5;">
+    <h3 style="color:#d63031; margin-top:20px;">Registro de Incidente / Accidente</h3>
+    <span class="sub-plus">REPORTE OPERATIVO CRÍTICO</span>
+
     <div class="card-compacta" style="margin-top:20px; border-top: 8px solid #d63031;">
-    <p style="margin:0; font-size:12px; font-weight:bold; color:#d63031;">VÍNCULO CON PERMISO DE TRABAJO</p>
-    <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO (Ej: SSO-2026...)">
+        <p style="margin:0; font-size:12px; font-weight:bold; color:#d63031;">VÍNCULO CON PERMISO DE TRABAJO</p>
+        <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO (Ej: SSO-2026...)">
 
-    <p style="margin:10px 0 0 0; font-size:12px; font-weight:bold; color:#555;">COLABORADORES INVOLUCRADOS</p>
-    <div id="contenedor-involucrados-inc">
-        <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
-            <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
-            <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
+        <p style="margin:10px 0 0 0; font-size:12px; font-weight:bold; color:#555;">COLABORADORES INVOLUCRADOS</p>
+        <div id="contenedor-involucrados-inc">
+            <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
+                <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
+                <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
+            </div>
         </div>
+        
+        <select id="tipo-inc">
+            <option disabled selected>Tipo de Evento</option>
+            <option>Incidente (Casi accidente)</option>
+            <option>Accidente (Con lesión)</option>
+            <option>Condición Insegura</option>
+        </select>
+
+        <select id="nivel-inc">
+            <option disabled selected>Nivel de Gravedad</option>
+            <option>Bajo</option><option>Medio</option><option>Alto</option>
+        </select>
+
+        <select id="area-inc">
+            <option disabled selected>Área del Suceso</option>
+            <option>Muelles</option><option>Patios</option><option>Básculas</option>
+        </select>
+
+        <textarea id="desc-inc" placeholder="Descripción detallada..." rows="4"></textarea>
+        
+        <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidente()">REGISTRAR INCIDENTE 🚩</button>
+        <button class="btn-salir" style="background:#777;" onclick="volverMonitorSSO()">VOLVER</button>
     </div>
-    
-    <select id="tipo-inc">
-        <option disabled selected>Tipo de Evento</option>
-        <option>Incidente (Casi accidente)</option>
-        <option>Accidente (Con lesión)</option>
-        <option>Condición Insegura</option>
-    </select>
-
-    <select id="nivel-inc">
-        <option disabled selected>Nivel de Gravedad</option>
-        <option>Bajo</option><option>Medio</option><option>Alto</option>
-    </select>
-
-    <select id="area-inc">
-        <option disabled selected>Área del Suceso</option>
-        <option>Muelles</option><option>Patios</option><option>Básculas</option>
-    </select>
-
-    <textarea id="desc-inc" placeholder="Descripción detallada..." rows="4"></textarea>
-    
-    <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidente()">REGISTRAR INCIDENTE 🚩</button>
-    <button class="btn-salir" style="background:#777;" onclick="volverMonitorSSO()">VOLVER</button>
 </div>
 
 
