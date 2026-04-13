@@ -155,15 +155,34 @@
             <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
         </div>
 
-        <!-- PARTE 4: INFRAESTRUCTURA -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-            <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO ACTUALIZADA (INFRAESTRUCTURA)</label></div>
-            <select id="inc-estructura"><option disabled selected>Riesgo Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
-            <select id="inc-reparacion"><option disabled selected>Reparación Técnica</option><option>No requerida</option><option>Mantenimiento</option><option>Urgente</option></select>
-            <input type="text" id="inc-obs-estructura" placeholder="Observación estructura">
-            <input type="text" id="inc-perdida" placeholder="Pérdida Económica (Q)">
-            <input type="text" id="inc-seguridad" placeholder="Seguridad Industrial">
-        </div>
+       <!-- PARTE 4: INFRAESTRUCTURA (ACTUALIZADA) -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+    <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO ACTUALIZADA (INFRAESTRUCTURA)</label></div>
+    
+    <select id="inc-estructura">
+        <option disabled selected>Riesgo Estructura</option>
+        <option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option>
+    </select>
+    
+    <select id="inc-reparacion">
+        <option disabled selected>Reparación Técnica</option>
+        <option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option>
+    </select>
+
+    <!-- CAMBIO: REINCIDENCIA -->
+    <select id="inc-reincidencia">
+        <option disabled selected>¿Evento Reincidente?</option>
+        <option value="No">No (Evento Nuevo)</option>
+        <option value="Si - Reportado no corregido">Sí (Reportado, no corregido)</option>
+        <option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option>
+    </select>
+
+    <input type="text" id="inc-obs-estructura" placeholder="Observación de infraestructura">
+    
+    <!-- CAMBIO: RIESGOS A SEGURIDAD INDUSTRIAL -->
+    <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos a la Seguridad Industrial">
+</div>
+
 
         <!-- PARTE 5: CIERRE -->
         <div style="margin-bottom: 30px;">
@@ -326,6 +345,7 @@ async function enviarIncidenteCompleto() {
 
     const getV = (id) => document.getElementById(id) ? document.getElementById(id).value : "N/A";
 
+        // Dentro del payload de la función enviarIncidenteCompleto():
     const payload = {
         action: "registrarIncidente",
         folio: folioIn.value.trim().toUpperCase(),
@@ -339,11 +359,15 @@ async function enviarIncidenteCompleto() {
         estructura: getV('inc-estructura'),
         reparacion: getV('inc-reparacion'),
         obsEstructura: getV('inc-obs-estructura'),
-        perdida: getV('inc-perdida'),
-        seguridad: getV('inc-seguridad'),
+        
+        // LOS NUEVOS CAMPOS:
+        reincidencia: getV('inc-reincidencia'), 
+        riesgoSeguridad: getV('inc-riesgo-seguridad'),
+        
         recomendacion: getV('inc-recomendacion'),
         estadoFinal: getV('inc-estado-final')
     };
+
 
     try {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
