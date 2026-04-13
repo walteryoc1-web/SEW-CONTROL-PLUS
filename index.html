@@ -309,37 +309,28 @@ function checkInvolucrado(input) {
 }
 
 async function enviarIncidenteCompleto() {
-    // 1. Captura de datos básicos y vinculados
-    const folioIn = document.getElementById('inc-folio');
-    const folio = folioIn ? folioIn.value.trim().toUpperCase() : "";
+    const folio = document.getElementById('inc-folio').value.trim().toUpperCase();
     
-    // Captura múltiple de IDs de colaboradores
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
-                     .map(i => i.value.trim().toUpperCase())
-                     .filter(v => personalSeguridad[v]);
-    
-    const involucrados = ids.length > 0 
-        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
-        : "SIN AFECTADOS";
+    // Si no hay datos vinculados, intentamos capturarlos del cuadro de texto o mandamos N/A
+    const faseOri = window.datosVinculados ? window.datosVinculados.fase : "N/A";
+    const ubiOri = window.datosVinculados ? window.datosVinculados.ubi : "N/A";
+    const tipoOri = window.datosVinculados ? window.datosVinculados.tipo : "N/A";
 
-    // 2. Validación crítica de vinculación
-    if (folio === "" || !window.datosVinculados) {
-        alert("❌ Error: Debe vincular un Folio SSO válido antes de registrar.");
-        return;
-    }
+    if (folio === "") return alert("❌ Digite el Folio");
+
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
+    const involucrados = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ");
 
     const btn = document.getElementById('btn-env-inc');
-    btn.disabled = true; 
-    btn.innerText = "ENVIANDO REPORTE...";
+    btn.disabled = true; btn.innerText = "ENVIANDO...";
 
-    // 3. Armado del paquete de datos (Coincide con tu Código.gs de 20 columnas)
     const payload = {
         action: "registrarIncidente",
         folio: folio,
-        faseOriginal: window.datosVinculados.fase || "N/A",
-        ubicacionOriginal: window.datosVinculados.ubi || "N/A",
-        tipoTrabajoOriginal: window.datosVinculados.tipo || "N/A",
-        involucrados: involucrados,
+        faseOriginal: faseOri,
+        ubicacionOriginal: ubiOri,
+        tipoTrabajoOriginal: tipoOri,
+        involucrados: involucrados || "SIN AFECTADOS",
         salud: document.getElementById('inc-salud').value,
         intervencionMomento: document.getElementById('inc-intervencion').value,
         tipoEvento: document.getElementById('inc-tipo').value,
@@ -356,30 +347,13 @@ async function enviarIncidenteCompleto() {
     };
 
     try {
-        // Usamos POST enviando el JSON como texto para evitar bloqueos de CORS
-        const res = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-        
-        const texto = await res.text();
-        
-        if (texto.includes("OK_INCIDENTE")) {
-            alert("✅ INFORME TÉCNICO REGISTRADO CON ÉXITO");
-            volverMonitorSSO(); // Limpia el formulario y vuelve al monitor
-        } else {
-            alert("⚠️ Registro procesado. Verifique la hoja de incidentes.");
-            volverMonitorSSO();
-        }
+        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        alert("✅ REPORTE REGISTRADO");
+        location.reload(); // Recarga para limpiar todo
     } catch(e) {
-        console.error("Error envío incidente:", e);
-        alert("❌ Error de red: El reporte no se pudo enviar.");
-    } finally {
-        btn.disabled = false;
-        btn.innerText = "REGISTRAR INFORME FINAL 🚩";
+        alert("⚠️ Error de red, pero los datos podrían haberse enviado.");
     }
 }
-
 
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
@@ -508,6 +482,38 @@ async function enviarIncidenteCompleto() {
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_SSO.csv"; link.click();
         } catch(e) { alert("Error reporte SSO"); }
     }
+async function vincularDatosPermiso(folio) {
+    const display = document.getElementById('datos-vinculados-sso');
+    if (folio.length < 5) return;
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        
+        // Buscamos el folio (usando tu lógica de split)
+        const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
+
+        if (permiso) {
+            const d = permiso.datos.split(";");
+            
+            // FORZAMOS LA CREACIÓN DEL OBJETO
+            window.datosVinculados = {
+                fase: d[2] || "N/A",
+                ubi: d[3] || "N/A",
+                tipo: d[4] || "N/A"
+            };
+
+            display.innerHTML = `
+                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#2e7d32;">
+                    ✅ <b>VINCULADO:</b> ${d[2]} | ${d[3]}<br>
+                    <small>Datos listos para reporte</small>
+                </div>`;
+        } else {
+            window.datosVinculados = null;
+            display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado</b>";
+        }
+    } catch(e) { console.error(e); }
+}
 
     function iniciarReloj() {
         setInterval(() => {
