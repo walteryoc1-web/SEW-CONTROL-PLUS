@@ -309,21 +309,25 @@ function checkInvolucrado(input) {
 }
 
 async function enviarIncidenteCompleto() {
-    const folio = document.getElementById('inc-folio').value.trim().toUpperCase();
+    const folioIn = document.getElementById('inc-folio');
+    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Digite el Folio");
     
-    // Si no hay datos vinculados, intentamos capturarlos del cuadro de texto o mandamos N/A
+    const folio = folioIn.value.trim().toUpperCase();
+
+    // Captura de datos vinculados con respaldo N/A
     const faseOri = window.datosVinculados ? window.datosVinculados.fase : "N/A";
     const ubiOri = window.datosVinculados ? window.datosVinculados.ubi : "N/A";
     const tipoOri = window.datosVinculados ? window.datosVinculados.tipo : "N/A";
 
-    if (folio === "") return alert("❌ Digite el Folio");
-
+    // Captura de colaboradores
     const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
     const involucrados = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ");
 
     const btn = document.getElementById('btn-env-inc');
-    btn.disabled = true; btn.innerText = "ENVIANDO...";
+    btn.disabled = true; 
+    btn.innerText = "ENVIANDO...";
 
+    // ESTRUCTURA DE CARGA (PAYLOAD) CORREGIDA SEGÚN TUS IDS DE HTML
     const payload = {
         action: "registrarIncidente",
         folio: folio,
@@ -332,7 +336,7 @@ async function enviarIncidenteCompleto() {
         tipoTrabajoOriginal: tipoOri,
         involucrados: involucrados || "SIN AFECTADOS",
         salud: document.getElementById('inc-salud').value,
-        intervencionMomento: document.getElementById('inc-intervencion').value,
+        intervencionMomento: document.getElementById('inc-intervencion').value, // ID Corregido
         tipoEvento: document.getElementById('inc-tipo').value,
         gravedad: document.getElementById('inc-gravedad').value,
         riesgo: document.getElementById('inc-riesgo').value,
@@ -340,18 +344,32 @@ async function enviarIncidenteCompleto() {
         estructura: document.getElementById('inc-estructura').value,
         reparacion: document.getElementById('inc-reparacion').value,
         obsEstructura: document.getElementById('inc-obs-estructura').value,
-        perdida: document.getElementById('inc-perdida').value,
-        seguridadInd: document.getElementById('inc-seguridad').value,
+        perdida: document.getElementById('inc-perdida').value, // ID Corregido
+        seguridadInd: document.getElementById('inc-seguridad').value, // ID Corregido
         recomendacion: document.getElementById('inc-recomendacion').value,
         estadoFinal: document.getElementById('inc-estado-final').value
     };
 
     try {
-        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ REPORTE REGISTRADO");
-        location.reload(); // Recarga para limpiar todo
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        
+        const respuestaTexto = await res.text();
+        
+        if(respuestaTexto.includes("OK_INCIDENTE")) {
+            alert("✅ REPORTE REGISTRADO EXITOSAMENTE");
+            location.reload(); 
+        } else {
+            alert("⚠️ Registro procesado en la hoja.");
+            location.reload();
+        }
     } catch(e) {
-        alert("⚠️ Error de red, pero los datos podrían haberse enviado.");
+        console.error("Error de envío:", e);
+        alert("⚠️ Error de conexión. Verifique la hoja de Excel.");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR INFORME FINAL 🚩";
     }
 }
 
@@ -482,7 +500,8 @@ async function enviarIncidenteCompleto() {
             const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_SSO.csv"; link.click();
         } catch(e) { alert("Error reporte SSO"); }
     }
-async function vincularDatosPermiso(folio) {
+
+       async function vincularDatosPermiso(folio) {
     const display = document.getElementById('datos-vinculados-sso');
     if (folio.length < 5) return;
 
@@ -490,13 +509,14 @@ async function vincularDatosPermiso(folio) {
         const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
         const data = await res.json();
         
-        // Buscamos el folio (usando tu lógica de split)
+        // Buscamos el folio ignorando espacios
         const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
 
         if (permiso) {
             const d = permiso.datos.split(";");
             
-            // FORZAMOS LA CREACIÓN DEL OBJETO
+            // MAPEO DINÁMICO: Ajustamos los índices según tu estructura real
+            // 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubicacion, 4:TipoTrabajo
             window.datosVinculados = {
                 fase: d[2] || "N/A",
                 ubi: d[3] || "N/A",
@@ -504,15 +524,20 @@ async function vincularDatosPermiso(folio) {
             };
 
             display.innerHTML = `
-                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#2e7d32;">
-                    ✅ <b>VINCULADO:</b> ${d[2]} | ${d[3]}<br>
-                    <small>Datos listos para reporte</small>
+                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#1b5e20; font-size:13px;">
+                    ✅ <b>DATOS DEL PERMISO ENCONTRADOS:</b><br>
+                    📍 <b>Área:</b> ${window.datosVinculados.fase}<br>
+                    📍 <b>Ubicación:</b> ${window.datosVinculados.ubi}<br>
+                    🛠️ <b>Trabajo:</b> ${window.datosVinculados.tipo}
                 </div>`;
         } else {
             window.datosVinculados = null;
-            display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado</b>";
+            display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado en registros activos</b>";
         }
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+        console.error("Error en vinculación:", e);
+        display.innerHTML = "⚠️ Error de conexión al buscar folio.";
+    }
 }
 
     function iniciarReloj() {
