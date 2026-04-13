@@ -153,7 +153,8 @@
         </div>
     </div>
 
-    <script>
+   <script>
+    // --- BASES DE DATOS ---
     const pilotos = { 
         "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, 
         "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "129BZH" },
@@ -179,7 +180,10 @@
         "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
     };
     const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
+    
+    // RECUERDA CAMBIAR ESTA URL POR TU URL DE IMPLEMENTACIÓN REAL
     const URL_SCRIPT = 'https://google.com';
+
     const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
     const checklistData = { 
         "altura": { epp: ["EPP Completo", "Casco con barbuquejo", "Arnés de seguridad", "Línea de vida"], herr: ["Andamio", "Tablones", "Escalera de extensión"], col: ["Redes de seguridad", "Cintas amarillas de peligro", "Barandas"] },
@@ -188,6 +192,7 @@
         "confinado": { epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración autocontenido"], herr: ["Trípode de rescate", "Ventilador/Extractor", "Iluminación 12V"], col: ["Conos de seguridad", "Vigía de seguridad", "Barreras rígidas"] }
     };
 
+    // --- ACCESO ---
     function entrar() {
         const u = document.getElementById('u').value.toLowerCase().trim();
         const p = document.getElementById('p').value;
@@ -198,7 +203,7 @@
         else { alert("Acceso Incorrecto"); }
     }
 
-    // --- FUNCIONES INCIDENTES ---
+    // --- MÓDULO INCIDENTES ---
     function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display = 'none'; document.getElementById('ui-incidentes-sso').style.display = 'block'; }
     function volverMonitorSSO() { document.getElementById('ui-incidentes-sso').style.display = 'none'; document.getElementById('ui-monitor-sso').style.display = 'block'; document.getElementById('id-tec-inc').value = ""; document.getElementById('incidente-box').style.display = "none"; document.getElementById('tipo-inc').selectedIndex = 0; document.getElementById('desc-inc').value = ""; }
     function checkIncidente() { const id = document.getElementById('id-tec-inc').value.trim(); const box = document.getElementById('incidente-box'); if(personalSeguridad[id]) { box.style.display = "block"; box.innerHTML = `👤 <b>PERSONAL:</b> ${personalSeguridad[id].n}<br>🏢 <b>DEPTO:</b> ${personalSeguridad[id].e}`; } else { box.style.display = "none"; } }
@@ -207,7 +212,7 @@
         if (!personalSeguridad[id] || tipo === "Seleccione Tipo de Evento" || desc === "") { alert("❌ Complete todos los campos."); return; }
         btn.disabled = true; btn.innerText = "REGISTRANDO...";
         const payload = { action: "registrarIncidente", id: id, nombre: personalSeguridad[id].n, depto: personalSeguridad[id].e, tipo: tipo, descripcion: desc };
-        try { await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) }); alert("✅ INCIDENTE REGISTRADO"); volverMonitorSSO(); } catch(e) { alert("⚠️ Error"); }
+        try { await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) }); alert("✅ INCIDENTE REGISTRADO"); volverMonitorSSO(); } catch(e) { alert("⚠️ Error al registrar"); }
         btn.disabled = false; btn.innerText = "REGISTRAR INCIDENTE 🚩";
     }
 
@@ -229,10 +234,10 @@
             let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ,EXTRAS\n";
             fil.forEach(r => { let datos = r.datos.replace(/\n/g, " | ").replace(/;/g, ","); csv += `${r.fecha},${r.hora},${datos}\n`; });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Reporte_Logistica.csv`; link.click();
-        } catch(e) { alert("Error"); }
+        } catch(e) { alert("Error en el reporte."); }
     }
 
-    // --- LÓGICA SSO ---
+    // --- LÓGICA SSO (PERMISOS Y PDF) ---
     async function actualizarPildorasSSO() {
         try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0'); } catch(e) {}
     }
@@ -246,96 +251,55 @@
         if(personalSeguridad[id]) { pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; } else { pBox.style.display='none'; eBox.style.display='none'; }
     }
     function actualizarUbicaciones() { const fase = document.getElementById('p-fase').value, selectUbi = document.getElementById('p-ubicacion'); selectUbi.innerHTML = ""; selectUbi.disabled = false; ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; selectUbi.appendChild(opt); }); }
-    function crearCheck(texto) { const div = document.createElement('div'); div.style.margin = "5px 0"; div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18
-    // --- CONTINUACIÓN LÓGICA SSO ---
-    function crearCheck(texto) { 
-        const div = document.createElement('div'); 
-        div.style.margin = "5px 0"; 
-        div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`; 
-        return div; 
-    }
-
+    function crearCheck(texto) { const div = document.createElement('div'); div.style.margin = "5px 0"; div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`; return div; }
     function actualizarChecklist() {
-        const tipo = document.getElementById('p-tipo').value;
-        if(!tipo) return;
-        const hCheck = document.getElementById('check-herramientas').checked;
-        const cCheck = document.getElementById('check-colectiva').checked;
+        const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
+        const hCheck = document.getElementById('check-herramientas').checked, cCheck = document.getElementById('check-colectiva').checked;
         document.getElementById('contenedor-checklist').style.display='block';
-        const lEpp = document.getElementById('lista-epp');
-        const lHerr = document.getElementById('lista-herramientas');
-        const lCol = document.getElementById('lista-colectiva');
-        lEpp.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#155724;'>✅ EPP REQUERIDO:</p>";
-        lHerr.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#856404;'>🛠️ HERRAMIENTAS:</p>";
-        lCol.innerHTML = "<p style='margin:0 0 5px 0; font-weight:bold; color:#004085;'>🚧 PROTECCIÓN COLECTIVA:</p>";
-        checklistData[tipo].epp.forEach(item => lEpp.appendChild(crearCheck(item)));
-        if(hCheck) {
-            lHerr.style.display = 'block';
-            checklistData[tipo].herr.forEach(item => lHerr.appendChild(crearCheck(item)));
-        } else { lHerr.style.display = 'none'; }
-        if(cCheck) {
-            lCol.style.display = 'block';
-            checklistData[tipo].col.forEach(item => lCol.appendChild(crearCheck(item)));
-        } else { lCol.style.display = 'none'; }
+        const lEpp = document.getElementById('lista-epp'), lHerr = document.getElementById('lista-herramientas'), lCol = document.getElementById('lista-colectiva');
+        lEpp.innerHTML = "<b>✅ EPP:</b>"; lHerr.innerHTML = "<b>🛠️ HERR:</b>"; lCol.innerHTML = "<b>🚧 COL:</b>";
+        checklistData[tipo].epp.forEach(i => lEpp.appendChild(crearCheck(i)));
+        if(hCheck) { lHerr.style.display='block'; checklistData[tipo].herr.forEach(i => lHerr.appendChild(crearCheck(i))); } else lHerr.style.display='none';
+        if(cCheck) { lCol.style.display='block'; checklistData[tipo].col.forEach(i => lCol.appendChild(crearCheck(i))); } else lCol.style.display='none';
     }
 
     async function enviarPermisoSSO() {
-        const inputsExtra = document.querySelectorAll('.p-id-clase');
-        let listaLegible = [];
-        inputsExtra.forEach(input => {
-            let id = input.value.trim().toUpperCase();
-            if (id !== "" && personalSeguridad[id]) {
-                listaLegible.push(`${personalSeguridad[id].n} (${personalSeguridad[id].e}) ____________________`);
-            }
-        });
-        const primerNombre = listaLegible.length > 0 ? listaLegible[0].split(' (')[0] : "Permiso";
-        const ejecutoresFinales = listaLegible.join("\n"); 
-        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input[type="checkbox"]:checked'))
-                              .map(chk => chk.parentElement.innerText.trim()).join(" | ");
-        if(listaLegible.length === 0) return alert("Ingrese al menos un técnico.");
-        const btn = document.getElementById('btn-sso');
-        btn.innerText = "Generando PDF..."; btn.disabled = true;
-        const d = `PERMISO;${ejecutoresFinales};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+        const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => personalSeguridad[v]);
+        if(ids.length==0) return alert("Ingrese técnico válido");
+        const nombres = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e}) ____________________`).join("\n");
+        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText).join(" | ");
+        const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+        const btn = document.getElementById('btn-sso'); btn.innerText = "Generando PDF..."; btn.disabled = true;
         try {
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
-            const base64Data = await res.text();
-            const linkSource = `data:application/pdf;base64,${base64Data}`;
-            const downloadLink = document.createElement("a");
-            downloadLink.href = linkSource;
-            downloadLink.download = `Folio_SSO_${primerNombre.replace(/ /g,"_")}.pdf`;
-            downloadLink.click();
-            alert("✅ Registro exitoso y PDF descargado.");
-            location.reload();
-        } catch(e) { alert("Error de conexión."); btn.disabled = false; btn.innerText = "🚀 REGISTRAR PERMISO"; }
+            const pdf = await res.text();
+            const link = document.createElement("a"); link.href = "data:application/pdf;base64," + pdf;
+            link.download = `Folio_SSO_${ids[0]}.pdf`; link.click();
+            alert("✅ Éxito"); location.reload();
+        } catch(e) { alert("Error PDF"); btn.disabled = false; btn.innerText = "🚀 REGISTRAR PERMISO"; }
     }
 
     async function cargarPermisosParaCerrar() {
         try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
             const data = await res.json();
             const contenedor = document.getElementById('contenedor-tabla-sso');
-            if(!contenedor) return;
-            contenedor.innerHTML = "";
+            if(!contenedor) return; contenedor.innerHTML = "";
             const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
-            if(activos.length === 0) { contenedor.innerHTML = "<p style='font-size:12px; color:#999; padding:10px;'>No hay permisos abiertos.</p>"; return; }
+            if(activos.length === 0) { contenedor.innerHTML = "<p style='font-size:11px; padding:10px;'>Sin permisos abiertos.</p>"; return; }
             activos.forEach(p => {
-                const partes = p.datos.split(";");
-                const folio = partes[0].trim();
-                const tecnico = partes[1].split("\n")[0];
-                const fila = document.createElement('div');
-                fila.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;";
-                fila.innerHTML = `<div style="text-align:left;"><b style="color:var(--azul-reloj); font-size:13px;">${folio}</b><br><small style="color:#666;">${tecnico}</small></div><button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; padding:6px 12px; border-radius:8px; cursor:pointer; font-size:11px; font-weight:bold;">CERRAR</button>`;
-                contenedor.appendChild(fila);
+                const f = p.datos.split(";")[0];
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;";
+                div.innerHTML = `<span style="font-size:12px; font-weight:bold;">${f}</span><button onclick="cerrarPermiso('${f}')" style="background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:8px; font-size:10px;">CERRAR</button>`;
+                contenedor.appendChild(div);
             });
-        } catch(e) { console.error(e); }
+        } catch(e) {}
     }
 
     async function cerrarPermiso(folio) {
-        if(!confirm("¿Cerrar permiso " + folio + "?")) return;
-        try {
-            await fetch(URL_SCRIPT, { method: 'POST', body: `CERRAR_PERMISO;${folio}` });
-            alert("✅ Cerrado");
-            location.reload();
-        } catch(e) { alert("Error"); }
+        if(!confirm("¿Cerrar folio " + folio + "?")) return;
+        try { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + folio }); alert("Cerrado"); location.reload(); } catch(e) { alert("Error"); }
     }
 
     async function descargarCSV_SSO() {
@@ -345,11 +309,11 @@
             const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
             const data = await res.json();
             const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
-            let csv = "\uFEFFFECHA,HORA,FOLIO,EJECUTORES,FASE,UBICACION,TIPO,DESCRIPCION,CHECKS\n";
-            fil.forEach(r => { let datos = r.datos.replace(/\n/g, " | ").replace(/;/g, ","); csv += `${r.fecha},${r.hora},${datos}\n`; });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Reporte_SSO.csv`; link.click();
-        } catch(e) { alert("Error"); }
+            let csv = "\uFEFFFECHA,HORA,DATOS\n";
+            fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/\n/g, " | ").replace(/;/g, ",")}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_SSO.csv"; link.click();
+        } catch(e) { alert("Error reporte SSO"); }
     }
 
     function iniciarReloj() {
@@ -359,6 +323,4 @@
             if (document.getElementById('fecha-actual')) document.getElementById('fecha-actual').innerText = a.toLocaleDateString();
         }, 1000);
     }
-    </script>
-</body>
-</html>
+</script>
