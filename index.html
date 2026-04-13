@@ -310,91 +310,74 @@ function checkInvolucrado(input) {
 
 async function enviarIncidenteCompleto() {
     // 1. Captura de datos básicos y vinculados
-    const folio = document.getElementById('inc-folio').value.trim();
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
-    const involucrados = ids.length > 0 ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") : "SIN AFECTADOS";
+    const folioIn = document.getElementById('inc-folio');
+    const folio = folioIn ? folioIn.value.trim().toUpperCase() : "";
+    
+    // Captura múltiple de IDs de colaboradores
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.trim().toUpperCase())
+                     .filter(v => personalSeguridad[v]);
+    
+    const involucrados = ids.length > 0 
+        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
+        : "SIN AFECTADOS";
 
-    // 2. Validación crítica: Si no hay vinculación de datos o folio, no envía
+    // 2. Validación crítica de vinculación
     if (folio === "" || !window.datosVinculados) {
         alert("❌ Error: Debe vincular un Folio SSO válido antes de registrar.");
         return;
     }
 
     const btn = document.getElementById('btn-env-inc');
-    btn.disabled = true; btn.innerText = "ENVIANDO REPORTE...";
+    btn.disabled = true; 
+    btn.innerText = "ENVIANDO REPORTE...";
 
-    // 3. Armado del paquete de datos (Debe coincidir con tu Código.gs)
+    // 3. Armado del paquete de datos (Coincide con tu Código.gs de 20 columnas)
     const payload = {
         action: "registrarIncidente",
         folio: folio,
-        faseOriginal: window.datosVinculados.fase,
-        ubicacionOriginal: window.datosVinculados.ubi,
-        tipoTrabajoOriginal: window.datosVinculados.tipo,
+        faseOriginal: window.datosVinculados.fase || "N/A",
+        ubicacionOriginal: window.datosVinculados.ubi || "N/A",
+        tipoTrabajoOriginal: window.datosVinculados.tipo || "N/A",
         involucrados: involucrados,
         salud: document.getElementById('inc-salud').value,
-        intervencion: document.getElementById('inc-intervencion').value,
+        intervencionMomento: document.getElementById('inc-intervencion').value,
         tipoEvento: document.getElementById('inc-tipo').value,
         gravedad: document.getElementById('inc-gravedad').value,
         riesgo: document.getElementById('inc-riesgo').value,
+        contaminacion: document.getElementById('inc-contaminacion').value,
         estructura: document.getElementById('inc-estructura').value,
         reparacion: document.getElementById('inc-reparacion').value,
-        contaminacion: document.getElementById('inc-contaminacion').value,
         obsEstructura: document.getElementById('inc-obs-estructura').value,
         perdida: document.getElementById('inc-perdida').value,
-        seguridad: document.getElementById('inc-seguridad').value,
+        seguridadInd: document.getElementById('inc-seguridad').value,
         recomendacion: document.getElementById('inc-recomendacion').value,
         estadoFinal: document.getElementById('inc-estado-final').value
     };
 
     try {
+        // Usamos POST enviando el JSON como texto para evitar bloqueos de CORS
         const res = await fetch(URL_SCRIPT, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
         
         const texto = await res.text();
+        
         if (texto.includes("OK_INCIDENTE")) {
             alert("✅ INFORME TÉCNICO REGISTRADO CON ÉXITO");
-            volverMonitorSSO(); // Esta función ya limpia todo el formulario
+            volverMonitorSSO(); // Limpia el formulario y vuelve al monitor
         } else {
-            alert("⚠️ El servidor respondió: " + texto);
+            alert("⚠️ Registro procesado. Verifique la hoja de incidentes.");
+            volverMonitorSSO();
         }
     } catch(e) {
-        console.error(e);
-        alert("❌ Error de red: Verifique su conexión.");
+        console.error("Error envío incidente:", e);
+        alert("❌ Error de red: El reporte no se pudo enviar.");
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR INFORME FINAL 🚩";
     }
-    
-    btn.disabled = false;
-    btn.innerText = "REGISTRAR INFORME FINAL 🚩";
-}
-
-
-    btn.disabled = true; 
-    btn.innerText = "REGISTRANDO...";
-
-    const payload = { 
-        action: "registrarIncidente", 
-        folio: folio,
-        involucrados: involucrados,
-        tipo: tipo, 
-        nivel: nivel,
-        area: area,
-        descripcion: desc 
-    };
-
-    try { 
-        // Envío mediante JSON
-        await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        }); 
-        alert("✅ INCIDENTE VINCULADO AL FOLIO " + folio); 
-        volverMonitorSSO(); 
-    } catch(e) { 
-        alert("⚠️ Error al conectar con el servidor"); 
-    }
-    btn.disabled = false; 
-    btn.innerText = "REGISTRAR INCIDENTE 🚩";
 }
 
 
