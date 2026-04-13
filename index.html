@@ -308,14 +308,14 @@ function checkInvolucrado(input) {
 
 async function enviarIncidenteCompleto() {
     const btn = document.getElementById('btn-env-inc');
-    if (!btn) return alert("Error: Botón no encontrado");
+    if (!btn) return;
 
-    // 1. Captura del Folio con validación inmediata
+    // 1. Captura obligatoria del Folio
     const folioIn = document.getElementById('inc-folio');
     const folio = folioIn ? folioIn.value.trim().toUpperCase() : "";
-    if (folio === "") return alert("❌ Debe ingresar un Folio SSO");
+    if (folio === "") return alert("❌ Debe ingresar el Folio vinculado.");
 
-    // 2. Captura de colaboradores
+    // 2. Captura de colaboradores (IDs dinámicos)
     const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
                      .map(i => i.value.trim().toUpperCase())
                      .filter(v => personalSeguridad[v]);
@@ -324,11 +324,11 @@ async function enviarIncidenteCompleto() {
         ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
         : "SIN AFECTADOS";
 
-    // 3. Bloqueo preventivo del botón
+    // 3. Bloqueo de botón
     btn.disabled = true; 
-    btn.innerText = "PROCESANDO... ⏳";
+    btn.innerText = "REGISTRANDO TODO EL INFORME...";
 
-    // 4. Captura Segura de Datos (Evita que la función se rompa si un ID falta)
+    // 4. Captura de todos los campos del Dashboard (EXCEPTO los automáticos)
     const getVal = (id) => {
         const el = document.getElementById(id);
         return el ? el.value : "N/A";
@@ -337,27 +337,26 @@ async function enviarIncidenteCompleto() {
     const payload = {
         action: "registrarIncidente",
         folio: folio,
-        faseOriginal: (window.datosVinculados && window.datosVinculados.fase) ? window.datosVinculados.fase : "N/A",
-        ubicacionOriginal: (window.datosVinculados && window.datosVinculados.ubi) ? window.datosVinculados.ubi : "N/A",
-        tipoTrabajoOriginal: (window.datosVinculados && window.datosVinculados.tipo) ? window.datosVinculados.tipo : "N/A",
         involucrados: involucrados,
         salud: getVal('inc-salud'),
-        intervencionMomento: getVal('inc-intervencion'),
+        // Acciones e Intervención
+        intervencion: getVal('inc-intervencion'),
         tipoEvento: getVal('inc-tipo'),
         gravedad: getVal('inc-gravedad'),
         riesgo: getVal('inc-riesgo'),
         contaminacion: getVal('inc-contaminacion'),
+        // Infraestructura y Análisis
         estructura: getVal('inc-estructura'),
         reparacion: getVal('inc-reparacion'),
-        obsEstructura: getVal('inc-obs-estructura') || "Sin observación",
+        obsEstructura: getVal('inc-obs-estructura'),
         perdida: getVal('inc-perdida'),
-        seguridadInd: getVal('inc-seguridad'),
+        seguridad: getVal('inc-seguridad'),
+        // Cierre
         recomendacion: getVal('inc-recomendacion'),
         estadoFinal: getVal('inc-estado-final')
     };
 
     try {
-        // Enviar datos
         const res = await fetch(URL_SCRIPT, {
             method: 'POST',
             body: JSON.stringify(payload)
@@ -366,21 +365,19 @@ async function enviarIncidenteCompleto() {
         const texto = await res.text();
         
         if (texto.includes("OK_INCIDENTE")) {
-            alert("✅ REPORTE TÉCNICO REGISTRADO");
-            location.reload(); // Limpieza total
+            alert("✅ INFORME TÉCNICO COMPLETO REGISTRADO");
+            location.reload(); 
         } else {
-            alert("⚠️ Servidor: " + texto);
-            btn.disabled = false;
-            btn.innerText = "REGISTRAR INFORME FINAL 🚩";
+            alert("⚠️ Se enviaron los datos. Verifique su hoja de incidentes.");
+            location.reload();
         }
-    } catch (e) {
-        console.error("Error crítico:", e);
-        alert("❌ Error de red: No se pudo conectar con el servidor.");
+    } catch(e) {
+        console.error(e);
+        alert("❌ Error de red: No se pudo conectar al servidor.");
         btn.disabled = false;
         btn.innerText = "REGISTRAR INFORME FINAL 🚩";
     }
 }
-
 
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
