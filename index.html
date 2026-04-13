@@ -464,64 +464,114 @@ async function enviarIncidenteCompleto() {
     } catch(e) { console.error(e); }
 }
 
+        // --- FUNCIÓN: DESCARGAR REPORTES DE PERMISOS SSO ---
     async function descargarCSV_SSO() {
-        const ini = document.getElementById('f-ini-sso').value, fin = document.getElementById('f-fin-sso').value;
-        if(!ini || !fin) return alert("Seleccione fechas");
+        const ini = document.getElementById('f-ini-sso').value;
+        const fin = document.getElementById('f-fin-sso').value;
+        if(!ini || !fin) return alert("❌ Seleccione fechas para reporte de permisos.");
+        
         try {
             const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
             const data = await res.json();
             const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
-            let csv = "\uFEFFFECHA,HORA,DATOS\n";
-            fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/\n/g, " | ").replace(/;/g, ",")}\n`);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "Reporte_SSO.csv"; link.click();
-        } catch(e) { alert("Error reporte SSO"); }
-    }
-
-       async function vincularDatosPermiso(folio) {
-    const display = document.getElementById('datos-vinculados-sso');
-    if (folio.length < 5) return;
-
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-        const data = await res.json();
-        
-        // Buscamos el folio ignorando espacios
-        const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
-
-        if (permiso) {
-            const d = permiso.datos.split(";");
             
-            // MAPEO DINÁMICO: Ajustamos los índices según tu estructura real
-            // 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubicacion, 4:TipoTrabajo
-            window.datosVinculados = {
-                fase: d[2] || "N/A",
-                ubi: d[3] || "N/A",
-                tipo: d[4] || "N/A"
-            };
+            if(fil.length === 0) return alert("⚠️ No hay permisos en este rango.");
 
-            display.innerHTML = `
-                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#1b5e20; font-size:13px;">
-                    ✅ <b>DATOS DEL PERMISO ENCONTRADOS:</b><br>
-                    📍 <b>Área:</b> ${window.datosVinculados.fase}<br>
-                    📍 <b>Ubicación:</b> ${window.datosVinculados.ubi}<br>
-                    🛠️ <b>Trabajo:</b> ${window.datosVinculados.tipo}
-                </div>`;
-        } else {
-            window.datosVinculados = null;
-            display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado en registros activos</b>";
+            let csv = "\uFEFFFECHA,HORA,FOLIO,DATOS_COMPLETOS\n";
+            fil.forEach(r => {
+                csv += `${r.fecha},${r.hora},${r.datos.replace(/\n/g, " | ").replace(/;/g, ",")}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Reporte_Permisos_SSO_${ini}_al_${fin}.csv`;
+            link.click();
+        } catch(e) { 
+            console.error(e);
+            alert("❌ Error al generar reporte de permisos"); 
         }
-    } catch(e) { 
-        console.error("Error en vinculación:", e);
-        display.innerHTML = "⚠️ Error de conexión al buscar folio.";
     }
-}
 
+    // --- FUNCIÓN: DESCARGAR REPORTES DE INCIDENTES (NUEVA) ---
+    async function descargarCSV_Incidentes() {
+        const ini = document.getElementById('f-ini-sso').value;
+        const fin = document.getElementById('f-fin-sso').value;
+        if(!ini || !fin) return alert("❌ Seleccione fechas para reporte de incidentes.");
+
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteIncidentes");
+            const data = await res.json();
+            const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
+
+            if(fil.length === 0) return alert("⚠️ No hay incidentes registrados en estas fechas.");
+
+            // Encabezados técnicos para Dashboard de Incidentes
+            let csv = "\uFEFFFECHA,HORA,FOLIO,INVOLUCRADOS,SALUD,INTERVENCION,TIPO,GRAVEDAD,RIESGO,CONTAMINACION,ESTRUCTURA,REPARACION,OBS,PERDIDA,SEGURIDAD,RECOMENDACION,ESTADO\n";
+            
+            fil.forEach(r => {
+                // Limpieza de datos para no romper el formato CSV
+                let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
+                csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Reporte_Incidentes_SSO_${ini}_al_${fin}.csv`;
+            link.click();
+        } catch(e) {
+            console.error(e);
+            alert("❌ Error al generar reporte de incidentes");
+        }
+    }
+
+    // --- FUNCIÓN: VINCULACIÓN DINÁMICA CON PERMISO ---
+    async function vincularDatosPermiso(folio) {
+        const display = document.getElementById('datos-vinculados-sso');
+        if (folio.length < 5) return;
+
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+            const data = await res.json();
+            
+            // Busca el folio en la primera posición del split ";"
+            const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
+
+            if (permiso) {
+                const d = permiso.datos.split(";");
+                // 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubi, 4:Tipo
+                window.datosVinculados = {
+                    fase: d[2] || "N/A",
+                    ubi: d[3] || "N/A",
+                    tipo: d[4] || "N/A"
+                };
+
+                display.innerHTML = `
+                    <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#1b5e20; font-size:13px;">
+                        ✅ <b>DATOS VINCULADOS:</b><br>
+                        📍 <b>Área:</b> ${window.datosVinculados.fase}<br>
+                        📍 <b>Ubicación:</b> ${window.datosVinculados.ubi}<br>
+                        🛠️ <b>Trabajo:</b> ${window.datosVinculados.tipo}
+                    </div>`;
+            } else {
+                window.datosVinculados = null;
+                display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado en registros activos</b>";
+            }
+        } catch(e) { 
+            console.error("Error en vinculación:", e);
+            display.innerHTML = "⚠️ Error de conexión al buscar folio.";
+        }
+    }
+
+    // --- RELOJ DEL SISTEMA ---
     function iniciarReloj() {
         setInterval(() => {
             const a = new Date();
-            if (document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString();
-            if (document.getElementById('fecha-actual')) document.getElementById('fecha-actual').innerText = a.toLocaleDateString();
+            const elReloj = document.getElementById('reloj');
+            const elFecha = document.getElementById('fecha-actual');
+            if (elReloj) elReloj.innerText = a.toLocaleTimeString();
+            if (elFecha) elFecha.innerText = a.toLocaleDateString();
         }, 1000);
     }
 </script>
