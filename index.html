@@ -93,64 +93,89 @@
         <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
     </div>
 
-    <!-- UI FORMULARIO INCIDENTES (NUEVO) -->
-<div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff;">
-    <div style="background:#d63031; color:white; padding:20px; margin:-20px -20px 20px -20px;">
-        <h2 style="margin:0;">INFORME TÉCNICO DE INCIDENTE/ACCIDENTE</h2>
-        <span style="font-size:12px; opacity:0.8;">VINCULACIÓN DE DATOS SSO EN TIEMPO REAL</span>
+   <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0; border-top: none;">
+    <!-- Encabezado de la Tarjeta Maestra -->
+    <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h2 style="margin:0; letter-spacing:2px; font-size:24px;">INFORME TÉCNICO DE INCIDENTE / ACCIDENTE (SSO)</h2>
+        <span class="sub-plus" style="color:rgba(255,255,255,0.8); margin-top:5px;">CONTROL ESTRATÉGICO DE RIESGOS Y CONTINUIDAD OPERATIVA</span>
     </div>
 
-    <div style="max-width:1000px; margin:auto; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+    <div style="padding:30px; max-width:1200px; margin:auto;">
         
-        <!-- BLOQUE 1: VINCULACIÓN -->
-        <div class="box-descarga" style="background:#fdf2f2; border:1px solid #fab1a0;">
-            <p style="font-weight:bold; color:#d63031; margin-top:0;">1. DATOS DEL PERMISO ORIGEN</p>
-            <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO PARA VINCULAR" oninput="vincularDatosPermiso(this.value)" style="border:2px solid #d63031;">
-            <div id="datos-vinculados-sso" style="font-size:13px; color:#555; line-height:1.6;">
-                <p>⚠️ Ingrese un folio válido para cargar datos del área...</p>
+        <!-- SECCIÓN 1: VINCULACIÓN Y ORIGEN -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 25px; margin-bottom: 25px;">
+            <div>
+                <p style="font-weight:bold; color:#d63031; margin:0 0 10px 0;">1. VINCULACIÓN OPERATIVA</p>
+                <input type="text" id="inc-folio" placeholder="DIGITE FOLIO SSO (SSO-XXXX)" oninput="vincularDatosPermiso(this.value)" style="border:2px solid #d63031; font-weight:bold;">
+            </div>
+            <div id="datos-vinculados-sso" style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #ddd; min-height:80px; font-size:14px; color:#444;">
+                <p style="color:#999; text-align:center; margin-top:15px;">Esperando vinculación con permiso de trabajo...</p>
             </div>
         </div>
 
-        <!-- BLOQUE 2: COLABORADORES AFECTADOS -->
-        <div class="box-descarga">
-            <p style="font-weight:bold; margin-top:0;">2. PERSONAL AFECTADO / INVOLUCRADO</p>
-            <div id="contenedor-involucrados-inc">
-                <div class="grupo-involucrado" style="display:flex; gap:10px; margin-top:5px;">
-                    <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)">
-                    <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:10px; padding:0 15px;">+</button>
+        <!-- SECCIÓN 2: PERSONAL Y SALUD -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 25px; margin-bottom: 25px;">
+            <div>
+                <p style="font-weight:bold; color:#3498db; margin:0 0 10px 0;">2. PERSONAL INVOLUCRADO</p>
+                <div id="contenedor-involucrados-inc">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" class="inc-id-clase" placeholder="Código de trabajador" oninput="checkInvolucrado(this)" style="flex:1;">
+                        <button class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarFilaInvolucrado()">+</button>
+                    </div>
                 </div>
             </div>
+            <div>
+                <p style="font-weight:bold; color:#3498db; margin:0 0 10px 0;">ESTADO DE SALUD</p>
+                <select id="inc-salud">
+                    <option value="SIN_AFECTADOS">No hay afectados</option>
+                    <option>Atención en Clínica Médica</option>
+                    <option>Traslado a IGSS</option>
+                    <option>Suspensión por Clínica</option>
+                    <option>Suspensión por IGSS</option>
+                </select>
+            </div>
         </div>
 
-        <!-- BLOQUE 3: EVALUACIÓN DE DAÑOS Y RIESGOS -->
-        <div class="box-descarga">
-            <p style="font-weight:bold; margin-top:0;">3. EVALUACIÓN Y DAÑOS</p>
-            <select id="inc-gravedad"><option disabled selected>Grado de Gravedad</option><option>Leve</option><option>Moderado</option><option>Crítico</option></select>
-            <select id="inc-contaminacion"><option disabled selected>Control de Contaminación</option><option>Sin afectación</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
-            <select id="inc-estructura"><option disabled selected>Riesgo de Estructura</option><option>Nulo</option><option>Daño estético</option><option>Daño estructural</option></select>
-            <select id="inc-economica"><option disabled selected>Pérdida Económica Est.</option><option>Baja</option><option>Media</option><option>Alta</option></select>
+        <!-- SECCIÓN 3: ACCIONES Y EVALUACIÓN TÉCNICA -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 25px; margin-bottom: 25px;">
+            <div style="grid-column: span 3;">
+                <p style="font-weight:bold; color:#e67e22; margin:0 0 10px 0;">3. ACCIONES INMEDIATAS Y CLASIFICACIÓN</p>
+                <input type="text" id="inc-intervencion" placeholder="Describa la intervención técnica realizada en el momento...">
+            </div>
+            <select id="inc-tipo"><option disabled selected>Tipo de Evento</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option><option>Acto Inseguro</option></select>
+            <select id="inc-gravedad"><option disabled selected>Gravedad</option><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
+            <select id="inc-riesgo"><option disabled selected>Evaluación Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
         </div>
 
-        <!-- BLOQUE 4: ESTADO MÉDICO -->
-        <div class="box-descarga">
-            <p style="font-weight:bold; margin-top:0;">4. ESTADO DE COLABORADORES</p>
-            <select id="inc-medico">
-                <option disabled selected>Estatus Médico</option>
-                <option>Atención en Clínica Médica</option>
-                <option>Traslado a IGSS</option>
-                <option>Suspensión Clínica Médica</option>
-                <option>Suspensión IGSS</option>
-                <option>Retorno a labores</option>
+        <!-- SECCIÓN 4: INFRAESTRUCTURA Y COSTOS -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 25px; margin-bottom: 25px;">
+            <div style="grid-column: span 3;"><p style="font-weight:bold; color:#636e72; margin:0 0 10px 0;">4. ANÁLISIS DE RIESGO DE INFRAESTRUCTURA Y PÉRDIDAS</p></div>
+            <select id="inc-estructura"><option disabled selected>Riesgo Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
+            <select id="inc-reparacion"><option disabled selected>Reparación Necesaria</option><option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor</option></select>
+            <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
+            <input type="text" id="inc-obs-estructura" placeholder="Observaciones de infraestructura">
+            <input type="text" id="inc-perdida" placeholder="Pérdida Económica (Q)">
+            <input type="text" id="inc-seguridad" placeholder="Seguridad Industrial">
+        </div>
+
+        <!-- SECCIÓN 5: RECOMENDACIONES FINALES -->
+        <div style="margin-bottom: 30px;">
+            <p style="font-weight:bold; color:#2d3436; margin:0 0 10px 0;">5. RECOMENDACIONES TÉCNICAS Y CIERRE</p>
+            <textarea id="inc-recomendacion" placeholder="Digite aquí las medidas correctivas finales y lecciones aprendidas..." rows="5"></textarea>
+            <select id="inc-estado-final" style="margin-top:15px; width:300px;">
+                <option disabled selected>Estado Final del Reporte</option>
+                <option>Caso cerrado</option><option>Pendiente investigación</option><option>Seguimiento médico</option>
             </select>
-            <textarea id="inc-recomendacion" placeholder="Recomendaciones técnicas y observaciones..." rows="3"></textarea>
         </div>
-    </div>
 
-    <div style="margin-top:20px; text-align:center;">
-        <button id="btn-env-inc" class="btn" style="background:#d63031; color:white; width:300px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME FINAL 🚩</button>
-        <button class="btn-salir" onclick="volverMonitorSSO()">CANCELAR</button>
+        <!-- BOTONERA DE CIERRE -->
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <button class="btn" style="background:#d63031; color:white; width:350px; font-size:18px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME FINAL 🚩</button>
+            <button class="btn-salir" style="width:200px; margin-top:0;" onclick="volverMonitorSSO()">CANCELAR</button>
+        </div>
     </div>
 </div>
+
 
     <!-- UI OPERADOR SSO (PERMISOS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
