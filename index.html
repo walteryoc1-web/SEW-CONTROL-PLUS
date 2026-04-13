@@ -94,24 +94,41 @@
     </div>
 
     <!-- UI FORMULARIO INCIDENTES (NUEVO) -->
-    <div id="ui-incidentes-sso" class="card-full" style="display:none; background:#fff5f5;">
-        <h3 style="color:#d63031; margin:0;">Registro de Incidente / Accidente</h3>
-        <span class="sub-plus">REPORTE OPERATIVO CRÍTICO</span>
-        <div class="card-compacta" style="margin-top:20px; border-top: 8px solid #d63031;">
-            <input type="text" id="id-tec-inc" placeholder="ID DEL TÉCNICO / PERSONAL" oninput="checkIncidente()">
-            <div id="incidente-box"></div>
-            <select id="tipo-inc">
-                <option disabled selected>Seleccione Tipo de Evento</option>
-                <option>Incidente (Susto/Casi pasó)</option>
-                <option>Accidente (Hubo daño/lesión)</option>
-                <option>Condición Insegura</option>
-                <option>Falla Ambiental</option>
-            </select>
-            <textarea id="desc-inc" placeholder="Descripción breve del suceso..." rows="4"></textarea>
-            <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidente()">REGISTRAR INCIDENTE 🚩</button>
-            <button class="btn-salir" style="background:#777;" onclick="volverMonitorSSO()">CANCELAR / VOLVER</button>
+    <div class="card-compacta" style="margin-top:20px; border-top: 8px solid #d63031;">
+    <p style="margin:0; font-size:12px; font-weight:bold; color:#d63031;">VÍNCULO CON PERMISO DE TRABAJO</p>
+    <input type="text" id="folio-sso-inc" placeholder="DIGITE FOLIO (Ej: SSO-2026...)">
+
+    <p style="margin:10px 0 0 0; font-size:12px; font-weight:bold; color:#555;">COLABORADORES INVOLUCRADOS</p>
+    <div id="contenedor-involucrados-inc">
+        <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
+            <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
+            <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
         </div>
     </div>
+    
+    <select id="tipo-inc">
+        <option disabled selected>Tipo de Evento</option>
+        <option>Incidente (Casi accidente)</option>
+        <option>Accidente (Con lesión)</option>
+        <option>Condición Insegura</option>
+    </select>
+
+    <select id="nivel-inc">
+        <option disabled selected>Nivel de Gravedad</option>
+        <option>Bajo</option><option>Medio</option><option>Alto</option>
+    </select>
+
+    <select id="area-inc">
+        <option disabled selected>Área del Suceso</option>
+        <option>Muelles</option><option>Patios</option><option>Básculas</option>
+    </select>
+
+    <textarea id="desc-inc" placeholder="Descripción detallada..." rows="4"></textarea>
+    
+    <button id="btn-env-inc" class="btn" style="background:#d63031; color:white;" onclick="enviarIncidente()">REGISTRAR INCIDENTE 🚩</button>
+    <button class="btn-salir" style="background:#777;" onclick="volverMonitorSSO()">VOLVER</button>
+</div>
+
 
     <!-- UI OPERADOR SSO (PERMISOS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
@@ -203,18 +220,93 @@
         else { alert("Acceso Incorrecto"); }
     }
 
-    // --- MÓDULO INCIDENTES ---
-    function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display = 'none'; document.getElementById('ui-incidentes-sso').style.display = 'block'; }
-    function volverMonitorSSO() { document.getElementById('ui-incidentes-sso').style.display = 'none'; document.getElementById('ui-monitor-sso').style.display = 'block'; document.getElementById('id-tec-inc').value = ""; document.getElementById('incidente-box').style.display = "none"; document.getElementById('tipo-inc').selectedIndex = 0; document.getElementById('desc-inc').value = ""; }
-    function checkIncidente() { const id = document.getElementById('id-tec-inc').value.trim(); const box = document.getElementById('incidente-box'); if(personalSeguridad[id]) { box.style.display = "block"; box.innerHTML = `👤 <b>PERSONAL:</b> ${personalSeguridad[id].n}<br>🏢 <b>DEPTO:</b> ${personalSeguridad[id].e}`; } else { box.style.display = "none"; } }
-    async function enviarIncidente() {
-        const id = document.getElementById('id-tec-inc').value.trim(); const tipo = document.getElementById('tipo-inc').value; const desc = document.getElementById('desc-inc').value.trim(); const btn = document.getElementById('btn-env-inc');
-        if (!personalSeguridad[id] || tipo === "Seleccione Tipo de Evento" || desc === "") { alert("❌ Complete todos los campos."); return; }
-        btn.disabled = true; btn.innerText = "REGISTRANDO...";
-        const payload = { action: "registrarIncidente", id: id, nombre: personalSeguridad[id].n, depto: personalSeguridad[id].e, tipo: tipo, descripcion: desc };
-        try { await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) }); alert("✅ INCIDENTE REGISTRADO"); volverMonitorSSO(); } catch(e) { alert("⚠️ Error al registrar"); }
-        btn.disabled = false; btn.innerText = "REGISTRAR INCIDENTE 🚩";
+  // --- MÓDULO INCIDENTES (VERSIÓN INTEGRAL) ---
+
+function irAIncidentes() { 
+    document.getElementById('ui-monitor-sso').style.display = 'none'; 
+    document.getElementById('ui-incidentes-sso').style.display = 'block'; 
+}
+
+function volverMonitorSSO() { 
+    document.getElementById('ui-incidentes-sso').style.display = 'none'; 
+    document.getElementById('ui-monitor-sso').style.display = 'block'; 
+    // Limpieza total del formulario
+    document.getElementById('folio-sso-inc').value = "";
+    document.getElementById('contenedor-involucrados-inc').innerHTML = `
+        <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
+            <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
+            <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
+        </div>`;
+    document.getElementById('tipo-inc').selectedIndex = 0;
+    document.getElementById('nivel-inc').selectedIndex = 0;
+    document.getElementById('area-inc').selectedIndex = 0;
+    document.getElementById('desc-inc').value = ""; 
+}
+
+// Agrega filas para múltiples colaboradores
+function agregarFilaInvolucrado() {
+    const contenedor = document.getElementById('contenedor-involucrados-inc');
+    const div = document.createElement('div');
+    div.className = 'grupo-involucrado';
+    div.style.cssText = "display:flex; gap:10px; align-items:center; margin-top:10px;";
+    div.innerHTML = `
+        <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
+        <button type="button" onclick="this.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button>`;
+    contenedor.appendChild(div);
+}
+
+// Validación visual de colaboradores
+function checkInvolucrado(input) {
+    const id = input.value.trim().toUpperCase();
+    input.style.background = personalSeguridad[id] ? "#e8f5e9" : "#fff";
+}
+
+async function enviarIncidente() {
+    // Captura de datos
+    const folio = document.getElementById('folio-sso-inc').value.trim().toUpperCase();
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
+    const involucrados = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ");
+    
+    const tipo = document.getElementById('tipo-inc').value;
+    const nivel = document.getElementById('nivel-inc').value;
+    const area = document.getElementById('area-inc').value;
+    const desc = document.getElementById('desc-inc').value.trim();
+    const btn = document.getElementById('btn-env-inc');
+
+    // Validaciones de seguridad
+    if (folio === "" || ids.length === 0 || tipo.includes("Tipo") || nivel.includes("Nivel") || area.includes("Área") || desc === "") { 
+        alert("❌ Por favor, complete Folio, al menos un Colaborador válido y todos los campos técnicos."); 
+        return; 
     }
+
+    btn.disabled = true; 
+    btn.innerText = "REGISTRANDO...";
+
+    const payload = { 
+        action: "registrarIncidente", 
+        folio: folio,
+        involucrados: involucrados,
+        tipo: tipo, 
+        nivel: nivel,
+        area: area,
+        descripcion: desc 
+    };
+
+    try { 
+        // Envío mediante JSON
+        await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        }); 
+        alert("✅ INCIDENTE VINCULADO AL FOLIO " + folio); 
+        volverMonitorSSO(); 
+    } catch(e) { 
+        alert("⚠️ Error al conectar con el servidor"); 
+    }
+    btn.disabled = false; 
+    btn.innerText = "REGISTRAR INCIDENTE 🚩";
+}
+
 
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
