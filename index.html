@@ -712,12 +712,19 @@ async function enviarIncidenteCompleto() {
             if (elFecha) elFecha.innerText = a.toLocaleDateString();
         }, 1000);
     }
-       // Variable global para el origen
-let origenOT = "SISTEMA";
+   // --- FUNCIONES DE NAVEGACIÓN OPERACIONES ---
+function mostrarSeccionCierre() {
+    document.getElementById('ot-seccion-apertura').style.display = 'none';
+    document.getElementById('ot-seccion-cierre').style.display = 'block';
+}
 
-// 1. Manejo del tipo de Folio
+function cancelarCierre() {
+    document.getElementById('ot-seccion-cierre').style.display = 'none';
+    document.getElementById('ot-seccion-apertura').style.display = 'block';
+}
+
+// --- LÓGICA DE FOLIO Y TÉCNICO ---
 function setOrigenOT(tipo) {
-    origenOT = tipo;
     const inputFolio = document.getElementById('ot-folio');
     const btnNueva = document.getElementById('btn-ot-nueva');
     const btnSap = document.getElementById('btn-ot-sap');
@@ -731,40 +738,40 @@ function setOrigenOT(tipo) {
         btnSap.style.background = "#95a5a6";
     } else {
         inputFolio.value = "";
-        inputFolio.placeholder = "Digite Folio SAP / Externo";
+        inputFolio.placeholder = "Folio Manual";
         inputFolio.readOnly = false;
         btnSap.style.background = "#3498db";
         btnNueva.style.background = "#95a5a6";
     }
 }
 
-// 2. Validación de Técnico (Usa tu personalSeguridad)
 function checkTecnicoOperaciones(id) {
     const box = document.getElementById('ot-tec-box');
     const idClean = id.trim().toUpperCase();
     if(personalSeguridad[idClean]) {
-        box.innerHTML = `👨‍🔧 <b>TÉCNICO:</b> ${personalSeguridad[idClean].n}<br>🏢 <b>ORIGEN:</b> ${personalSeguridad[idClean].e}`;
+        box.innerHTML = `👨‍🔧 <b>TÉCNICO:</b> ${personalSeguridad[idClean].n}<br>🏢 <b>DEPARTAMENTO:</b> ${personalSeguridad[idClean].e}`;
         box.style.display = 'block';
     } else {
         box.style.display = 'none';
     }
 }
 
-// 3. Función de Envío
+// --- FUNCIÓN DE APERTURA (PASO 1) ---
 async function enviarOT() {
-    const btn = document.getElementById('btn-registrar-ot');
+    // Usamos event.target para capturar el botón sin depender del ID
+    const btn = event.target;
     const folio = document.getElementById('ot-folio').value.trim();
     const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
     const depto = document.getElementById('ot-depto').value;
     const prioridad = document.getElementById('ot-prioridad').value;
     const desc = document.getElementById('ot-descripcion').value.trim();
 
-    if (folio === "" || !personalSeguridad[tecId] || desc === "" || depto.includes("Departamento") || prioridad.includes("Prioridad")) {
-        return alert("❌ Por favor, complete todos los campos y valide el técnico.");
+    if (folio === "" || !personalSeguridad[tecId] || desc === "") {
+        return alert("❌ Por favor, complete Folio, Técnico y Descripción.");
     }
 
     btn.disabled = true;
-    btn.innerText = "REGISTRANDO...";
+    btn.innerText = "PROCESANDO...";
 
     const payload = {
         action: "registrarOT",
@@ -772,18 +779,48 @@ async function enviarOT() {
         tecnico: `${personalSeguridad[tecId].n} (${tecId})`,
         prioridad: prioridad,
         departamento: depto,
-        ats: document.getElementById('ot-ats-link').value.toUpperCase() || "SIN VINCULAR",
-        descripcion: desc
+        descripcion: desc,
+        estado: "ABIERTA"
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ ORDEN DE TRABAJO REGISTRADA\nFolio: " + folio);
+        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        alert("✅ ORDEN APERTURADA EXITOSAMENTE");
         location.reload();
     } catch(e) {
         alert("⚠️ Error de conexión.");
         btn.disabled = false;
-        btn.innerText = "REGISTRAR ORDEN DE TRABAJO";
+        btn.innerText = "🚀 ABRIR ORDEN";
+    }
+}
+
+// --- FUNCIÓN DE CIERRE (PASO 2) ---
+async function finalizarTareaOT() {
+    const btn = event.target;
+    const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
+    const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
+    const comment = document.getElementById('ot-comentarios-cierre').value.trim();
+
+    if (fOT === "" || fATS === "") return alert("❌ Ingrese Folio OT y Folio ATS.");
+
+    btn.disabled = true;
+    btn.innerText = "CERRANDO...";
+
+    const payload = {
+        action: "cerrarOT",
+        folioOT: fOT,
+        folioATS: fATS,
+        comentarios: comment
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        alert("✅ TAREA FINALIZADA Y VINCULADA AL ATS");
+        location.reload();
+    } catch(e) {
+        alert("⚠️ Error al cerrar");
+        btn.disabled = false;
+        btn.innerText = "✅ FINALIZAR TAREA";
     }
 }
 
