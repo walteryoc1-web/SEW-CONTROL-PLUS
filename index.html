@@ -605,6 +605,50 @@
 
     function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
     function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
+    // --- FUNCIÓN DE DESCARGA: LOGÍSTICA (SUPERVISOR) ---
+async function descargarCSV() {
+    // 1. Capturar los valores de las fechas del HTML
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    
+    if(!ini || !fin) return alert("❌ Seleccione el rango de fechas.");
+
+    try {
+        // 2. Pedir los datos al servidor
+        const res = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await res.json();
+        
+        // 3. FILTRO CON TRADUCTOR (Excel DD/MM/YYYY a App YYYY-MM-DD)
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/'); // Corta la fecha de la Sheets
+            if(p.length !== 3) return false;
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Reorganiza: Año-Mes-Día
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ No hay movimientos en este rango de fechas.");
+
+        // 4. Encabezados para tu Excel (Logística)
+        let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTISTA,CABEZAL,PLACA,CICLO_TER,CICLO_EPQ\n";
+        
+        fil.forEach(r => {
+            let datosLimpios = r.datos.replace(/\n/g, " ").replace(/;/g, ",");
+            csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+        });
+
+        // 5. Crear el archivo y descargar
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Logistica_${ini}_al_${fin}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        
+    } catch(e) { 
+        console.error(e);
+        alert("❌ Error al obtener el reporte logístico."); 
+    }
+}
 </script>
 </body>
 </html>
