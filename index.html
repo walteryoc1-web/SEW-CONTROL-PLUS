@@ -610,16 +610,15 @@
         } catch(e) {} 
     }
 
-    async function cargarPermisosParaCerrar() {
+   async function cargarPermisosParaCerrar() {
         try {
-            // Agregamos t= para evitar datos viejos en memoria
             const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
             const data = await res.json();
             const cont = document.getElementById('contenedor-tabla-sso'); 
             if(!cont) return; 
             
             cont.innerHTML = "";
-            // Filtramos permisos que NO tengan la palabra CERRADO en sus datos
+            // Filtramos permisos que NO tengan la palabra CERRADO
             const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
             
             if(activos.length === 0) {
@@ -628,18 +627,19 @@
             }
 
             activos.forEach(p => {
-                // El Folio es el primer elemento de la cadena datos
+                // p.datos es el "chorro" de texto separado por ";"
+                // El Folio es el primer dato antes del primer ";"
                 const d = p.datos.split(";");
-                const folio = d[0].trim();
+                const folioReal = d[0].trim(); // <--- AQUÍ ESTABA EL ERROR, AHORA TOMA EL FOLIO SSO
                 
                 const div = document.createElement('div');
                 div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background:#fff;";
                 div.innerHTML = `
                     <div style="text-align:left;">
-                        <span style="font-size:12px; font-weight:bold; color:#2c3e50;">${folio}</span><br>
-                        <small style="color:#7f8c8d; font-size:10px;">Apertura: ${p.hora}</small>
+                        <span style="font-size:12px; font-weight:bold; color:#2c3e50;">${folioReal}</span><br>
+                        <small style="color:#7f8c8d; font-size:10px;">Técnico: ${d[1] || 'N/A'}</small>
                     </div>
-                    <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:bold; cursor:pointer;">CERRAR</button>
+                    <button onclick="cerrarPermiso('${folioReal}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:bold; cursor:pointer;">CERRAR</button>
                 `;
                 cont.appendChild(div);
             });
@@ -647,7 +647,6 @@
             console.error("Error cargando tabla SSO:", e);
         }
     }
-
     async function cerrarPermiso(f) { 
     if(!confirm("¿Desea finalizar oficialmente el ATS: " + f + "?")) return;
     
