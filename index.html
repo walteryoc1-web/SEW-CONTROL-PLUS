@@ -1068,6 +1068,86 @@ async function enviarPermisoSSO() {
             inputFolio.readOnly = false;
         }
     }
+        async function descargarCSV_OT() {
+    const ini = document.getElementById('f-ini-ot').value;
+    const fin = document.getElementById('f-fin-ot').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas para el reporte de Operaciones.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
+        const data = await res.json();
+        
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/'); // DD/MM/YYYY del Excel
+            if(p.length !== 3) return false;
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Lo voltea a YYYY-MM-DD
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ No hay órdenes en este rango de fechas.");
+
+        let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS_VINCULADO,ESTADO,DESCRIPCION,HORA_CIERRE_ATS,OBS_FINALES\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_OT_${ini}.csv`;
+        a.click();
+    } catch(e) { alert("❌ Error al procesar reporte OT"); }
+}
+
+async function descargarCSV_SSO() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas para reporte SSO.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ No hay permisos en estas fechas.");
+
+        let csv = "\uFEFFFECHA,HORA,DATOS_SSO\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_SSO_${ini}.csv`;
+        a.click();
+    } catch(e) { alert("❌ Error en reporte SSO"); }
+}
+
+async function descargarCSV() {
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas para Logística.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await res.json();
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ Sin movimientos logísticos en el rango.");
+
+        let csv = "\uFEFFFECHA,HORA,DATOS_LOGISTICA\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Logistica_${ini}.csv`;
+        a.click();
+    } catch(e) { alert("❌ Error en reporte Logística"); }
+}
 
 </script>
 </body>
