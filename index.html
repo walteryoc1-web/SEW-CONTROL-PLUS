@@ -488,19 +488,64 @@
     function checkInvolucrado(inp) { inp.style.background = personalSeguridad[inp.value.toUpperCase()] ? "#e8f5e9" : "#fff"; }
 
     async function enviarIncidenteCompleto() {
-        const folio = document.getElementById('inc-folio').value.toUpperCase(); if(!folio) return alert("Ingrese Folio");
-        const btn = document.getElementById('btn-env-inc'); btn.disabled = true; btn.innerText = "Enviando...";
-        const getV = (id) => (document.getElementById(id) && document.getElementById(id).value) ? document.getElementById(id).value : "N/A";
-        const p = { action: "registrarIncidente", folio: folio, salud: getV('inc-salud'), tipoEvento: getV('inc-tipo'), gravedad: getV('inc-gravedad'), riesgo: getV('inc-riesgo'), recomendacion: getV('inc-recomendacion'), estadoFinal: getV('inc-estado-final') };
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
-            const b64 = await res.text();
-            if(b64.length > 500) {
-                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = `INCIDENTE_${folio}.pdf`; a.click();
-            }
-            alert("✅ INFORME REGISTRADO"); location.reload();
-        } catch(e) { alert("Error"); btn.disabled = false; }
+    const btn = document.getElementById('btn-env-inc');
+    const folioIn = document.getElementById('inc-folio');
+    
+    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Ingrese el Folio vinculado.");
+    if (btn) { btn.disabled = true; btn.innerText = "GENERANDO INFORME... ⏳"; }
+
+    // Jalamos los datos que se guardaron al vincular el folio
+    const datosV = window.datosVinculados || { fase: "N/A", ubi: "N/A", tipo: "N/A" };
+
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.trim().toUpperCase())
+                     .filter(v => personalSeguridad[v]);
+    
+    const involucrados = ids.length > 0 
+        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
+        : "SIN AFECTADOS";
+
+    const getV = (id) => (document.getElementById(id) && document.getElementById(id).value) ? document.getElementById(id).value : "N/A";
+
+    const payload = {
+        action: "registrarIncidente",
+        folio: folioIn.value.trim().toUpperCase(),
+        fecha: new Date().toLocaleDateString(),
+        involucrados: involucrados,
+        ubicacion: datosV.ubi,       // Nuevo
+        area: datosV.fase,           // Nuevo
+        trabajo: datosV.tipo,        // Nuevo
+        salud: getV('inc-salud'),
+        intervencion: getV('inc-intervencion-momento'),
+        tipoEvento: getV('inc-tipo'),
+        gravedad: getV('inc-gravedad'),
+        riesgo: getV('inc-riesgo'),
+        contaminacion: getV('inc-contaminacion'),
+        estructura: getV('inc-estructura'),
+        reparacion: getV('inc-reparacion'),
+        obsEstructura: getV('inc-obs-estructura'),
+        reincidencia: getV('inc-reincidencia'), 
+        seguridad: getV('inc-riesgo-seguridad'), 
+        recomendacion: getV('inc-recomendacion'),
+        estadoFinal: getV('inc-estado-final')
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const respuestaServidor = await res.text();
+        if (respuestaServidor.length > 500) { 
+            const link = document.createElement("a");
+            link.href = `data:application/pdf;base64,${respuestaServidor}`;
+            link.download = `Informe_Incidente_${payload.folio}.pdf`;
+            link.click();
+        }
+        alert("✅ REGISTRO EXITOSO");
+        location.reload();
+    } catch(e) {
+        alert("❌ Error de red.");
+        btn.disabled = false;
     }
+}
     // --- 6. MÓDULO OPERACIONES (OT) ---
     function setOrigenOT(tipo) {
         const f = document.getElementById('ot-folio');
@@ -676,8 +721,7 @@
             alert("⚠️ " + texto);
         }
     } catch(e) { 
-        // 2. PLAN DE EMERGENCIA: Si hay error de conexión/CORS
-        // Enviamos el dato en modo 'no-cors' (asegura que LLEGUE a la Sheets aunque no podamos leer la respuesta)
+
         console.warn("Reintentando cierre en modo emergencia...");
         
         fetch(URL_SCRIPT, { 
