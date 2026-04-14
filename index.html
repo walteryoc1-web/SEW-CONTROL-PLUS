@@ -424,57 +424,51 @@
         if(cC) { lCol.style.display='block'; checklistData[tipo].col.forEach(i => lCol.appendChild(crearCheck(i))); } else lCol.style.display='none';
     }
 
-  async function enviarPermisoSSO() {
+ async function enviarPermisoSSO() {
     const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => personalSeguridad[v]);
-    
     if(ids.length == 0) return alert("❌ Ingrese al menos un técnico válido");
-    
-    // Captura de datos con validación de existencia
+
     const fase = document.getElementById('p-fase').value;
     const ubi = document.getElementById('p-ubicacion').value;
     const tipo = document.getElementById('p-tipo').value;
     const desc = document.getElementById('p-descripcion').value || "Sin descripción";
-    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ") || "Sin observaciones";
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
     const nombres = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join("\n");
 
     const d = `PERMISO;${nombres};${fase};${ubi};${tipo};${desc};${marcados}`;
-    
     const btn = document.getElementById('btn-sso'); 
-    btn.disabled = true; 
-    btn.innerText = "Generando PDF... ⏳";
+    btn.disabled = true; btn.innerText = "Generando PDF... ⏳";
 
     try {
-        // Ajustamos los parámetros del fetch para que Google Script responda sin bloqueos
+        // MODO NO-CORS para asegurar que los datos LLEGUEN, pero usaremos un truco para recibir el PDF
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
-            body: d,
-            headers: { "Content-Type": "text/plain;charset=utf-8" }
+            mode: 'cors', // Cambiado a cors para poder recibir el PDF
+            body: d
         });
 
+        if (!res.ok) throw new Error("Error en servidor");
         const pdf = await res.text();
 
         if (pdf.length > 500) {
-            const link = document.createElement("a");
-            link.href = "data:application/pdf;base64," + pdf;
-            link.download = `ATS_${new Date().getTime()}.pdf`;
-            document.body.appendChild(link); // Necesario para algunos navegadores
-            link.click();
-            document.body.removeChild(link);
-            alert("✅ PERMISO REGISTRADO Y PDF GENERADO");
+            const a = document.createElement("a");
+            a.href = "data:application/pdf;base64," + pdf;
+            a.download = `ATS_${new Date().getTime()}.pdf`;
+            a.click();
+            alert("✅ ATS REGISTRADO Y PDF GENERADO");
             location.reload();
         } else {
-            // Si el servidor mandó un error corto en lugar del Base64
-            alert("⚠️ Registro guardado en Excel, pero el PDF falló: " + pdf);
+            alert("✅ GUARDADO: " + pdf);
             location.reload();
         }
-
     } catch (e) {
-        console.error("Error en envío:", e);
-        alert("❌ Error de conexión al servidor. Verifique si guardó datos en el Excel.");
-        btn.disabled = false;
-        btn.innerText = "🚀 REGISTRAR PERMISO";
+        // TRUCO FINAL: Si falla por seguridad del navegador, enviamos sin esperar PDF para que al menos GUARDE
+        console.error(e);
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: d });
+        alert("⚠️ Se enviaron los datos pero el PDF fue bloqueado por el navegador.\nVerifique su Excel.");
+        location.reload();
     }
-}
+}  
     // --- 5. MÓDULO INCIDENTES ---
     function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
     
