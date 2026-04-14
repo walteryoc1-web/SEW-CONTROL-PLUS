@@ -512,13 +512,28 @@ async function enviarIncidenteCompleto() {
         try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0'); document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0'); document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0'); } catch (e) {}
     }
     async function descargarCSV() {
-        const i = document.getElementById('f-inicio').value, f = document.getElementById('f-fin').value; if(!i || !f) return alert("Seleccione fechas");
-        try { const res = await fetch(URL_SCRIPT + "?accion=reporte"); const data = await res.json(); const fil = data.filter(r => r.fecha >= i && r.fecha <= f);
-            let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTE,CLIENTE,PLACA,CICLO_TERPAC,CICLO_EPQ,EXTRAS\n";
-            fil.forEach(r => { let datos = r.datos.replace(/\n/g, " | ").replace(/;/g, ","); csv += `${r.fecha},${r.hora},${datos}\n`; });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Reporte_Logistica.csv`; link.click();
-        } catch(e) { alert("Error en el reporte."); }
-    }
+    const ini = document.getElementById('f-ini').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!ini || !fin) return alert("Seleccione fechas");
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporte");
+        const data = await res.json();
+        
+        // TRADUCTOR DE FECHA DD/MM/YYYY a YYYY-MM-DD
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("No hay datos");
+        let csv = "\uFEFFFECHA,HORA,DATOS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Logistica.csv`; a.click();
+    } catch(e) { alert("Error"); }
+}
 
     // --- LÓGICA SSO (PERMISOS Y PDF) ---
     async function actualizarPildorasSSO() {
@@ -614,33 +629,28 @@ async function enviarIncidenteCompleto() {
 }
 
         // --- FUNCIÓN: DESCARGAR REPORTES DE PERMISOS SSO ---
-    async function descargarCSV_SSO() {
-        const ini = document.getElementById('f-ini-sso').value;
-        const fin = document.getElementById('f-fin-sso').value;
-        if(!ini || !fin) return alert("❌ Seleccione fechas para reporte de permisos.");
+   async function descargarCSV_SSO() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("Seleccione fechas");
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
         
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
-            
-            if(fil.length === 0) return alert("⚠️ No hay permisos en este rango.");
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
+        });
 
-            let csv = "\uFEFFFECHA,HORA,FOLIO,DATOS_COMPLETOS\n";
-            fil.forEach(r => {
-                csv += `${r.fecha},${r.hora},${r.datos.replace(/\n/g, " | ").replace(/;/g, ",")}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Reporte_Permisos_SSO_${ini}_al_${fin}.csv`;
-            link.click();
-        } catch(e) { 
-            console.error(e);
-            alert("❌ Error al generar reporte de permisos"); 
-        }
-    }
+        if(fil.length === 0) return alert("No hay datos");
+        let csv = "\uFEFFFECHA,HORA,DATOS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_SSO.csv`; a.click();
+    } catch(e) { alert("Error"); }
+}
 
     // --- FUNCIÓN: DESCARGAR REPORTES DE INCIDENTES (NUEVA) ---
     async function descargarCSV_Incidentes() {
@@ -888,35 +898,23 @@ async function finalizarTareaOT() {
 async function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot').value;
     const fin = document.getElementById('f-fin-ot').value;
-    
-    if(!ini || !fin) return alert("❌ Por favor, seleccione un rango de fechas.");
-
+    if(!ini || !fin) return alert("Seleccione fechas");
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
         const data = await res.json();
-        const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
         
-        if(fil.length === 0) return alert("⚠️ No hay órdenes registradas en estas fechas.");
-
-        // Encabezados sincronizados con tu Código.gs (11 columnas)
-        let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS_VINCULADO,ESTADO,DESCRIPCION,HORA_CIERRE_ATS,OBS_FINALES\n";
-        
-        fil.forEach(r => {
-            let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
-            csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
         });
 
+        if(fil.length === 0) return alert("No hay órdenes en estas fechas");
+        let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIPCION,HORA_CIERRE,OBS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Reporte_Operaciones_OT_${ini}_al_${fin}.csv`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        
-    } catch(e) { 
-        console.error("Error reporte OT:", e);
-        alert("❌ Error al obtener reporte operativo."); 
-    }
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_OT.csv`; a.click();
+    } catch(e) { alert("Error"); }
 }
-
 </script>
