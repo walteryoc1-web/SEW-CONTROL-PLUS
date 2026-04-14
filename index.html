@@ -333,20 +333,31 @@ function checkInvolucrado(input) {
     input.style.background = personalSeguridad[id] ? "#e8f5e9" : "#fff";
 }
 
-asi tengo mi funcion revisala y arreglala
 async function enviarIncidenteCompleto() {
     const btn = document.getElementById('btn-env-inc');
     const folioIn = document.getElementById('inc-folio');
-    if (!folioIn || folioIn.value === "") return alert("❌ Ingrese Folio");
+    
+    // 1. Validación de Folio
+    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Ingrese el Folio del permiso");
 
-    btn.disabled = true; btn.innerText = "ENVIANDO REPORTE...";
+    btn.disabled = true; 
+    btn.innerText = "GENERANDO INFORME Y PDF... ⏳";
 
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
-    const involucrados = ids.length > 0 ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") : "SIN AFECTADOS";
+    // 2. Captura de Involucrados
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.trim().toUpperCase())
+                     .filter(v => personalSeguridad[v]);
+    
+    const involucrados = ids.length > 0 
+        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
+        : "SIN AFECTADOS";
 
-    const getV = (id) => document.getElementById(id) ? document.getElementById(id).value : "N/A";
-
-        // Dentro del payload de la función enviarIncidenteCompleto():
+    // 3. Capturador seguro de valores
+    const getV = (id) => {
+        const el = document.getElementById(id);
+        return (el && el.value) ? el.value : "N/A";
+    };
+ // 4. Armado del paquete de datos (Payload)
     const payload = {
         action: "registrarIncidente",
         folio: folioIn.value.trim().toUpperCase(),
@@ -360,25 +371,43 @@ async function enviarIncidenteCompleto() {
         estructura: getV('inc-estructura'),
         reparacion: getV('inc-reparacion'),
         obsEstructura: getV('inc-obs-estructura'),
-        
-        // LOS NUEVOS CAMPOS:
         reincidencia: getV('inc-reincidencia'), 
-        riesgoSeguridad: getV('inc-riesgo-seguridad'),
-        
+        seguridad: getV('inc-riesgo-seguridad'), // Coincide con 'seguridad' en tu Código.gs
         recomendacion: getV('inc-recomendacion'),
         estadoFinal: getV('inc-estado-final')
     };
 
-
     try {
+        // 5. Envío y espera de respuesta (Base64 del PDF)
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ INFORME TÉCNICO REGISTRADO");
-        location.reload();
+        const respuestaServidor = await res.text();
+
+        // 6. Lógica de descarga si recibimos el PDF
+        if (respuestaServidor.length > 500) { 
+            const linkSource = `data:application/pdf;base64,${respuestaServidor}`;
+            const downloadLink = document.createElement("a");
+            const fileName = `Informe_Incidente_${payload.folio}.pdf`;
+
+            downloadLink.href = linkSource;
+            downloadLink.download = fileName;
+            downloadLink.click();
+            
+            alert("✅ REGISTRO EXITOSO: Datos guardados y PDF generado.");
+            location.reload();
+        } else {
+            // Si el servidor solo responde OK_INCIDENTE
+            alert("✅ REGISTRO EXITOSO: Datos guardados en Excel.");
+            location.reload();
+        }
+
     } catch(e) {
-        alert("❌ Error de red");
-        btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩";
+        console.error("Error crítico:", e);
+        alert("❌ Error de conexión: No se pudo generar el reporte.");
+        btn.disabled = false; 
+        btn.innerText = "REGISTRAR INFORME 🚩";
     }
 }
+       
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
     function enviar() {
