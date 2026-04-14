@@ -241,51 +241,48 @@
             <button class="btn-salir" onclick="location.reload()">CERRAR</button>
         </div>
     </div>
+<!-- UI OPERACIONES - CONTROL OT -->
 <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
-    <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
-    <span class="sub-plus">CONTROL DE ORDEN DE TRABAJO (OT)</span>
-
-    <!-- Selector de Origen -->
-    <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px;">
-        <button id="btn-ot-nueva" class="btn" style="background:#3498db; color:white; font-size:12px; padding:10px;" onclick="setOrigenOT('SISTEMA')">Generar Folio</button>
-        <button id="btn-ot-sap" class="btn" style="background:#95a5a6; color:white; font-size:12px; padding:10px;" onclick="setOrigenOT('SAP')">Ingresar SAP</button>
-    </div>
-
-    <!-- Campo de Folio -->
-    <input type="text" id="ot-folio" placeholder="Folio de Tarea" style="font-weight:bold; border:2px solid #3498db;">
-
-    <!-- ID Técnico Responsable -->
-    <input type="text" id="ot-id-tec" placeholder="ID Técnico Responsable" oninput="checkTecnicoOperaciones(this.value)">
-    <div id="ot-tec-box" style="font-size:12px; font-weight:bold; color:#2980b9; background:#e1f5fe; padding:10px; border-radius:10px; display:none; margin-bottom:10px; border:1px dashed #3498db; text-align:left;"></div>
-
-    <!-- Prioridad y Departamento -->
-    <div style="display:flex; gap:10px;">
-        <select id="ot-prioridad" style="flex:1;">
+    <h3 style="color:#2980b9; margin:0;">Orden de Trabajo</h3>
+    
+    <!-- PANTALLA DE APERTURA (SIMPLIFICADA) -->
+    <div id="ot-seccion-apertura">
+        <p style="font-size:12px; font-weight:bold; color:#7f8c8d;">PASO 1: ASIGNACIÓN DE TAREA</p>
+        <input type="text" id="ot-folio" placeholder="Folio OT" style="font-weight:bold;">
+        <input type="text" id="ot-id-tec" placeholder="ID Técnico Responsable" oninput="checkTecnicoOperaciones(this.value)">
+        <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border-radius:10px; font-size:12px; margin-bottom:10px;"></div>
+        
+        <select id="ot-prioridad">
             <option disabled selected>Prioridad</option>
-            <option>Baja (Rutinaria)</option>
-            <option>Media (Programada)</option>
-            <option>Alta (Urgente)</option>
-            <option>Crítica (Paro)</option>
+            <option>Baja</option><option>Media</option><option>Alta</option><option>Crítica</option>
         </select>
-        <select id="ot-depto" style="flex:1;">
+        
+        <select id="ot-depto">
             <option disabled selected>Departamento</option>
-            <option>Mantenimiento</option>
-            <option>Taller</option>
-            <option>Ornato</option>
-            <option>Logística</option>
+            <option>Mantenimiento</option><option>Taller</option><option>Ornato</option><option>Logística</option>
         </select>
+
+        <textarea id="ot-descripcion" placeholder="¿Qué hay que hacer?" rows="3"></textarea>
+        <button class="btn" style="background:#3498db; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
+        
+        <hr style="margin:20px 0; border:0; border-top:1px dashed #ccc;">
+        
+        <!-- BOTÓN PARA PASAR AL CIERRE -->
+        <button class="btn" style="background:#e67e22; color:white; font-size:14px;" onclick="mostrarSeccionCierre()">🔒 CERRAR TAREA (VINCULAR ATS)</button>
     </div>
 
-    <!-- Vínculo ATS (Trazabilidad) -->
-    <p style="margin:10px 0 5px 0; font-size:11px; font-weight:bold; color:#7f8c8d; text-align:left;">VINCULAR FOLIO ATS (SSO):</p>
-    <input type="text" id="ot-ats-link" placeholder="Folio SSO-XXXXXX" style="border-left: 5px solid #e67e22;">
+    <!-- PANTALLA DE CIERRE (OCULTA POR DEFECTO) -->
+    <div id="ot-seccion-cierre" style="display:none;">
+        <p style="font-size:12px; font-weight:bold; color:#d35400;">PASO 2: CIERRE Y TRAZABILIDAD</p>
+        <input type="text" id="ot-folio-cierre" placeholder="Digite Folio OT a cerrar">
+        <input type="text" id="ot-ats-cierre" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="border: 2px solid #e67e22;">
+        <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales del trabajo..."></textarea>
+        
+        <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR Y VINCULAR</button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
+    </div>
 
-    <!-- Descripción -->
-    <textarea id="ot-descripcion" placeholder="Descripción detallada del trabajo..." rows="4"></textarea>
-
-    <!-- Botonera -->
-    <button id="btn-registrar-ot" class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 REGISTRAR ORDEN DE TRABAJO</button>
-    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+    <button class="btn-salir" onclick="location.reload()">SALIR DEL MÓDULO</button>
 </div>
    <script>
     // --- BASES DE DATOS ---
