@@ -607,37 +607,33 @@
     function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
     // --- FUNCIÓN DE DESCARGA: LOGÍSTICA (SUPERVISOR) ---
 async function descargarCSV() {
-    const ini = document.getElementById('f-inicio').value;
-    const fin = document.getElementById('f-fin').value;
+    const iniVal = document.getElementById('f-inicio').value;
+    const finVal = document.getElementById('f-fin').value;
     
-    if(!ini || !fin) return alert("❌ Seleccione fechas.");
+    if(!iniVal || !finVal) return alert("❌ Seleccione fechas.");
 
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporte");
         const data = await res.json();
         
+        // Creamos objetos de fecha reales para comparar sin importar el texto
+        const fechaInicio = new Date(iniVal + "T00:00:00");
+        const fechaFin = new Date(finVal + "T23:59:59");
+
         const fil = data.filter(r => {
-            // 1. Limpiamos la fecha que viene del Excel por si trae espacios
-            const fechaLimpia = r.fecha.trim(); 
-            const p = fechaLimpia.split('/'); 
-            
+            // Limpieza de la fecha que viene del Excel (ej: 14/04/2026)
+            const p = r.fecha.split(/[\/\-]/); // Corta por / o por -
             if(p.length !== 3) return false;
 
-            // 2. IMPORTANTE: Aseguramos que el formato sea YYYY-MM-DD
-            // p[0]=Día, p[1]=Mes, p[2]=Año
-            const dia = p[0].padStart(2, '0');
-            const mes = p[1].padStart(2, '0');
-            const anio = p[2];
+            // Intentamos armar la fecha (Asumiendo DD/MM/YYYY)
+            // p=día, p=mes, p=año. El mes en JS va de 0 a 11, por eso el -1
+            const fechaFila = new Date(p[2], p[1] - 1, p[0]);
             
-            const fISO = `${anio}-${mes}-${dia}`; 
-            
-            // 3. Comparamos contra los inputs del calendario
-            return fISO >= ini && fISO <= fin;
+            return fechaFila >= fechaInicio && fechaFila <= fechaFin;
         });
 
         if(fil.length === 0) {
-            console.log("Fechas detectadas en la hoja:", data.map(d => d.fecha)); // Para depurar
-            return alert("⚠️ No hay movimientos en este rango.\nVerifique que el formato en Excel sea Día/Mes/Año.");
+            return alert("⚠️ No se encontraron datos para este rango.\nVerifique que existan registros en la hoja LOGISTICA.");
         }
 
         let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTISTA,CABEZAL,PLACA,CICLO_TER,CICLO_EPQ\n";
@@ -649,10 +645,12 @@ async function descargarCSV() {
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_Logistica_${ini}.csv`;
+        a.download = `Reporte_Logistica_${iniVal}.csv`;
         a.click();
+        URL.revokeObjectURL(a.href);
+        
     } catch(e) { 
-        alert("❌ Error de servidor"); 
+        alert("❌ Error de conexión con Google Sheets. Intente refrescar la página."); 
     }
 }
 </script>
