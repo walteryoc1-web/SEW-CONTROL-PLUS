@@ -607,46 +607,52 @@
     function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
     // --- FUNCIÓN DE DESCARGA: LOGÍSTICA (SUPERVISOR) ---
 async function descargarCSV() {
-    // 1. Capturar los valores de las fechas del HTML
     const ini = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
     
-    if(!ini || !fin) return alert("❌ Seleccione el rango de fechas.");
+    if(!ini || !fin) return alert("❌ Seleccione fechas.");
 
     try {
-        // 2. Pedir los datos al servidor
         const res = await fetch(URL_SCRIPT + "?accion=reporte");
         const data = await res.json();
         
-        // 3. FILTRO CON TRADUCTOR (Excel DD/MM/YYYY a App YYYY-MM-DD)
         const fil = data.filter(r => {
-            const p = r.fecha.split('/'); // Corta la fecha de la Sheets
+            // 1. Limpiamos la fecha que viene del Excel por si trae espacios
+            const fechaLimpia = r.fecha.trim(); 
+            const p = fechaLimpia.split('/'); 
+            
             if(p.length !== 3) return false;
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Reorganiza: Año-Mes-Día
+
+            // 2. IMPORTANTE: Aseguramos que el formato sea YYYY-MM-DD
+            // p[0]=Día, p[1]=Mes, p[2]=Año
+            const dia = p[0].padStart(2, '0');
+            const mes = p[1].padStart(2, '0');
+            const anio = p[2];
+            
+            const fISO = `${anio}-${mes}-${dia}`; 
+            
+            // 3. Comparamos contra los inputs del calendario
             return fISO >= ini && fISO <= fin;
         });
 
-        if(fil.length === 0) return alert("⚠️ No hay movimientos en este rango de fechas.");
+        if(fil.length === 0) {
+            console.log("Fechas detectadas en la hoja:", data.map(d => d.fecha)); // Para depurar
+            return alert("⚠️ No hay movimientos en este rango.\nVerifique que el formato en Excel sea Día/Mes/Año.");
+        }
 
-        // 4. Encabezados para tu Excel (Logística)
         let csv = "\uFEFFFECHA,HORA,ID_PILOTO,NOMBRE,MOVIMIENTO,PRODUCTO,TRANSPORTISTA,CABEZAL,PLACA,CICLO_TER,CICLO_EPQ\n";
-        
         fil.forEach(r => {
             let datosLimpios = r.datos.replace(/\n/g, " ").replace(/;/g, ",");
             csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
         });
 
-        // 5. Crear el archivo y descargar
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_Logistica_${ini}_al_${fin}.csv`;
+        a.download = `Reporte_Logistica_${ini}.csv`;
         a.click();
-        URL.revokeObjectURL(a.href);
-        
     } catch(e) { 
-        console.error(e);
-        alert("❌ Error al obtener el reporte logístico."); 
+        alert("❌ Error de servidor"); 
     }
 }
 </script>
