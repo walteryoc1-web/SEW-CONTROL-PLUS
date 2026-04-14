@@ -611,42 +611,48 @@
     }
 
    async function cargarPermisosParaCerrar() {
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
-            const data = await res.json();
-            const cont = document.getElementById('contenedor-tabla-sso'); 
-            if(!cont) return; 
-            
-            cont.innerHTML = "";
-            // Filtramos permisos que NO tengan la palabra CERRADO
-            const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
-            
-            if(activos.length === 0) {
-                cont.innerHTML = "<p style='font-size:11px; color:#888; padding:10px;'>No hay permisos abiertos.</p>";
-                return;
-            }
-
-            activos.forEach(p => {
-                // p.datos es el "chorro" de texto separado por ";"
-                // El Folio es el primer dato antes del primer ";"
-                const d = p.datos.split(";");
-                const folioReal = d[0].trim(); // <--- AQUÍ ESTABA EL ERROR, AHORA TOMA EL FOLIO SSO
-                
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background:#fff;";
-                div.innerHTML = `
-                    <div style="text-align:left;">
-                        <span style="font-size:12px; font-weight:bold; color:#2c3e50;">${folioReal}</span><br>
-                        <small style="color:#7f8c8d; font-size:10px;">Técnico: ${d[1] || 'N/A'}</small>
-                    </div>
-                    <button onclick="cerrarPermiso('${folioReal}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:bold; cursor:pointer;">CERRAR</button>
-                `;
-                cont.appendChild(div);
-            });
-        } catch(e) {
-            console.error("Error cargando tabla SSO:", e);
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
+        const data = await res.json();
+        const cont = document.getElementById('contenedor-tabla-sso'); 
+        if(!cont) return; 
+        
+        cont.innerHTML = "";
+        
+        // Filtramos permisos que NO tengan la palabra CERRADO
+        const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
+        
+        if(activos.length === 0) {
+            cont.innerHTML = "<p style='font-size:11px; color:#888; padding:10px;'>No hay permisos abiertos.</p>";
+            return;
         }
+
+        activos.forEach(p => {
+            // Separamos todos los pedazos de la fila
+            const d = p.datos.split(";");
+            
+            // ESCÁNER INTELIGENTE: Busca cuál de todos los pedazos es el Folio SSO
+            const folioReal = d.find(texto => texto.trim().toUpperCase().includes("SSO-")) || "SIN FOLIO";
+            
+            // El técnico suele ser el siguiente dato importante (o el primero si el folio no es el 0)
+            const tecnico = d.find(texto => texto.includes("(") && !texto.includes("SSO-")) || "Ver PDF";
+            
+            const div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background:#fff;";
+            div.innerHTML = `
+                <div style="text-align:left;">
+                    <span style="font-size:12px; font-weight:bold; color:#2c3e50;">${folioReal}</span><br>
+                    <small style="color:#7f8c8d; font-size:10px;">Resp: ${tecnico}</small>
+                </div>
+                <button onclick="cerrarPermiso('${folioReal}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:bold; cursor:pointer;">CERRAR</button>
+            `;
+            cont.appendChild(div);
+        });
+    } catch(e) {
+        console.error("Error cargando tabla SSO:", e);
     }
+}
+    
     async function cerrarPermiso(f) { 
     if(!confirm("¿Desea finalizar oficialmente el ATS: " + f + "?")) return;
     
