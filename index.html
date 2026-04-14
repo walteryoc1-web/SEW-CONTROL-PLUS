@@ -333,9 +333,11 @@
         "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
         "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
     };
-    // --- CONFIGURACIÓN Y BASES DE DATOS ---
+    // --- 1. CONFIGURACIÓN Y BASES DE DATOS ---
+    const pilotos = { "101": { n: "JUAN PEREZ", t: "TRANS-MAESTRO", c: "C-123ABC", p: "P-456DEF" }, "102": { n: "PEDRO LOPEZ", t: "LOGISTICA-S", c: "C-789GHI", p: "P-012JKL" } };
     const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
     const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
+
     const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
     const checklistData = { 
         "altura": { epp: ["EPP Completo", "Casco con barbuquejo", "Arnés de seguridad", "Línea de vida"], herr: ["Andamio", "Tablones", "Escalera"], col: ["Redes", "Cintas", "Barandas"] },
@@ -344,7 +346,7 @@
         "confinado": { epp: ["EPP Completo", "Monitor de gases", "Respirador"], herr: ["Trípode", "Extractor", "Iluminación"], col: ["Conos", "Vigía", "Barreras"] }
     };
 
-    // --- ACCESO Y NAVEGACIÓN ---
+    // --- 2. ACCESO ---
     function entrar() {
         const u = document.getElementById('u').value.toLowerCase().trim();
         const p = document.getElementById('p').value;
@@ -357,23 +359,25 @@
         else { alert("Acceso Incorrecto"); }
     }
 
-    function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-    function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
-    function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
-
-    // --- LÓGICA DE PÍLDORAS (MONITOREO EN VIVO) ---
-    async function actualizarPildoras() {
-        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0'); document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0'); document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0'); } catch (e) {}
+    // --- 3. MÓDULO OPERADOR (LOGÍSTICA) ---
+    function check() { 
+        const id = document.getElementById('id-in').value.trim(); 
+        const box = document.getElementById('piloto-box'); 
+        if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; 
     }
-    async function actualizarPildorasSSO() {
-        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0'); } catch(e) {}
+    function enviar() {
+        const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
+        const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
+        const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+        const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; btn.innerText="REGISTRAR"; });
     }
 
-    // --- MÓDULO SSO (PERMISOS Y CHECKLISTS) ---
+    // --- 4. MÓDULO SSO (ATS Y CHECKLISTS) ---
     function agregarFilaEjecutor() {
         const contenedor = document.getElementById('contenedor-ejecutores'); 
         const div = document.createElement('div'); div.className = 'grupo-ejecutor'; div.style.marginTop = "10px";
-        div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border-radius:50%; width:30px;">-</button></div><div class="personal-box-clase" style="font-size:12px; display:none; padding:5px; color:#27ae60;"></div>`;
+        div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border-radius:50%; width:30px;">-</button></div><div class="personal-box-clase" style="font-size:12px; display:none; padding:5px; color:#27ae60; font-weight:bold;"></div>`;
         contenedor.appendChild(div);
     }
     function checkSSO_Dinamico(input) {
@@ -382,63 +386,44 @@
     }
     function actualizarUbicaciones() {
         const fase = document.getElementById('p-fase').value; const select = document.getElementById('p-ubicacion');
-        select.innerHTML = ""; ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt); });
+        select.innerHTML = ""; select.disabled = false;
+        if(ubicacionesData[fase]) ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt); });
+    }
+    function crearCheck(texto) {
+        const div = document.createElement('div'); div.style.margin = "5px 0";
+        div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`;
+        return div;
     }
     function actualizarChecklist() {
-        const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
+        const tipo = document.getElementById('p-tipo').value; if(!tipo || !checklistData[tipo]) return;
         document.getElementById('contenedor-checklist').style.display='block';
-        const lEpp = document.getElementById('lista-epp'); lEpp.innerHTML = "<b>✅ EPP:</b>";
-        checklistData[tipo].epp.forEach(i => {
-            const div = document.createElement('div'); div.innerHTML = `<label><input type="checkbox"> ${i}</label>`;
-            lEpp.appendChild(div);
-        });
+        const lEpp = document.getElementById('lista-epp'), lHerr = document.getElementById('lista-herramientas'), lCol = document.getElementById('lista-colectiva');
+        const hCheck = document.getElementById('check-herramientas').checked, cCheck = document.getElementById('check-colectiva').checked;
+        lEpp.innerHTML = "<b>✅ EPP REQUERIDO:</b>"; lHerr.innerHTML = "<b>🛠️ HERRAMIENTAS:</b>"; lCol.innerHTML = "<b>🚧 SEG. COLECTIVA:</b>";
+        checklistData[tipo].epp.forEach(i => lEpp.appendChild(crearCheck(i)));
+        if(hCheck) { lHerr.style.display='block'; checklistData[tipo].herr.forEach(i => lHerr.appendChild(crearCheck(i))); } else lHerr.style.display='none';
+        if(cCheck) { lCol.style.display='block'; checklistData[tipo].col.forEach(i => lCol.appendChild(crearCheck(i))); } else lCol.style.display='none';
+    }
+    async function enviarPermisoSSO() {
+        const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => personalSeguridad[v]);
+        if(ids.length==0) return alert("Ingrese técnico válido");
+        const btn = document.getElementById('btn-sso'); btn.disabled = true; btn.innerText = "Generando PDF...";
+        const nombres = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join("\n");
+        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText).join(" | ");
+        const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
+            const pdf = await res.text();
+            if(pdf.length > 500) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + pdf; a.download = `ATS_${new Date().getTime()}.pdf`; a.click(); }
+            alert("✅ ATS Registrado con éxito"); location.reload();
+        } catch(e) { alert("Error"); btn.disabled = false; btn.innerText="🚀 REGISTRAR PERMISO"; }
     }
 
-    // --- MÓDULO OPERACIONES (APERTURA Y CIERRE) ---
-    function setOrigenOT(tipo) {
-        const f = document.getElementById('ot-folio');
-        if(tipo==='SISTEMA') { f.value = `OT-${new Date().getTime().toString().slice(-6)}`; f.readOnly = true; } 
-        else { f.value = ""; f.readOnly = false; }
-    }
-    function checkTecnicoOperaciones(id) {
-        const box = document.getElementById('ot-tec-box'); const idC = id.trim().toUpperCase();
-        if(personalSeguridad[idC]) { box.innerHTML = `👨‍🔧 ${personalSeguridad[idC].n}`; box.style.display='block'; } else { box.style.display='none'; }
-    }
-
-    async function enviarOT() {
-        const folio = document.getElementById('ot-folio').value;
-        const tecId = document.getElementById('ot-id-tec').value.toUpperCase();
-        if(!folio || !personalSeguridad[tecId]) return alert("Datos inválidos");
-        const p = { action: "registrarOT", folio: folio, tecnico: personalSeguridad[tecId].n, prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
-        const b64 = await res.text();
-        if(b64.length > 500) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = `OT_${folio}.pdf`; a.click(); }
-        alert("✅ Registrado"); location.reload();
-    }
-
-    async function finalizarTareaOT() {
-        const fOT = document.getElementById('ot-folio-cierre').value.toUpperCase();
-        const fATS = document.getElementById('ot-ats-cierre').value.toUpperCase();
-        const p = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
-        const txt = await res.text();
-        alert(txt.includes("OK") ? "✅ Tarea Finalizada" : "⚠️ " + txt);
-        if(txt.includes("OK")) location.reload();
-    }
-
-    // --- SISTEMA DE REPORTES (TRADUCTOR DE FECHAS) ---
-    async function descargarCSV_OT() {
-        const ini = document.getElementById('f-ini-ot').value; const fin = document.getElementById('f-fin-ot').value;
-        if(!ini || !fin) return alert("Fechas requeridas");
-        const res = await fetch(URL_SCRIPT + "?accion=reporteOT"); const data = await res.json();
-        const fil = data.filter(r => { const p = r.fecha.split('/'); const fISO = `${p[2]}-${p[1]}-${p[0]}`; return fISO >= ini && fISO <= fin; });
-        let csv = "\uFEFFFECHA,HORA,FOLIO,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIP,HORA_CIERRE,OBS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-        const b = new Blob([csv], { type: 'text/csv' }); const a = document.createElement("a");
-        a.href = URL.createObjectURL(b); a.download = "Reporte_OT.csv"; a.click();
-    }
-
-    function iniciarReloj() {
-        setInterval(() => { const a = new Date(); if(document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString(); }, 1000);
-    }
+    // --- 5. OTRAS FUNCIONES (RELÓJ, NAVEGACIÓN, OT) ---
+    function iniciarReloj() { setInterval(() => { const a = new Date(); if(document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString(); }, 1000); }
+    function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
+    function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
+    function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
+    
+    // (AQUÍ SIGUEN TUS FUNCIONES DE enviarIncidenteCompleto Y enviarOT QUE YA TENÍAS)
 </script>
