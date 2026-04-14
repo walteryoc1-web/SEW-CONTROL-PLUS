@@ -1004,17 +1004,16 @@ async function finalizarTareaOT() {
             const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
             const data = await res.json();
             
-            // TRADUCTOR: Convierte "14/04/2026" de la Sheets a "2026-04-14" para comparar
             const fil = data.filter(r => {
                 const p = r.fecha.split('/'); 
                 if(p.length !== 3) return false;
+                // Constructor YYYY-MM-DD para comparar con los inputs de la App
                 const fISO = `${p[2]}-${p[1]}-${p[0]}`; 
                 return fISO >= ini && fISO <= fin;
             });
 
             if(fil.length === 0) return alert("⚠️ No hay órdenes en estas fechas.");
 
-            // Encabezados exactos para tus 11 columnas
             let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS_VINCULADO,ESTADO,DESCRIPCION,HORA_CIERRE_ATS,OBS_FINALES\n";
             
             fil.forEach(r => {
@@ -1025,15 +1024,16 @@ async function finalizarTareaOT() {
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
-            a.download = `Reporte_Operaciones_${ini}_al_${fin}.csv`;
+            a.download = `Reporte_OT_${ini}_al_${fin}.csv`;
             a.click();
             URL.revokeObjectURL(a.href);
         } catch(e) { 
             console.error(e);
             alert("❌ Error al generar reporte."); 
         }
-    }
- // --- 8. FUNCIONES DE APOYO Y NAVEGACIÓN RESTANTES ---
+    } 
+
+    // --- 8. FUNCIONES DE APOYO Y NAVEGACIÓN RESTANTES ---
     function iniciarReloj() {
         setInterval(() => {
             const a = new Date();
@@ -1044,7 +1044,6 @@ async function finalizarTareaOT() {
         }, 1000);
     }
 
-    // Funciones para monitores en tiempo real
     async function actualizarPildoras() {
         try { 
             const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
@@ -1065,7 +1064,6 @@ async function finalizarTareaOT() {
         } catch(e) {}
     }
 
-    // Función de búsqueda para técnicos (Misma de SSO usada en Operaciones)
     function checkTecnicoOperaciones(id) {
         const box = document.getElementById('ot-tec-box');
         const idClean = id.trim().toUpperCase();
@@ -1077,5 +1075,4 @@ async function finalizarTareaOT() {
         }
     }
 
-    // --- CIERRE FINAL DEL SCRIPT ---
 </script>
