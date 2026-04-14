@@ -241,50 +241,62 @@
             <button class="btn-salir" onclick="location.reload()">CERRAR</button>
         </div>
     </div>
-<!-- UI OPERACIONES - CONTROL OT -->
+<!-- UI OPERACIONES - CONTROL DE ORDEN DE TRABAJO (DASHBOARD COMPLETO) -->
 <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
-    <h3 style="color:#2980b9; margin:0;">Orden de Trabajo</h3>
-    
-    <!-- PANTALLA DE APERTURA (SIMPLIFICADA) -->
-    <div id="ot-seccion-apertura">
-        <p style="font-size:12px; font-weight:bold; color:#7f8c8d;">PASO 1: ASIGNACIÓN DE TAREA</p>
-        <input type="text" id="ot-folio" placeholder="Folio OT" style="font-weight:bold;">
-        <input type="text" id="ot-id-tec" placeholder="ID Técnico Responsable" oninput="checkTecnicoOperaciones(this.value)">
-        <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border-radius:10px; font-size:12px; margin-bottom:10px;"></div>
-        
-        <select id="ot-prioridad">
-            <option disabled selected>Prioridad</option>
-            <option>Baja</option><option>Media</option><option>Alta</option><option>Crítica</option>
-        </select>
-        
-        <select id="ot-depto">
-            <option disabled selected>Departamento</option>
-            <option>Mantenimiento</option><option>Taller</option><option>Ornato</option><option>Logística</option>
-        </select>
+    <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
+    <span class="sub-plus">CONTROL Y TRAZABILIDAD OPERATIVA</span>
 
-        <textarea id="ot-descripcion" placeholder="¿Qué hay que hacer?" rows="3"></textarea>
-        <button class="btn" style="background:#3498db; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
+    <!-- PANTALLA DE APERTURA (PASO 1) -->
+    <div id="ot-seccion-apertura">
+        <p style="font-size:12px; font-weight:bold; color:#7f8c8d; margin-top:15px;">1. APERTURA DE ORDEN</p>
+        
+        <!-- Origen de OT -->
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button id="btn-ot-nueva" class="btn" style="background:#3498db; color:white; font-size:11px; padding:10px;" onclick="setOrigenOT('SISTEMA')">Generar Folio</button>
+            <button id="btn-ot-sap" class="btn" style="background:#95a5a6; color:white; font-size:11px; padding:10px;" onclick="setOrigenOT('SAP')">Manual / SAP</button>
+        </div>
+
+        <input type="text" id="ot-folio" placeholder="Folio OT" style="font-weight:bold; border:2px solid #3498db;">
+        
+        <input type="text" id="ot-id-tec" placeholder="ID Técnico Responsable" oninput="checkTecnicoOperaciones(this.value)">
+        <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border-radius:10px; font-size:12px; margin-bottom:10px; border:1px dashed #3498db; text-align:left;"></div>
+        
+        <div style="display:flex; gap:10px;">
+            <select id="ot-prioridad" style="flex:1;">
+                <option disabled selected>Prioridad</option>
+                <option>Baja</option><option>Media</option><option>Alta</option><option>Crítica</option>
+            </select>
+            <select id="ot-depto" style="flex:1;">
+                <option disabled selected>Departamento</option>
+                <option>Mantenimiento</option><option>Taller</option><option>Ornato</option><option>Logística</option>
+            </select>
+        </div>
+
+        <textarea id="ot-descripcion" placeholder="Descripción de la tarea..." rows="3"></textarea>
+        
+        <button class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
         
         <hr style="margin:20px 0; border:0; border-top:1px dashed #ccc;">
         
-        <!-- BOTÓN PARA PASAR AL CIERRE -->
-        <button class="btn" style="background:#e67e22; color:white; font-size:14px;" onclick="mostrarSeccionCierre()">🔒 CERRAR TAREA (VINCULAR ATS)</button>
+        <!-- ACCESO AL CIERRE -->
+        <button class="btn" style="background:#e67e22; color:white; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CERRAR TAREA Y VINCULAR ATS</button>
     </div>
 
-    <!-- PANTALLA DE CIERRE (OCULTA POR DEFECTO) -->
+    <!-- PANTALLA DE CIERRE (PASO 2) -->
     <div id="ot-seccion-cierre" style="display:none;">
-        <p style="font-size:12px; font-weight:bold; color:#d35400;">PASO 2: CIERRE Y TRAZABILIDAD</p>
-        <input type="text" id="ot-folio-cierre" placeholder="Digite Folio OT a cerrar">
-        <input type="text" id="ot-ats-cierre" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="border: 2px solid #e67e22;">
-        <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales del trabajo..."></textarea>
+        <p style="font-size:12px; font-weight:bold; color:#d35400; margin-top:15px;">2. CIERRE Y VÍNCULO LEGAL</p>
+        <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar" style="border:2px solid #e67e22;">
+        <input type="text" id="ot-ats-cierre" placeholder="FOLIO ATS (SSO-XXXXXX)" style="border: 2px solid #e67e22; font-weight:bold;">
+        <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales del trabajo realizado..." rows="3"></textarea>
         
-        <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR Y VINCULAR</button>
-        <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
+        <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR TAREA</button>
+        <button class="btn-salir" style="background:#95a5a6; margin-top:10px;" onclick="cancelarCierre()">VOLVER A APERTURA</button>
     </div>
 
-    <button class="btn-salir" onclick="location.reload()">SALIR DEL MÓDULO</button>
+    <button class="btn-salir" style="margin-top:20px; background:#ff6b6b;" onclick="location.reload()">CERRAR SESIÓN</button>
 </div>
-   <script>
+    
+    <script>
     // --- BASES DE DATOS ---
     const pilotos = { 
         "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, 
