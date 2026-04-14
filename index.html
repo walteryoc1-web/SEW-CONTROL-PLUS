@@ -333,24 +333,22 @@
         "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
         "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
     };
-   // --- CONFIGURACIÓN BASE ---
+    // --- CONFIGURACIÓN Y BASES DE DATOS ---
     const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
     const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
-
     const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
     const checklistData = { 
-        "altura": { epp: ["EPP Completo", "Casco con barbuquejo", "Arnés de seguridad", "Línea de vida"], herr: ["Andamio", "Tablones", "Escalera de extensión"], col: ["Redes de seguridad", "Cintas amarillas de peligro", "Barandas"] },
-        "caliente": { epp: ["EPP Completo", "Guantes de cuero", "Gabacha de cuero", "Careta para soldar"], herr: ["Máquina de soldar", "Amoladora / Esmeril", "Extintor PQS"], col: ["Biombos ignífugos", "Mantas térmicas", "Señalización"] },
-        "electrico": { epp: ["EPP Completo", "Guantes dieléctricos", "Botas dieléctricas", "Careta protección facial"], herr: ["Multímetro", "Pértiga de maniobra", "Kit de bloqueo LOTO"], col: ["Cintas de peligro rojas", "Alfombra aislante", "Bloqueos físicos"] },
-        "confinado": { epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración autocontenido"], herr: ["Trípode de rescate", "Ventilador/Extractor", "Iluminación 12V"], col: ["Conos de seguridad", "Vigía de seguridad", "Barreras rígidas"] }
+        "altura": { epp: ["EPP Completo", "Casco con barbuquejo", "Arnés de seguridad", "Línea de vida"], herr: ["Andamio", "Tablones", "Escalera"], col: ["Redes", "Cintas", "Barandas"] },
+        "caliente": { epp: ["EPP Completo", "Guantes de cuero", "Gabacha", "Careta"], herr: ["Soldadora", "Amoladora", "Extintor"], col: ["Biombos", "Mantas", "Señalización"] },
+        "electrico": { epp: ["EPP Completo", "Guantes dieléctricos", "Botas", "Careta"], herr: ["Multímetro", "Pértiga", "Kit LOTO"], col: ["Cintas rojas", "Alfombra", "Bloqueos"] },
+        "confinado": { epp: ["EPP Completo", "Monitor de gases", "Respirador"], herr: ["Trípode", "Extractor", "Iluminación"], col: ["Conos", "Vigía", "Barreras"] }
     };
 
-    // --- ACCESO Y CONTROL DE INTERFAZ ---
+    // --- ACCESO Y NAVEGACIÓN ---
     function entrar() {
         const u = document.getElementById('u').value.toLowerCase().trim();
         const p = document.getElementById('p').value;
         const login = document.getElementById('login');
-
         if(u=="operador" && p=="terpac") { login.style.display='none'; document.getElementById('ui-app').style.display='block'; } 
         else if(u=="supervisor" && p=="terpac1") { login.style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000); } 
         else if(u=="supervisor sso" && p=="terpac3") { login.style.display='none'; document.getElementById('ui-monitor-sso').style.display='block'; actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000); }
@@ -363,114 +361,84 @@
     function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
     function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
 
-    // --- LÓGICA DE INCIDENTES (REGISTRO Y PDF) ---
-    async function enviarIncidenteCompleto() {
-        const btn = document.getElementById('btn-env-inc');
-        const folio = document.getElementById('inc-folio').value.trim().toUpperCase();
-        if(!folio) return alert("❌ Ingrese el Folio");
-        
-        btn.disabled = true; btn.innerText = "GENERANDO PDF...";
-        const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
-        const involucrados = ids.length > 0 ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") : "SIN AFECTADOS";
-        const getV = (id) => document.getElementById(id) ? document.getElementById(id).value : "N/A";
-
-        const payload = {
-            action: "registrarIncidente", folio: folio, involucrados: involucrados, salud: getV('inc-salud'),
-            intervencion: getV('inc-intervencion-momento'), tipoEvento: getV('inc-tipo'), gravedad: getV('inc-gravedad'),
-            riesgo: getV('inc-riesgo'), contaminacion: getV('inc-contaminacion'), estructura: getV('inc-estructura'),
-            reparacion: getV('inc-reparacion'), obsEstructura: getV('inc-obs-estructura'), reincidencia: getV('inc-reincidencia'),
-            seguridad: getV('inc-riesgo-seguridad'), recomendacion: getV('inc-recomendacion'), estadoFinal: getV('inc-estado-final')
-        };
-
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const b64 = await res.text();
-            if(b64.length > 500) {
-                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64;
-                a.download = `Incidente_${folio}.pdf`; a.click();
-            }
-            alert("✅ Registro Exitoso"); location.reload();
-        } catch(e) { alert("❌ Error"); btn.disabled = false; }
+    // --- LÓGICA DE PÍLDORAS (MONITOREO EN VIVO) ---
+    async function actualizarPildoras() {
+        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0'); document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0'); document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0'); } catch (e) {}
+    }
+    async function actualizarPildorasSSO() {
+        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0'); } catch(e) {}
     }
 
-    // --- LÓGICA DE OPERACIONES (OT) ---
+    // --- MÓDULO SSO (PERMISOS Y CHECKLISTS) ---
+    function agregarFilaEjecutor() {
+        const contenedor = document.getElementById('contenedor-ejecutores'); 
+        const div = document.createElement('div'); div.className = 'grupo-ejecutor'; div.style.marginTop = "10px";
+        div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border-radius:50%; width:30px;">-</button></div><div class="personal-box-clase" style="font-size:12px; display:none; padding:5px; color:#27ae60;"></div>`;
+        contenedor.appendChild(div);
+    }
+    function checkSSO_Dinamico(input) {
+        const id = input.value.trim().toUpperCase(); const pBox = input.parentElement.nextElementSibling;
+        if(personalSeguridad[id]) { pBox.innerText = "👨‍🔧 " + personalSeguridad[id].n; pBox.style.display='block'; } else { pBox.style.display='none'; }
+    }
+    function actualizarUbicaciones() {
+        const fase = document.getElementById('p-fase').value; const select = document.getElementById('p-ubicacion');
+        select.innerHTML = ""; ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt); });
+    }
+    function actualizarChecklist() {
+        const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
+        document.getElementById('contenedor-checklist').style.display='block';
+        const lEpp = document.getElementById('lista-epp'); lEpp.innerHTML = "<b>✅ EPP:</b>";
+        checklistData[tipo].epp.forEach(i => {
+            const div = document.createElement('div'); div.innerHTML = `<label><input type="checkbox"> ${i}</label>`;
+            lEpp.appendChild(div);
+        });
+    }
+
+    // --- MÓDULO OPERACIONES (APERTURA Y CIERRE) ---
     function setOrigenOT(tipo) {
         const f = document.getElementById('ot-folio');
-        if(tipo==='SISTEMA') {
-            const date = new Date().toISOString().slice(2,10).replace(/-/g,"");
-            f.value = `OT-${date}-${Math.floor(Math.random()*900)+100}`;
-            f.readOnly = true;
-        } else { f.value = ""; f.readOnly = false; }
+        if(tipo==='SISTEMA') { f.value = `OT-${new Date().getTime().toString().slice(-6)}`; f.readOnly = true; } 
+        else { f.value = ""; f.readOnly = false; }
+    }
+    function checkTecnicoOperaciones(id) {
+        const box = document.getElementById('ot-tec-box'); const idC = id.trim().toUpperCase();
+        if(personalSeguridad[idC]) { box.innerHTML = `👨‍🔧 ${personalSeguridad[idC].n}`; box.style.display='block'; } else { box.style.display='none'; }
     }
 
     async function enviarOT() {
-        const btn = event.currentTarget;
-        const folio = document.getElementById('ot-folio').value.trim();
-        const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
-        if(!folio || !personalSeguridad[tecId]) return alert("❌ Datos Inválidos");
-
-        btn.disabled = true; btn.innerText = "GENERANDO OT...";
-        const p = {
-            action: "registrarOT", folio: folio, tecnico: `${personalSeguridad[tecId].n} (${tecId})`,
-            prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value,
-            descripcion: document.getElementById('ot-descripcion').value, estado: "ABIERTA"
-        };
-
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
-            const b64 = await res.text();
-            if(b64.length > 500) {
-                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64;
-                a.download = `OT_${folio}.pdf`; a.click();
-            }
-            alert("✅ Orden Aperturada"); location.reload();
-        } catch(e) { alert("❌ Error"); btn.disabled = false; }
+        const folio = document.getElementById('ot-folio').value;
+        const tecId = document.getElementById('ot-id-tec').value.toUpperCase();
+        if(!folio || !personalSeguridad[tecId]) return alert("Datos inválidos");
+        const p = { action: "registrarOT", folio: folio, tecnico: personalSeguridad[tecId].n, prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
+        const b64 = await res.text();
+        if(b64.length > 500) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = `OT_${folio}.pdf`; a.click(); }
+        alert("✅ Registrado"); location.reload();
     }
 
     async function finalizarTareaOT() {
-        const btn = event.currentTarget;
-        const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
-        const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
-        if(!fOT || !fATS) return alert("❌ Ingrese Folios");
-
-        btn.disabled = true; btn.innerText = "CERRANDO...";
-        const payload = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
-
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text();
-            if(txt.includes("OK")) { alert("✅ Tarea Vinculada Exitosamente"); location.reload(); }
-            else { alert("⚠️ " + txt); btn.disabled = false; }
-        } catch(e) { alert("❌ Error de red"); btn.disabled = false; }
+        const fOT = document.getElementById('ot-folio-cierre').value.toUpperCase();
+        const fATS = document.getElementById('ot-ats-cierre').value.toUpperCase();
+        const p = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
+        const txt = await res.text();
+        alert(txt.includes("OK") ? "✅ Tarea Finalizada" : "⚠️ " + txt);
+        if(txt.includes("OK")) location.reload();
     }
 
-    // --- SISTEMA DE REPORTES (TRADUCTOR DE FECHAS DD/MM/YYYY) ---
+    // --- SISTEMA DE REPORTES (TRADUCTOR DE FECHAS) ---
     async function descargarCSV_OT() {
-        const ini = document.getElementById('f-ini-ot').value;
-        const fin = document.getElementById('f-fin-ot').value;
-        if(!ini || !fin) return alert("Seleccione fechas");
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
-            const data = await res.json();
-            const fil = data.filter(r => {
-                const p = r.fecha.split('/');
-                const fISO = `${p[2]}-${p[1]}-${p[0]}`;
-                return fISO >= ini && fISO <= fin;
-            });
-            if(fil.length === 0) return alert("⚠️ No hay órdenes en estas fechas");
-            let csv = "\uFEFFFECHA_APER,HORA_APER,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIP,HORA_CIERRE,OBS\n";
-            fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-            a.download = `Reporte_OT.csv`; a.click();
-        } catch(e) { alert("❌ Error"); }
+        const ini = document.getElementById('f-ini-ot').value; const fin = document.getElementById('f-fin-ot').value;
+        if(!ini || !fin) return alert("Fechas requeridas");
+        const res = await fetch(URL_SCRIPT + "?accion=reporteOT"); const data = await res.json();
+        const fil = data.filter(r => { const p = r.fecha.split('/'); const fISO = `${p[2]}-${p[1]}-${p[0]}`; return fISO >= ini && fISO <= fin; });
+        let csv = "\uFEFFFECHA,HORA,FOLIO,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIP,HORA_CIERRE,OBS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const b = new Blob([csv], { type: 'text/csv' }); const a = document.createElement("a");
+        a.href = URL.createObjectURL(b); a.download = "Reporte_OT.csv"; a.click();
     }
 
     function iniciarReloj() {
-        setInterval(() => {
-            const a = new Date();
-            if(document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString();
-            if(document.getElementById('fecha-actual')) document.getElementById('fecha-actual').innerText = a.toLocaleDateString();
-        }, 1000);
+        setInterval(() => { const a = new Date(); if(document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString(); }, 1000);
     }
 </script>
