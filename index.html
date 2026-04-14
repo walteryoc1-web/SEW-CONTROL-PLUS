@@ -740,23 +740,24 @@ async function descargarCSV_SSO() {
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
         const data = await res.json();
-        
         const fil = data.filter(r => {
-            const p = r.fecha.split('/'); 
+            if(!r.fecha) return false;
+            // CORTE: de "14/04/2026 15:35:43" saca solo "14/04/2026"
+            let fechaPura = r.fecha.split(' ')[0];
+            let p = fechaPura.split('/');
             if(p.length !== 3) return false;
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Traductor DD/MM/YYYY a ISO
+            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
             return fISO >= ini && fISO <= fin;
         });
 
         if(fil.length === 0) return alert("⚠️ Sin permisos en este rango.");
-        let csv = "\uFEFFFECHA,HORA,FOLIO,EJECUTORES,FASE,UBICACION,TIPO,DESCRIPCION,HORA_CIERRE,ESTADO\n";
+        let csv = "\uFEFFFECHA,HORA,DATOS\n";
         fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_Permisos_SSO.csv`; a.click();
-    } catch(e) { alert("❌ Error en reporte SSO"); }
+        a.download = `Reporte_SSO.csv`; a.click();
+    } catch(e) { alert("❌ Error SSO"); }
 }
-
 // --- DESCARGA DE INCIDENTES ---
 async function descargarCSV_Incidentes() {
     const ini = document.getElementById('f-ini-sso').value;
@@ -767,18 +768,18 @@ async function descargarCSV_Incidentes() {
         const res = await fetch(URL_SCRIPT + "?accion=reporteIncidentes");
         const data = await res.json();
         const fil = data.filter(r => {
-            const p = r.fecha.split('/');
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
-            return fISO >= ini && fISO <= fin;
+            if(!r.fecha) return false;
+            // COMPARACIÓN DIRECTA: Ya viene como "2026-04-13"
+            return r.fecha >= ini && r.fecha <= fin;
         });
 
-        if(fil.length === 0) return alert("⚠️ Sin incidentes registrados.");
-        let csv = "\uFEFFFECHA,HORA,FOLIO_SSO,INVOLUCRADOS,SALUD,INTERVENCION,TIPO,GRAVEDAD,RIESGO,CONTAM,ESTRUC,REPARAC,OBS,REINCID,SEG_IND,RECOMEND,ESTADO\n";
+        if(fil.length === 0) return alert("⚠️ Sin incidentes en este rango.");
+        let csv = "\uFEFFFECHA,HORA,DATOS\n";
         fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
         a.download = `Reporte_Incidentes.csv`; a.click();
-    } catch(e) { alert("❌ Error en reporte Incidentes"); }
+    } catch(e) { alert("❌ Error Incidentes"); }
 }
 </script>
 </body>
