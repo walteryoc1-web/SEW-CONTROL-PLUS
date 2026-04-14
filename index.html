@@ -1033,3 +1033,49 @@ async function finalizarTareaOT() {
             alert("❌ Error al generar reporte."); 
         }
     }
+ // --- 8. FUNCIONES DE APOYO Y NAVEGACIÓN RESTANTES ---
+    function iniciarReloj() {
+        setInterval(() => {
+            const a = new Date();
+            const elReloj = document.getElementById('reloj');
+            const elFecha = document.getElementById('fecha-actual');
+            if (elReloj) elReloj.innerText = a.toLocaleTimeString();
+            if (elFecha) elFecha.innerText = a.toLocaleDateString();
+        }, 1000);
+    }
+
+    // Funciones para monitores en tiempo real
+    async function actualizarPildoras() {
+        try { 
+            const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
+            const d = await res.json(); 
+            if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0');
+            if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0');
+            if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0');
+        } catch (e) {}
+    }
+
+    async function actualizarPildorasSSO() {
+        try { 
+            const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
+            const d = await res.json(); 
+            if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0');
+            if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
+            if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0');
+        } catch(e) {}
+    }
+
+    // Función de búsqueda para técnicos (Misma de SSO usada en Operaciones)
+    function checkTecnicoOperaciones(id) {
+        const box = document.getElementById('ot-tec-box');
+        const idClean = id.trim().toUpperCase();
+        if(personalSeguridad[idClean]) {
+            box.innerHTML = `👨‍🔧 <b>TÉCNICO:</b> ${personalSeguridad[idClean].n}<br>🏢 <b>DEPARTAMENTO:</b> ${personalSeguridad[idClean].e}`;
+            box.style.display = 'block';
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    // --- CIERRE FINAL DEL SCRIPT ---
+</script>
