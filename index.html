@@ -883,4 +883,40 @@ async function finalizarTareaOT() {
         }
     }
 }
+
+// --- FUNCIÓN PARA DESCARGAR EL REPORTE DE OPERACIONES (OT) ---
+async function descargarCSV_OT() {
+    const ini = document.getElementById('f-ini-ot').value;
+    const fin = document.getElementById('f-fin-ot').value;
+    
+    if(!ini || !fin) return alert("❌ Por favor, seleccione un rango de fechas.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
+        const data = await res.json();
+        const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
+        
+        if(fil.length === 0) return alert("⚠️ No hay órdenes registradas en estas fechas.");
+
+        // Encabezados sincronizados con tu Código.gs (11 columnas)
+        let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS_VINCULADO,ESTADO,DESCRIPCION,HORA_CIERRE_ATS,OBS_FINALES\n";
+        
+        fil.forEach(r => {
+            let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
+            csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Reporte_Operaciones_OT_${ini}_al_${fin}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        
+    } catch(e) { 
+        console.error("Error reporte OT:", e);
+        alert("❌ Error al obtener reporte operativo."); 
+    }
+}
+
 </script>
