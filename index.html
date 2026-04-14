@@ -333,10 +333,9 @@
         "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, 
         "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" }
     };
+   // --- CONFIGURACIÓN BASE ---
     const personalSeguridad = { "16814": { n: "OLGA DE LEON", e: "SSO" }, "60046": { n: "WALTER YOC", e: "LOGISTICA" }, "S003": { n: "MARIO GOMEZ", e: "MANTENIMIENTO" } };
-    
-    // RECUERDA CAMBIAR ESTA URL POR TU URL DE IMPLEMENTACIÓN REAL
-    const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
+    const URL_SCRIPT = 'https://google.com';
 
     const ubicacionesData = { "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], "Fase 2": ["Bodega 4", "Silo 8"], "Fase 3": ["Muelle", "Oficinas"] };
     const checklistData = { 
@@ -346,575 +345,132 @@
         "confinado": { epp: ["EPP Completo", "Monitor de gases", "Equipo de respiración autocontenido"], herr: ["Trípode de rescate", "Ventilador/Extractor", "Iluminación 12V"], col: ["Conos de seguridad", "Vigía de seguridad", "Barreras rígidas"] }
     };
 
-    // --- ACCESO ---
+    // --- ACCESO Y CONTROL DE INTERFAZ ---
     function entrar() {
-    const u = document.getElementById('u').value.toLowerCase().trim();
-    const p = document.getElementById('p').value;
-    const login = document.getElementById('login');
+        const u = document.getElementById('u').value.toLowerCase().trim();
+        const p = document.getElementById('p').value;
+        const login = document.getElementById('login');
 
-    if(u=="operador" && p=="terpac") { 
-        login.style.display = 'none'; 
-        document.getElementById('ui-app').style.display = 'block'; 
-    } 
-    else if(u=="supervisor" && p=="terpac1") { 
-        login.style.display = 'none'; 
-        document.getElementById('ui-supervisor').style.display = 'block'; 
-        iniciarReloj(); 
-        actualizarPildoras(); 
-        setInterval(actualizarPildoras, 30000); 
-    } 
-    else if(u=="supervisor sso" && p=="terpac3") { 
-        login.style.display='none'; 
-        document.getElementById('ui-monitor-sso').style.display='block'; 
-        actualizarPildorasSSO(); 
-        cargarPermisosParaCerrar(); 
-        setInterval(actualizarPildorasSSO, 30000); 
+        if(u=="operador" && p=="terpac") { login.style.display='none'; document.getElementById('ui-app').style.display='block'; } 
+        else if(u=="supervisor" && p=="terpac1") { login.style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000); } 
+        else if(u=="supervisor sso" && p=="terpac3") { login.style.display='none'; document.getElementById('ui-monitor-sso').style.display='block'; actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000); }
+        else if(u=="sso" && p=="terpac2") { login.style.display='none'; document.getElementById('ui-seguridad').style.display='block'; } 
+        else if(u=="operaciones" && p=="terpac4") { login.style.display='none'; document.getElementById('ui-operaciones').style.display='block'; setOrigenOT('SISTEMA'); }
+        else { alert("Acceso Incorrecto"); }
     }
-    else if(u=="sso" && p=="terpac2") { 
-        login.style.display = 'none'; 
-        document.getElementById('ui-seguridad').style.display = 'block'; 
-    } 
-    // NUEVA PUERTA: ACCESO A OPERACIONES
-    else if(u=="operaciones" && p=="terpac4") {
-        login.style.display = 'none'; 
-        document.getElementById('ui-operaciones').style.display = 'block';
-        setOrigenOT('SISTEMA'); // Dispara la generación del folio automático
-    }
-    else { alert("Acceso Incorrecto"); }
-}
 
-  // --- MÓDULO INCIDENTES (VERSIÓN INTEGRAL) ---
+    function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
+    function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
+    function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
 
-function irAIncidentes() { 
-    document.getElementById('ui-monitor-sso').style.display = 'none'; 
-    document.getElementById('ui-incidentes-sso').style.display = 'block'; 
-}
-
-function volverMonitorSSO() { 
-    document.getElementById('ui-incidentes-sso').style.display = 'none'; 
-    document.getElementById('ui-monitor-sso').style.display = 'block'; 
-    // Limpieza total del formulario
-    document.getElementById('folio-sso-inc').value = "";
-    document.getElementById('contenedor-involucrados-inc').innerHTML = `
-        <div class="grupo-involucrado" style="display:flex; gap:10px; align-items:center; margin-top:5px;">
-            <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
-            <button type="button" onclick="agregarFilaInvolucrado()" style="background:#3498db; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">+</button>
-        </div>`;
-    document.getElementById('tipo-inc').selectedIndex = 0;
-    document.getElementById('nivel-inc').selectedIndex = 0;
-    document.getElementById('area-inc').selectedIndex = 0;
-    document.getElementById('desc-inc').value = ""; 
-}
-
-// Agrega filas para múltiples colaboradores
-function agregarFilaInvolucrado() {
-    const contenedor = document.getElementById('contenedor-involucrados-inc');
-    const div = document.createElement('div');
-    div.className = 'grupo-involucrado';
-    div.style.cssText = "display:flex; gap:10px; align-items:center; margin-top:10px;";
-    div.innerHTML = `
-        <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="margin:0;">
-        <button type="button" onclick="this.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button>`;
-    contenedor.appendChild(div);
-}
-
-// Validación visual de colaboradores
-function checkInvolucrado(input) {
-    const id = input.value.trim().toUpperCase();
-    input.style.background = personalSeguridad[id] ? "#e8f5e9" : "#fff";
-}
-
-async function enviarIncidenteCompleto() {
-    const btn = document.getElementById('btn-env-inc');
-    const folioIn = document.getElementById('inc-folio');
-    
-    // 1. Validación de Folio
-    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Ingrese el Folio del permiso");
-
-    btn.disabled = true; 
-    btn.innerText = "GENERANDO INFORME Y PDF... ⏳";
-
-    // 2. Captura de Involucrados
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
-                     .map(i => i.value.trim().toUpperCase())
-                     .filter(v => personalSeguridad[v]);
-    
-    const involucrados = ids.length > 0 
-        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
-        : "SIN AFECTADOS";
-
-    // 3. Capturador seguro de valores
-    const getV = (id) => {
-        const el = document.getElementById(id);
-        return (el && el.value) ? el.value : "N/A";
-    };
- // 4. Armado del paquete de datos (Payload)
-    const payload = {
-        action: "registrarIncidente",
-        folio: folioIn.value.trim().toUpperCase(),
-        involucrados: involucrados,
-        salud: getV('inc-salud'),
-        intervencion: getV('inc-intervencion-momento'),
-        tipoEvento: getV('inc-tipo'),
-        gravedad: getV('inc-gravedad'),
-        riesgo: getV('inc-riesgo'),
-        contaminacion: getV('inc-contaminacion'),
-        estructura: getV('inc-estructura'),
-        reparacion: getV('inc-reparacion'),
-        obsEstructura: getV('inc-obs-estructura'),
-        reincidencia: getV('inc-reincidencia'), 
-        seguridad: getV('inc-riesgo-seguridad'), // Coincide con 'seguridad' en tu Código.gs
-        recomendacion: getV('inc-recomendacion'),
-        estadoFinal: getV('inc-estado-final')
-    };
-
-    try {
-        // 5. Envío y espera de respuesta (Base64 del PDF)
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        const respuestaServidor = await res.text();
-
-        // 6. Lógica de descarga si recibimos el PDF
-        if (respuestaServidor.length > 500) { 
-            const linkSource = `data:application/pdf;base64,${respuestaServidor}`;
-            const downloadLink = document.createElement("a");
-            const fileName = `Informe_Incidente_${payload.folio}.pdf`;
-
-            downloadLink.href = linkSource;
-            downloadLink.download = fileName;
-            downloadLink.click();
-            
-            alert("✅ REGISTRO EXITOSO: Datos guardados y PDF generado.");
-            location.reload();
-        } else {
-            // Si el servidor solo responde OK_INCIDENTE
-            alert("✅ REGISTRO EXITOSO: Datos guardados en Excel.");
-            location.reload();
-        }
-
-    } catch(e) {
-        console.error("Error crítico:", e);
-        alert("❌ Error de conexión: No se pudo generar el reporte.");
-        btn.disabled = false; 
-        btn.innerText = "REGISTRAR INFORME 🚩";
-    }
-}
-       
-    // --- LÓGICA LOGÍSTICA ---
-    function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
-    function enviar() {
-        const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
-        const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
-        const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-        const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
-        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
-    }
-    async function actualizarPildoras() {
-        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0'); document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0'); document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0'); } catch (e) {}
-    }
-    async function descargarCSV() {
-    const ini = document.getElementById('f-ini').value;
-    const fin = document.getElementById('f-fin').value;
-    if(!ini || !fin) return alert("Seleccione fechas");
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporte");
-        const data = await res.json();
+    // --- LÓGICA DE INCIDENTES (REGISTRO Y PDF) ---
+    async function enviarIncidenteCompleto() {
+        const btn = document.getElementById('btn-env-inc');
+        const folio = document.getElementById('inc-folio').value.trim().toUpperCase();
+        if(!folio) return alert("❌ Ingrese el Folio");
         
-        // TRADUCTOR DE FECHA DD/MM/YYYY a YYYY-MM-DD
-        const fil = data.filter(r => {
-            const p = r.fecha.split('/');
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
-            return fISO >= ini && fISO <= fin;
-        });
+        btn.disabled = true; btn.innerText = "GENERANDO PDF...";
+        const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.trim().toUpperCase()).filter(v => personalSeguridad[v]);
+        const involucrados = ids.length > 0 ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") : "SIN AFECTADOS";
+        const getV = (id) => document.getElementById(id) ? document.getElementById(id).value : "N/A";
 
-        if(fil.length === 0) return alert("No hay datos");
-        let csv = "\uFEFFFECHA,HORA,DATOS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_Logistica.csv`; a.click();
-    } catch(e) { alert("Error"); }
-}
-
-    // --- LÓGICA SSO (PERMISOS Y PDF) ---
-    async function actualizarPildorasSSO() {
-        try { const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); const d = await res.json(); document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0'); document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0'); } catch(e) {}
-    }
-    function agregarFilaEjecutor() {
-        const contenedor = document.getElementById('contenedor-ejecutores'); const nuevaFila = document.createElement('div'); nuevaFila.className = 'grupo-ejecutor'; nuevaFila.style.cssText = "margin-bottom:15px; border-top:1px solid #eee; padding-top:10px;";
-        nuevaFila.innerHTML = `<div style="display:flex; gap:10px; align-items:center;"><input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:#e74c3c; color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">-</button></div><div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); margin:5px 0; display:none; padding:10px; background:#f0fdf0; border-radius:10px; border:1px dashed var(--verde); font-size:13px;"></div><div class="departamento-box-clase" style="font-weight:bold; color:#555; margin:0; display:none; padding:10px; background:#f9f9f9; border-radius:10px; border:1px dashed #ccc; font-size:12px;"></div>`;
-        contenedor.appendChild(nuevaFila);
-    }
-    function checkSSO_Dinamico(input) {
-        const id = input.value.trim().toUpperCase(), grupo = input.closest('.grupo-ejecutor'), pBox = grupo.querySelector('.personal-box-clase'), eBox = grupo.querySelector('.departamento-box-clase');
-        if(personalSeguridad[id]) { pBox.innerHTML = "👨‍🔧 Técnico: " + personalSeguridad[id].n; pBox.style.display='block'; eBox.innerHTML = "🏢 Depto: " + personalSeguridad[id].e; eBox.style.display='block'; } else { pBox.style.display='none'; eBox.style.display='none'; }
-    }
-    function actualizarUbicaciones() { const fase = document.getElementById('p-fase').value, selectUbi = document.getElementById('p-ubicacion'); selectUbi.innerHTML = ""; selectUbi.disabled = false; ubicacionesData[fase].forEach(u => { const opt = document.createElement('option'); opt.value = u; opt.innerText = u; selectUbi.appendChild(opt); }); }
-    function crearCheck(texto) { const div = document.createElement('div'); div.style.margin = "5px 0"; div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px;"><input type="checkbox" style="width:18px; height:18px; margin:0;"> ${texto}</label>`; return div; }
-    function actualizarChecklist() {
-        const tipo = document.getElementById('p-tipo').value; if(!tipo) return;
-        const hCheck = document.getElementById('check-herramientas').checked, cCheck = document.getElementById('check-colectiva').checked;
-        document.getElementById('contenedor-checklist').style.display='block';
-        const lEpp = document.getElementById('lista-epp'), lHerr = document.getElementById('lista-herramientas'), lCol = document.getElementById('lista-colectiva');
-        lEpp.innerHTML = "<b>✅ EPP:</b>"; lHerr.innerHTML = "<b>🛠️ HERR:</b>"; lCol.innerHTML = "<b>🚧 COL:</b>";
-        checklistData[tipo].epp.forEach(i => lEpp.appendChild(crearCheck(i)));
-        if(hCheck) { lHerr.style.display='block'; checklistData[tipo].herr.forEach(i => lHerr.appendChild(crearCheck(i))); } else lHerr.style.display='none';
-        if(cCheck) { lCol.style.display='block'; checklistData[tipo].col.forEach(i => lCol.appendChild(crearCheck(i))); } else lCol.style.display='none';
-    }
-
-    async function enviarPermisoSSO() {
-        const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => personalSeguridad[v]);
-        if(ids.length==0) return alert("Ingrese técnico válido");
-        const nombres = ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e}) ____________________`).join("\n");
-        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText).join(" | ");
-        const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
-        const btn = document.getElementById('btn-sso'); btn.innerText = "Generando PDF..."; btn.disabled = true;
-        try {
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
-            const pdf = await res.text();
-            const link = document.createElement("a"); link.href = "data:application/pdf;base64," + pdf;
-            link.download = `Folio_SSO_${ids[0]}.pdf`; link.click();
-            alert("✅ Éxito"); location.reload();
-        } catch(e) { alert("Error PDF"); btn.disabled = false; btn.innerText = "🚀 REGISTRAR PERMISO"; }
-    }
-
-    async function cargarPermisosParaCerrar() {
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            const contenedor = document.getElementById('contenedor-tabla-sso');
-            if(!contenedor) return; contenedor.innerHTML = "";
-            const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
-            if(activos.length === 0) { contenedor.innerHTML = "<p style='font-size:11px; padding:10px;'>Sin permisos abiertos.</p>"; return; }
-            activos.forEach(p => {
-                const f = p.datos.split(";")[0];
-                const div = document.createElement('div');
-                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;";
-                div.innerHTML = `<span style="font-size:12px; font-weight:bold;">${f}</span><button onclick="cerrarPermiso('${f}')" style="background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:8px; font-size:10px;">CERRAR</button>`;
-                contenedor.appendChild(div);
-            });
-        } catch(e) {}
-    }
-
-    async function cerrarPermiso(folio) {
-        if(!confirm("¿Cerrar folio " + folio + "?")) return;
-        try { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + folio }); alert("Cerrado"); location.reload(); } catch(e) { alert("Error"); }
-    }
-
-       async function vincularDatosPermiso(folio) {
-    const display = document.getElementById('datos-vinculados-sso');
-    if (folio.length < 5) return;
-
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-        const data = await res.json();
-        const permiso = data.find(r => r.datos.split(";")[0].trim() === folio.trim().toUpperCase());
-
-        if (permiso) {
-            const d = permiso.datos.split(";");
-            // Estructura: 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubicacion, 4:Tipo, 5:Desc
-            display.innerHTML = `
-                <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71;">
-                    ✅ <b>PERMISO VINCULADO:</b><br>
-                    📍 <b>Área:</b> ${d[2]} - ${d[3]}<br>
-                    🛠️ <b>Trabajo:</b> ${d[4]}<br>
-                    📝 <b>Original:</b> ${d[5]}
-                </div>
-            `;
-            // Guardamos estos datos en variables ocultas para el envío final
-            window.datosPermisoVinculado = { area: d[2], ubicacion: d[3], tipoTrabajo: d[4] };
-        } else {
-            display.innerHTML = "❌ Folio no encontrado en registros activos.";
-        }
-    } catch(e) { console.error(e); }
-}
-
-        // --- FUNCIÓN: DESCARGAR REPORTES DE PERMISOS SSO ---
-   async function descargarCSV_SSO() {
-    const ini = document.getElementById('f-ini-sso').value;
-    const fin = document.getElementById('f-fin-sso').value;
-    if(!ini || !fin) return alert("Seleccione fechas");
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-        const data = await res.json();
-        
-        const fil = data.filter(r => {
-            const p = r.fecha.split('/');
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
-            return fISO >= ini && fISO <= fin;
-        });
-
-        if(fil.length === 0) return alert("No hay datos");
-        let csv = "\uFEFFFECHA,HORA,DATOS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_SSO.csv`; a.click();
-    } catch(e) { alert("Error"); }
-}
-
-    // --- FUNCIÓN: DESCARGAR REPORTES DE INCIDENTES (NUEVA) ---
-    async function descargarCSV_Incidentes() {
-        const ini = document.getElementById('f-ini-sso').value;
-        const fin = document.getElementById('f-fin-sso').value;
-        if(!ini || !fin) return alert("❌ Seleccione fechas para reporte de incidentes.");
+        const payload = {
+            action: "registrarIncidente", folio: folio, involucrados: involucrados, salud: getV('inc-salud'),
+            intervencion: getV('inc-intervencion-momento'), tipoEvento: getV('inc-tipo'), gravedad: getV('inc-gravedad'),
+            riesgo: getV('inc-riesgo'), contaminacion: getV('inc-contaminacion'), estructura: getV('inc-estructura'),
+            reparacion: getV('inc-reparacion'), obsEstructura: getV('inc-obs-estructura'), reincidencia: getV('inc-reincidencia'),
+            seguridad: getV('inc-riesgo-seguridad'), recomendacion: getV('inc-recomendacion'), estadoFinal: getV('inc-estado-final')
+        };
 
         try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteIncidentes");
-            const data = await res.json();
-            const fil = data.filter(r => r.fecha >= ini && r.fecha <= fin);
-
-            if(fil.length === 0) return alert("⚠️ No hay incidentes registrados en estas fechas.");
-
-            // Encabezados técnicos para Dashboard de Incidentes
-            let csv = "\uFEFFFECHA,HORA,FOLIO,INVOLUCRADOS,SALUD,INTERVENCION,TIPO,GRAVEDAD,RIESGO,CONTAMINACION,ESTRUCTURA,REPARACION,OBS,PERDIDA,SEGURIDAD,RECOMENDACION,ESTADO\n";
-            
-            fil.forEach(r => {
-                // Limpieza de datos para no romper el formato CSV
-                let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
-                csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Reporte_Incidentes_SSO_${ini}_al_${fin}.csv`;
-            link.click();
-        } catch(e) {
-            console.error(e);
-            alert("❌ Error al generar reporte de incidentes");
-        }
-    }
-
-    // --- FUNCIÓN: VINCULACIÓN DINÁMICA CON PERMISO ---
-    async function vincularDatosPermiso(folio) {
-        const display = document.getElementById('datos-vinculados-sso');
-        if (folio.length < 5) return;
-
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            
-            // Busca el folio en la primera posición del split ";"
-            const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
-
-            if (permiso) {
-                const d = permiso.datos.split(";");
-                // 0:Folio, 1:Ejecutores, 2:Fase, 3:Ubi, 4:Tipo
-                window.datosVinculados = {
-                    fase: d[2] || "N/A",
-                    ubi: d[3] || "N/A",
-                    tipo: d[4] || "N/A"
-                };
-
-                display.innerHTML = `
-                    <div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#1b5e20; font-size:13px;">
-                        ✅ <b>DATOS VINCULADOS:</b><br>
-                        📍 <b>Área:</b> ${window.datosVinculados.fase}<br>
-                        📍 <b>Ubicación:</b> ${window.datosVinculados.ubi}<br>
-                        🛠️ <b>Trabajo:</b> ${window.datosVinculados.tipo}
-                    </div>`;
-            } else {
-                window.datosVinculados = null;
-                display.innerHTML = "<b style='color:red;'>❌ Folio no encontrado en registros activos</b>";
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const b64 = await res.text();
+            if(b64.length > 500) {
+                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64;
+                a.download = `Incidente_${folio}.pdf`; a.click();
             }
-        } catch(e) { 
-            console.error("Error en vinculación:", e);
-            display.innerHTML = "⚠️ Error de conexión al buscar folio.";
-        }
+            alert("✅ Registro Exitoso"); location.reload();
+        } catch(e) { alert("❌ Error"); btn.disabled = false; }
     }
 
-    // --- RELOJ DEL SISTEMA ---
+    // --- LÓGICA DE OPERACIONES (OT) ---
+    function setOrigenOT(tipo) {
+        const f = document.getElementById('ot-folio');
+        if(tipo==='SISTEMA') {
+            const date = new Date().toISOString().slice(2,10).replace(/-/g,"");
+            f.value = `OT-${date}-${Math.floor(Math.random()*900)+100}`;
+            f.readOnly = true;
+        } else { f.value = ""; f.readOnly = false; }
+    }
+
+    async function enviarOT() {
+        const btn = event.currentTarget;
+        const folio = document.getElementById('ot-folio').value.trim();
+        const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
+        if(!folio || !personalSeguridad[tecId]) return alert("❌ Datos Inválidos");
+
+        btn.disabled = true; btn.innerText = "GENERANDO OT...";
+        const p = {
+            action: "registrarOT", folio: folio, tecnico: `${personalSeguridad[tecId].n} (${tecId})`,
+            prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value,
+            descripcion: document.getElementById('ot-descripcion').value, estado: "ABIERTA"
+        };
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
+            const b64 = await res.text();
+            if(b64.length > 500) {
+                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64;
+                a.download = `OT_${folio}.pdf`; a.click();
+            }
+            alert("✅ Orden Aperturada"); location.reload();
+        } catch(e) { alert("❌ Error"); btn.disabled = false; }
+    }
+
+    async function finalizarTareaOT() {
+        const btn = event.currentTarget;
+        const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
+        const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
+        if(!fOT || !fATS) return alert("❌ Ingrese Folios");
+
+        btn.disabled = true; btn.innerText = "CERRANDO...";
+        const payload = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const txt = await res.text();
+            if(txt.includes("OK")) { alert("✅ Tarea Vinculada Exitosamente"); location.reload(); }
+            else { alert("⚠️ " + txt); btn.disabled = false; }
+        } catch(e) { alert("❌ Error de red"); btn.disabled = false; }
+    }
+
+    // --- SISTEMA DE REPORTES (TRADUCTOR DE FECHAS DD/MM/YYYY) ---
+    async function descargarCSV_OT() {
+        const ini = document.getElementById('f-ini-ot').value;
+        const fin = document.getElementById('f-fin-ot').value;
+        if(!ini || !fin) return alert("Seleccione fechas");
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
+            const data = await res.json();
+            const fil = data.filter(r => {
+                const p = r.fecha.split('/');
+                const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+                return fISO >= ini && fISO <= fin;
+            });
+            if(fil.length === 0) return alert("⚠️ No hay órdenes en estas fechas");
+            let csv = "\uFEFFFECHA_APER,HORA_APER,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIP,HORA_CIERRE,OBS\n";
+            fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+            a.download = `Reporte_OT.csv`; a.click();
+        } catch(e) { alert("❌ Error"); }
+    }
+
     function iniciarReloj() {
         setInterval(() => {
             const a = new Date();
-            const elReloj = document.getElementById('reloj');
-            const elFecha = document.getElementById('fecha-actual');
-            if (elReloj) elReloj.innerText = a.toLocaleTimeString();
-            if (elFecha) elFecha.innerText = a.toLocaleDateString();
+            if(document.getElementById('reloj')) document.getElementById('reloj').innerText = a.toLocaleTimeString();
+            if(document.getElementById('fecha-actual')) document.getElementById('fecha-actual').innerText = a.toLocaleDateString();
         }, 1000);
     }
-   // --- FUNCIONES DE NAVEGACIÓN OPERACIONES ---
-function mostrarSeccionCierre() {
-    document.getElementById('ot-seccion-apertura').style.display = 'none';
-    document.getElementById('ot-seccion-cierre').style.display = 'block';
-}
-
-function cancelarCierre() {
-    document.getElementById('ot-seccion-cierre').style.display = 'none';
-    document.getElementById('ot-seccion-apertura').style.display = 'block';
-}
-
-// --- LÓGICA DE FOLIO Y TÉCNICO ---
-function setOrigenOT(tipo) {
-    const inputFolio = document.getElementById('ot-folio');
-    const btnNueva = document.getElementById('btn-ot-nueva');
-    const btnSap = document.getElementById('btn-ot-sap');
-
-    if (tipo === 'SISTEMA') {
-        const fecha = new Date().toISOString().slice(2,10).replace(/-/g,"");
-        const azar = Math.floor(Math.random() * 900) + 100;
-        inputFolio.value = `OT-${fecha}-${azar}`;
-        inputFolio.readOnly = true;
-        btnNueva.style.background = "#3498db";
-        btnSap.style.background = "#95a5a6";
-    } else {
-        inputFolio.value = "";
-        inputFolio.placeholder = "Folio Manual";
-        inputFolio.readOnly = false;
-        btnSap.style.background = "#3498db";
-        btnNueva.style.background = "#95a5a6";
-    }
-}
-
-function checkTecnicoOperaciones(id) {
-    const box = document.getElementById('ot-tec-box');
-    const idClean = id.trim().toUpperCase();
-    if(personalSeguridad[idClean]) {
-        box.innerHTML = `👨‍🔧 <b>TÉCNICO:</b> ${personalSeguridad[idClean].n}<br>🏢 <b>DEPARTAMENTO:</b> ${personalSeguridad[idClean].e}`;
-        box.style.display = 'block';
-    } else {
-        box.style.display = 'none';
-    }
-}
-
-// --- FUNCIÓN DE APERTURA (PASO 1) ---
-async function enviarOT() {
-    // Usamos el botón actual o el ID si existe
-    const btn = event.currentTarget || document.getElementById('btn-registrar-ot');
-    const folioIn = document.getElementById('ot-folio');
-    const tecIdIn = document.getElementById('ot-id-tec');
-    const deptoIn = document.getElementById('ot-depto');
-    const prioridadIn = document.getElementById('ot-prioridad');
-    const descIn = document.getElementById('ot-descripcion');
-
-    const folio = folioIn ? folioIn.value.trim() : "";
-    const tecId = tecIdIn ? tecIdIn.value.trim().toUpperCase() : "";
-    const depto = deptoIn ? deptoIn.value : "";
-    const prioridad = prioridadIn ? prioridadIn.value : "";
-    const desc = descIn ? descIn.value.trim() : "";
-
-    // Validación de seguridad
-    if (folio === "" || !personalSeguridad[tecId] || desc === "" || depto.includes("Departamento")) {
-        return alert("❌ Por favor, complete todos los campos y valide el técnico responsable.");
-    }
-
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "GENERANDO ORDEN Y PDF... ⏳";
-    }
-
-    const payload = {
-        action: "registrarOT",
-        folio: folio,
-        tecnico: `${personalSeguridad[tecId].n} (${tecId})`,
-        prioridad: prioridad,
-        departamento: depto,
-        descripcion: desc,
-        estado: "ABIERTA"
-    };
-
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        const respuestaServidor = await res.text();
-
-        // LÓGICA DE DESCARGA PDF
-        if (respuestaServidor.length > 500) {
-            const linkSource = `data:application/pdf;base64,${respuestaServidor}`;
-            const downloadLink = document.createElement("a");
-            downloadLink.href = linkSource;
-            downloadLink.download = `Orden_Trabajo_${folio}.pdf`;
-            downloadLink.click();
-            
-            alert("✅ ORDEN REGISTRADA: El PDF se ha generado correctamente.");
-            location.reload();
-        } else {
-            alert("✅ ORDEN REGISTRADA EN EXCEL (Sin PDF)");
-            location.reload();
-        }
-
-    } catch(e) {
-        console.error("Error en apertura OT:", e);
-        alert("⚠️ Error de conexión al servidor.");
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "🚀 ABRIR ORDEN";
-        }
-    }
-}
-
-// --- FUNCIÓN DE CIERRE (PASO 2) ---
-async function finalizarTareaOT() {
-    const btn = event.currentTarget || document.querySelector('#ot-seccion-cierre .btn');
-    
-    const fOTIn = document.getElementById('ot-folio-cierre');
-    const fATSIn = document.getElementById('ot-ats-cierre');
-    const commentIn = document.getElementById('ot-comentarios-cierre');
-
-    const fOT = fOTIn ? fOTIn.value.trim().toUpperCase() : "";
-    const fATS = fATSIn ? fATSIn.value.trim().toUpperCase() : "";
-    const comment = commentIn ? commentIn.value.trim() : "";
-
-    if (fOT === "" || fATS === "") {
-        return alert("❌ Ingrese Folio OT y Folio ATS para el cierre legal.");
-    }
-
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "VINCULANDO TRAZABILIDAD... ⏳";
-    }
-
-    const payload = {
-        action: "cerrarOT",
-        folioOT: fOT,
-        folioATS: fATS,
-        comentarios: comment
-    };
-
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        const respuesta = await res.text();
-
-        if (respuesta.includes("OK_CIERRE_VINCULADO")) {
-            alert("✅ TAREA FINALIZADA:\nLa OT " + fOT + " ha sido vinculada al ATS " + fATS);
-            location.reload();
-        } else {
-            alert("⚠️ Servidor: " + respuesta);
-            if (btn) {
-                btn.disabled = false;
-                btn.innerText = "✅ FINALIZAR TAREA";
-            }
-        }
-    } catch(e) {
-        console.error("Error en cierre:", e);
-        alert("❌ Error de red.");
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "✅ FINALIZAR TAREA";
-        }
-    }
-}
-
-// --- FUNCIÓN PARA DESCARGAR EL REPORTE DE OPERACIONES (OT) ---
-async function descargarCSV_OT() {
-    const ini = document.getElementById('f-ini-ot').value;
-    const fin = document.getElementById('f-fin-ot').value;
-    if(!ini || !fin) return alert("Seleccione fechas");
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
-        const data = await res.json();
-        
-        const fil = data.filter(r => {
-            const p = r.fecha.split('/');
-            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
-            return fISO >= ini && fISO <= fin;
-        });
-
-        if(fil.length === 0) return alert("No hay órdenes en estas fechas");
-        let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS,ESTADO,DESCRIPCION,HORA_CIERRE,OBS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_OT.csv`; a.click();
-    } catch(e) { alert("Error"); }
-}
 </script>
