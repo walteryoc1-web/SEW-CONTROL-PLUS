@@ -758,31 +758,21 @@ function checkTecnicoOperaciones(id) {
 
 // --- FUNCIÓN DE APERTURA (PASO 1) ---
 async function enviarOT() {
-    // Usamos event.target para capturar el botón sin depender del ID
-    const btn = event.target;
-    const folio = document.getElementById('ot-folio').value.trim();
-    const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
-    const depto = document.getElementById('ot-depto').value;
-    const prioridad = document.getElementById('ot-prioridad').value;
-    const desc = document.getElementById('ot-descripcion').value.trim();
-
-    if (folio === "" || !personalSeguridad[tecId] || desc === "") {
-        return alert("❌ Por favor, complete Folio, Técnico y Descripción.");
-    }
-
-    btn.disabled = true;
-    btn.innerText = "PROCESANDO...";
-
-   async function enviarOT() {
     // Usamos el botón actual o el ID si existe
-    const btn = event.target || document.getElementById('btn-registrar-ot');
-    const folio = document.getElementById('ot-folio').value.trim();
-    const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
-    const depto = document.getElementById('ot-depto').value;
-    const prioridad = document.getElementById('ot-prioridad').value;
-    const desc = document.getElementById('ot-descripcion').value.trim();
+    const btn = event.currentTarget || document.getElementById('btn-registrar-ot');
+    const folioIn = document.getElementById('ot-folio');
+    const tecIdIn = document.getElementById('ot-id-tec');
+    const deptoIn = document.getElementById('ot-depto');
+    const prioridadIn = document.getElementById('ot-prioridad');
+    const descIn = document.getElementById('ot-descripcion');
 
-    // Validación básica antes de proceder
+    const folio = folioIn ? folioIn.value.trim() : "";
+    const tecId = tecIdIn ? tecIdIn.value.trim().toUpperCase() : "";
+    const depto = deptoIn ? deptoIn.value : "";
+    const prioridad = prioridadIn ? prioridadIn.value : "";
+    const desc = descIn ? descIn.value.trim() : "";
+
+    // Validación de seguridad
     if (folio === "" || !personalSeguridad[tecId] || desc === "" || depto.includes("Departamento")) {
         return alert("❌ Por favor, complete todos los campos y valide el técnico responsable.");
     }
@@ -806,20 +796,17 @@ async function enviarOT() {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
         const respuestaServidor = await res.text();
 
-        // LÓGICA DE DESCARGA: Si la respuesta es larga, es el PDF en Base64
+        // LÓGICA DE DESCARGA PDF
         if (respuestaServidor.length > 500) {
             const linkSource = `data:application/pdf;base64,${respuestaServidor}`;
             const downloadLink = document.createElement("a");
-            const fileName = `Orden_Trabajo_${folio}.pdf`;
-
             downloadLink.href = linkSource;
-            downloadLink.download = fileName;
+            downloadLink.download = `Orden_Trabajo_${folio}.pdf`;
             downloadLink.click();
             
             alert("✅ ORDEN REGISTRADA: El PDF se ha generado correctamente.");
             location.reload();
         } else {
-            // Si el servidor solo responde "OK" o algo corto
             alert("✅ ORDEN REGISTRADA EN EXCEL (Sin PDF)");
             location.reload();
         }
@@ -833,14 +820,11 @@ async function enviarOT() {
         }
     }
 }
-Usa el código con precaución.
-¿
+
 // --- FUNCIÓN DE CIERRE (PASO 2) ---
 async function finalizarTareaOT() {
-    // 1. Captura segura del botón por su ID o por contexto
-    const btn = document.querySelector('#ot-seccion-cierre .btn') || event.currentTarget;
+    const btn = event.currentTarget || document.querySelector('#ot-seccion-cierre .btn');
     
-    // 2. Captura de valores con limpieza técnica
     const fOTIn = document.getElementById('ot-folio-cierre');
     const fATSIn = document.getElementById('ot-ats-cierre');
     const commentIn = document.getElementById('ot-comentarios-cierre');
@@ -849,12 +833,10 @@ async function finalizarTareaOT() {
     const fATS = fATSIn ? fATSIn.value.trim().toUpperCase() : "";
     const comment = commentIn ? commentIn.value.trim() : "";
 
-    // 3. Validación de campos obligatorios
     if (fOT === "" || fATS === "") {
         return alert("❌ Ingrese Folio OT y Folio ATS para el cierre legal.");
     }
 
-    // 4. Bloqueo visual del proceso
     if (btn) {
         btn.disabled = true;
         btn.innerText = "VINCULANDO TRAZABILIDAD... ⏳";
@@ -868,15 +850,11 @@ async function finalizarTareaOT() {
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-        
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
         const respuesta = await res.text();
 
         if (respuesta.includes("OK_CIERRE_VINCULADO")) {
-            alert("✅ TAREA FINALIZADA:\nLa OT " + fOT + " ha sido vinculada exitosamente al ATS " + fATS);
+            alert("✅ TAREA FINALIZADA:\nLa OT " + fOT + " ha sido vinculada al ATS " + fATS);
             location.reload();
         } else {
             alert("⚠️ Servidor: " + respuesta);
@@ -887,7 +865,7 @@ async function finalizarTareaOT() {
         }
     } catch(e) {
         console.error("Error en cierre:", e);
-        alert("❌ Error de red: No se pudo conectar con el centro de control.");
+        alert("❌ Error de red.");
         if (btn) {
             btn.disabled = false;
             btn.innerText = "✅ FINALIZAR TAREA";
