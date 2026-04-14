@@ -773,6 +773,25 @@ async function enviarOT() {
     btn.disabled = true;
     btn.innerText = "PROCESANDO...";
 
+   async function enviarOT() {
+    // Usamos el botón actual o el ID si existe
+    const btn = event.target || document.getElementById('btn-registrar-ot');
+    const folio = document.getElementById('ot-folio').value.trim();
+    const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
+    const depto = document.getElementById('ot-depto').value;
+    const prioridad = document.getElementById('ot-prioridad').value;
+    const desc = document.getElementById('ot-descripcion').value.trim();
+
+    // Validación básica antes de proceder
+    if (folio === "" || !personalSeguridad[tecId] || desc === "" || depto.includes("Departamento")) {
+        return alert("❌ Por favor, complete todos los campos y valide el técnico responsable.");
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "GENERANDO ORDEN Y PDF... ⏳";
+    }
+
     const payload = {
         action: "registrarOT",
         folio: folio,
@@ -784,27 +803,62 @@ async function enviarOT() {
     };
 
     try {
-        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ ORDEN APERTURADA EXITOSAMENTE");
-        location.reload();
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const respuestaServidor = await res.text();
+
+        // LÓGICA DE DESCARGA: Si la respuesta es larga, es el PDF en Base64
+        if (respuestaServidor.length > 500) {
+            const linkSource = `data:application/pdf;base64,${respuestaServidor}`;
+            const downloadLink = document.createElement("a");
+            const fileName = `Orden_Trabajo_${folio}.pdf`;
+
+            downloadLink.href = linkSource;
+            downloadLink.download = fileName;
+            downloadLink.click();
+            
+            alert("✅ ORDEN REGISTRADA: El PDF se ha generado correctamente.");
+            location.reload();
+        } else {
+            // Si el servidor solo responde "OK" o algo corto
+            alert("✅ ORDEN REGISTRADA EN EXCEL (Sin PDF)");
+            location.reload();
+        }
+
     } catch(e) {
-        alert("⚠️ Error de conexión.");
-        btn.disabled = false;
-        btn.innerText = "🚀 ABRIR ORDEN";
+        console.error("Error en apertura OT:", e);
+        alert("⚠️ Error de conexión al servidor.");
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "🚀 ABRIR ORDEN";
+        }
     }
 }
-
+Usa el código con precaución.
+¿
 // --- FUNCIÓN DE CIERRE (PASO 2) ---
 async function finalizarTareaOT() {
-    const btn = event.target;
-    const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
-    const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
-    const comment = document.getElementById('ot-comentarios-cierre').value.trim();
+    // 1. Captura segura del botón por su ID o por contexto
+    const btn = document.querySelector('#ot-seccion-cierre .btn') || event.currentTarget;
+    
+    // 2. Captura de valores con limpieza técnica
+    const fOTIn = document.getElementById('ot-folio-cierre');
+    const fATSIn = document.getElementById('ot-ats-cierre');
+    const commentIn = document.getElementById('ot-comentarios-cierre');
 
-    if (fOT === "" || fATS === "") return alert("❌ Ingrese Folio OT y Folio ATS.");
+    const fOT = fOTIn ? fOTIn.value.trim().toUpperCase() : "";
+    const fATS = fATSIn ? fATSIn.value.trim().toUpperCase() : "";
+    const comment = commentIn ? commentIn.value.trim() : "";
 
-    btn.disabled = true;
-    btn.innerText = "CERRANDO...";
+    // 3. Validación de campos obligatorios
+    if (fOT === "" || fATS === "") {
+        return alert("❌ Ingrese Folio OT y Folio ATS para el cierre legal.");
+    }
+
+    // 4. Bloqueo visual del proceso
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "VINCULANDO TRAZABILIDAD... ⏳";
+    }
 
     const payload = {
         action: "cerrarOT",
@@ -814,14 +868,30 @@ async function finalizarTareaOT() {
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ TAREA FINALIZADA Y VINCULADA AL ATS");
-        location.reload();
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        
+        const respuesta = await res.text();
+
+        if (respuesta.includes("OK_CIERRE_VINCULADO")) {
+            alert("✅ TAREA FINALIZADA:\nLa OT " + fOT + " ha sido vinculada exitosamente al ATS " + fATS);
+            location.reload();
+        } else {
+            alert("⚠️ Servidor: " + respuesta);
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "✅ FINALIZAR TAREA";
+            }
+        }
     } catch(e) {
-        alert("⚠️ Error al cerrar");
-        btn.disabled = false;
-        btn.innerText = "✅ FINALIZAR TAREA";
+        console.error("Error en cierre:", e);
+        alert("❌ Error de red: No se pudo conectar con el centro de control.");
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "✅ FINALIZAR TAREA";
+        }
     }
 }
-
 </script>
