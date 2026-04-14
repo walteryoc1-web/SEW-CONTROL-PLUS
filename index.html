@@ -293,9 +293,20 @@
         <button class="btn-salir" style="background:#95a5a6; margin-top:10px;" onclick="cancelarCierre()">VOLVER A APERTURA</button>
     </div>
 
+    <!-- SECCIÓN DE REPORTES OPERATIVOS (PARTE INTEGRADA) -->
+    <div class="box-descarga" style="margin-top:25px; background:#f0f7ff; border:1px solid #3498db; padding: 15px; border-radius: 15px;">
+        <p style="margin:0; font-size:11px; font-weight:bold; color:#2980b9; text-transform: uppercase;">Descarga de Historial OT</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <input type="date" id="f-ini-ot" style="width:100%; font-size: 11px;">
+                <input type="date" id="f-fin-ot" style="width:100%; font-size: 11px;">
+            </div>
+            <button class="btn" onclick="descargarCSV_OT()" style="background:#3498db; color:white; width:100%; padding:10px; font-size:12px; font-weight:bold;">📥 GENERAR REPORTE EXCEL</button>
+        </div>
+    </div>
+
     <button class="btn-salir" style="margin-top:20px; background:#ff6b6b;" onclick="location.reload()">CERRAR SESIÓN</button>
-</div>
-    
+</div>    
     <script>
     // --- BASES DE DATOS ---
     const pilotos = { 
