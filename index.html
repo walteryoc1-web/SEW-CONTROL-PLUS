@@ -612,28 +612,74 @@
 
     async function cargarPermisosParaCerrar() {
         try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO"), data = await res.json();
-            const cont = document.getElementById('contenedor-tabla-sso'); if(!cont) return; cont.innerHTML = "";
+            // Agregamos t= para evitar datos viejos en memoria
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + new Date().getTime());
+            const data = await res.json();
+            const cont = document.getElementById('contenedor-tabla-sso'); 
+            if(!cont) return; 
+            
+            cont.innerHTML = "";
+            // Filtramos permisos que NO tengan la palabra CERRADO en sus datos
             const activos = data.filter(r => !r.datos.toUpperCase().includes("CERRADO"));
+            
+            if(activos.length === 0) {
+                cont.innerHTML = "<p style='font-size:11px; color:#888; padding:10px;'>No hay permisos abiertos.</p>";
+                return;
+            }
+
             activos.forEach(p => {
-                const folio = p.datos.split(";")[0];
-                const div = document.createElement('div'); div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
-                div.innerHTML = `<span><b>${folio}</b></span><button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:4px 12px; cursor:pointer;">CERRAR</button>`;
+                // El Folio es el primer elemento de la cadena datos
+                const d = p.datos.split(";");
+                const folio = d[0].trim();
+                
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background:#fff;";
+                div.innerHTML = `
+                    <div style="text-align:left;">
+                        <span style="font-size:12px; font-weight:bold; color:#2c3e50;">${folio}</span><br>
+                        <small style="color:#7f8c8d; font-size:10px;">Apertura: ${p.hora}</small>
+                    </div>
+                    <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; font-size:11px; font-weight:bold; cursor:pointer;">CERRAR</button>
+                `;
                 cont.appendChild(div);
             });
-        } catch(e){}
+        } catch(e) {
+            console.error("Error cargando tabla SSO:", e);
+        }
     }
 
     async function cerrarPermiso(f) { 
-        if(confirm("¿Confirmar cierre de ATS: " + f + "?")) { 
-            await fetch(URL_SCRIPT, { method:'POST', body:"CERRAR_PERMISO;"+f }); 
-            alert("✅ ATS CERRADO"); location.reload(); 
+        if(!confirm("¿Desea finalizar oficialmente el ATS: " + f + "?")) return;
+        
+        try { 
+            // Enviamos el comando exacto que espera el servidor en el catch del doPost
+            const res = await fetch(URL_SCRIPT, { 
+                method: 'POST', 
+                body: "CERRAR_PERMISO;" + f 
+            }); 
+            const texto = await res.text();
+            
+            if(texto.includes("OK_CIERRE")) {
+                alert("✅ ATS " + f + " CERRADO EXITOSAMENTE"); 
+                location.reload(); 
+            } else {
+                alert("⚠️ " + texto);
+            }
+        } catch(e) { 
+            alert("❌ Error de conexión al intentar cerrar."); 
         } 
     }
 
-    function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
-    function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
-    // --- FUNCIÓN DE DESCARGA: LOGÍSTICA (SUPERVISOR) ---
+    function mostrarSeccionCierre() { 
+        document.getElementById('ot-seccion-apertura').style.display='none'; 
+        document.getElementById('ot-seccion-cierre').style.display='block'; 
+    }
+    
+    function cancelarCierre() { 
+        document.getElementById('ot-seccion-cierre').style.display='none'; 
+        document.getElementById('ot-seccion-apertura').style.display='block'; 
+    }
+        // --- FUNCIÓN DE DESCARGA: LOGÍSTICA (SUPERVISOR) ---
 async function descargarCSV() {
     const ini = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
@@ -684,6 +730,55 @@ async function descargarCSV() {
     } catch(e) { 
         alert("❌ Error al obtener los datos del servidor."); 
     }
+}
+    // --- DESCARGA DE PERMISOS SSO ---
+async function descargarCSV_SSO() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/'); 
+            if(p.length !== 3) return false;
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Traductor DD/MM/YYYY a ISO
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ Sin permisos en este rango.");
+        let csv = "\uFEFFFECHA,HORA,FOLIO,EJECUTORES,FASE,UBICACION,TIPO,DESCRIPCION,HORA_CIERRE,ESTADO\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Permisos_SSO.csv`; a.click();
+    } catch(e) { alert("❌ Error en reporte SSO"); }
+}
+
+// --- DESCARGA DE INCIDENTES ---
+async function descargarCSV_Incidentes() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteIncidentes");
+        const data = await res.json();
+        const fil = data.filter(r => {
+            const p = r.fecha.split('/');
+            const fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ Sin incidentes registrados.");
+        let csv = "\uFEFFFECHA,HORA,FOLIO_SSO,INVOLUCRADOS,SALUD,INTERVENCION,TIPO,GRAVEDAD,RIESGO,CONTAM,ESTRUC,REPARAC,OBS,REINCID,SEG_IND,RECOMEND,ESTADO\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Incidentes.csv`; a.click();
+    } catch(e) { alert("❌ Error en reporte Incidentes"); }
 }
 </script>
 </body>
