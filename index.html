@@ -948,5 +948,88 @@ async function descargarCSV_OT() {
     }
 } // Cierre definitivo de la función finalizarTareaOT
 
-// --- CIERRE FINAL DEL BLOQUE DE SCRIPT ---
-</script>
+async function finalizarTareaOT() {
+        // Captura segura del botón
+        const btn = event.currentTarget || document.querySelector('#ot-seccion-cierre .btn');
+        const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
+        const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
+        const comment = document.getElementById('ot-comentarios-cierre').value.trim();
+
+        if (fOT === "" || fATS === "") return alert("❌ Ingrese Folio OT y Folio ATS.");
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "VINCULANDO TRAZABILIDAD... ⏳";
+        }
+
+        const payload = {
+            action: "cerrarOT",
+            folioOT: fOT,
+            folioATS: fATS,
+            comentarios: comment
+        };
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const respuesta = await res.text();
+
+            if (respuesta.includes("OK_CIERRE_VINCULADO")) {
+                alert("✅ TAREA FINALIZADA:\nLa OT " + fOT + " ha sido vinculada al ATS " + fATS);
+                location.reload();
+            } else {
+                alert("⚠️ Servidor: " + respuesta);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "✅ FINALIZAR TAREA";
+                }
+            }
+        } catch(e) {
+            console.error("Error en cierre:", e);
+            alert("❌ Error de red.");
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "✅ FINALIZAR TAREA";
+            }
+        }
+    }
+
+    // --- 7. SISTEMA DE REPORTES (TRADUCTOR DE FECHAS DD/MM/YYYY) ---
+    async function descargarCSV_OT() {
+        const ini = document.getElementById('f-ini-ot').value;
+        const fin = document.getElementById('f-fin-ot').value;
+        
+        if(!ini || !fin) return alert("❌ Seleccione fechas para el reporte.");
+
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
+            const data = await res.json();
+            
+            // TRADUCTOR: Convierte "14/04/2026" de la Sheets a "2026-04-14" para comparar
+            const fil = data.filter(r => {
+                const p = r.fecha.split('/'); 
+                if(p.length !== 3) return false;
+                const fISO = `${p[2]}-${p[1]}-${p[0]}`; 
+                return fISO >= ini && fISO <= fin;
+            });
+
+            if(fil.length === 0) return alert("⚠️ No hay órdenes en estas fechas.");
+
+            // Encabezados exactos para tus 11 columnas
+            let csv = "\uFEFFFECHA_APERTURA,HORA_APERTURA,FOLIO_OT,TECNICO,PRIORIDAD,DEPTO,ATS_VINCULADO,ESTADO,DESCRIPCION,HORA_CIERRE_ATS,OBS_FINALES\n";
+            
+            fil.forEach(r => {
+                let datosLimpios = r.datos.replace(/\n/g, " | ").replace(/;/g, ",");
+                csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `Reporte_Operaciones_${ini}_al_${fin}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        } catch(e) { 
+            console.error(e);
+            alert("❌ Error al generar reporte."); 
+        }
+    }
