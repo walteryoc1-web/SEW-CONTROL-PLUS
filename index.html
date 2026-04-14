@@ -241,7 +241,52 @@
             <button class="btn-salir" onclick="location.reload()">CERRAR</button>
         </div>
     </div>
+<div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
+    <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
+    <span class="sub-plus">CONTROL DE ORDEN DE TRABAJO (OT)</span>
 
+    <!-- Selector de Origen -->
+    <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px;">
+        <button id="btn-ot-nueva" class="btn" style="background:#3498db; color:white; font-size:12px; padding:10px;" onclick="setOrigenOT('SISTEMA')">Generar Folio</button>
+        <button id="btn-ot-sap" class="btn" style="background:#95a5a6; color:white; font-size:12px; padding:10px;" onclick="setOrigenOT('SAP')">Ingresar SAP</button>
+    </div>
+
+    <!-- Campo de Folio -->
+    <input type="text" id="ot-folio" placeholder="Folio de Tarea" style="font-weight:bold; border:2px solid #3498db;">
+
+    <!-- ID Técnico Responsable -->
+    <input type="text" id="ot-id-tec" placeholder="ID Técnico Responsable" oninput="checkTecnicoOperaciones(this.value)">
+    <div id="ot-tec-box" style="font-size:12px; font-weight:bold; color:#2980b9; background:#e1f5fe; padding:10px; border-radius:10px; display:none; margin-bottom:10px; border:1px dashed #3498db; text-align:left;"></div>
+
+    <!-- Prioridad y Departamento -->
+    <div style="display:flex; gap:10px;">
+        <select id="ot-prioridad" style="flex:1;">
+            <option disabled selected>Prioridad</option>
+            <option>Baja (Rutinaria)</option>
+            <option>Media (Programada)</option>
+            <option>Alta (Urgente)</option>
+            <option>Crítica (Paro)</option>
+        </select>
+        <select id="ot-depto" style="flex:1;">
+            <option disabled selected>Departamento</option>
+            <option>Mantenimiento</option>
+            <option>Taller</option>
+            <option>Ornato</option>
+            <option>Logística</option>
+        </select>
+    </div>
+
+    <!-- Vínculo ATS (Trazabilidad) -->
+    <p style="margin:10px 0 5px 0; font-size:11px; font-weight:bold; color:#7f8c8d; text-align:left;">VINCULAR FOLIO ATS (SSO):</p>
+    <input type="text" id="ot-ats-link" placeholder="Folio SSO-XXXXXX" style="border-left: 5px solid #e67e22;">
+
+    <!-- Descripción -->
+    <textarea id="ot-descripcion" placeholder="Descripción detallada del trabajo..." rows="4"></textarea>
+
+    <!-- Botonera -->
+    <button id="btn-registrar-ot" class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 REGISTRAR ORDEN DE TRABAJO</button>
+    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+</div>
    <script>
     // --- BASES DE DATOS ---
     const pilotos = { 
@@ -283,14 +328,40 @@
 
     // --- ACCESO ---
     function entrar() {
-        const u = document.getElementById('u').value.toLowerCase().trim();
-        const p = document.getElementById('p').value;
-        if(u=="operador" && p=="terpac") { document.getElementById('login').style.display = 'none'; document.getElementById('ui-app').style.display = 'block'; } 
-        else if(u=="supervisor" && p=="terpac1") { document.getElementById('login').style.display = 'none'; document.getElementById('ui-supervisor').style.display = 'block'; iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000); } 
-        else if(u=="supervisor sso" && p=="terpac3") { document.getElementById('login').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block'; actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000); }
-        else if(u=="sso" && p=="terpac2") { document.getElementById('login').style.display = 'none'; document.getElementById('ui-seguridad').style.display = 'block'; } 
-        else { alert("Acceso Incorrecto"); }
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const login = document.getElementById('login');
+
+    if(u=="operador" && p=="terpac") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-app').style.display = 'block'; 
+    } 
+    else if(u=="supervisor" && p=="terpac1") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-supervisor').style.display = 'block'; 
+        iniciarReloj(); 
+        actualizarPildoras(); 
+        setInterval(actualizarPildoras, 30000); 
+    } 
+    else if(u=="supervisor sso" && p=="terpac3") { 
+        login.style.display='none'; 
+        document.getElementById('ui-monitor-sso').style.display='block'; 
+        actualizarPildorasSSO(); 
+        cargarPermisosParaCerrar(); 
+        setInterval(actualizarPildorasSSO, 30000); 
     }
+    else if(u=="sso" && p=="terpac2") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-seguridad').style.display = 'block'; 
+    } 
+    // NUEVA PUERTA: ACCESO A OPERACIONES
+    else if(u=="operaciones" && p=="terpac4") {
+        login.style.display = 'none'; 
+        document.getElementById('ui-operaciones').style.display = 'block';
+        setOrigenOT('SISTEMA'); // Dispara la generación del folio automático
+    }
+    else { alert("Acceso Incorrecto"); }
+}
 
   // --- MÓDULO INCIDENTES (VERSIÓN INTEGRAL) ---
 
@@ -632,4 +703,79 @@ async function enviarIncidenteCompleto() {
             if (elFecha) elFecha.innerText = a.toLocaleDateString();
         }, 1000);
     }
+       // Variable global para el origen
+let origenOT = "SISTEMA";
+
+// 1. Manejo del tipo de Folio
+function setOrigenOT(tipo) {
+    origenOT = tipo;
+    const inputFolio = document.getElementById('ot-folio');
+    const btnNueva = document.getElementById('btn-ot-nueva');
+    const btnSap = document.getElementById('btn-ot-sap');
+
+    if (tipo === 'SISTEMA') {
+        const fecha = new Date().toISOString().slice(2,10).replace(/-/g,"");
+        const azar = Math.floor(Math.random() * 900) + 100;
+        inputFolio.value = `OT-${fecha}-${azar}`;
+        inputFolio.readOnly = true;
+        btnNueva.style.background = "#3498db";
+        btnSap.style.background = "#95a5a6";
+    } else {
+        inputFolio.value = "";
+        inputFolio.placeholder = "Digite Folio SAP / Externo";
+        inputFolio.readOnly = false;
+        btnSap.style.background = "#3498db";
+        btnNueva.style.background = "#95a5a6";
+    }
+}
+
+// 2. Validación de Técnico (Usa tu personalSeguridad)
+function checkTecnicoOperaciones(id) {
+    const box = document.getElementById('ot-tec-box');
+    const idClean = id.trim().toUpperCase();
+    if(personalSeguridad[idClean]) {
+        box.innerHTML = `👨‍🔧 <b>TÉCNICO:</b> ${personalSeguridad[idClean].n}<br>🏢 <b>ORIGEN:</b> ${personalSeguridad[idClean].e}`;
+        box.style.display = 'block';
+    } else {
+        box.style.display = 'none';
+    }
+}
+
+// 3. Función de Envío
+async function enviarOT() {
+    const btn = document.getElementById('btn-registrar-ot');
+    const folio = document.getElementById('ot-folio').value.trim();
+    const tecId = document.getElementById('ot-id-tec').value.trim().toUpperCase();
+    const depto = document.getElementById('ot-depto').value;
+    const prioridad = document.getElementById('ot-prioridad').value;
+    const desc = document.getElementById('ot-descripcion').value.trim();
+
+    if (folio === "" || !personalSeguridad[tecId] || desc === "" || depto.includes("Departamento") || prioridad.includes("Prioridad")) {
+        return alert("❌ Por favor, complete todos los campos y valide el técnico.");
+    }
+
+    btn.disabled = true;
+    btn.innerText = "REGISTRANDO...";
+
+    const payload = {
+        action: "registrarOT",
+        folio: folio,
+        tecnico: `${personalSeguridad[tecId].n} (${tecId})`,
+        prioridad: prioridad,
+        departamento: depto,
+        ats: document.getElementById('ot-ats-link').value.toUpperCase() || "SIN VINCULAR",
+        descripcion: desc
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        alert("✅ ORDEN DE TRABAJO REGISTRADA\nFolio: " + folio);
+        location.reload();
+    } catch(e) {
+        alert("⚠️ Error de conexión.");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR ORDEN DE TRABAJO";
+    }
+}
+
 </script>
