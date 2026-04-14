@@ -333,6 +333,7 @@ function checkInvolucrado(input) {
     input.style.background = personalSeguridad[id] ? "#e8f5e9" : "#fff";
 }
 
+asi tengo mi funcion revisala y arreglala
 async function enviarIncidenteCompleto() {
     const btn = document.getElementById('btn-env-inc');
     const folioIn = document.getElementById('inc-folio');
@@ -378,7 +379,6 @@ async function enviarIncidenteCompleto() {
         btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩";
     }
 }
-
     // --- LÓGICA LOGÍSTICA ---
     function check() { const id = document.getElementById('id-in').value.trim(); const box = document.getElementById('piloto-box'); if(pilotos[id]) { box.innerText = "👨‍✈️ Piloto: " + pilotos[id].n; box.style.display='block'; } else box.style.display='none'; }
     function enviar() {
