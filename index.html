@@ -602,9 +602,18 @@
     }
 
     async function enviarOT() {
+        // 1. CAPTURA DE DATOS
         const f = document.getElementById('ot-folio').value; 
         const tecId = document.getElementById('ot-id-tec').value.toUpperCase();
+        
         if(!f || !personalSeguridad[tecId]) return alert("❌ Datos de Folio o Técnico inválidos.");
+
+        // 2. BLOQUEO INMEDIATO DEL BOTÓN (Para evitar duplicados)
+        const btn = event.target; 
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "GENERANDO ORDEN... ⏳";
+        btn.style.opacity = "0.7";
 
         const p = { 
             action: "registrarOT", 
@@ -618,28 +627,60 @@
         try {
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(p) });
             const b64 = await res.text();
+            
             if(b64.length > 500) { 
-                const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64;
-                a.download = `Orden_Trabajo_${f}.pdf`; a.click();
+                const a = document.createElement("a"); 
+                a.href = "data:application/pdf;base64," + b64;
+                a.download = `Orden_Trabajo_${f}.pdf`; 
+                a.click();
             }
-            alert("✅ ORDEN DE TRABAJO APERTURADA"); location.reload();
-        } catch(e) { alert("❌ Error al procesar OT"); }
+            alert("✅ ORDEN DE TRABAJO APERTURADA"); 
+            location.reload(); 
+        } catch(e) { 
+            alert("❌ Error al procesar OT"); 
+            // Si falla, rehabilitamos el botón
+            btn.disabled = false;
+            btn.innerText = originalText;
+            btn.style.opacity = "1";
+        }
     }
 
     async function finalizarTareaOT() {
         const fOT = document.getElementById('ot-folio-cierre').value.toUpperCase();
         const fATS = document.getElementById('ot-ats-cierre').value.toUpperCase();
+        
         if(!fOT || !fATS) return alert("❌ Debe ingresar Folio OT y Folio ATS para cerrar.");
 
-        const payload = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
+        // BLOQUEO DEL BOTÓN DE CIERRE
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerText = "VINCULANDO TRAZABILIDAD... ⏳";
+
+        const payload = { 
+            action: "cerrarOT", 
+            folioOT: fOT, 
+            folioATS: fATS, 
+            comentarios: document.getElementById('ot-comentarios-cierre').value 
+        };
+
         try {
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
             const txt = await res.text();
-            if(txt.includes("OK")) { alert("✅ TAREA CERRADA Y VINCULADA AL ATS"); location.reload(); }
-            else { alert("⚠️ Servidor: " + txt); }
-        } catch(e) { alert("❌ Error de red al intentar cerrar."); }
+            if(txt.includes("OK")) { 
+                alert("✅ TAREA CERRADA Y VINCULADA AL ATS"); 
+                location.reload(); 
+            } else { 
+                alert("⚠️ Servidor: " + txt); 
+                btn.disabled = false;
+                btn.innerText = "✅ FINALIZAR TAREA";
+            }
+        } catch(e) { 
+            alert("❌ Error de red al intentar cerrar."); 
+            btn.disabled = false;
+            btn.innerText = "✅ FINALIZAR TAREA";
+        }
     }
-
+    
     // --- 7. SISTEMA DE REPORTES (TRADUCTOR DE FECHAS DD/MM/YYYY) ---
    async function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot').value;
