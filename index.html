@@ -141,17 +141,18 @@
         </div>
 
         <!-- PARTE 2: PERSONAL -->
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-            <div>
-                <label style="font-weight:bold; color:#3498db;">2. 👥 COLABORADORES AFECTADOS</label>
-                <div id="contenedor-involucrados-inc">
-                    <div style="display:flex; gap:10px; margin-top:5px;">
-                        <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="flex:1;">
-                        <button class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarFilaInvolucrado()">+</button>
-                    </div>
-                </div>
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+    <div>
+        <label style="font-weight:bold; color:#3498db;">2. 👥 COLABORADORES AFECTADOS</label>
+        <div id="contenedor-involucrados-inc">
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="flex:1;">
+                <!-- CAMBIAMOS agregarFilaInvolucrado() por agregarInvolucradoInc() -->
+                <button type="button" class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
             </div>
-            <div>
+        </div>
+    </div>
+</div>
                 <label style="font-weight:bold; color:#3498db;">ESTADO DE SALUD</label>
                 <select id="inc-salud">
                     <option value="SIN_AFECTADOS">No hay afectados</option>
@@ -497,10 +498,7 @@
       document.getElementById('ui-incidentes-sso').style.display='block'; 
   }
 
-  /**
-   * RESUCITADOR DE INPUTS: Agrega nuevos campos de involucrados.
-   * IMPORTANTE: El contenedor en el HTML debe ser <div id="contenedor-involucrados-inc"></div>
-   */
+  
   function agregarInvolucradoInc() {
       const contenedor = document.getElementById('contenedor-involucrados-inc');
       if (!contenedor) {
