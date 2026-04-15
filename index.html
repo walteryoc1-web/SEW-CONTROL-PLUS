@@ -495,6 +495,22 @@
       document.getElementById('ui-incidentes-sso').style.display='block'; 
   }
 
+  // RESUCITADOR DE INPUTS: Función para agregar más campos de involucrados
+  function agregarInvolucradoInc() {
+      const contenedor = document.getElementById('contenedor-involucrados-inc');
+      if (!contenedor) return;
+
+      const div = document.createElement('div');
+      div.style.marginBottom = "10px";
+      div.innerHTML = `
+          <input type="text" class="inc-id-clase" placeholder="ID de Involucrado" 
+                 style="width:80%;" oninput="checkInvolucrado(this)">
+          <button type="button" onclick="this.parentElement.remove()" 
+                  style="width:15%; background:#ff6b6b; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">X</button>
+      `;
+      contenedor.appendChild(div);
+  }
+
   // Función para validar ID y mostrar nombre en tiempo real
   function checkInvolucrado(inp) {
       const id = inp.value.toUpperCase().trim();
@@ -575,13 +591,22 @@
           return (el && el.value && !el.value.includes("Tipo") && !el.value.includes("Estado")) ? el.value : "N/A";
       };
 
+      // Captura todos los involucrados (el principal + los agregados)
+      const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                       .map(i => i.value.toUpperCase().trim())
+                       .filter(id => personalSeguridad[id]);
+      
+      const listaInvolucrados = ids.length > 0 
+          ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ")
+          : window.datosVinculados.personal;
+
       const payload = {
           action: "registrarIncidente",
           folio: window.datosVinculados.folioATS,
           area: window.datosVinculados.fase,
           ubicacion: window.datosVinculados.ubi,
           trabajo: window.datosVinculados.tipo,
-          involucrados: window.datosVinculados.personal,
+          involucrados: listaInvolucrados,
           salud: getV('inc-salud'),
           intervencion: getV('inc-intervencion-momento'),
           tipoEvento: getV('inc-tipo'),
@@ -609,18 +634,16 @@
               alert("✅ EXITO: Informe e historial de seguridad unificados.");
               location.reload();
           } else {
-              alert("✅ REGISTRADO EN EXCEL (Sin PDF)");
+              alert("✅ REGISTRADO EN EXCEL");
               location.reload();
           }
       } catch(e) {
           console.error(e);
-          alert("❌ Error de red al enviar informe.");
-          if (btn) { 
-              btn.disabled = false; 
-              btn.innerText = "REGISTRAR INFORME 🚩"; 
-          }
+          alert("❌ Error de red.");
+          if (btn) { btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩"; }
       }
   }
+    
     // --- 6. MÓDULO OPERACIONES (OT) ---
     function setOrigenOT(tipo) {
         const f = document.getElementById('ot-folio');
