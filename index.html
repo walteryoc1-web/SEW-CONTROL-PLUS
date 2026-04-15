@@ -472,49 +472,68 @@
     // --- 5. MÓDULO INCIDENTES ---
     function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
     
-    async function vincularDatosPermiso(folio) {
-        const display = document.getElementById('datos-vinculados-sso'); if (folio.length < 5) return;
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            const p = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
-            if (p) {
-                const d = p.datos.split(";");
-                display.innerHTML = `<div style="background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #2ecc71; color:#1b5e20;">✅ <b>PERMISO VINCULADO:</b><br>📍 ÁREA: ${d[2]} | ${d[3]}<br>🛠️ TRABAJO: ${d[4]}</div>`;
-            } else { display.innerHTML = "<b style='color:red;'>❌ Folio no hallado o cerrado</b>"; }
-        } catch(e) { display.innerHTML = "⚠️ Error de red"; }
+  async function vincularDatosPermiso(folio) {
+    const display = document.getElementById('datos-vinculados-sso');
+    if (!display) return;
+    
+    // Si el folio es borrado o es muy corto, reseteamos la memoria
+    if (folio.length < 5) {
+        window.datosVinculados = null;
+        display.innerHTML = "<p style='color:#999; text-align:center;'>Esperando folio válido...</p>";
+        return;
     }
 
-    function checkInvolucrado(inp) { inp.style.background = personalSeguridad[inp.value.toUpperCase()] ? "#e8f5e9" : "#fff"; }
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
 
-    async function enviarIncidenteCompleto() {
+        if (permiso) {
+            const d = permiso.datos.split(";");
+            window.datosVinculados = {
+                folioATS: d[0],
+                personal: d[1],
+                fase: d[2],
+                ubi: d[3],
+                tipo: d[4]
+            };
+            display.innerHTML = `
+                <div style="background:#e8f5e9; padding:12px; border-radius:12px; border:1px solid #2ecc71; color:#1b5e20;">
+                    ✅ <b>PERMISO VINCULADO CORRECTAMENTE</b><br>
+                    📍 <b>Área:</b> ${d[2]} - ${d[3]}<br>
+                    🛠️ <b>Tarea Original:</b> ${d[4]}
+                </div>`;
+        } else {
+            // PASO CRÍTICO: Si no se encuentra, borramos lo que había en memoria
+            window.datosVinculados = null;
+            display.innerHTML = "<b style='color:#c0392b;'>❌ Folio no encontrado o ya cerrado</b>";
+        }
+    } catch(e) { 
+        window.datosVinculados = null;
+        display.innerHTML = "⚠️ Error de conexión.";
+    }
+}
+
+async function enviarIncidenteCompleto() {
     const btn = document.getElementById('btn-env-inc');
-    const folioIn = document.getElementById('inc-folio');
-    
-    if (!folioIn || folioIn.value.trim() === "") return alert("❌ Ingrese el Folio vinculado.");
-    if (btn) { btn.disabled = true; btn.innerText = "GENERANDO INFORME... ⏳"; }
+    if (!window.datosVinculados) {
+        return alert("❌ ERROR: Primero debe ingresar y vincular un Folio SSO válido.");
+    }
 
-    // Jalamos los datos que se guardaron al vincular el folio
-    const datosV = window.datosVinculados || { fase: "N/A", ubi: "N/A", tipo: "N/A" };
+    if (btn) { btn.disabled = true; btn.innerText = "UNIFICANDO DATOS Y GENERANDO PDF... ⏳"; }
 
-    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
-                     .map(i => i.value.trim().toUpperCase())
-                     .filter(v => personalSeguridad[v]);
-    
-    const involucrados = ids.length > 0 
-        ? ids.map(id => `${personalSeguridad[id].n} (${personalSeguridad[id].e})`).join(" | ") 
-        : "SIN AFECTADOS";
-
-    const getV = (id) => (document.getElementById(id) && document.getElementById(id).value) ? document.getElementById(id).value : "N/A";
+    const getV = (id) => {
+        const el = document.getElementById(id);
+        return (el && el.value && !el.value.includes("Tipo") && !el.value.includes("Estado")) ? el.value : "N/A";
+    };
 
     const payload = {
         action: "registrarIncidente",
-        folio: folioIn.value.trim().toUpperCase(),
-        fecha: new Date().toLocaleDateString(),
-        involucrados: involucrados,
-        ubicacion: datosV.ubi,       // Nuevo
-        area: datosV.fase,           // Nuevo
-        trabajo: datosV.tipo,        // Nuevo
+        folio: window.datosVinculados.folioATS,
+        area: window.datosVinculados.fase,
+        ubicacion: window.datosVinculados.ubi,
+        trabajo: window.datosVinculados.tipo,
+        involucrados: window.datosVinculados.personal,
         salud: getV('inc-salud'),
         intervencion: getV('inc-intervencion-momento'),
         tipoEvento: getV('inc-tipo'),
@@ -524,12 +543,53 @@
         estructura: getV('inc-estructura'),
         reparacion: getV('inc-reparacion'),
         obsEstructura: getV('inc-obs-estructura'),
-        reincidencia: getV('inc-reincidencia'), 
-        seguridad: getV('inc-riesgo-seguridad'), 
+        reincidencia: getV('inc-reincidencia'),
+        seguridad: getV('inc-riesgo-seguridad'),
         recomendacion: getV('inc-recomendacion'),
         estadoFinal: getV('inc-estado-final')
     };
 
+    // --- BLOQUE DE ENVÍO FINAL ---
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const base64 = await res.text();
+        
+        if (base64.length > 500) {
+            const a = document.createElement("a");
+            a.href = "data:application/pdf;base64," + base64;
+            a.download = `INFORME_MAESTRO_${payload.folio}.pdf`;
+            a.click();
+            alert("✅ EXITO: Informe e historial de seguridad unificados.");
+            location.reload();
+        } else {
+            alert("✅ REGISTRADO EN EXCEL: " + base64);
+            location.reload();
+        }
+    } catch(e) {
+        alert("❌ Error de red.");
+        if (btn) { btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩"; }
+    }
+}
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const base64 = await res.text();
+        
+        if (base64.length > 500) {
+            const a = document.createElement("a");
+            a.href = "data:application/pdf;base64," + base64;
+            a.download = `INFORME_MAESTRO_${payload.folio}.pdf`;
+            a.click();
+            alert("✅ EXITO: Informe e historial de seguridad unificados.");
+            location.reload();
+        } else {
+            alert("✅ REGISTRADO EN EXCEL: " + base64);
+            location.reload();
+        }
+    } catch(e) {
+        alert("❌ Error de red.");
+        if (btn) { btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩"; }
+    }
+}
     try {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
         const respuestaServidor = await res.text();
