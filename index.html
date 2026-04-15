@@ -3,23 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SISTEMA TERPAC LTDA - SC-APP-V1</title>
+    <title>SISTEMA TERPAC LTDA - SCAPPV2</title>
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
+        
         .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
+        
         input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
         .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
         .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; font-size: 14px; width: 100%; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; max-width: 300px; }
+        
         #piloto-box, #incidente-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; }
         .pildoras-horizontal { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; padding: 0 10px; }
         .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 150px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
         .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
         .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
+        
         .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
         #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
-        .sub-plus { font-size: 12px; color: #888; font-weight: bold; letter-spacing: 1px; margin-top: -10px; margin-bottom: 15px; display: block; }
+        
+        
+        .sub-plus { 
+            font-size: 11px; 
+            color: #888; 
+            font-weight: bold; 
+            letter-spacing: 1.5px; 
+            margin-top: 5px; 
+            margin-bottom: 20px; 
+            display: block; 
+            text-transform: uppercase;
+        }
+        
         .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 20px auto; max-width: 500px; }
         .chk-label { font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 5px 0; }
         .chk-input { width: 20px !important; height: 20px !important; margin: 0 !important; }
@@ -30,14 +46,18 @@
 <body>
 
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--verde-oscuro); margin:0;">TERPAC USUARIO</h2>
-        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V1</span>
-        <input type="text" id="u" placeholder="Usuario">
+        <!-- Título principal con espacio dinámico -->
+        <h2 style="color:var(--verde-oscuro); margin:0; font-size: 24px;">TERPAC USUARIO</h2>
+        
+        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V2</span>
+        
+        <input type="text" id="u" placeholder="Usuario" autofocus>
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR</button>
+        
+        <p style="font-size: 10px; color: #bbb; margin-top: 15px;">Puerto Quetzal, Guatemala</p>
     </div>
-
-    <!-- UI OPERADOR LOGÍSTICA -->
+<!-- UI OPERADOR LOGÍSTICA -->
     <div id="ui-app" class="card-compacta" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
