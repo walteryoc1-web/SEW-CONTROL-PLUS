@@ -86,39 +86,59 @@
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
 
-  <!-- UI MONITOR SUPERVISOR SSO -->
-<div id="ui-monitor-sso" class="card-full" style="display:none;">
+ <!-- UI MONITOR SUPERVISOR SSO -->
+<div id="ui-monitor-sso" class="card-full" style="display:none !important;">
     <span class="sub-plus">SC-MON-SSO-RT-01</span>
-    <div class="live-status"><div class="dot" style="background:#3498db;"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
+    <div class="live-status">
+        <div class="dot" style="background:#3498db;"></div> 
+        MONITOR DE SEGURIDAD (EN VIVO)
+    </div>
+
+    <!-- Píldoras de control -->
     <div class="pildoras-horizontal">
-        <div class="pildora" style="border-bottom-color: #e67e22;"><h3>Generados</h3><p id="sso-pnd">00</p></div>
-        <div class="pildora" style="border-bottom-color: #9b59b6;"><h3>Abiertos</h3><p id="sso-riesgo">00</p></div>
-        <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
+        <div class="pildora" style="border-bottom-color: #e67e22;">
+            <h3>Generados</h3><p id="sso-pnd">00</p>
+        </div>
+        <div class="pildora" style="border-bottom-color: #9b59b6;">
+            <h3>Abiertos</h3><p id="sso-riesgo">00</p>
+        </div>
+        <div class="pildora" style="border-bottom-color: #16a085;">
+            <h3>Cerrados</h3><p id="sso-personal">00</p>
+        </div>
     </div>
     
-    <button class="btn" style="background:#ff6b6b; color:white; margin-bottom:20px; max-width:400px;" onclick="irAIncidentes()">🚨 REPORTAR INCIDENTE</button>
+    <!-- Botón de pánico/incidentes -->
+    <button class="btn" style="background:#ff6b6b; color:white; margin: 10px auto 20px; max-width:400px; display:block;" onclick="irAIncidentes()">
+        🚨 REPORTAR INCIDENTE
+    </button>
 
+    <!-- Tabla de cierre de permisos -->
     <div style="margin: 20px auto; max-width: 500px;">
-        <p style="margin:0; font-size:12px; font-weight:bold; color:#555;">PERMISOS ACTIVOS PARA CIERRE</p>
-        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:50px; margin-top:5px; max-height:250px; overflow-y:auto;"></div>
+        <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">
+            Permisos activos para cierre
+        </p>
+        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;">
+            <!-- Aquí se cargan los folios dinámicamente -->
+        </div>
     </div>
 
+    <!-- Caja de Descargas -->
     <div class="box-descarga">
-        <p style="margin:0; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
-        <div style="display:flex; flex-direction:column; gap:10px; align-items:center; margin-top:10px;">
-            <div style="display:flex; gap:10px;">
-                <input type="date" id="f-ini-sso" style="width:130px;">
-                <input type="date" id="f-fin-sso" style="width:130px;">
+        <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
+        <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+            <div style="display:flex; gap:10px; justify-content:center; width:100%;">
+                <input type="date" id="f-ini-sso" style="width:45%; margin:0; padding:10px;">
+                <input type="date" id="f-fin-sso" style="width:45%; margin:0; padding:10px;">
             </div>
             <div style="display:flex; gap:10px; width:100%; justify-content:center;">
-                <button class="btn" onclick="descargarCSV_SSO()" style="background:#3498db; width:auto; padding:10px 15px; font-size:11px; flex:1;">📥 PERMISOS</button>
-                <button class="btn" onclick="descargarCSV_Incidentes()" style="background:#d63031; color:white; width:auto; padding:10px 15px; font-size:11px; flex:1;">📥 INCIDENTES</button>
+                <button type="button" class="btn" onclick="descargarCSV_SSO()" style="background:#3498db; color:white; width:auto; padding:12px; font-size:11px; flex:1;">📥 PERMISOS</button>
+                <button type="button" class="btn" onclick="descargarCSV_Incidentes()" style="background:#d63031; color:white; width:auto; padding:12px; font-size:11px; flex:1;">📥 INCIDENTES</button>
             </div>
         </div>
     </div>
+
     <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
 </div>
-
 <!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
     <!-- ENCABEZADO -->
