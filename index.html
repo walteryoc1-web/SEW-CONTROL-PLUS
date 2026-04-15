@@ -641,24 +641,32 @@
     }
 
     // --- 7. SISTEMA DE REPORTES (TRADUCTOR DE FECHAS DD/MM/YYYY) ---
-    async function descargarCSV_OT() {
-        const ini = document.getElementById('f-ini-ot').value, fin = document.getElementById('f-fin-ot').value;
-        if(!ini || !fin) return alert("❌ Seleccione un rango de fechas.");
-        try {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteOT"), data = await res.json();
-            const fil = data.filter(r => {
-                const p = r.fecha.split('/'); 
-                if(p.length<3) return false;
-                const fISO = `${p[2]}-${p[1]}-${p[0]}`; // Convierte DD/MM/YYYY a YYYY-MM-DD
-                return fISO >= ini && fISO <= fin;
-            });
-            if(fil.length === 0) return alert("⚠️ No hay datos en estas fechas.");
-            let csv = "\uFEFFFECHA,HORA,DATOS_TRAZABILIDAD\n";
-            fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-            const b = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `Reporte_OT_${ini}.csv`; a.click();
-        } catch(e) { alert("❌ Error en el reporte de operaciones."); }
-    }
+   async function descargarCSV_OT() {
+    const ini = document.getElementById('f-ini-ot').value;
+    const fin = document.getElementById('f-fin-ot').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas.");
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteOT");
+        const data = await res.json();
+        const fil = data.filter(r => {
+            if(!r.fecha) return false;
+            // LIMPIADOR universal
+            let fechaSoloTexto = r.fecha.split(' ')[0];
+            let p = fechaSoloTexto.split('/');
+            if(p.length !== 3) return false;
+            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ Sin órdenes en este rango.");
+        let csv = "\uFEFFFECHA,HORA,DATOS\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        const b = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(b);
+        a.download = "Reporte_Operaciones.csv"; a.click();
+    } catch(e) { alert("❌ Error OT."); }
+}
 
     // --- 8. FUNCIONES DE MONITOREO Y APOYO ---
     function iniciarReloj() { 
@@ -842,9 +850,9 @@ async function descargarCSV_SSO() {
         const data = await res.json();
         const fil = data.filter(r => {
             if(!r.fecha) return false;
-            // CORTE: de "14/04/2026 15:35:43" saca solo "14/04/2026"
-            let fechaPura = r.fecha.split(' ')[0];
-            let p = fechaPura.split('/');
+            // LIMPIADOR para el nuevo formato con hora pegada
+            let fechaSoloTexto = r.fecha.split(' ')[0];
+            let p = fechaSoloTexto.split('/');
             if(p.length !== 3) return false;
             let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
             return fISO >= ini && fISO <= fin;
@@ -853,10 +861,10 @@ async function descargarCSV_SSO() {
         if(fil.length === 0) return alert("⚠️ Sin permisos en este rango.");
         let csv = "\uFEFFFECHA,HORA,DATOS\n";
         fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_SSO.csv`; a.click();
-    } catch(e) { alert("❌ Error SSO"); }
+        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(b);
+        a.download = "Reporte_SSO.csv"; a.click();
+    } catch(e) { alert("❌ Error SSO."); }
 }
 // --- DESCARGA DE INCIDENTES ---
 async function descargarCSV_Incidentes() {
@@ -867,19 +875,42 @@ async function descargarCSV_Incidentes() {
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporteIncidentes");
         const data = await res.json();
+        
         const fil = data.filter(r => {
             if(!r.fecha) return false;
-            // COMPARACIÓN DIRECTA: Ya viene como "2026-04-13"
-            return r.fecha >= ini && r.fecha <= fin;
+            
+            // 1. LIMPIADOR: Quitamos la hora si viene pegada
+            let fechaLimpia = r.fecha.split(' ')[0]; 
+
+            // 2. DETECTOR DE FORMATO: Si trae "/" es formato viejo, si trae "-" es formato ISO
+            let fISO = "";
+            if(fechaLimpia.includes('/')) {
+                let p = fechaLimpia.split('/');
+                fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+            } else {
+                fISO = fechaLimpia; // Ya es YYYY-MM-DD
+            }
+
+            // 3. COMPARACIÓN
+            return fISO >= ini && fISO <= fin;
         });
 
         if(fil.length === 0) return alert("⚠️ Sin incidentes en este rango.");
-        let csv = "\uFEFFFECHA,HORA,DATOS\n";
-        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+
+        let csv = "\uFEFFFECHA,HORA,DATOS_INCIDENTES\n";
+        fil.forEach(r => {
+            csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`;
+        });
+
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-        a.download = `Reporte_Incidentes.csv`; a.click();
-    } catch(e) { alert("❌ Error Incidentes"); }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Reporte_Incidentes.csv`;
+        a.click();
+    } catch(e) { 
+        console.error(e);
+        alert("❌ Error al obtener reporte de incidentes"); 
+    }
 }
 </script>
 </body>
