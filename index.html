@@ -495,6 +495,29 @@
       document.getElementById('ui-incidentes-sso').style.display='block'; 
   }
 
+  // Función para validar ID y mostrar nombre en tiempo real
+  function checkInvolucrado(inp) {
+      const id = inp.value.toUpperCase().trim();
+      let display = inp.parentElement.querySelector('.nombre-display');
+      
+      if (!display) {
+          display = document.createElement('div');
+          display.className = 'nombre-display';
+          display.style.cssText = "font-size: 11px; font-weight: bold; margin: 5px 0; text-align: left;";
+          inp.parentNode.insertBefore(display, inp.nextSibling);
+      }
+
+      if (personalSeguridad[id]) {
+          inp.style.background = "#e8f5e9"; 
+          display.innerText = "✅ " + personalSeguridad[id].n + " (" + personalSeguridad[id].e + ")";
+          display.style.color = "#1b5e20";
+      } else {
+          inp.style.background = "#fff";
+          display.innerText = id.length > 2 ? "❌ ID no registrado" : "";
+          display.style.color = "#c0392b";
+      }
+  }
+
   async function vincularDatosPermiso(folio) {
       const display = document.getElementById('datos-vinculados-sso');
       if (!display) return;
@@ -598,7 +621,6 @@
           }
       }
   }
-    
     // --- 6. MÓDULO OPERACIONES (OT) ---
     function setOrigenOT(tipo) {
         const f = document.getElementById('ot-folio');
