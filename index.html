@@ -160,19 +160,18 @@
             </div>
         </div>
 
-        <!-- PARTE 2: PERSONAL -->
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-    <div>
-        <label style="font-weight:bold; color:#3498db;">2. 👥 COLABORADORES AFECTADOS</label>
-        <div id="contenedor-involucrados-inc">
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="flex:1;">
-                <!-- CAMBIAMOS agregarFilaInvolucrado() por agregarInvolucradoInc() -->
-                <button type="button" class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
+        <!-- PARTE 2: PERSONAL (CORREGIDA) -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="font-weight:bold; color:#3498db;">2. 👥 COLABORADORES AFECTADOS</label>
+                <div id="contenedor-involucrados-inc">
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <input type="text" class="inc-id-clase" placeholder="ID colaborador" oninput="checkInvolucrado(this)" style="flex:1;">
+                        <button type="button" class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+            <div>
                 <label style="font-weight:bold; color:#3498db;">ESTADO DE SALUD</label>
                 <select id="inc-salud">
                     <option value="SIN_AFECTADOS">No hay afectados</option>
@@ -196,52 +195,48 @@
             <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
         </div>
 
-       <!-- PARTE 4: INFRAESTRUCTURA (ACTUALIZADA) -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-    <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO ACTUALIZADA (INFRAESTRUCTURA)</label></div>
-    
-    <select id="inc-estructura">
-        <option disabled selected>Riesgo Estructura</option>
-        <option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option>
-    </select>
-    
-    <select id="inc-reparacion">
-        <option disabled selected>Reparación Técnica</option>
-        <option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option>
-    </select>
+        <!-- PARTE 4: INFRAESTRUCTURA -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+            <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO ACTUALIZADA (INFRAESTRUCTURA)</label></div>
+            
+            <select id="inc-estructura">
+                <option disabled selected>Riesgo Estructura</option>
+                <option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option>
+            </select>
+            
+            <select id="inc-reparacion">
+                <option disabled selected>Reparación Técnica</option>
+                <option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option>
+            </select>
 
-    <!-- CAMBIO: REINCIDENCIA -->
-    <select id="inc-reincidencia">
-        <option disabled selected>¿Evento Reincidente?</option>
-        <option value="No">No (Evento Nuevo)</option>
-        <option value="Si - Reportado no corregido">Sí (Reportado, no corregido)</option>
-        <option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option>
-    </select>
+            <select id="inc-reincidencia">
+                <option disabled selected>¿Evento Reincidente?</option>
+                <option value="No">No (Evento Nuevo)</option>
+                <option value="Si - Reportado no corregido">Sí (Reportado, no corregido)</option>
+                <option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option>
+            </select>
 
-    <input type="text" id="inc-obs-estructura" placeholder="Observación de infraestructura">
-    
-    <!-- CAMBIO: RIESGOS A SEGURIDAD INDUSTRIAL -->
-    <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos a la Seguridad Industrial">
-</div>
+            <input type="text" id="inc-obs-estructura" placeholder="Observación de infraestructura" style="grid-column: span 1;">
+            <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos a la Seguridad Industrial" style="grid-column: span 2;">
+        </div>
 
         <!-- PARTE 5: CIERRE -->
         <div style="margin-bottom: 30px;">
             <label style="font-weight:bold; color:#2d3436;">5. 📝 RECOMENDACIONES Y CIERRE</label>
-            <textarea id="inc-recomendacion" placeholder="Digite aquí las medidas correctivas..." rows="4"></textarea>
+            <textarea id="inc-recomendacion" placeholder="Digite aquí las medidas correctivas..." rows="4" style="width:100%; border-radius:12px; padding:15px; border:1px solid #ccc;"></textarea>
             <div style="display:flex; justify-content: space-between; align-items: center; margin-top:15px;">
-                <select id="inc-estado-final" style="max-width: 300px;">
+                <select id="inc-estado-final" style="max-width: 300px; margin:0;">
                     <option disabled selected>Estado Final</option>
                     <option>Caso cerrado</option><option>Pendiente investigación</option><option>Seguimiento médico</option>
                 </select>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-salir" style="width:150px; margin:0; background:#777;" onclick="location.reload()">CANCELAR</button>
-                    <button id="btn-env-inc" class="btn" style="background:#d63031; color:white; width:250px; margin:0;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
+                    <button type="button" class="btn-salir" style="width:150px; margin:0; background:#777; color:white; border-radius:12px; height:50px; cursor:pointer; border:none; font-weight:bold;" onclick="location.reload()">CANCELAR</button>
+                    <button type="button" id="btn-env-inc" class="btn" style="background:#d63031; color:white; width:250px; margin:0; height:50px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
     <!-- UI OPERADOR SSO (PERMISOS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
