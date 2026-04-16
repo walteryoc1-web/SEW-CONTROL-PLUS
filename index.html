@@ -137,19 +137,29 @@
         </div>
     </div>
     
-    <div class="box-descarga" style="background:#fff3e0; border: 1px solid #ffe0b2; margin-top:20px;">
-    <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold; color:#e65100;">📂 BUSCADOR Y REIMPRESIÓN HISTÓRICA</p>
+    <!-- CAJA DE REIMPRESIÓN - ESTILO AUDITORÍA CORPORATIVA -->
+<div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #2c3e50;">
+    <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#2c3e50; letter-spacing:1px; text-transform:uppercase;">
+        🔍 Consulta de Historial y Reimpresión Digital
+    </p>
     <div style="display:flex; gap:10px;">
-        <input type="text" id="reimprimir-folio" placeholder="Folio SSO-XXXX" style="margin:0; flex:1; text-transform:uppercase;">
-        <button type="button" class="btn" onclick="consultarReimpresion()" style="width:auto; padding:10px 15px; background:#e67e22; color:white; font-size:12px;">🔍 BUSCAR</button>
+        <input type="text" id="reimprimir-folio" placeholder="FOLIO SSO-XXXX" 
+               style="margin:0; flex:1; text-transform:uppercase; border:1px solid #95a5a6; border-radius:8px; font-size:14px; font-weight:bold; color:#2c3e50;">
+        
+        <button type="button" class="btn" onclick="consultarReimpresion()" 
+                style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold; transition: 0.3s;">
+            LOCALIZAR REGISTRO
+        </button>
     </div>
+    
     <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;">
-        <!-- Botones dinámicos aparecerán aquí -->
+        <!-- Aquí el sistema inyectará los botones de descarga con estilo profesional -->
     </div>
 </div>
-    <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
-</div>
-<!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
+
+<button class="btn-salir" style="background:#636e72;" onclick="location.reload()">FINALIZAR CONSULTA Y SALIR</button>
+
+    <!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
     <!-- ENCABEZADO -->
     <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
