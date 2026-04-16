@@ -577,20 +577,35 @@
 
         // BOTÓN ATS (Si existe)
         if (info.existeATS) {
-            const btnATS = document.createElement("button");
-            btnATS.className = "btn";
-            btnATS.style.cssText = "background:#3498db; color:white; font-size:11px; padding:10px;";
-            btnATS.innerHTML = "📄 REIMPRIMIR PERMISO (ATS)";
-            btnATS.onclick = async () => {
-                btnATS.innerText = "Generando... ⏳";
-                // Aquí usamos tu función de generar PDF que ya tienes
-                const resp = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "generarPDF_SSO", ...info.datosATS }) });
-                const b64 = await resp.text();
+    const btnATS = document.createElement("button");
+    btnATS.className = "btn";
+    btnATS.style.cssText = "background:#34495e; color:white; font-size:11px; padding:12px; border-radius:8px; margin-bottom:5px; width:100%; cursor:pointer; font-weight:bold;";
+    btnATS.innerHTML = "📄 REIMPRIMIR PERMISO ORIGINAL (ATS)";
+    
+    btnATS.onclick = async () => {
+        const originalText = btnATS.innerHTML;
+        btnATS.innerText = "GENERANDO ARCHIVO... ⏳";
+        try {
+            const resp = await fetch(URL_SCRIPT, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: "reimprimirPDF_ATS", // <--- ESTE ES EL CAMBIO CLAVE
+                    folio: folio // El folio que escribiste en el buscador
+                }) 
+            });
+            const b64 = await resp.text();
+            if (b64.length > 500) {
                 descargarBase64PDF(b64, `Reimpresion_ATS_${folio}.pdf`);
-                btnATS.innerHTML = "📄 REIMPRIMIR PERMISO (ATS)";
-            };
-            contenedor.appendChild(btnATS);
+            } else {
+                alert("⚠️ Error: El servidor no pudo generar el PDF del ATS.");
+            }
+        } catch (e) { 
+            alert("❌ Error de comunicación con el servidor."); 
         }
+        btnATS.innerHTML = originalText;
+    };
+    contenedor.appendChild(btnATS);
+}
 
         // BOTÓN INCIDENTE (Si existe)
         if (info.existeInc) {
