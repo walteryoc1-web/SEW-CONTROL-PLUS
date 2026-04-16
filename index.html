@@ -136,7 +136,17 @@
             </div>
         </div>
     </div>
-
+    
+    <div class="box-descarga" style="background:#fff3e0; border: 1px solid #ffe0b2; margin-top:20px;">
+    <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold; color:#e65100;">📂 BUSCADOR Y REIMPRESIÓN HISTÓRICA</p>
+    <div style="display:flex; gap:10px;">
+        <input type="text" id="reimprimir-folio" placeholder="Folio SSO-XXXX" style="margin:0; flex:1; text-transform:uppercase;">
+        <button type="button" class="btn" onclick="consultarReimpresion()" style="width:auto; padding:10px 15px; background:#e67e22; color:white; font-size:12px;">🔍 BUSCAR</button>
+    </div>
+    <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;">
+        <!-- Botones dinámicos aparecerán aquí -->
+    </div>
+</div>
     <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
 </div>
 <!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
@@ -534,7 +544,74 @@
       contenedor.appendChild(div);
   }
 
-  /**
+    async function consultarReimpresion() {
+    const folio = document.getElementById('reimprimir-folio').value.toUpperCase().trim();
+    const contenedor = document.getElementById('controles-reimpresion');
+    
+    if (folio.length < 4) return alert("Ingrese un folio válido");
+
+    contenedor.style.display = "none";
+    contenedor.innerHTML = "⌛ Buscando en archivos...";
+    contenedor.style.display = "flex";
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "consultarReimpresion", folio: folio }) });
+        const info = await res.json();
+
+        if (!info.existeATS && !info.existeInc) {
+            contenedor.innerHTML = "<b style='color:#d32f2f;'>❌ No se encontró ningún registro con ese folio.</b>";
+            return;
+        }
+
+        contenedor.innerHTML = ""; // Limpiamos el cargando
+
+        // BOTÓN ATS (Si existe)
+        if (info.existeATS) {
+            const btnATS = document.createElement("button");
+            btnATS.className = "btn";
+            btnATS.style.cssText = "background:#3498db; color:white; font-size:11px; padding:10px;";
+            btnATS.innerHTML = "📄 REIMPRIMIR PERMISO (ATS)";
+            btnATS.onclick = async () => {
+                btnATS.innerText = "Generando... ⏳";
+                // Aquí usamos tu función de generar PDF que ya tienes
+                const resp = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "generarPDF_SSO", ...info.datosATS }) });
+                const b64 = await resp.text();
+                descargarBase64PDF(b64, `Reimpresion_ATS_${folio}.pdf`);
+                btnATS.innerHTML = "📄 REIMPRIMIR PERMISO (ATS)";
+            };
+            contenedor.appendChild(btnATS);
+        }
+
+        // BOTÓN INCIDENTE (Si existe)
+        if (info.existeInc) {
+            const btnInc = document.createElement("button");
+            btnInc.className = "btn";
+            btnInc.style.cssText = "background:#d63031; color:white; font-size:11px; padding:10px;";
+            btnInc.innerHTML = "🚩 REIMPRIMIR INFORME TÉCNICO";
+            btnInc.onclick = async () => {
+                btnInc.innerText = "Generando... ⏳";
+                const resp = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ action: "registrarIncidente", ...info.datosInc }) });
+                const b64 = await resp.text();
+                descargarBase64PDF(b64, `Reimpresion_Incidente_${folio}.pdf`);
+                btnInc.innerHTML = "🚩 REIMPRIMIR INFORME TÉCNICO";
+            };
+            contenedor.appendChild(btnInc);
+        }
+
+    } catch (e) {
+        contenedor.innerHTML = "⚠️ Error de conexión.";
+    }
+}
+
+// Función auxiliar para descargar
+function descargarBase64PDF(base64, nombre) {
+    const a = document.createElement("a");
+    a.href = "data:application/pdf;base64," + base64;
+    a.download = nombre;
+    a.click();
+}
+ 
+    /**
    * VALIDADOR DE NOMBRES: Muestra el colaborador en verde al escribir el ID.
    */
   function checkInvolucrado(inp) {
