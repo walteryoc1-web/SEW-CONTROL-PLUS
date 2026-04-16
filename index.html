@@ -86,43 +86,24 @@
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
 
- <!-- UI MONITOR SUPERVISOR SSO -->
-<div id="ui-monitor-sso" class="card-full" style="display:none !important;">
+<!-- UI MONITOR SUPERVISOR SSO -->
+<div id="ui-monitor-sso" class="card-full" style="display:none;">
     <span class="sub-plus">SC-MON-SSO-RT-01</span>
-    <div class="live-status">
-        <div class="dot" style="background:#3498db;"></div> 
-        MONITOR DE SEGURIDAD (EN VIVO)
-    </div>
+    <div class="live-status"><div class="dot" style="background:#3498db;"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
 
-    <!-- Píldoras de control -->
     <div class="pildoras-horizontal">
-        <div class="pildora" style="border-bottom-color: #e67e22;">
-            <h3>Generados</h3><p id="sso-pnd">00</p>
-        </div>
-        <div class="pildora" style="border-bottom-color: #9b59b6;">
-            <h3>Abiertos</h3><p id="sso-riesgo">00</p>
-        </div>
-        <div class="pildora" style="border-bottom-color: #16a085;">
-            <h3>Cerrados</h3><p id="sso-personal">00</p>
-        </div>
+        <div class="pildora" style="border-bottom-color: #e67e22;"><h3>Generados</h3><p id="sso-pnd">00</p></div>
+        <div class="pildora" style="border-bottom-color: #9b59b6;"><h3>Abiertos</h3><p id="sso-riesgo">00</p></div>
+        <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
     </div>
     
-    <!-- Botón de pánico/incidentes -->
-    <button class="btn" style="background:#ff6b6b; color:white; margin: 10px auto 20px; max-width:400px; display:block;" onclick="irAIncidentes()">
-        🚨 REPORTAR INCIDENTE
-    </button>
+    <button class="btn" style="background:#ff6b6b; color:white; margin: 10px auto 20px; max-width:400px; display:block;" onclick="irAIncidentes()">🚨 REPORTAR INCIDENTE</button>
 
-    <!-- Tabla de cierre de permisos -->
     <div style="margin: 20px auto; max-width: 500px;">
-        <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">
-            Permisos activos para cierre
-        </p>
-        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;">
-            <!-- Aquí se cargan los folios dinámicamente -->
-        </div>
+        <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">Permisos activos para cierre</p>
+        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;"></div>
     </div>
 
-    <!-- Caja de Descargas -->
     <div class="box-descarga">
         <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
         <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
@@ -137,26 +118,21 @@
         </div>
     </div>
     
-   <!-- CAJA DE REIMPRESIÓN - ESTILO AUDITORÍA CORPORATIVA -->
-<div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #2c3e50;">
-    <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#2c3e50; letter-spacing:1px; text-transform:uppercase;">
-        🔍 Consulta de Historial y Reimpresión Digital
-    </p>
-    <div style="display:flex; gap:10px;">
-        <input type="text" id="reimprimir-folio" placeholder="FOLIO SSO-XXXX" 
-               style="margin:0; flex:1; text-transform:uppercase; border:1px solid #95a5a6; border-radius:8px; font-size:14px; font-weight:bold; color:#2c3e50;">
-        
-        <button type="button" class="btn" onclick="consultarReimpresion()" 
-                style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">
-            LOCALIZAR REGISTRO
-        </button>
+    <!-- CAJA DE REIMPRESIÓN -->
+    <div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #2c3e50;">
+        <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#2c3e50; letter-spacing:1px; text-transform:uppercase;">🔍 Consulta de Historial y Reimpresión Digital</p>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="reimprimir-folio" placeholder="FOLIO SSO-XXXX" style="margin:0; flex:1; text-transform:uppercase; border:1px solid #95a5a6; border-radius:8px; font-size:14px; font-weight:bold; color:#2c3e50;">
+            <button type="button" class="btn" onclick="consultarReimpresion()" style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">BUSCAR</button>
+        </div>
+        <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;"></div>
     </div>
-    <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;"></div>
-</div>
 
-<button class="btn-salir" style="background:#636e72; margin-bottom: 20px;" onclick="location.reload()">FINALIZAR CONSULTA Y SALIR</button>
+    <button class="btn-salir" style="background:#636e72; margin-top: 20px;" onclick="location.reload()">CERRAR PANEL GENERAL</button>
+</div> <!-- CIERRE CORRECTO DE UI-MONITOR-SSO -->
 
-<!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
+
+<!-- INTERFAZ INFORME TÉCNICO DE INCIDENTE -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
     <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
         <h2 style="margin:0; font-size:24px; letter-spacing:2px;">INFORME TÉCNICO DE INCIDENTE / ACCIDENTE (SSO)</h2>
@@ -175,7 +151,7 @@
             </div>
         </div>
 
-        <!-- PARTE 2: PERSONAL (CORREGIDA) -->
+        <!-- PARTE 2: PERSONAL -->
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
             <div>
                 <label style="font-weight:bold; color:#3498db;">2. 👥 COLABORADORES AFECTADOS</label>
@@ -196,7 +172,7 @@
                     <option>Suspensión por IGSS</option>
                 </select>
             </div>
-        </div> <!-- AQUÍ CIERRA PARTE 2 -->
+        </div>
 
         <!-- PARTE 3: ACCIONES INMEDIATAS -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
@@ -210,21 +186,12 @@
             <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
         </div>
 
-       <!-- PARTE 4: INFRAESTRUCTURA -->
+        <!-- PARTE 4: INFRAESTRUCTURA -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
             <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO (INFRAESTRUCTURA)</label></div>
-            <select id="inc-estructura">
-                <option disabled selected>Riesgo Estructura</option>
-                <option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option>
-            </select>
-            <select id="inc-reparacion">
-                <option disabled selected>Reparación Técnica</option>
-                <option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option>
-            </select>
-            <select id="inc-reincidencia">
-                <option disabled selected>¿Evento Reincidente?</option>
-                <option value="No">No</option><option value="Si">Si</option>
-            </select>
+            <select id="inc-estructura"><option disabled selected>Riesgo Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
+            <select id="inc-reparacion"><option disabled selected>Reparación Técnica</option><option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option></select>
+            <select id="inc-reincidencia"><option disabled selected>¿Evento Reincidente?</option><option value="No">No</option><option value="Si">Si</option></select>
             <input type="text" id="inc-obs-estructura" placeholder="Observación" style="grid-column: span 1;">
             <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos SI" style="grid-column: span 2;">
         </div>
@@ -244,9 +211,9 @@
                 </div>
             </div>
         </div>
-    </div> <
-</div> <
-
+    </div>
+</div> <!-- CIERRE FINAL UI-INCIDENTES-SSO -->
+    
     <!-- UI OPERADOR SSO (PERMISOS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
