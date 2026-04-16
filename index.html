@@ -137,7 +137,7 @@
         </div>
     </div>
     
-    <!-- CAJA DE REIMPRESIÓN - ESTILO AUDITORÍA CORPORATIVA -->
+   <!-- CAJA DE REIMPRESIÓN - ESTILO AUDITORÍA CORPORATIVA -->
 <div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #2c3e50;">
     <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#2c3e50; letter-spacing:1px; text-transform:uppercase;">
         🔍 Consulta de Historial y Reimpresión Digital
@@ -147,28 +147,23 @@
                style="margin:0; flex:1; text-transform:uppercase; border:1px solid #95a5a6; border-radius:8px; font-size:14px; font-weight:bold; color:#2c3e50;">
         
         <button type="button" class="btn" onclick="consultarReimpresion()" 
-                style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold; transition: 0.3s;">
+                style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">
             LOCALIZAR REGISTRO
         </button>
     </div>
-    
-    <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;">
-        <!-- Aquí el sistema inyectará los botones de descarga con estilo profesional -->
-    </div>
+    <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;"></div>
 </div>
 
-<button class="btn-salir" style="background:#636e72;" onclick="location.reload()">FINALIZAR CONSULTA Y SALIR</button>
+<button class="btn-salir" style="background:#636e72; margin-bottom: 20px;" onclick="location.reload()">FINALIZAR CONSULTA Y SALIR</button>
 
-    <!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
+<!-- INTERFAZ INFORME TÉCNICO - PANTALLA COMPLETA -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
-    <!-- ENCABEZADO -->
     <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
         <h2 style="margin:0; font-size:24px; letter-spacing:2px;">INFORME TÉCNICO DE INCIDENTE / ACCIDENTE (SSO)</h2>
         <p style="margin:5px 0 0 0; font-size:12px; opacity:0.8;">REGISTRO DE SEGURIDAD INDUSTRIAL Y ANÁLISIS DE RIESGOS</p>
     </div>
 
     <div style="padding:30px; max-width:1200px; margin:auto;">
-        
         <!-- PARTE 1: VINCULACIÓN -->
         <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
             <div>
@@ -176,7 +171,7 @@
                 <input type="text" id="inc-folio" placeholder="DIGITE FOLIO (SSO-XXXX)" oninput="vincularDatosPermiso(this.value)" style="border:2px solid #d63031; font-weight:bold;">
             </div>
             <div id="datos-vinculados-sso" style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #ddd; min-height:100px; font-size:13px; color:#444;">
-                <p style="color:#999; text-align:center;">Esperando folio para jalar: Fase, Ubicación, Tipo de Trabajo, Empresa y EPP...</p>
+                <p style="color:#999; text-align:center;">Esperando folio...</p>
             </div>
         </div>
 
@@ -201,7 +196,7 @@
                     <option>Suspensión por IGSS</option>
                 </select>
             </div>
-        </div>
+        </div> <!-- AQUÍ CIERRA PARTE 2 -->
 
         <!-- PARTE 3: ACCIONES INMEDIATAS -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
@@ -217,29 +212,24 @@
 
         <!-- PARTE 4: INFRAESTRUCTURA -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
-            <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO ACTUALIZADA (INFRAESTRUCTURA)</label></div>
-            
+            <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO (INFRAESTRUCTURA)</label></div>
             <select id="inc-estructura">
                 <option disabled selected>Riesgo Estructura</option>
                 <option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option>
             </select>
-            
             <select id="inc-reparacion">
                 <option disabled selected>Reparación Técnica</option>
                 <option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option>
             </select>
-
             <select id="inc-reincidencia">
                 <option disabled selected>¿Evento Reincidente?</option>
-                <option value="No">No (Evento Nuevo)</option>
-                <option value="Si - Reportado no corregido">Sí (Reportado, no corregido)</option>
-                <option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option>
+                <option value="No">No</option><option value="Si">Si</option>
             </select>
-
-            <input type="text" id="inc-obs-estructura" placeholder="Observación de infraestructura" style="grid-column: span 1;">
-            <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos a la Seguridad Industrial" style="grid-column: span 2;">
+            <input type="text" id="inc-obs-estructura" placeholder="Observación" style="grid-column: span 1;">
+            <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos SI" style="grid-column: span 2;">
         </div>
-
+    </div> <
+</div> 
         <!-- PARTE 5: CIERRE -->
         <div style="margin-bottom: 30px;">
             <label style="font-weight:bold; color:#2d3436;">5. 📝 RECOMENDACIONES Y CIERRE</label>
