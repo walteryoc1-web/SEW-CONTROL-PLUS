@@ -487,15 +487,33 @@
         }
 
         // --- 8. MÓDULO MÉDICO Y EXTINTORES ---
-       async function enviarFichaMedica() {
-    const btn = event.target; btn.innerText = "GENERANDO PDF... ⏳"; btn.disabled = true;
-    // ... (mismos datos de antes) ...
+      async function enviarFichaMedica() {
+    const btn = event.target; 
+    const originalText = btn.innerText;
+    btn.innerText = "GENERANDO PDF... ⏳"; 
+    btn.disabled = true;
+
+    // ... (aquí van tus datos de captura med-id, etc) ...
+
     try {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-        const b64 = await res.text();
-        if(b64.length > 500) { descargarBase64PDF(b64, `Ficha_Medica_${datos.id}.pdf`); }
-        alert("✅ Registro y PDF generados"); location.reload();
-    } catch(e) { alert("Error"); btn.disabled = false; }
+        const respuestaServidor = await res.text();
+
+        if (respuestaServidor.length > 500) { 
+            descargarBase64PDF(respuestaServidor, `Ficha_Medica_${datos.id}.pdf`); 
+            alert("✅ Registro y PDF generados"); 
+            location.reload();
+        } else { 
+            // AQUÍ VEREMOS EL ERROR REAL
+            alert("⚠️ Atención: " + respuestaServidor); 
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    } catch(e) { 
+        alert("❌ Error de red o servidor caído"); 
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
 }
  // --- FUNCIÓN PARA ENVIAR INSPECCIÓN DE EXTINTORES Y GENERAR PDF ---
 async function enviarInspeccionExtintor() {
