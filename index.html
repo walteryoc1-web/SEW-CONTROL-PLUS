@@ -497,7 +497,7 @@
         alert("✅ Registro y PDF generados"); location.reload();
     } catch(e) { alert("Error"); btn.disabled = false; }
 }
-
+ 
 // Botones de descarga de base de datos (Agrégalos al monitor)
 async function descargarCSV_Medico() {
     const res = await fetch(URL_SCRIPT + "?accion=reporteMedico");
@@ -510,7 +510,53 @@ async function descargarCSV_Extintores() {
     const data = await res.json();
     generarCSV(data, "Historial_Extintores.csv");
 }
+// --- FUNCIÓN PARA ENVIAR INSPECCIÓN DE EXTINTORES Y GENERAR PDF ---
+async function enviarInspeccionExtintor() {
+    const id = document.getElementById('ext-id').value.toUpperCase().trim();
+    if(!id) return alert("❌ Ingrese el ID del Extintor");
 
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerText = "GENERANDO PDF TÉCNICO... ⏳";
+
+    const datos = {
+        action: "registrarExtintor",
+        id: id,
+        ubi: document.getElementById('ext-ubi').value,
+        agente: document.getElementById('ext-agente').value,
+        presion: document.getElementById('ext-presion').value,
+        manguera: document.getElementById('ext-manguera').value,
+        seguro: document.getElementById('ext-seguro').value,
+        vence: document.getElementById('ext-vence').value,
+        obs: document.getElementById('ext-obs').value
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(datos) 
+        });
+        
+        const b64 = await res.text();
+
+        // Si la respuesta es un Base64 largo, es el PDF
+        if (b64.length > 500) {
+            descargarBase64PDF(b64, `Inspeccion_Extintor_${id}.pdf`);
+            alert("✅ Inspección registrada y PDF generado exitosamente.");
+            location.reload();
+        } else {
+            // Si el servidor solo responde "OK_EXTINTOR" o similar
+            alert("✅ Datos guardados en Excel.");
+            location.reload();
+        }
+    } catch (e) {
+        console.error(e);
+        alert("❌ Error de red al intentar registrar la inspección.");
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
 function generarCSV(data, nombre) {
     let csv = "\uFEFFFECHA,DATOS\n";
     data.forEach(r => csv += `${r.fecha},${r.datos.replace(/;/g, ",")}\n`);
