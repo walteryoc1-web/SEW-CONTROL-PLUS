@@ -118,51 +118,44 @@
         </div>
     </div>
     
-    <!-- CAJA DE REIMPRESIÓN -->
-    <div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #2c3e50;">
-        <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#2c3e50; letter-spacing:1px; text-transform:uppercase;">🔍 Consulta de Historial y Reimpresión Digital</p>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="reimprimir-folio" placeholder="FOLIO SSO-XXXX" style="margin:0; flex:1; text-transform:uppercase; border:1px solid #95a5a6; border-radius:8px; font-size:14px; font-weight:bold; color:#2c3e50;">
-            <button type="button" class="btn" onclick="consultarReimpresion()" style="width:auto; padding:10px 20px; background:#2c3e50; color:white; font-size:12px; border-radius:8px; border:none; cursor:pointer; font-weight:bold;">BUSCAR</button>
+    <!-- CAJA DE REIMPRESIÓN (Aquí termina lo anterior) -->
+    <div class="box-descarga" style="background:#f1f3f4; ...">
+       <!-- ... contenido del buscador navy ... -->
+    </div>
+
+    <!-- AQUÍ DEBES PEGAR EL CONTROL MÉDICO -->
+    <!-- CAJA DE CONTROL MÉDICO -->
+    <div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #16a085;">
+        <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#16a085; letter-spacing:1px; text-transform:uppercase;">
+            ⚕️ Registro de Control y Examen Médico
+        </p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase; border-radius:8px; border:1px solid #95a5a6;">
+            <input type="date" id="med-fecha" style="border-radius:8px; border:1px solid #95a5a6;">
+            
+            <select id="med-tipo" style="border-radius:8px; border:1px solid #95a5a6;">
+                <option disabled selected>Tipo de Examen</option>
+                <option>Pre-empleo</option>
+                <option>Periódico Anual</option>
+                <option>Post-Incidente</option>
+                <option>Especial (Alturas/Vapores)</option>
+            </select>
+
+            <select id="med-resultado" style="border-radius:8px; border:1px solid #95a5a6;">
+                <option disabled selected>Resultado / Aptitud</option>
+                <option value="APTO">✅ APTO</option>
+                <option value="APTO_CON_RESTRICCION">⚠️ APTO CON RESTRICCIÓN</option>
+                <option value="NO_APTO">❌ NO APTO (Temporal)</option>
+            </select>
         </div>
-        <div id="controles-reimpresion" style="margin-top:15px; display:none; flex-direction:column; gap:8px;"></div>
+        <textarea id="med-obs" placeholder="Observaciones o restricciones médicas..." rows="2" style="width:100%; margin-top:10px; border-radius:8px; border:1px solid #95a5a6; padding:8px; font-size:12px;"></textarea>
+        <button type="button" class="btn" onclick="registrarExamenMedico()" style="width:100%; margin-top:10px; background:#16a085; color:white; font-size:12px; border-radius:8px; font-weight:bold;">GUARDAR REGISTRO MÉDICO</button>
     </div>
 
+    <!-- BOTÓN DE SALIDA DEL PANEL (Asegúrate de que esté después del control médico) -->
     <button class="btn-salir" style="background:#636e72; margin-top: 20px;" onclick="location.reload()">CERRAR PANEL GENERAL</button>
-</div> <!-- CIERRE CORRECTO DE UI-MONITOR-SSO -->
 
-<!-- CAJA DE CONTROL MÉDICO - ESTILO SALUD OCUPACIONAL -->
-<div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #16a085;">
-    <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#16a085; letter-spacing:1px; text-transform:uppercase;">
-        ⚕️ Registro de Control y Examen Médico
-    </p>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase; border-radius:8px; border:1px solid #95a5a6;">
-        <input type="date" id="med-fecha" style="border-radius:8px; border:1px solid #95a5a6;">
-        
-        <select id="med-tipo" style="border-radius:8px; border:1px solid #95a5a6;">
-            <option disabled selected>Tipo de Examen</option>
-            <option>Pre-empleo</option>
-            <option>Periódico Anual</option>
-            <option>Post-Incidente</option>
-            <option>Especial (Alturas/Vapores)</option>
-        </select>
-
-        <select id="med-resultado" style="border-radius:8px; border:1px solid #95a5a6;">
-            <option disabled selected>Resultado / Aptitud</option>
-            <option value="APTO">✅ APTO</option>
-            <option value="APTO_CON_RESTRICCION">⚠️ APTO CON RESTRICCIÓN</option>
-            <option value="NO_APTO">❌ NO APTO (Temporal)</option>
-        </select>
-    </div>
-    
-    <textarea id="med-obs" placeholder="Observaciones o restricciones médicas..." rows="2" style="width:100%; margin-top:10px; border-radius:8px; border:1px solid #95a5a6; padding:8px; font-size:12px;"></textarea>
-
-    <button type="button" class="btn" onclick="registrarExamenMedico()" 
-            style="width:100%; margin-top:10px; background:#16a085; color:white; font-size:12px; border-radius:8px; font-weight:bold;">
-        GUARDAR REGISTRO MÉDICO
-    </button>
-</div>
+</div> <!-- AQUÍ ES DONDE CIERRA TODO EL ui-monitor-sso -->
     
 <!-- INTERFAZ INFORME TÉCNICO DE INCIDENTE -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
