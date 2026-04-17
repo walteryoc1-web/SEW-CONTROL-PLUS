@@ -97,7 +97,23 @@
         <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
     </div>
     
-    <button class="btn" style="background:#ff6b6b; color:white; margin: 10px auto 20px; max-width:400px; display:block;" onclick="irAIncidentes()">🚨 REPORTAR INCIDENTE</button>
+    <!-- FILA DE MANDOS SSO: 3 ACCIONES CLAVE -->
+<div style="display:flex; gap:10px; justify-content:center; margin: 15px auto 25px; max-width:800px;">
+    <!-- BOTÓN 1: INCIDENTES -->
+    <button class="btn" style="background:#d63031; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAIncidentes()">
+        🚨 REPORTAR<br>INCIDENTE
+    </button>
+    
+    <!-- BOTÓN 2: MÉDICO -->
+    <button class="btn" style="background:#16a085; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAMedico()">
+        ⚕️ CONTROL<br>MÉDICO
+    </button>
+    
+    <!-- BOTÓN 3: EXTINTORES -->
+    <button class="btn" style="background:#2c3e50; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAExtintores()">
+        🧯 INSPECCIÓN<br>EXTINTORES
+    </button>
+</div>
 
     <div style="margin: 20px auto; max-width: 500px;">
         <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">Permisos activos para cierre</p>
@@ -122,41 +138,7 @@
     <div class="box-descarga" style="background:#f1f3f4; ...">
        <!-- ... contenido del buscador navy ... -->
     </div>
-
-    <!-- AQUÍ DEBES PEGAR EL CONTROL MÉDICO -->
-    <!-- CAJA DE CONTROL MÉDICO -->
-    <div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #16a085;">
-        <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#16a085; letter-spacing:1px; text-transform:uppercase;">
-            ⚕️ Registro de Control y Examen Médico
-        </p>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase; border-radius:8px; border:1px solid #95a5a6;">
-            <input type="date" id="med-fecha" style="border-radius:8px; border:1px solid #95a5a6;">
-            
-            <select id="med-tipo" style="border-radius:8px; border:1px solid #95a5a6;">
-                <option disabled selected>Tipo de Examen</option>
-                <option>Pre-empleo</option>
-                <option>Periódico Anual</option>
-                <option>Post-Incidente</option>
-                <option>Especial (Alturas/Vapores)</option>
-            </select>
-
-            <select id="med-resultado" style="border-radius:8px; border:1px solid #95a5a6;">
-                <option disabled selected>Resultado / Aptitud</option>
-                <option value="APTO">✅ APTO</option>
-                <option value="APTO_CON_RESTRICCION">⚠️ APTO CON RESTRICCIÓN</option>
-                <option value="NO_APTO">❌ NO APTO (Temporal)</option>
-            </select>
-        </div>
-        <textarea id="med-obs" placeholder="Observaciones o restricciones médicas..." rows="2" style="width:100%; margin-top:10px; border-radius:8px; border:1px solid #95a5a6; padding:8px; font-size:12px;"></textarea>
-        <button type="button" class="btn" onclick="registrarExamenMedico()" style="width:100%; margin-top:10px; background:#16a085; color:white; font-size:12px; border-radius:8px; font-weight:bold;">GUARDAR REGISTRO MÉDICO</button>
-    </div>
-
-    <!-- BOTÓN DE SALIDA DEL PANEL (Asegúrate de que esté después del control médico) -->
-    <button class="btn-salir" style="background:#636e72; margin-top: 20px;" onclick="location.reload()">CERRAR PANEL GENERAL</button>
-
-</div> <!-- AQUÍ ES DONDE CIERRA TODO EL ui-monitor-sso -->
-    
+      
 <!-- INTERFAZ INFORME TÉCNICO DE INCIDENTE -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
     <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -560,6 +542,38 @@ async function registrarExamenMedico() {
       contenedor.appendChild(div);
   }
 
+    function irAMedico() {
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    document.getElementById('ui-medico-sso').style.display = 'block';
+}
+
+async function enviarFichaMedica() {
+    const btn = document.getElementById('btn-env-med');
+    const datos = {
+        action: "registrarMedico",
+        id: document.getElementById('med-id').value.toUpperCase(),
+        fecha: document.getElementById('med-fecha').value,
+        tipo: document.getElementById('med-tipo').value,
+        glucosa: document.getElementById('med-glucosa').value,
+        presion: document.getElementById('med-presion').value,
+        temp: document.getElementById('med-temp').value,
+        peso: document.getElementById('med-peso').value,
+        oxigeno: document.getElementById('med-oxigeno').value,
+        ritmo: document.getElementById('med-ritmo').value,
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value
+    };
+
+    if(!datos.id || !datos.fecha) return alert("Ingrese ID y Fecha");
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        if(await res.text() === "OK_MEDICO") {
+            alert("🩺 Ficha Médica guardada con éxito");
+            location.reload();
+        }
+    } catch(e) { alert("Error de conexión"); }
+}
     async function consultarReimpresion() {
     const folio = document.getElementById('reimprimir-folio').value.toUpperCase().trim();
     const contenedor = document.getElementById('controles-reimpresion');
@@ -1160,6 +1174,62 @@ async function descargarCSV_Incidentes() {
         alert("❌ Error al obtener reporte de incidentes"); 
     }
 }
+    <!-- INTERFAZ CONTROL MÉDICO - PANTALLA COMPLETA -->
+<div id="ui-medico-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
+    <div style="background:#16a085; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        <h2 style="margin:0; font-size:24px; letter-spacing:2px;">FICHA DE CONTROL MÉDICO PREVENTIVO</h2>
+        <p style="margin:5px 0 0 0; font-size:12px; opacity:0.8;">SALUD OCUPACIONAL Y MONITOREO DE CONSTANTES VITALES</p>
+    </div>
+
+    <div style="padding:30px; max-width:1000px; margin:auto;">
+        <!-- Datos Generales -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+            <div><label>ID COLABORADOR</label><input type="text" id="med-id" placeholder="ID-XXXX" style="text-transform:uppercase;"></div>
+            <div><label>FECHA EVALUACIÓN</label><input type="date" id="med-fecha"></div>
+            <div><label>TIPO DE EVALUACIÓN</label>
+                <select id="med-tipo">
+                    <option>Pre-empleo</option><option selected>Control Periódico</option><option>Post-Incidente</option><option>Especial (Alturas)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Constantes Vitales (Lo que pediste) -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background:#f9f9f9; padding:20px; border-radius:15px; margin-bottom:20px;">
+            <div>
+                <label style="color:#2980b9;">💉 GLUCOSA (Azúcar)</label>
+                <input type="number" id="med-glucosa" placeholder="mg/dL">
+            </div>
+            <div>
+                <label style="color:#c0392b;">💓 PRESIÓN ARTERIAL</label>
+                <input type="text" id="med-presion" placeholder="120/80">
+            </div>
+            <div>
+                <label style="color:#27ae60;">🌡️ TEMP. CORPORAL</label>
+                <input type="number" id="med-temp" placeholder="°C" step="0.1">
+            </div>
+            <div><label>PESO (Lbs)</label><input type="number" id="med-peso"></div>
+            <div><label>OXIGENACIÓN (%)</label><input type="number" id="med-oxigeno"></div>
+            <div><label>FRECUENCIA CARD.</label><input type="number" id="med-ritmo"></div>
+        </div>
+
+        <!-- Conclusión -->
+        <div style="margin-bottom: 30px;">
+            <label style="font-weight:bold;">RESULTADO Y APTITUD MÉDICA</label>
+            <select id="med-resultado" style="margin-bottom:15px;">
+                <option value="APTO">✅ APTO PARA LABORES</option>
+                <option value="RESTRICCION">⚠️ APTO CON RESTRICCIONES</option>
+                <option value="NO_APTO">❌ NO APTO TEMPORALMENTE</option>
+            </select>
+            <textarea id="med-obs" placeholder="Detalle de hallazgos médicos o restricciones..." rows="3"></textarea>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+            <button type="button" class="btn-salir" style="background:#777; flex:1;" onclick="location.reload()">CANCELAR</button>
+            <button type="button" class="btn" style="background:#16a085; flex:2;" onclick="enviarFichaMedica()">REGISTRAR FICHA MÉDICA ⚕️</button>
+        </div>
+    </div>
+</div>
+    
 </script>
 </body>
 </html>
