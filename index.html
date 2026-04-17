@@ -585,90 +585,139 @@ async function enviarInspeccionExtintor() {
     }
 }           
  
-// Botones de descarga de base de datos (Agrégalos al monitor)
+// ==========================================================
+// MOTOR UNIVERSAL DE FILTRADO Y DESCARGA 
+// ==========================================================
+async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=" + accion);
+        const data = await res.json();
+        
+        const fil = data.filter(r => {
+            if(!r.fecha) return false;
+            // Limpiador: de "17/04/2026 10:00" sacamos "17/04/2026"
+            let fechaTexto = r.fecha.toString().split(' ')[0];
+            let p = fechaTexto.split('/');
+            if(p.length !== 3) return false;
+            // Convertimos DD/MM/YYYY a YYYY-MM-DD para comparar con el calendario
+            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ No hay datos registrados en este rango de fechas.");
+
+        let csv = "\uFEFFFECHA,HORA,DATOS_SISTEMA\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+
+        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `${nombreArchivo}_${ini}_al_${fin}.csv`;
+        a.click();
+    } catch(e) { 
+        alert("❌ Error al obtener el reporte.");
+        console.error(e);
+    }
+}
+
+// --- 1. ASIGNACIÓN DE FUNCIONES A LOS BOTONES ---
+async function descargarCSV() { // Supervisor Logística
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas en el panel de Logística.");
+    await procesarDescargaUniversal("reporte", ini, fin, "Reporte_Logistica");
+}
+
+async function descargarCSV_SSO() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas en el panel SSO.");
+    await procesarDescargaUniversal("reporteSSO", ini, fin, "Reporte_ATS");
+}
+
+async function descargarCSV_Incidentes() {
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas en el panel SSO.");
+    await procesarDescargaUniversal("reporteIncidentes", ini, fin, "Reporte_Incidentes");
+}
+
+async function descargarCSV_OT() {
+    const ini = document.getElementById('f-ini-ot').value;
+    const fin = document.getElementById('f-fin-ot').value;
+    if(!ini || !fin) return alert("❌ Seleccione fechas en el panel de Operaciones.");
+    await procesarDescargaUniversal("reporteOT", ini, fin, "Reporte_Ordenes_Trabajo");
+}
+
 async function descargarCSV_Medico() {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteMedico");
-    const data = await res.json();
-    generarCSV(data, "Historial_Medico.csv");
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    await procesarDescargaUniversal("reporteMedico", ini, fin, "Historial_Medico");
 }
 
 async function descargarCSV_Extintores() {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteExtintores");
-    const data = await res.json();
-    generarCSV(data, "Historial_Extintores.csv");
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    await procesarDescargaUniversal("reporteExtintores", ini, fin, "Historial_Extintores");
 }
-// --- FUNCIÓN PARA ENVIAR INSPECCIÓN DE EXTINTORES Y GENERAR PDF ---
-async function enviarInspeccionExtintor() {
-    const id = document.getElementById('ext-id').value.toUpperCase().trim();
-    if(!id) return alert("❌ Ingrese el ID del Extintor");
 
-    const btn = event.target;
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerText = "GENERANDO PDF TÉCNICO... ⏳";
+// --- 2. FUNCIONES DE APOYO Y CIERRE ---
+function iniciarReloj() { 
+    setInterval(() => { 
+        const r = document.getElementById('reloj'); 
+        if(r) r.innerText = new Date().toLocaleTimeString(); 
+    }, 1000); 
+}
 
-    const datos = {
-        action: "registrarExtintor",
-        id: id,
-        ubi: document.getElementById('ext-ubi').value,
-        agente: document.getElementById('ext-agente').value,
-        presion: document.getElementById('ext-presion').value,
-        manguera: document.getElementById('ext-manguera').value,
-        seguro: document.getElementById('ext-seguro').value,
-        vence: document.getElementById('ext-vence').value,
-        obs: document.getElementById('ext-obs').value
-    };
-
+async function actualizarPildoras() { 
     try {
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(datos) 
-        });
-        
-        const b64 = await res.text();
+        const r = await fetch(URL_SCRIPT); const d = await r.json(); 
+        document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0');
+        document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0');
+        document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0');
+    } catch(e){}
+}
 
-        // Si la respuesta es un Base64 largo, es el PDF
-        if (b64.length > 500) {
-            descargarBase64PDF(b64, `Inspeccion_Extintor_${id}.pdf`);
-            alert("✅ Inspección registrada y PDF generado exitosamente.");
-            location.reload();
-        } else {
-            // Si el servidor solo responde "OK_EXTINTOR" o similar
-            alert("✅ Datos guardados en Excel.");
-            location.reload();
-        }
-    } catch (e) {
-        console.error(e);
-        alert("❌ Error de red al intentar registrar la inspección.");
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-    }
+async function actualizarPildorasSSO() { 
+    try {
+        const r = await fetch(URL_SCRIPT); const d = await r.json(); 
+        document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0');
+        document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
+        document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0');
+    } catch(e){}
 }
-function generarCSV(data, nombre) {
-    let csv = "\uFEFFFECHA,DATOS\n";
-    data.forEach(r => csv += `${r.fecha},${r.datos.replace(/;/g, ",")}\n`);
-    const b = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click();
+
+async function cargarPermisosParaCerrar() { 
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO"); 
+        const data = await res.json();
+        const cont = document.getElementById('contenedor-tabla-sso'); 
+        if(!cont) return;
+        cont.innerHTML = "";
+        data.filter(r => !r.datos.toUpperCase().includes("CERRADO")).forEach(p => {
+            const d = p.datos.split(";");
+            const folio = d[0];
+            const div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;";
+            div.innerHTML = `<span><b>${folio}</b></span> <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer;">CERRAR</button>`;
+            cont.appendChild(div);
+        });
+    } catch(e){}
 }
-            // --- 9. MONITOREO Y APOYO ---
-        function iniciarReloj() { setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000); }
-        async function actualizarPildoras() { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('count-pendientes').innerText = d.pendientes || "00"; document.getElementById('count-proceso').innerText = d.proceso || "00"; document.getElementById('count-despachadas').innerText = d.despachadas || "00"; }
-        async function actualizarPildorasSSO() { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('sso-pnd').innerText = d.totalSSO || "00"; document.getElementById('sso-riesgo').innerText = d.riesgoSSO || "00"; document.getElementById('sso-personal').innerText = d.personalSSO || "00"; }
-        async function cargarPermisosParaCerrar() { 
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO"); const data = await res.json();
-            const cont = document.getElementById('contenedor-tabla-sso'); cont.innerHTML = "";
-            data.filter(r => !r.datos.includes("CERRADO")).forEach(p => {
-                const d = p.datos.split(";");
-                const div = document.createElement('div'); div.style.padding="10px"; div.innerHTML = `<b>${d[0]}</b> <button onclick="cerrarPermiso('${d[0]}')">CERRAR</button>`;
-                cont.appendChild(div);
-            });
-        }
-        async function cerrarPermiso(f) { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f }); alert("ATS CERRADO"); location.reload(); }
-        function descargarBase64PDF(b64, n) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = n; a.click(); }
-        async function descargarCSV() { /* Tu lógica de logística */ }
-        async function descargarCSV_SSO() { /* Tu lógica SSO */ }
-        async function descargarCSV_Incidentes() { /* Tu lógica Incidentes */ }
-        async function descargarCSV_OT() { /* Tu lógica OT */ }
-    </script>
+
+async function cerrarPermiso(f) { 
+    if(!confirm("¿Desea cerrar el permiso " + f + "?")) return;
+    await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f }); 
+    alert("✅ ATS CERRADO EXITOSAMENTE"); 
+    location.reload(); 
+}
+
+function descargarBase64PDF(base64, nombre) {
+    const a = document.createElement("a");
+    a.href = "data:application/pdf;base64," + base64;
+    a.download = nombre;
+    a.click();
+}
+</script>
 </body>
 </html>
