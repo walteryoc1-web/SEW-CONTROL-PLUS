@@ -166,9 +166,9 @@
                 <label style="font-weight:bold; color:#3498db;">ESTADO DE SALUD</label>
                 <select id="inc-salud">
                     <option value="SIN_AFECTADOS">No hay afectados</option>
-                    <option>Atención en Clínica Médica</option>
+                    <option>Atención en Clínica Médica Terpac</option>
                     <option>Traslado a IGSS</option>
-                    <option>Suspensión por Clínica</option>
+                    <option>Suspensión por Clínica publica o privada</option>
                     <option>Suspensión por IGSS</option>
                 </select>
             </div>
@@ -183,7 +183,7 @@
             <select id="inc-tipo"><option disabled selected>Tipo de Evento</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option><option>Acto Inseguro</option></select>
             <select id="inc-gravedad"><option disabled selected>Gravedad</option><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
             <select id="inc-riesgo"><option disabled selected>Evaluación Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
-            <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Derrame controlado</option><option>Fuga mayor</option></select>
+            <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Moderado</option><option>Critico</option></select>
         </div>
 
         <!-- PARTE 4: INFRAESTRUCTURA -->
@@ -191,7 +191,7 @@
             <div style="grid-column: span 3;"><label style="font-weight:bold; color:#636e72;">4. 🏗️ ANÁLISIS DE RIESGO (INFRAESTRUCTURA)</label></div>
             <select id="inc-estructura"><option disabled selected>Riesgo Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
             <select id="inc-reparacion"><option disabled selected>Reparación Técnica</option><option>No requerida</option><option>Mantenimiento preventivo</option><option>Reparación mayor urgente</option></select>
-            <select id="inc-reincidencia"><option disabled selected>¿Evento Reincidente?</option><option value="No">No (Evento Nuevo)</option><option value="Si - Reportado no corregido">Sí (Reportado, no corregido)</option><option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option></select>
+            <select id="inc-reincidencia"><option disabled selected>¿Evento Reincidente?</option><option value="No">No (Evento Nuevo)</option><option value="Si - Reportado no corregido">Falla de Estructura Recurrente</option><option value="Si - Reincidencia operativa">Sí (Falla recurrente)</option></select>
             <input type="text" id="inc-obs-estructura" placeholder="Observación de Infraestructura" style="grid-column: span 1;">
             <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos a la Seguidad Industrial" style="grid-column: span 2;">
         </div>
@@ -237,7 +237,7 @@
             </div>
             <select id="p-tipo" onchange="actualizarChecklist()">
                 <option value="" disabled selected>Tipo de Trabajo</option>
-                <option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">Confinado</option><option value="electrico">Eléctrico</option>
+                <option value="altura">En Alturas</option><option value="caliente">En Caliente</option><option value="confinado">Confinado</option><option value="electrico">Eléctrico</option><option value="Otros">Otros</option>
             </select>
             <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
                 <label class="chk-label"><input type="checkbox" id="check-herramientas" class="chk-input" onchange="actualizarChecklist()"> ¿Usa Herramientas?</label>
@@ -353,15 +353,17 @@
     const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
 
     const ubicacionesData = { 
-        "Fase 1": ["Silo 1", "Silo 2", "Bascula 1"], 
-        "Fase 2": ["Bodega 4", "Silo 8"], 
-        "Fase 3": ["Muelle", "Oficinas"] 
+        "Fase 1": ["Silo 1", "Silo 2", "Silo 3","Silo 4", "Silo 5", " Silo 6","silo conico", "Bin 1", "Bin 2", "Angar", "Edificio Administrativo", "Bascula"], 
+        "Fase 2": ["Bin 3", "Bin 4", "Taller Mantentenimiento", "Taller Mecanica"], 
+        "Fase 3": ["Domo 1", "Domo 2", "Angar", "Bascula"],
+        "Fase 4": ["Bodegas Externas"] 
     };
     const checklistData = { 
-        "altura": { epp: ["Casco barbuquejo", "Arnés de seguridad", "Línea de vida", "Absorbedor"], herr: ["Andamio", "Escalera", "Tablones"], col: ["Redes", "Cintas", "Barandas"] },
-        "caliente": { epp: ["Careta soldar", "Guantes cuero", "Gabacha", "Extintor"], herr: ["Soldadora", "Amoladora", "Mangueras"], col: ["Biombos ignífugos", "Mantas térmicas"] },
-        "electrico": { epp: ["Guantes dieléctricos", "Botas", "Careta facial"], herr: ["Multímetro", "Pértiga", "Kit LOTO"], col: ["Cintas rojas", "Alfombra aislante"] },
-        "confinado": { epp: ["Monitor gases", "Respirador", "Arnés"], herr: ["Trípode", "Extractor", "Iluminación"], col: ["Vigía", "Conos", "Barreras"] }
+        "altura": { epp: ["Casco barbuquejo", "Arnés de seguridad", "Línea de vida", "Absorbedor"], herr: ["Andamio", "Escalera", "Tablones"], col: ["Cintas", "Barandas"] },
+        "caliente": { epp: ["Careta soldar", "Guantes cuero", "Mangas de Cuero","Uniforme Ignififugo", "Gabacha", "Extintor"], herr: ["Soldadora", "Pulidora", "Mangueras"], col: ["Mantas térmicas"] },
+        "electrico": { epp: ["Guantes dieléctricos", "Botas", "Proteccion Visual"], herr: ["Multímetro", "Kit LOTO"], col: ["Cintas rojas", "Alfombra aislante"] },
+        "Otros": { epp: ["Mascarrilla Facial", "Guastes", "Lentes de proteccion"], herr: ["Bomba en Buen Estado", "Equipo mecanico en Buen Estado", "Conos"], col: ["Rotulacion", "Delimitacion del Area"] },
+        "confinado": { epp: ["Monitor gases", "Respirador", "Arnés"], herr: ["Equipo de Limpieza", "Radio Transmisor", "Iluminación"], col: ["Vigía", "Conos", "Barreras"] }
     };
 
     // --- 2. ACCESO ---
