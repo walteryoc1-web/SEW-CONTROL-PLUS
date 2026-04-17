@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SISTEMA TERPAC LTDA - SCAPPV2</title>
     <style>
-        :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; }
+        :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; } 
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
         
         .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
@@ -131,7 +131,39 @@
     <button class="btn-salir" style="background:#636e72; margin-top: 20px;" onclick="location.reload()">CERRAR PANEL GENERAL</button>
 </div> <!-- CIERRE CORRECTO DE UI-MONITOR-SSO -->
 
+<!-- CAJA DE CONTROL MÉDICO - ESTILO SALUD OCUPACIONAL -->
+<div class="box-descarga" style="background:#f1f3f4; border: 1px solid #bdc3c7; margin-top:20px; border-left: 6px solid #16a085;">
+    <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#16a085; letter-spacing:1px; text-transform:uppercase;">
+        ⚕️ Registro de Control y Examen Médico
+    </p>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase; border-radius:8px; border:1px solid #95a5a6;">
+        <input type="date" id="med-fecha" style="border-radius:8px; border:1px solid #95a5a6;">
+        
+        <select id="med-tipo" style="border-radius:8px; border:1px solid #95a5a6;">
+            <option disabled selected>Tipo de Examen</option>
+            <option>Pre-empleo</option>
+            <option>Periódico Anual</option>
+            <option>Post-Incidente</option>
+            <option>Especial (Alturas/Vapores)</option>
+        </select>
 
+        <select id="med-resultado" style="border-radius:8px; border:1px solid #95a5a6;">
+            <option disabled selected>Resultado / Aptitud</option>
+            <option value="APTO">✅ APTO</option>
+            <option value="APTO_CON_RESTRICCION">⚠️ APTO CON RESTRICCIÓN</option>
+            <option value="NO_APTO">❌ NO APTO (Temporal)</option>
+        </select>
+    </div>
+    
+    <textarea id="med-obs" placeholder="Observaciones o restricciones médicas..." rows="2" style="width:100%; margin-top:10px; border-radius:8px; border:1px solid #95a5a6; padding:8px; font-size:12px;"></textarea>
+
+    <button type="button" class="btn" onclick="registrarExamenMedico()" 
+            style="width:100%; margin-top:10px; background:#16a085; color:white; font-size:12px; border-radius:8px; font-weight:bold;">
+        GUARDAR REGISTRO MÉDICO
+    </button>
+</div>
+    
 <!-- INTERFAZ INFORME TÉCNICO DE INCIDENTE -->
 <div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
     <div style="background:#d63031; color:white; padding:20px; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
@@ -491,7 +523,29 @@
       document.getElementById('ui-monitor-sso').style.display='none'; 
       document.getElementById('ui-incidentes-sso').style.display='block'; 
   }
+async function registrarExamenMedico() {
+    const datos = {
+        action: "registrarMedico",
+        id: document.getElementById('med-id').value.toUpperCase(),
+        fecha: document.getElementById('med-fecha').value,
+        tipo: document.getElementById('med-tipo').value,
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value
+    };
 
+    if(!datos.id || !datos.fecha || datos.tipo.includes("Tipo")) return alert("Complete los campos básicos");
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const txt = await res.text();
+        if(txt === "OK_MEDICO") {
+            alert("✅ Registro médico guardado exitosamente.");
+            // Limpiar campos
+            document.getElementById('med-id').value = "";
+            document.getElementById('med-obs').value = "";
+        }
+    } catch(e) { alert("❌ Error al guardar registro médico."); }
+}
   
   function agregarInvolucradoInc() {
       const contenedor = document.getElementById('contenedor-involucrados-inc');
