@@ -488,29 +488,51 @@
 
         // --- 8. MÓDULO MÉDICO Y EXTINTORES ---
       async function enviarFichaMedica() {
+    // 1. Validar que los campos existan antes de capturar
+    const idCol = document.getElementById('med-id').value.toUpperCase().trim();
+    const fechaCol = document.getElementById('med-fecha').value;
+
+    if(!idCol || !fechaCol) return alert("❌ Ingrese ID y Fecha obligatoriamente.");
+
     const btn = event.target; 
     const originalText = btn.innerText;
     btn.innerText = "GENERANDO PDF... ⏳"; 
     btn.disabled = true;
 
-    // ... (aquí van tus datos de captura med-id, etc) ...
+    // 2. CAPTURA DE DATOS (Aquí estaba el vacío)
+    const datos = {
+        action: "registrarMedico",
+        id: idCol,
+        fecha: fechaCol,
+        tipo: document.getElementById('med-tipo').value,
+        glucosa: document.getElementById('med-glucosa').value || "N/A",
+        presion: document.getElementById('med-presion').value || "N/A",
+        temp: document.getElementById('med-temp').value || "N/A",
+        peso: document.getElementById('med-peso').value || "N/A",
+        oxigeno: document.getElementById('med-oxigeno').value || "N/A",
+        ritmo: document.getElementById('med-ritmo').value || "N/A",
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value || "Sin observaciones"
+    };
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(datos) 
+        });
         const respuestaServidor = await res.text();
 
         if (respuestaServidor.length > 500) { 
-            descargarBase64PDF(respuestaServidor, `Ficha_Medica_${datos.id}.pdf`); 
-            alert("✅ Registro y PDF generados"); 
+            descargarBase64PDF(respuestaServidor, `Ficha_Medica_${idCol}.pdf`); 
+            alert("✅ Registro médico y PDF generados con éxito."); 
             location.reload();
         } else { 
-            // AQUÍ VEREMOS EL ERROR REAL
             alert("⚠️ Atención: " + respuestaServidor); 
             btn.disabled = false;
             btn.innerText = originalText;
         }
     } catch(e) { 
-        alert("❌ Error de red o servidor caído"); 
+        alert("❌ Error de red o tiempo de espera agotado. Verifique su conexión."); 
         btn.disabled = false;
         btn.innerText = originalText;
     }
