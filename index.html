@@ -487,18 +487,37 @@
         }
 
         // --- 8. MÓDULO MÉDICO Y EXTINTORES ---
-        async function enviarFichaMedica() {
-            const d = { action: "registrarMedico", id: document.getElementById('med-id').value, fecha: document.getElementById('med-fecha').value, tipo: document.getElementById('med-tipo').value, glucosa: document.getElementById('med-glucosa').value, presion: document.getElementById('med-presion').value, temp: document.getElementById('med-temp').value, peso: document.getElementById('med-peso').value, oxigeno: document.getElementById('med-oxigeno').value, ritmo: document.getElementById('med-ritmo').value, resultado: document.getElementById('med-resultado').value, obs: document.getElementById('med-obs').value };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(d) });
-            if(await res.text() === "OK_MEDICO") { alert("🩺 GUARDADO"); location.reload(); }
-        }
-        async function enviarInspeccionExtintor() {
-            const d = { action: "registrarExtintor", id: document.getElementById('ext-id').value, ubi: document.getElementById('ext-ubi').value, agente: document.getElementById('ext-agente').value, presion: document.getElementById('ext-presion').value, manguera: document.getElementById('ext-manguera').value, seguro: document.getElementById('ext-seguro').value, vence: document.getElementById('ext-vence').value, obs: document.getElementById('ext-obs').value };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(d) });
-            if(await res.text() === "OK_EXTINTOR") { alert("🧯 REGISTRADO"); location.reload(); }
-        }
+       async function enviarFichaMedica() {
+    const btn = event.target; btn.innerText = "GENERANDO PDF... ⏳"; btn.disabled = true;
+    // ... (mismos datos de antes) ...
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const b64 = await res.text();
+        if(b64.length > 500) { descargarBase64PDF(b64, `Ficha_Medica_${datos.id}.pdf`); }
+        alert("✅ Registro y PDF generados"); location.reload();
+    } catch(e) { alert("Error"); btn.disabled = false; }
+}
 
-        // --- 9. MONITOREO Y APOYO ---
+// Botones de descarga de base de datos (Agrégalos al monitor)
+async function descargarCSV_Medico() {
+    const res = await fetch(URL_SCRIPT + "?accion=reporteMedico");
+    const data = await res.json();
+    generarCSV(data, "Historial_Medico.csv");
+}
+
+async function descargarCSV_Extintores() {
+    const res = await fetch(URL_SCRIPT + "?accion=reporteExtintores");
+    const data = await res.json();
+    generarCSV(data, "Historial_Extintores.csv");
+}
+
+function generarCSV(data, nombre) {
+    let csv = "\uFEFFFECHA,DATOS\n";
+    data.forEach(r => csv += `${r.fecha},${r.datos.replace(/;/g, ",")}\n`);
+    const b = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click();
+}
+            // --- 9. MONITOREO Y APOYO ---
         function iniciarReloj() { setInterval(() => { document.getElementById('reloj').innerText = new Date().toLocaleTimeString(); }, 1000); }
         async function actualizarPildoras() { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('count-pendientes').innerText = d.pendientes || "00"; document.getElementById('count-proceso').innerText = d.proceso || "00"; document.getElementById('count-despachadas').innerText = d.despachadas || "00"; }
         async function actualizarPildorasSSO() { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('sso-pnd').innerText = d.totalSSO || "00"; document.getElementById('sso-riesgo').innerText = d.riesgoSSO || "00"; document.getElementById('sso-personal').innerText = d.personalSSO || "00"; }
