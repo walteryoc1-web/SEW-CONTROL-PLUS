@@ -799,16 +799,16 @@ function descargarBase64PDF(base64, nombre) {
     a.download = nombre;
     a.click();
 }
-           function ajustarLabelsAdmin() {
+         function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
     const lbl1 = document.getElementById('lbl-adm-extra1');
     const lbl2 = document.getElementById('lbl-adm-extra2');
     const inp1 = document.getElementById('adm-extra1');
     const inp2 = document.getElementById('adm-extra2');
 
-    // Reset de placeholders
-    inp1.placeholder = "Dato complementario";
-    inp2.placeholder = "Dato complementario";
+    // Limpiamos placeholders
+    inp1.placeholder = "Dato complementario 1";
+    inp2.placeholder = "Dato complementario 2";
 
     if (cat === "PILOTO") {
         lbl1.innerText = "Placa del Cabezal:";
@@ -819,7 +819,7 @@ function descargarBase64PDF(base64, nombre) {
         lbl2.innerText = "Departamento (SSO/Taller):";
     } 
     else if (cat === "UBICACION") {
-        lbl1.innerText = "Fase (1, 2 o 3):";
+        lbl1.innerText = "Fase Asociada (1, 2 o 3):";
         lbl2.innerText = "Tipo (Silo/Bodega/Área):";
     } 
     else if (cat === "EPP" || cat === "HERRAMIENTA" || cat === "COLECTIVA") {
@@ -827,10 +827,17 @@ function descargarBase64PDF(base64, nombre) {
         inp1.placeholder = "alturas, caliente, confinado, electrico, Otros";
         lbl2.innerText = "Observación Técnica:";
     }
-    else if (cat === "PRODUCTO") {
-        lbl1.innerText = "Tipo de Carga:";
-        inp1.placeholder = "Granel, Liquido, etc.";
-        lbl2.innerText = "Código Arancelario (Opcional):";
+    else if (cat === "ESTADO_SALUD" || cat === "GRAVEDAD" || cat === "PRIORIDAD_OT") {
+        lbl1.innerText = "Etiqueta Visual (Color/Icono):";
+        lbl2.innerText = "Valor Interno del Sistema:";
+    }
+    else if (cat === "DEPTO_OT") {
+        lbl1.innerText = "Responsable de Área:";
+        lbl2.innerText = "Código de Costos (Opcional):";
+    }
+    else {
+        lbl1.innerText = "Atributo Extra 1:";
+        lbl2.innerText = "Atributo Extra 2:";
     }
 }
 
