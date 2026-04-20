@@ -939,28 +939,71 @@ function enviar() {
 }
 
         // --- 8. FUNCIONES DE NAVEGACIÓN Y APOYO ---
-        function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-        function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
-        function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
-        
-        function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
-        function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Permisos_SSO"); }
-        function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
-        function descargarCSV_Medico() { procesarDescargaUniversal("reporteMedico", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Historial_Medico"); }
-        function descargarCSV_Extintores() { procesarDescargaUniversal("reporteExtintores", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Historial_Extintores"); }
+function irAIncidentes() { 
+    document.getElementById('ui-monitor-sso').style.display='none'; 
+    document.getElementById('ui-incidentes-sso').style.display='block'; 
+}
+function irAMedico() { 
+    document.getElementById('ui-monitor-sso').style.display='none'; 
+    document.getElementById('ui-medico-sso').style.display='block'; 
+}
+function irAExtintores() { 
+    document.getElementById('ui-monitor-sso').style.display='none'; 
+    document.getElementById('ui-extintores-sso').style.display='block'; 
+}
 
-        function descargarBase64PDF(b64, n) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = n; a.click(); }
-        function iniciarReloj() { setInterval(() => { const r = document.getElementById('reloj'); if(r) r.innerText = new Date().toLocaleTimeString(); }, 1000); }
-      async function actualizarPildoras() { 
+// --- 2. DISPARADORES DE DESCARGA (Conectados al Motor Universal) ---
+function descargarCSV() { 
+    const ini = document.getElementById('f-inicio').value;
+    const fin = document.getElementById('f-fin').value;
+    procesarDescargaUniversal("reporte", ini, fin, "Reporte_Logistica"); 
+}
+function descargarCSV_SSO() { 
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteSSO", ini, fin, "Reporte_ATS"); 
+}
+function descargarCSV_Incidentes() { 
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteIncidentes", ini, fin, "Reporte_Incidentes"); 
+}
+function descargarCSV_Medico() { 
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteMedico", ini, fin, "Historial_Medico"); 
+}
+function descargarCSV_Extintores() { 
+    const ini = document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteExtintores", ini, fin, "Historial_Extintores"); 
+}
+
+// --- 3. UTILIDADES (PDF, RELOJ Y PÍLDORAS) ---
+function descargarBase64PDF(base64, nombre) {
+    const a = document.createElement("a");
+    a.href = "data:application/pdf;base64," + base64;
+    a.download = nombre;
+    a.click();
+}
+
+function iniciarReloj() { 
+    setInterval(() => { 
+        const r = document.getElementById('reloj'); 
+        if(r) r.innerText = new Date().toLocaleTimeString(); 
+    }, 1000); 
+}
+
+async function actualizarPildoras() { 
     try { 
         const r = await fetch(URL_SCRIPT); 
         const d = await r.json(); 
-        // El ?. evita que la App truene si el ID no existe en la pantalla actual
-        if(document.getElementById('count-pendientes')) {
-            document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0');
-            document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0');
-            document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0');
-        }
+        const cPen = document.getElementById('count-pendientes');
+        const cPro = document.getElementById('count-proceso');
+        const cDes = document.getElementById('count-despachadas');
+        if(cPen) cPen.innerText = (d.pendientes || 0).toString().padStart(2, '0');
+        if(cPro) cPro.innerText = (d.proceso || 0).toString().padStart(2, '0');
+        if(cDes) cDes.innerText = (d.despachadas || 0).toString().padStart(2, '0');
     } catch(e) { console.log("Sincronizando Logística..."); } 
 }
 
@@ -968,31 +1011,52 @@ async function actualizarPildorasSSO() {
     try { 
         const r = await fetch(URL_SCRIPT); 
         const d = await r.json(); 
-        if(document.getElementById('sso-pnd')) {
-            document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0');
-            document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
-            document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0');
-        }
+        const pnd = document.getElementById('sso-pnd');
+        const rsg = document.getElementById('sso-riesgo');
+        const per = document.getElementById('sso-personal');
+        if(pnd) pnd.innerText = (d.totalSSO || 0).toString().padStart(2, '0');
+        if(rsg) rsg.innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
+        if(per) per.innerText = (d.personalSSO || 0).toString().padStart(2, '0');
     } catch(e) { console.log("Sincronizando SSO..."); } 
 }
-        async function cargarPermisosParaCerrar() {
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-                const data = await res.json();
-                const cont = document.getElementById('contenedor-tabla-sso');
-                cont.innerHTML = "";
-                data.filter(r => !r.datos.toUpperCase().includes("CERRADO")).forEach(p => {
-                    const d = p.datos.split(";");
-                    const div = document.createElement('div');
-                    div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
-                    div.innerHTML = `<b>${d[0]}</b> <button onclick="cerrarPermiso('${d[0]}')" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px;">CERRAR</button>`;
-                    cont.appendChild(div);
-                });
-            } catch(e){}
+
+// --- 4. GESTIÓN DE CIERRE DE PERMISOS SSO ---
+async function cargarPermisosParaCerrar() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const cont = document.getElementById('contenedor-tabla-sso');
+        if(!cont) return;
+        cont.innerHTML = "";
+        data.filter(r => !r.datos.toUpperCase().includes("CERRADO")).forEach(p => {
+            const d = p.datos.split(";");
+            const folio = d[0];
+            const div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;";
+            div.innerHTML = `
+                <span style="font-size:13px;"><b>${folio}</b></span> 
+                <button onclick="cerrarPermiso('${folio}')" 
+                    style="background:#27ae60; color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-weight:bold; font-size:11px;">
+                    CERRAR
+                </button>`;
+            cont.appendChild(div);
+        });
+    } catch(e){ console.error("Error al cargar tabla SSO"); }
+}
+
+async function cerrarPermiso(f) { 
+    if(!confirm("⚠️ ¿Desea cerrar definitivamente el permiso: " + f + "?")) return;
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f }); 
+        const txt = await res.text();
+        if(txt.includes("OK")) {
+            alert("✅ ATS " + f + " CERRADO EXITOSAMENTE"); 
+            location.reload(); 
+        } else {
+            alert("⚠️ Error: " + txt);
         }
-
-        async function cerrarPermiso(f) { if(confirm("¿Cerrar "+f+"?")) { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f }); location.reload(); } }
-
+    } catch(e) { alert("❌ Error de conexión al cerrar permiso."); }
+}
         // --- FUNCIONES LOGISTICA / OT (RESTANTE) ---
         function enviar() {
             const id = document.getElementById('id-in').value;
