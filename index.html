@@ -674,6 +674,80 @@ async function guardarDatoMaestro() {
     } catch (e) { alert("⚠️ Error de red"); btn.disabled = false; }
 }
 
+        // --- FUNCIÓN PARA REGISTRAR EL INFORME DE INCIDENTE Y GENERAR PDF ---
+async function enviarIncidenteCompleto() {
+    // 1. Validación de Vínculo: Si no hay ATS vinculado, no deja pasar
+    if (!window.datosVinculados) {
+        return alert("❌ Error: Primero debe vincular un Folio SSO válido para asociar el incidente.");
+    }
+
+    const btn = document.getElementById('btn-env-inc');
+    const originalText = btn.innerText;
+
+    // 2. Captura de Colaboradores Involucrados (validando contra DB_MASTER)
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.toUpperCase().trim())
+                     .filter(id => id !== "" && DB_MASTER.TECNICO.find(t => t.id.toString() === id));
+
+    if (ids.length === 0) {
+        return alert("❌ Debe ingresar al menos un ID de colaborador válido (afectado o involucrado).");
+    }
+
+    // 3. Construcción del paquete de datos (JSON)
+    const payload = {
+        action: "registrarIncidente",
+        folio: window.datosVinculados.folioATS,
+        area: window.datosVinculados.fase,
+        ubicacion: window.datosVinculados.ubi,
+        trabajo: window.datosVinculados.tipo,
+        involucrados: ids.join(" | "),
+        salud: document.getElementById('inc-salud').value,
+        intervencion: document.getElementById('inc-intervencion-momento').value,
+        tipoEvento: document.getElementById('inc-tipo').value,
+        gravedad: document.getElementById('inc-gravedad').value,
+        riesgo: document.getElementById('inc-riesgo').value,
+        contaminacion: document.getElementById('inc-contaminacion').value,
+        estructura: document.getElementById('inc-estructura').value,
+        reparacion: document.getElementById('inc-reparacion').value,
+        obsEstructura: document.getElementById('inc-obs-estructura').value || "N/A",
+        reincidencia: document.getElementById('inc-reincidencia').value,
+        seguridad: document.getElementById('inc-riesgo-seguridad').value || "N/A",
+        recomendacion: document.getElementById('inc-recomendacion').value || "Sin recomendaciones",
+        estadoFinal: document.getElementById('inc-estado-final').value
+    };
+
+    // 4. Bloqueo visual del botón
+    btn.disabled = true;
+    btn.innerText = "GENERANDO INFORME TÉCNICO... ⏳";
+
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        
+        const respuestaServidor = await res.text();
+
+        // 5. Manejo de respuesta (PDF o Confirmación)
+        if (respuestaServidor.length > 500) { 
+            descargarBase64PDF(respuestaServidor, `INFORME_TECNICO_${payload.folio}.pdf`);
+            alert("✅ INFORME REGISTRADO EXITOSAMENTE Y PDF GENERADO.");
+            location.reload();
+        } else if (respuestaServidor.includes("OK") || respuestaServidor.includes("registrarIncidente")) {
+            alert("✅ Informe guardado en la base de datos (Excel).");
+            location.reload();
+        } else {
+            alert("⚠️ Atención: " + respuestaServidor);
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    } catch(e) {
+        console.error(e);
+        alert("❌ Error crítico de red. Verifique si el dato cayó en su Excel.");
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
 // --- ENVÍO DE ORDEN DE TRABAJO (OT) CON GENERACIÓN DE PDF ---
 async function enviarOT() {
     const f = document.getElementById('ot-folio').value;
@@ -782,22 +856,38 @@ function enviar() {
 }
 
         // --- 7. MOTOR DE REPORTES ---
-        async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-            try {
-                const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
-                const data = await res.json();
-                const fil = data.filter(r => {
-                    if(!r.fecha) return false;
-                    let p = r.fecha.split(' ')[0].split('/');
-                    let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-                    return fISO >= ini && fISO <= fin;
-                });
-                let csv = "\uFEFFFECHA,HORA,DATOS\n";
-                fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-                const b = new Blob([csv], { type: 'text/csv' });
-                const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${nombre}.csv`; a.click();
-            } catch(e) { alert("❌ Error reporte"); }
-        }
+       async function procesarDescargaUniversal(accion, ini, fin, nombre) {
+    if(!ini || !fin) return alert("❌ Seleccione ambas fechas");
+    try {
+        const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
+        const data = await res.json();
+        
+        const fil = data.filter(r => {
+            if(!r.fecha) return false;
+            // Extraemos solo la parte de la fecha (DD/MM/YYYY)
+            let parteFecha = r.fecha.toString().split(' ')[0];
+            let p = parteFecha.split('/');
+            if(p.length !== 3) return false;
+            // Convertimos a ISO YYYY-MM-DD para comparar con el calendario
+            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if(fil.length === 0) return alert("⚠️ No hay datos en este rango de fechas.");
+
+        let csv = "\uFEFFFECHA,HORA,DATOS_SISTEMA\n";
+        fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
+        
+        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `${nombre}_${ini}_al_${fin}.csv`;
+        a.click();
+    } catch(e) { 
+        console.error(e);
+        alert("❌ Error al procesar los datos del servidor."); 
+    }
+}
 
         // --- 8. FUNCIONES DE NAVEGACIÓN Y APOYO ---
         function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
