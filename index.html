@@ -505,7 +505,19 @@
                 alert("✅ Inspección OK"); location.reload();
             } catch(e) { alert("❌ Error"); }
         }
+async function enviarIncidenteCompleto() {
+            if (!window.datosVinculados) return alert("❌ Vincule un Folio SSO");
+            const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(id => personalSeguridad[id]);
+            const payload = { action: "registrarIncidente", folio: window.datosVinculados.folioATS, area: window.datosVinculados.fase, ubicacion: window.datosVinculados.ubi, trabajo: window.datosVinculados.tipo, involucrados: ids.join(" | "), salud: document.getElementById('inc-salud').value, intervencion: document.getElementById('inc-intervencion-momento').value, tipoEvento: document.getElementById('inc-tipo').value, gravedad: document.getElementById('inc-gravedad').value, riesgo: document.getElementById('inc-riesgo').value, contaminacion: document.getElementById('inc-contaminacion').value, estructura: document.getElementById('inc-estructura').value, reparacion: document.getElementById('inc-reparacion').value, obsEstructura: document.getElementById('inc-obs-estructura').value, reincidencia: document.getElementById('inc-reincidencia').value, seguridad: document.getElementById('inc-riesgo-seguridad').value, recomendacion: document.getElementById('inc-recomendacion').value, estadoFinal: document.getElementById('inc-estado-final').value };
+            try {
+                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+                const b64 = await res.text();
+                if (b64.length > 500) descargarBase64PDF(b64, `INFORME_${payload.folio}.pdf`);
+                alert("✅ INFORME REGISTRADO"); location.reload();
+            } catch(e) { alert("❌ Error envío"); }
+        }
 
+        
         async function enviarOT() {
             const f = document.getElementById('ot-folio').value, tecId = document.getElementById('ot-id-tec').value.toUpperCase();
             const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === tecId) : null;
