@@ -847,6 +847,60 @@ async function guardarDatoMaestro() {
         }
     } catch(e) { alert("Error de conexión"); }
 }
+            async function guardarDatoMaestro() {
+        let idValue = document.getElementById('adm-id').value.toUpperCase().trim();
+        const nombreValue = document.getElementById('adm-nombre').value.toUpperCase().trim();
+        const categoria = document.getElementById('adm-categoria').value;
+
+        // 1. LÓGICA DE AUTOGENERACIÓN DE ID
+        if (!idValue) {
+            if (categoria === "PILOTO" || categoria === "TECNICO") {
+                return alert("❌ Para Pilotos y Operadores es OBLIGATORIO ingresar su código real.");
+            }
+            if (!nombreValue) return alert("❌ Ingrese al menos el nombre para generar un ID.");
+            
+            // Genera código automático: CAT-NOMBR-123
+            const prefijo = categoria.substring(0, 3);
+            const raiz = nombreValue.substring(0, 5).replace(/\s/g, ''); 
+            const random = Math.floor(Math.random() * 900 + 100);
+            idValue = `${prefijo}-${raiz}-${random}`;
+        }
+
+        if (!nombreValue) return alert("❌ El Nombre o Descripción es obligatorio.");
+
+        const datos = {
+            action: "guardarConfig",
+            categoria: categoria,
+            id: idValue,
+            nombre: nombreValue,
+            extra1: document.getElementById('adm-extra1').value.toUpperCase().trim(),
+            extra2: document.getElementById('adm-extra2').value.toUpperCase().trim()
+        };
+
+        // 2. BLOQUEO VISUAL DEL BOTÓN
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "INYECTANDO... ⏳";
+
+        try {
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+            const txt = await res.text();
+            if (txt === "OK_CONFIG") {
+                alert(`✅ ¡Registrado con éxito!\nID asignado: ${idValue}`);
+                // Limpieza de campos
+                document.getElementById('adm-id').value = "";
+                document.getElementById('adm-nombre').value = "";
+                document.getElementById('adm-extra1').value = "";
+                document.getElementById('adm-extra2').value = "";
+            }
+        } catch (e) { 
+            alert("❌ Error de comunicación con el búnker de datos.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
 </script>
 </body>
 </html>
