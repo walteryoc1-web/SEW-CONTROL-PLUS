@@ -505,18 +505,70 @@
                 alert("✅ Inspección OK"); location.reload();
             } catch(e) { alert("❌ Error"); }
         }
-async function enviarIncidenteCompleto() {
-            if (!window.datosVinculados) return alert("❌ Vincule un Folio SSO");
-            const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(id => personalSeguridad[id]);
-            const payload = { action: "registrarIncidente", folio: window.datosVinculados.folioATS, area: window.datosVinculados.fase, ubicacion: window.datosVinculados.ubi, trabajo: window.datosVinculados.tipo, involucrados: ids.join(" | "), salud: document.getElementById('inc-salud').value, intervencion: document.getElementById('inc-intervencion-momento').value, tipoEvento: document.getElementById('inc-tipo').value, gravedad: document.getElementById('inc-gravedad').value, riesgo: document.getElementById('inc-riesgo').value, contaminacion: document.getElementById('inc-contaminacion').value, estructura: document.getElementById('inc-estructura').value, reparacion: document.getElementById('inc-reparacion').value, obsEstructura: document.getElementById('inc-obs-estructura').value, reincidencia: document.getElementById('inc-reincidencia').value, seguridad: document.getElementById('inc-riesgo-seguridad').value, recomendacion: document.getElementById('inc-recomendacion').value, estadoFinal: document.getElementById('inc-estado-final').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-                const b64 = await res.text();
-                if (b64.length > 500) descargarBase64PDF(b64, `INFORME_${payload.folio}.pdf`);
-                alert("✅ INFORME REGISTRADO"); location.reload();
-            } catch(e) { alert("❌ Error envío"); }
-        }
+       async function enviarIncidenteCompleto() {
+    // 1. Verificación de Vínculo ATS
+    if (!window.datosVinculados) return alert("❌ Primero debe vincular un Folio SSO válido.");
 
+    // 2. Captura de Involucrados (Validando contra DB_MASTER.TECNICO)
+    const inputs = Array.from(document.querySelectorAll('.inc-id-clase'));
+    const idsValidos = inputs.map(i => i.value.toUpperCase().trim())
+                             .filter(id => id !== "");
+
+    // Si quieres ser estricto y solo permitir IDs que existan en el Excel:
+    const involucradosNombres = idsValidos.map(id => {
+        const encontrado = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === id) : null;
+        return encontrado ? `${encontrado.nombre} (${id})` : id; // Si no lo halla, deja el ID
+    }).join(" | ");
+
+    if (idsValidos.length === 0) return alert("❌ Ingrese al menos un ID de involucrado.");
+
+    // 3. Feedback visual del botón
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "GENERANDO INFORME... ⏳";
+
+    // 4. Construcción del paquete (Payload)
+    const payload = { 
+        action: "registrarIncidente", 
+        folio: window.datosVinculados.folioATS, 
+        area: window.datosVinculados.fase, 
+        ubicacion: window.datosVinculados.ubi, 
+        trabajo: window.datosVinculados.tipo, 
+        involucrados: involucradosNombres, 
+        salud: document.getElementById('inc-salud').value, 
+        intervencion: document.getElementById('inc-intervencion-momento').value, 
+        tipoEvento: document.getElementById('inc-tipo').value, 
+        gravedad: document.getElementById('inc-gravedad').value, 
+        riesgo: document.getElementById('inc-riesgo').value || "N/A", 
+        contaminacion: document.getElementById('inc-contaminacion').value || "N/A", 
+        estructura: document.getElementById('inc-estructura').value || "N/A", 
+        reparacion: document.getElementById('inc-reparacion').value || "N/A", 
+        obsEstructura: document.getElementById('inc-obs-estructura').value || "N/A", 
+        reincidencia: document.getElementById('inc-reincidencia').value || "No", 
+        seguridad: document.getElementById('inc-riesgo-seguridad').value || "N/A", 
+        recomendacion: document.getElementById('inc-recomendacion').value || "N/A", 
+        estadoFinal: document.getElementById('inc-estado-final').value 
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const resTexto = await res.text();
+
+        if (resTexto.length > 500) { 
+            descargarBase64PDF(resTexto, `INFORME_TECNICO_${payload.folio}.pdf`);
+            alert("✅ INFORME REGISTRADO EXITOSAMENTE Y PDF GENERADO"); 
+            location.reload();
+        } else {
+            alert("✅ REGISTRO GUARDADO EN EXCEL");
+            location.reload();
+        }
+    } catch(e) { 
+        alert("❌ Error de comunicación con el servidor."); 
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
         
         async function enviarOT() {
             const f = document.getElementById('ot-folio').value, tecId = document.getElementById('ot-id-tec').value.toUpperCase();
