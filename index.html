@@ -567,32 +567,22 @@
         function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
         
         window.onload = () => { cargarCerebroSistema(); };
-function agregarInvolucradoInc() {
-            const div = document.createElement('div');
-            div.style.cssText = "margin-bottom: 10px; display:flex; gap:10px;";
-            div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
-            document.getElementById('contenedor-involucrados-inc').appendChild(div);
-        }
-        function checkInvolucrado(inp) {
-            const id = inp.value.toUpperCase().trim();
-            let display = inp.nextElementSibling;
-            if(!personalSeguridad[id]) { inp.style.background="#fff"; } else { inp.style.background="#e8f5e9"; alert("✅ " + personalSeguridad[id].n); }
-        }
-        async function vincularDatosPermiso(folio) {
-            const display = document.getElementById('datos-vinculados-sso');
-            if (folio.length < 5) return;
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-                const data = await res.json();
-                const permiso = data.find(r => r.datos.split(";")[0].trim().toUpperCase() === folio.trim().toUpperCase());
-                if (permiso) {
-                    const d = permiso.datos.split(";");
-                    window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
-                    display.innerHTML = `<div style='color:green;'>✅ VINCULADO: ${d[2]} - ${d[3]}</div>`;
-                } else { window.datosVinculados = null; display.innerHTML = "<b style='color:red;'>❌ No hallado</b>"; }
-            } catch(e) { display.innerHTML = "⚠️ Error red"; }
-        }
+        
+function checkInvolucrado(inp) {
+    const idBusca = inp.value.toUpperCase().trim();
+    
+    // Ahora buscamos en DB_MASTER.TECNICO (que es donde cargamos la data de la Sheets)
+    const tecnicoEncontrado = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === idBusca) : null;
 
+    if (tecnicoEncontrado) {
+        // Si lo encuentra, ponemos el fondo verde y podemos mostrar un aviso visual pequeño
+        inp.style.background = "#e8f5e9"; 
+        console.log("✅ Involucrado identificado: " + tecnicoEncontrado.nombre);
+    } else {
+        // Si no existe o el campo está vacío, fondo blanco normal
+        inp.style.background = "#fff";
+    }
+}
 
     </script>
 </body>
