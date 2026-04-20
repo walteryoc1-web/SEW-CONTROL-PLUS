@@ -580,40 +580,67 @@
         }
 
         // --- 7. MOTOR DE REPORTES Y DESCARGAS ---
-       async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-    if(!ini || !fin) return alert("❌ Seleccione fechas");
+      async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
+    if(!ini || !fin) return alert("❌ Seleccione ambas fechas para filtrar.");
+    
     try {
-        const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
+        const res = await fetch(URL_SCRIPT + "?accion=" + accion);
         const data = await res.json();
         
-        // Filtrado por fecha comparando strings simples
+        if (!data || data.length === 0) return alert("⚠️ No se encontraron registros en esta base de datos.");
+
         const fil = data.filter(r => {
             if(!r.fecha) return false;
-            // Convertimos DD/MM/YYYY a YYYY-MM-DD para comparar con el input date
-            let p = r.fecha.split('/');
-            if(p.length !== 3) return false;
-            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
-            return fISO >= ini && fISO <= fin;
+            try {
+                // 1. Limpiador: Extraemos solo la fecha (quitamos horas o espacios)
+                let fechaTexto = r.fecha.toString().trim().split(' ')[0];
+                
+                // 2. Detectamos el separador (/ o -)
+                let partes = fechaTexto.includes('/') ? fechaTexto.split('/') : fechaTexto.split('-');
+                
+                if(partes.length !== 3) return false;
+
+                let dia, mes, anio;
+                // 3. JS es inteligente: Si el primer bloque tiene 4 dígitos, es YYYY-MM-DD
+                if (partes[0].length === 4) { 
+                    anio = partes[0]; mes = partes[1]; dia = partes[2];
+                } else { 
+                    // Si no, es DD/MM/YYYY (Formato Guatemala/Google)
+                    dia = partes[0]; mes = partes[1]; anio = partes[2];
+                }
+                
+                // 4. Creamos un string comparable (Aseguramos ceros a la izquierda)
+                let fISO = `${anio}-${mes.toString().padStart(2,'0')}-${dia.toString().padStart(2,'0')}`;
+                
+                // 5. Comparación lógica (ini y fin vienen del calendario HTML como YYYY-MM-DD)
+                return fISO >= ini && fISO <= fin;
+            } catch(e) {
+                return false; // Si una fila tiene basura, la saltamos
+            }
         });
 
-        if(fil.length === 0) return alert("⚠️ No hay datos en ese rango.");
+        if(fil.length === 0) {
+            return alert("⚠️ No hay registros entre " + ini + " y " + fin + "\nVerifique que las fechas en el Excel tengan el formato correcto.");
+        }
 
-        let csv = "\uFEFFFECHA,HORA,CONTENIDO\n";
+        // 6. Construcción del CSV con codificación para Excel
+        let csv = "\uFEFFFECHA,HORA,DATOS_SISTEMA\n";
         fil.forEach(r => {
-            csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ' | ')}"\n`;
+            let datosLimpios = r.datos ? r.datos.replace(/\n/g, " | ").replace(/;/g, ",") : "";
+            csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`; // Usamos comillas para evitar saltos de columna
         });
 
         const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(b);
-        a.download = `${nombre}_${ini}_al_${fin}.csv`;
+        a.download = `${nombreArchivo}_${ini}_al_${fin}.csv`;
         a.click();
-    } catch(e) { 
-        console.error(e);
-        alert("❌ Error al generar el Excel."); 
-    }
-}
         
+    } catch(e) { 
+        console.error("Error técnico descarga:", e);
+        alert("❌ Error de comunicación con el servidor.");
+    }
+}        
         function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
         function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Permisos_SSO"); }
         function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
