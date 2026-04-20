@@ -570,18 +570,48 @@
     }
 }
         
-        async function enviarOT() {
-            const f = document.getElementById('ot-folio').value, tecId = document.getElementById('ot-id-tec').value.toUpperCase();
-            const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === tecId) : null;
-            if(!f || !t) return alert("❌ Datos inválidos");
-            const payload = { action: "registrarOT", folio: f, tecnico: t.nombre, prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-                descargarBase64PDF(await res.text(), `OT_${f}.pdf`);
-                alert("✅ OT Aperturada"); location.reload();
-            } catch(e) { alert("❌ Error"); }
-        }
+      async function enviarOT() {
+    const folio = document.getElementById('ot-folio').value.trim();
+    const idTec = document.getElementById('ot-id-tec').value.trim().toUpperCase();
+    
+    // Validamos que el técnico exista antes de enviar
+    const tData = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === idTec) : null;
 
+    if (!folio || !tData) {
+        return alert("❌ Ingrese un Folio y un ID de Técnico válido.");
+    }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "GENERANDO PDF... ⏳";
+
+    const payload = {
+        action: "registrarOT",
+        folio: folio,
+        tecnico: tData.nombre, // Mandamos el nombre real, no el ID
+        prioridad: document.getElementById('ot-prioridad').value,
+        departamento: document.getElementById('ot-depto').value,
+        descripcion: document.getElementById('ot-descripcion').value
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const pdfB64 = await res.text();
+        
+        if (pdfB64.length > 500) {
+            descargarBase64PDF(pdfB64, `OT_${folio}.pdf`);
+            alert("✅ ORDEN DE TRABAJO REGISTRADA Y PDF GENERADO");
+            location.reload();
+        } else {
+            alert("✅ REGISTRADO EN EXCEL (Sin PDF)");
+            location.reload();
+        }
+    } catch (e) {
+        alert("❌ Error de conexión");
+        btn.disabled = false;
+        btn.innerText = "🚀 ABRIR ORDEN";
+    }
+}
         // --- 6. GESTIÓN ADMINISTRATIVA Y MOTOR DE REPORTES ---
         function ajustarLabelsAdmin() {
             const cat = document.getElementById('adm-categoria').value;
@@ -616,6 +646,28 @@
             fil.forEach(r => csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ",")}"\n`);
             const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = `${nombre}.csv`; a.click();
         }
+
+        // --- BUSCADOR DINÁMICO PARA OPERACIONES (OT) ---
+    function checkTecnicoOperaciones(id) {
+    const box = document.getElementById('ot-tec-box');
+    const idBusca = id.toUpperCase().trim();
+
+    if (!idBusca) {
+        box.style.display = 'none';
+        return;
+    }
+
+    // Buscamos en DB_MASTER.TECNICO que cargamos desde la Sheets
+    const tecnico = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === idBusca) : null;
+
+    if (tecnico) {
+        // extra2 en tu Excel es el Departamento (ej. JEFE o SSO)
+        box.innerHTML = `👨‍🔧 Técnico: <b>${tecnico.nombre}</b><br>🏢 Depto: ${tecnico.extra2}`;
+        box.style.display = 'block';
+    } else {
+        box.style.display = 'none';
+    }
+}
 
         // --- 7. APOYO, PÍLDORAS Y CIERRE ---
         function descargarBase64PDF(b64, n) { if(b64.length<500) return; const a=document.createElement("a"); a.href="data:application/pdf;base64,"+b64; a.download=n; a.click(); }
