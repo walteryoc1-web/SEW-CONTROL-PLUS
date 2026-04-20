@@ -905,7 +905,7 @@ function enviar() {
 }
 
         // --- 7. MOTOR DE REPORTES ---
-      async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
+     async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
     if(!ini || !fin) return alert("❌ Seleccione ambas fechas para filtrar el reporte.");
     
     try {
@@ -915,28 +915,31 @@ function enviar() {
         if (!data || data.length === 0) return alert("⚠️ No se encontraron registros en esta hoja.");
 
         const fil = data.filter(r => {
-            if(!r.fecha) return false;
+            if(!r.fecha || r.fecha === "N/A") return false;
             try {
-                // LECTOR UNIVERSAL: Convierte cualquier formato de fecha a algo que JS entienda
-                let p = r.fecha.toString().split(' '); // Quitamos la hora si viniera pegada
-                let partes = p[0].split(p[0].includes('/') ? '/' : '-');
+                // Limpiamos la fecha de cualquier espacio o residuo de hora
+                let p = r.fecha.toString().trim().split(' ')[0]; 
+                let partes = p.includes('/') ? p.split('/') : p.split('-');
                 
+                if(partes.length !== 3) return false;
+
                 let dia, mes, anio;
-                if (partes[0].length === 4) { // Si viene YYYY-MM-DD
+                // Si el primer bloque tiene 4 dígitos, es formato YYYY-MM-DD
+                if (partes[0].length === 4) { 
                     anio = partes[0]; mes = partes[1]; dia = partes[2];
-                } else { // Si viene DD/MM/YYYY
+                } else { 
+                    // Si no, asumimos DD/MM/YYYY (Estándar de tu Google Sheets)
                     dia = partes[0]; mes = partes[1]; anio = partes[2];
-                Partes[0] = partes[0].padStart(2,'0');
-                Partes[1] = partes[1].padStart(2,'0');
+                }
                 
-                // Creamos un string YYYY-MM-DD limpio para comparar
+                // Normalizamos a YYYY-MM-DD para comparar con el calendario
                 let fISO = `${anio}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`;
                 
                 return fISO >= ini && fISO <= fin;
             } catch(e) { return false; }
         });
 
-        if(fil.length === 0) return alert("⚠️ No hay datos entre " + ini + " y " + fin);
+        if(fil.length === 0) return alert("⚠️ No hay datos registrados entre " + ini + " y " + fin);
 
         // CONSTRUCCIÓN DEL CSV
         let csv = "\uFEFFFECHA,HORA,DATOS_SISTEMA\n";
@@ -944,6 +947,18 @@ function enviar() {
             let dLimpios = r.datos ? r.datos.replace(/\n/g, " ").replace(/;/g, ",") : "";
             csv += `${r.fecha},${r.hora},${dLimpios}\n`;
         });
+
+        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `${nombreArchivo}_${ini}_al_${fin}.csv`;
+        a.click();
+        
+    } catch(e) { 
+        console.error("Error en motor descarga:", e);
+        alert("❌ Error de comunicación. Verifique su conexión a internet.");
+    }
+}
 
         const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const a = document.createElement("a");
