@@ -612,6 +612,67 @@
         btn.innerText = "🚀 ABRIR ORDEN";
     }
 }
+        async function finalizarTareaOT() {
+    const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
+    const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
+    const comentarios = document.getElementById('ot-comentarios-cierre').value.trim();
+
+    if (!fOT || !fATS) {
+        return alert("❌ Ingrese el Folio de la OT y el Folio del ATS vinculado.");
+    }
+
+    // Feedback visual en el botón
+    const btn = event.target;
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = "VINCULANDO CIERRE... ⏳";
+
+    const payload = {
+        action: "cerrarOT",
+        folioOT: fOT,
+        folioATS: fATS,
+        comentarios: comentarios || "Tarea finalizada sin observaciones adicionales."
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        
+        const textoRespuesta = await res.text();
+
+        if (textoRespuesta.includes("OK_CIERRE_VINCULADO")) {
+            alert("✅ ¡ÉXITO!\nLa Orden de Trabajo " + fOT + " ha sido vinculada al ATS " + fATS + " y cerrada formalmente.");
+            location.reload();
+        } else if (textoRespuesta.includes("ERROR: ATS NO CERRADO")) {
+            alert("⚠️ Bloqueo de Seguridad:\nEl ATS " + fATS + " aún aparece como ABIERTO. El Supervisor de Seguridad debe cerrarlo antes de finalizar la OT.");
+            btn.disabled = false;
+            btn.innerText = originalText;
+        } else {
+            alert("⚠️ " + textoRespuesta);
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    } catch (e) {
+        console.error(e);
+        alert("❌ Error de comunicación con el servidor.");
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
+
+// Función adicional para mostrar el panel de cierre si no la tienes:
+function mostrarSeccionCierre() {
+    document.getElementById('ot-seccion-apertura').style.display = 'none';
+    document.getElementById('ot-seccion-cierre').style.display = 'block';
+}
+
+function cancelarCierre() {
+    document.getElementById('ot-seccion-cierre').style.display = 'none';
+    document.getElementById('ot-seccion-apertura').style.display = 'block';
+}
+        
         // --- 6. GESTIÓN ADMINISTRATIVA Y MOTOR DE REPORTES ---
         function ajustarLabelsAdmin() {
             const cat = document.getElementById('adm-categoria').value;
