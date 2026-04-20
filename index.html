@@ -514,71 +514,178 @@
 
         // --- 6. REGISTROS TÉCNICOS (PDF) ---
         async function enviarFichaMedica() {
-            const idCol = document.getElementById('med-id').value.toUpperCase().trim();
-            if(!idCol) return alert("❌ Ingrese ID");
-            const btn = event.target; btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
-            const datos = { action: "registrarMedico", id: idCol, fecha: document.getElementById('med-fecha').value, tipo: document.getElementById('med-tipo').value, glucosa: document.getElementById('med-glucosa').value, presion: document.getElementById('med-presion').value, temp: document.getElementById('med-temp').value, peso: document.getElementById('med-peso').value, oxigeno: document.getElementById('med-oxigeno').value, ritmo: document.getElementById('med-ritmo').value, resultado: document.getElementById('med-resultado').value, obs: document.getElementById('med-obs').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-                const b64 = await res.text();
-                if(b64.length > 500) descargarBase64PDF(b64, `Medicina_${idCol}.pdf`);
-                alert("✅ Ficha guardada"); location.reload();
-            } catch(e) { btn.disabled = false; alert("❌ Error"); }
-        }
+    const idCol = document.getElementById('med-id').value.toUpperCase().trim();
+    if(!idCol) return alert("❌ Ingrese ID del colaborador.");
 
-        async function enviarInspeccionExtintor() {
-            const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
-            const btn = event.target; btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
-            const datos = { action: "registrarExtintor", id: idExt, ubi: document.getElementById('ext-ubi').value, agente: document.getElementById('ext-agente').value, presion: document.getElementById('ext-presion').value, manguera: document.getElementById('ext-manguera').value, seguro: document.getElementById('ext-seguro').value, vence: document.getElementById('ext-vence').value, obs: document.getElementById('ext-obs').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-                const b64 = await res.text();
-                if(b64.length > 500) descargarBase64PDF(b64, `Extintor_${idExt}.pdf`);
-                alert("✅ Inspección guardada"); location.reload();
-            } catch(e) { btn.disabled = false; alert("❌ Error"); }
-        }
+    // Capturamos el botón de forma segura
+    const btn = document.querySelector('#ui-medico-sso .btn'); 
+    const originalText = btn.innerText;
+    btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
 
-        async function enviarPermisoSSO() {
-            const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => DB_MASTER.TECNICO.find(t => t.id.toString() === v));
-            if(ids.length == 0) return alert("❌ Ingrese técnico válido.");
-            const btn = document.getElementById('btn-sso'); btn.disabled = true; btn.innerText = "GENERANDO ATS... ⏳";
-            const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
-            const nombres = ids.map(id => { const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id); return `${t.nombre} (${t.extra2})`; }).join("\n");
-            const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
-                const b64 = await res.text();
-                if (b64.length > 500) descargarBase64PDF(b64, `ATS_${Date.now()}.pdf`);
-                alert("✅ REGISTRADO"); location.reload();
-            } catch (e) { alert("⚠️ Error red"); btn.disabled = false; }
-        }
+    const datos = {
+        action: "registrarMedico",
+        id: idCol,
+        fecha: document.getElementById('med-fecha').value,
+        tipo: document.getElementById('med-tipo').value,
+        glucosa: document.getElementById('med-glucosa').value || "N/A",
+        presion: document.getElementById('med-presion').value || "N/A",
+        temp: document.getElementById('med-temp').value || "N/A",
+        peso: document.getElementById('med-peso').value || "N/A",
+        oxigeno: document.getElementById('med-oxigeno').value || "N/A",
+        ritmo: document.getElementById('med-ritmo').value || "N/A",
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value || "Sin observaciones"
+    };
 
-        async function enviarIncidenteCompleto() {
-            if (!window.datosVinculados) return alert("❌ Vincule un Folio");
-            const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(id => DB_MASTER.TECNICO.find(t => t.id.toString() === id));
-            const payload = { action: "registrarIncidente", folio: window.datosVinculados.folioATS, area: window.datosVinculados.fase, ubicacion: window.datosVinculados.ubi, trabajo: window.datosVinculados.tipo, involucrados: ids.join(" | "), salud: document.getElementById('inc-salud').value, intervencion: document.getElementById('inc-intervencion-momento').value, tipoEvento: document.getElementById('inc-tipo').value, gravedad: document.getElementById('inc-gravedad').value, riesgo: document.getElementById('inc-riesgo').value, contaminacion: document.getElementById('inc-contaminacion').value, estructura: document.getElementById('inc-estructura').value, reparacion: document.getElementById('inc-reparacion').value, obsEstructura: document.getElementById('inc-obs-estructura').value, reincidencia: document.getElementById('inc-reincidencia').value, seguridad: document.getElementById('inc-riesgo-seguridad').value, recomendacion: document.getElementById('inc-recomendacion').value, estadoFinal: document.getElementById('inc-estado-final').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-                const b64 = await res.text();
-                if (b64.length > 500) descargarBase64PDF(b64, `INC_${payload.folio}.pdf`);
-                alert("✅ REGISTRADO"); location.reload();
-            } catch(e) { alert("❌ Error"); }
-        }
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const b64 = await res.text();
+        if(b64.length > 500) descargarBase64PDF(b64, `Medicina_${idCol}.pdf`);
+        alert("✅ Ficha Médica guardada con éxito."); 
+        location.reload();
+    } catch(e) { 
+        btn.disabled = false; btn.innerText = originalText;
+        alert("❌ Error de comunicación con el búnker."); 
+    }
+}
 
-        async function enviarOT() {
-            const f = document.getElementById('ot-folio').value, tecId = document.getElementById('ot-id-tec').value.toUpperCase();
-            const tecnico = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === tecId) : null;
-            if(!f || !tecnico) return alert("❌ Folio o Técnico inválido.");
-            const btn = event.target; btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
-            const payload = { action: "registrarOT", folio: f, tecnico: tecnico.nombre, prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-                const b64 = await res.text();
-                if(b64.length > 500) descargarBase64PDF(b64, `OT_${f}.pdf`);
-                alert("✅ OT APERTURADA"); location.reload();
-            } catch(e) { btn.disabled = false; alert("❌ Error"); }
-        }
+async function enviarInspeccionExtintor() {
+    const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
+    if(!idExt) return alert("❌ Ingrese ID del Extintor");
 
+    const btn = document.querySelector('#ui-extintores-sso .btn');
+    btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
+
+    const datos = { 
+        action: "registrarExtintor", 
+        id: idExt, 
+        ubi: document.getElementById('ext-ubi').value, 
+        agente: document.getElementById('ext-agente').value, 
+        presion: document.getElementById('ext-presion').value, 
+        manguera: document.getElementById('ext-manguera').value, 
+        seguro: document.getElementById('ext-seguro').value, 
+        vence: document.getElementById('ext-vence').value, 
+        obs: document.getElementById('ext-obs').value || "N/A"
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const b64 = await res.text();
+        if(b64.length > 500) descargarBase64PDF(b64, `Extintor_${idExt}.pdf`);
+        alert("✅ Inspección guardada con éxito."); 
+        location.reload();
+    } catch(e) { 
+        btn.disabled = false; btn.innerText = "REGISTRAR INSPECCIÓN 🧯";
+        alert("❌ Error de red."); 
+    }
+}
+
+async function enviarPermisoSSO() {
+    const ids = Array.from(document.querySelectorAll('.p-id-clase'))
+                     .map(i => i.value.toUpperCase())
+                     .filter(v => v !== "" && DB_MASTER.TECNICO.find(t => t.id.toString() === v));
+    
+    if(ids.length == 0) return alert("❌ Ingrese al menos un técnico válido registrado en sistema.");
+    
+    const btn = document.getElementById('btn-sso'); 
+    btn.disabled = true; btn.innerText = "GENERANDO ATS... ⏳";
+
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+                          .map(c => c.parentElement.innerText.trim()).join(" | ");
+
+    const nombres = ids.map(id => { 
+        const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id); 
+        return `${t.nombre} (${t.extra2})`; 
+    }).join("\n");
+
+    const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+    
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
+        const b64 = await res.text();
+        if (b64.length > 500) descargarBase64PDF(b64, `ATS_${Date.now()}.pdf`);
+        alert("✅ ATS REGISTRADO"); 
+        location.reload();
+    } catch (e) { 
+        alert("⚠️ Error red"); 
+        btn.disabled = false; btn.innerText = "REGISTRAR PERMISO";
+    }
+}
+
+async function enviarIncidenteCompleto() {
+    if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
+    
+    const btn = document.getElementById('btn-env-inc') || event.target;
+    btn.disabled = true; btn.innerText = "GENERANDO INFORME... ⏳";
+
+    const ids = Array.from(document.querySelectorAll('.inc-id-clase'))
+                     .map(i => i.value.toUpperCase().trim())
+                     .filter(id => id !== "");
+
+    const payload = { 
+        action: "registrarIncidente", 
+        folio: window.datosVinculados.folioATS, 
+        area: window.datosVinculados.fase, 
+        ubicacion: window.datosVinculados.ubi, 
+        trabajo: window.datosVinculados.tipo, 
+        involucrados: ids.join(" | "), 
+        salud: document.getElementById('inc-salud').value, 
+        intervencion: document.getElementById('inc-intervencion-momento').value, 
+        tipoEvento: document.getElementById('inc-tipo').value, 
+        gravedad: document.getElementById('inc-gravedad').value, 
+        riesgo: document.getElementById('inc-riesgo').value, 
+        contaminacion: document.getElementById('inc-contaminacion').value, 
+        estructura: document.getElementById('inc-estructura').value, 
+        reparacion: document.getElementById('inc-reparacion').value, 
+        obsEstructura: document.getElementById('inc-obs-estructura').value || "N/A", 
+        reincidencia: document.getElementById('inc-reincidencia').value, 
+        seguridad: document.getElementById('inc-riesgo-seguridad').value || "N/A", 
+        recomendacion: document.getElementById('inc-recomendacion').value || "N/A", 
+        estadoFinal: document.getElementById('inc-estado-final').value 
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const b64 = await res.text();
+        if (b64.length > 500) descargarBase64PDF(b64, `INC_${payload.folio}.pdf`);
+        alert("✅ REGISTRADO CON ÉXITO"); 
+        location.reload();
+    } catch(e) { 
+        alert("❌ Error envío"); 
+        btn.disabled = false; btn.innerText = "REGISTRAR INFORME 🚩";
+    }
+}
+
+async function enviarOT() {
+    const f = document.getElementById('ot-folio').value;
+    const tecId = document.getElementById('ot-id-tec').value.toUpperCase();
+    const tData = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === tecId) : null;
+
+    if(!f || !tData) return alert("❌ Folio o Técnico no válido.");
+
+    const btn = document.querySelector('#ui-operaciones .btn'); 
+    btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
+
+    const payload = { 
+        action: "registrarOT", 
+        folio: f, 
+        tecnico: tData.nombre, 
+        prioridad: document.getElementById('ot-prioridad').value, 
+        departamento: document.getElementById('ot-depto').value, 
+        descripcion: document.getElementById('ot-descripcion').value 
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const b64 = await res.text();
+        if(b64.length > 500) descargarBase64PDF(b64, `OT_${f}.pdf`);
+        alert("✅ ORDEN DE TRABAJO APERTURADA"); 
+        location.reload();
+    } catch(e) { 
+        btn.disabled = false; btn.innerText = "🚀 ABRIR ORDEN"; 
+        alert("❌ Error en servidor"); 
+    }
+}
         // --- 7. MOTOR DE REPORTES Y DESCARGAS ---
       async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
     if(!ini || !fin) return alert("❌ Seleccione ambas fechas para filtrar.");
