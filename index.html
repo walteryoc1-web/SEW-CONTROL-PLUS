@@ -951,9 +951,30 @@ function enviar() {
 
         function descargarBase64PDF(b64, n) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b64; a.download = n; a.click(); }
         function iniciarReloj() { setInterval(() => { const r = document.getElementById('reloj'); if(r) r.innerText = new Date().toLocaleTimeString(); }, 1000); }
-        async function actualizarPildoras() { try { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('count-pendientes').innerText = (d.pendientes || 0); document.getElementById('count-proceso').innerText = (d.proceso || 0); document.getElementById('count-despachadas').innerText = (d.despachadas || 0); } catch(e){} }
-        async function actualizarPildorasSSO() { try { const r = await fetch(URL_SCRIPT); const d = await r.json(); document.getElementById('sso-pnd').innerText = d.totalSSO; document.getElementById('sso-riesgo').innerText = d.riesgoSSO; document.getElementById('sso-personal').innerText = d.personalSSO; } catch(e){} }
-        
+      async function actualizarPildoras() { 
+    try { 
+        const r = await fetch(URL_SCRIPT); 
+        const d = await r.json(); 
+        // El ?. evita que la App truene si el ID no existe en la pantalla actual
+        if(document.getElementById('count-pendientes')) {
+            document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2, '0');
+            document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2, '0');
+            document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2, '0');
+        }
+    } catch(e) { console.log("Sincronizando Logística..."); } 
+}
+
+async function actualizarPildorasSSO() { 
+    try { 
+        const r = await fetch(URL_SCRIPT); 
+        const d = await r.json(); 
+        if(document.getElementById('sso-pnd')) {
+            document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2, '0');
+            document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2, '0');
+            document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2, '0');
+        }
+    } catch(e) { console.log("Sincronizando SSO..."); } 
+}
         async function cargarPermisosParaCerrar() {
             try {
                 const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
