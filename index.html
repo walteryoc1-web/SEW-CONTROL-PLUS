@@ -505,7 +505,52 @@ function crearCheck(texto) {
             const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === id) : null;
             inp.style.background = t ? "#e8f5e9" : "#fff";
         }
+async function vincularDatosPermiso(folio) {
+    const display = document.getElementById('datos-vinculados-sso');
+    if (folio.length < 5) {
+        display.innerHTML = "Esperando folio...";
+        window.datosVinculados = null;
+        return;
+    }
 
+    display.innerHTML = "⌛ Buscando en historial...";
+    
+    try {
+        // Pedimos los reportes de SSO al servidor
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        
+        // Buscamos el folio (está en la columna de 'datos', posición 0 tras el split)
+        const permiso = data.find(r => {
+            const columnas = r.datos.split(";");
+            return columnas[0].trim().toUpperCase() === folio.trim().toUpperCase();
+        });
+
+        if (permiso) {
+            const d = permiso.datos.split(";");
+            // Guardamos los datos en una variable global temporal para el envío
+            window.datosVinculados = { 
+                folioATS: d[0], 
+                personal: d[1], 
+                fase: d[2], 
+                ubi: d[3], 
+                tipo: d[4] 
+            };
+            display.innerHTML = `
+                <div style='background:#e8f5e9; border:1px solid #27ae60; padding:10px; border-radius:10px;'>
+                    <b style='color:#27ae60;'>✅ VINCULACIÓN EXITOSA</b><br>
+                    <small><b>ÁREA:</b> ${d[2]} | <b>UBICACIÓN:</b> ${d[3]}</small><br>
+                    <small><b>TRABAJO:</b> ${d[4]}</small>
+                </div>`;
+        } else {
+            window.datosVinculados = null;
+            display.innerHTML = "<b style='color:#d63031;'>❌ FOLIO NO ENCONTRADO O CERRADO</b>";
+        }
+    } catch(e) { 
+        console.error(e);
+        display.innerHTML = "<b style='color:#e67e22;'>⚠️ Error de conexión con el servidor</b>"; 
+    }
+}
         // --- 5. GESTIÓN ADMINISTRATIVA (BACKOFFICE) ---
       function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
