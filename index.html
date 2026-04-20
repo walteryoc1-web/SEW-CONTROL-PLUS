@@ -583,6 +583,17 @@ function checkInvolucrado(inp) {
         inp.style.background = "#fff";
     }
 }
+function agregarInvolucradoInc() {
+            const div = document.createElement('div');
+            div.style.cssText = "margin-bottom: 10px; display:flex; gap:10px;";
+            div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
+            document.getElementById('contenedor-involucrados-inc').appendChild(div);
+        }
+        function checkInvolucrado(inp) {
+            const id = inp.value.toUpperCase().trim();
+            let display = inp.nextElementSibling;
+            if(!personalSeguridad[id]) { inp.style.background="#fff"; } else { inp.style.background="#e8f5e9"; alert("✅ " + personalSeguridad[id].n); }
+        }
 
     </script>
 </body>
