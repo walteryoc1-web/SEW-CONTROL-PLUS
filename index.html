@@ -268,24 +268,54 @@
         </div>
     </div>
 
-    <!-- 10. UI ADMIN DATOS -->
-    <div id="ui-admin-datos" class="card-full" style="display:none; border-top:8px solid #2c3e50;">
-        <h3 style="color:#2c3e50; margin:0;">⚙️ Gestión de Datos Maestros</h3>
-        <div class="card-compacta" style="max-width:500px; text-align:left;">
-            <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
-                <option value="PILOTO">🚛 Piloto</option><option value="TECNICO">👨‍🔧 Técnico</option>
-                <option value="PRODUCTO">📦 Producto</option><option value="MOVIMIENTO">🔁 Movimiento</option>
-                <option value="UBICACION">📍 Ubicación</option><option value="EPP">🛡️ EPP</option>
-                <option value="HERRAMIENTA">🛠️ Herramienta</option><option value="TRABAJO">👷 Tipo Trabajo</option>
-                <option value="PRIORIDAD_OT">⚡ Prioridad OT</option><option value="DEPTO_OT">🏢 Depto OT</option>
-            </select>
-            <input type="text" id="adm-id" placeholder="ID (Obligatorio para Piloto/Tec)"><input type="text" id="adm-nombre" placeholder="Nombre">
-            <label id="lbl-adm-extra1">Dato 1:</label><input type="text" id="adm-extra1">
-            <label id="lbl-adm-extra2">Dato 2:</label><input type="text" id="adm-extra2">
-            <button class="btn" style="background:#2c3e50; color:white;" onclick="guardarDatoMaestro()">📥 REGISTRAR</button>
-            <button class="btn-salir" onclick="location.reload()">VOLVER</button>
-        </div>
+    <!-- UI ADMINISTRADOR DE DATOS MAESTROS (RESTAURADA) -->
+<div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
+    <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos Maestros</h3>
+    <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
+
+    <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
+        <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
+        <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
+            <optgroup label="Personal y Carga">
+                <option value="PILOTO">🚛 Nuevo Piloto</option>
+                <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
+                <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
+                <option value="MOVIMIENTO">🔁 Tipo de Movimiento (Logística)</option>
+            </optgroup>
+            <optgroup label="Seguridad e Infraestructura">
+                <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
+                <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
+                <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
+                <option value="COLECTIVA">🚧 Protección Colectiva</option>
+                <option value="TRABAJO">👷 Tipo de Trabajo (Alturas/etc)</option>
+            </optgroup>
+            <optgroup label="Catálogos de Incidentes y OT">
+                <option value="ESTADO_SALUD">🏥 Opción de Estado de Salud</option>
+                <option value="GRAVEDAD">⚠️ Nivel de Gravedad</option>
+                <option value="PRIORIDAD_OT">⚡ Nivel de Prioridad (OT)</option>
+                <option value="DEPTO_OT">🏢 Departamento Operativo</option>
+            </optgroup>
+        </select>
+
+        <label style="font-weight:bold; color:#34495e;">ID / Código Único:</label>
+        <input type="text" id="adm-id" placeholder="Obligatorio para Piloto/Técnico">
+
+        <label style="font-weight:bold; color:#34495e;">Nombre Completo / Valor:</label>
+        <input type="text" id="adm-nombre" placeholder="Nombre o descripción">
+
+        <!-- Estas etiquetas cambian solas -->
+        <label id="lbl-adm-extra1" style="font-weight:bold; color:#34495e;">Dato Extra 1:</label>
+        <input type="text" id="adm-extra1">
+
+        <label id="lbl-adm-extra2" style="font-weight:bold; color:#34495e;">Dato Extra 2:</label>
+        <input type="text" id="adm-extra2">
+
+        <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">
+            📥 REGISTRAR EN SISTEMA
+        </button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER AL MENU</button>
     </div>
+</div>
     
     <!-- SECCIÓN DE SCRIPTS -->
     <script>
@@ -409,31 +439,59 @@
         }
 
         // --- 5. GESTIÓN ADMINISTRATIVA (BACKOFFICE) ---
-        function ajustarLabelsAdmin() {
-            const cat = document.getElementById('adm-categoria').value;
-            const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
-            if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Número Licencia:"; }
-            else if(cat==="TECNICO") { l1.innerText="Especialidad:"; l2.innerText="Departamento:"; }
-            else if(cat==="UBICACION") { l1.innerText="Fase (1,2,3):"; l2.innerText="Tipo:"; }
-            else if(cat==="EPP" || cat==="HERRAMIENTA") { l1.innerText="Vinculo Trabajo:"; l2.innerText="Obs:"; }
-            else { l1.innerText="Dato Extra 1:"; l2.innerText="Dato Extra 2:"; }
-        }
+      function ajustarLabelsAdmin() {
+    const cat = document.getElementById('adm-categoria').value;
+    const lbl1 = document.getElementById('lbl-adm-extra1'), lbl2 = document.getElementById('lbl-adm-extra2');
+    const inp1 = document.getElementById('adm-extra1'), inp2 = document.getElementById('adm-extra2');
 
-        async function guardarDatoMaestro() {
-            let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
-            const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
-            const catVal = document.getElementById('adm-categoria').value;
-            if (!idVal && (catVal !== "PILOTO" && catVal !== "TECNICO")) {
-                idVal = `${catVal.slice(0,3)}-${nomVal.slice(0,5)}-${Math.floor(Math.random()*900+100)}`;
-            }
-            if (!nomVal) return alert("❌ Nombre requerido");
-            const datos = { action: "guardarConfig", categoria: catVal, id: idVal, nombre: nomVal, extra1: document.getElementById('adm-extra1').value, extra2: document.getElementById('adm-extra2').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-                if (await res.text() === "OK_CONFIG") { alert("✅ Registro exitoso: " + idVal); location.reload(); }
-            } catch (e) { alert("❌ Error de red"); }
-        }
+    if (cat === "PILOTO") {
+        lbl1.innerText = "Placa del Cabezal:"; lbl2.innerText = "Número de Licencia:";
+    } else if (cat === "TECNICO") {
+        lbl1.innerText = "Empresa / Especialidad:"; lbl2.innerText = "Departamento (SSO/Taller):";
+    } else if (cat === "UBICACION") {
+        lbl1.innerText = "Fase Asociada (Fase 1, 2 o 3):"; lbl2.innerText = "Tipo (Silo/Bin/Bodega):";
+    } else if (cat === "EPP" || cat === "HERRAMIENTA" || cat === "COLECTIVA") {
+        lbl1.innerText = "Tipo de Trabajo (alturas, caliente, etc):"; lbl2.innerText = "Observación Técnica:";
+    } else {
+        lbl1.innerText = "Atributo Extra 1:"; lbl2.innerText = "Atributo Extra 2:";
+    }
+}
 
+async function guardarDatoMaestro() {
+    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+    const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
+    const catVal = document.getElementById('adm-categoria').value;
+
+    // AUTO-GENERACIÓN DE ID SI ESTÁ VACÍO (Excepto Pilotos y Técnicos)
+    if (!idVal) {
+        if (catVal === "PILOTO" || catVal === "TECNICO") return alert("❌ Pilotos y Técnicos requieren ID real.");
+        const prefijo = catVal.substring(0, 3);
+        const raiz = nomVal.substring(0, 5).replace(/\s/g, ''); 
+        idVal = `${prefijo}-${raiz}-${Math.floor(Math.random() * 900 + 100)}`;
+    }
+
+    if (!nomVal) return alert("❌ El Nombre es obligatorio.");
+
+    const datos = {
+        action: "guardarConfig",
+        categoria: catVal,
+        id: idVal,
+        nombre: nomVal,
+        extra1: document.getElementById('adm-extra1').value.toUpperCase().trim(),
+        extra2: document.getElementById('adm-extra2').value.toUpperCase().trim()
+    };
+
+    const btn = event.target;
+    btn.disabled = true; btn.innerText = "INYECTANDO... ⏳";
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        if (await res.text() === "OK_CONFIG") {
+            alert("✅ Guardado con éxito. ID: " + idVal);
+            location.reload();
+        }
+    } catch (e) { alert("❌ Error de red"); btn.disabled = false; btn.innerText = "REGISTRAR"; }
+}
         // --- 6. REGISTROS TÉCNICOS (PDF) ---
         async function enviarFichaMedica() {
             const idCol = document.getElementById('med-id').value.toUpperCase().trim();
