@@ -470,6 +470,145 @@
                 alert("✅ Inspección guardada"); location.reload();
             } catch(e) { alert("❌ Error"); }
         }
+        async function enviarPermisoSSO() {
+    const ids = Array.from(document.querySelectorAll('.p-id-clase'))
+                     .map(i => i.value.toUpperCase())
+                     .filter(v => DB_MASTER.TECNICO.find(t => t.id.toString() === v));
+    
+    if(ids.length == 0) return alert("❌ Ingrese al menos un técnico válido.");
+    
+    const btn = document.getElementById('btn-sso');
+    btn.disabled = true; btn.innerText = "GENERANDO ATS... ⏳";
+
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+                          .map(c => c.parentElement.innerText.trim()).join(" | ");
+    
+    const nombres = ids.map(id => {
+        const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id);
+        return `${t.nombre} (${t.extra2})`;
+    }).join("\n");
+
+    const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
+        const pdfB64 = await res.text();
+        if (pdfB64.length > 500) {
+            descargarBase64PDF(pdfB64, `ATS_${document.getElementById('p-fase').value}_${Date.now()}.pdf`);
+            alert("✅ ATS REGISTRADO Y DESCARGADO");
+            location.reload();
+        } else {
+            alert("✅ REGISTRADO (Sin PDF)"); location.reload();
+        }
+    } catch (e) { alert("⚠️ Error de red"); btn.disabled = false; }
+}
+
+// --- ENVÍO DE ORDEN DE TRABAJO (OT) CON GENERACIÓN DE PDF ---
+async function enviarOT() {
+    const f = document.getElementById('ot-folio').value;
+    const tecId = document.getElementById('ot-id-tec').value.toUpperCase();
+    const tecnico = DB_MASTER.TECNICO.find(t => t.id.toString() === tecId);
+
+    if(!f || !tecnico) return alert("❌ Datos de Folio o Técnico inválidos.");
+
+    const btn = event.target;
+    btn.disabled = true; btn.innerText = "GENERANDO ORDEN... ⏳";
+
+    const payload = { 
+        action: "registrarOT", 
+        folio: f, 
+        tecnico: tecnico.nombre, 
+        prioridad: document.getElementById('ot-prioridad').value, 
+        departamento: document.getElementById('ot-depto').value, 
+        descripcion: document.getElementById('ot-descripcion').value 
+    };
+
+    // --- FUNCIÓN PARA FINALIZAR OFICIALMENTE UN ATS ---
+async function cerrarPermiso(f) { 
+    // 1. Confirmación de seguridad para evitar errores
+    if(!confirm("⚠️ ¿Está seguro que desea FINALIZAR el permiso: " + f + "?\nEsta acción registrará la hora de salida oficial.")) return;
+    
+    // 2. Limpieza del folio
+    const folioLimpio = f.trim().toUpperCase();
+
+    try { 
+        // 3. Envío del comando de cierre al servidor
+        // Usamos el formato de texto plano que espera tu Código.gs (CERRAR_PERMISO;FOLIO)
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: "CERRAR_PERMISO;" + folioLimpio
+        }); 
+        
+        const texto = await res.text();
+        
+        if(texto.includes("OK_CIERRE")) {
+            alert("✅ EL PERMISO " + folioLimpio + " HA SIDO CERRADO EXITOSAMENTE."); 
+            location.reload(); // Recargamos para limpiar la tabla del monitor
+        } else {
+            alert("⚠️ Error del servidor: " + texto);
+        }
+    } catch(e) { 
+        // 4. Modo de Emergencia (En caso de red lenta)
+        console.warn("Reintentando cierre en modo ráfaga...");
+        fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: "CERRAR_PERMISO;" + folioLimpio 
+        });
+        alert("⏳ Comando enviado. El folio desaparecerá del monitor en unos segundos.");
+        setTimeout(() => { location.reload(); }, 2000);
+    } 
+}
+// --- 3. LÓGICA LOGÍSTICA: ENVÍO DE ARRIBO/SALIDA ---
+function enviar() {
+    const idBusca = document.getElementById('id-in').value.trim();
+    const btn = document.getElementById('btn-env');
+    
+    // 1. Buscamos al piloto en la Base de Datos Maestra
+    const p = DB_MASTER.PILOTO ? DB_MASTER.PILOTO.find(x => x.id.toString() === idBusca) : null;
+
+    if (!p) return alert("❌ Error: ID de piloto no válido o no registrado en el sistema.");
+    
+    // 2. Bloqueamos botón para evitar duplicados
+    btn.disabled = true;
+    btn.innerText = "REGISTRANDO EN BÁSCULA... ⏳";
+
+    // 3. Armamos el paquete de datos (Mismo orden que tus Sheets de Logística)
+    // ID;Nombre;Movimiento;Producto;Transporte;Cabezal;Placa;CicloTer;CicloEPQ
+    const t = `${p.id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra1};${p.extra2};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value}`;
+
+    // 4. Disparo al servidor
+    fetch(URL_SCRIPT, { 
+        method: 'POST', 
+        body: t 
+    })
+    .then(res => res.text())
+    .then(txt => {
+        if(txt.includes("OK")) {
+            alert("✅ REGISTRO DE LOGÍSTICA EXITOSO");
+            location.reload();
+        } else {
+            alert("⚠️ Servidor respondió: " + txt);
+            btn.disabled = false;
+            btn.innerText = "REGISTRAR DATOS 🚀";
+        }
+    })
+    .catch(err => {
+        alert("❌ Error de conexión con el servidor.");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR DATOS 🚀";
+    });
+}
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const b64 = await res.text();
+        if(b64.length > 500) { 
+            descargarBase64PDF(b64, `Orden_Trabajo_${f}.pdf`);
+            alert("✅ ORDEN DE TRABAJO APERTURADA"); 
+            location.reload(); 
+        }
+    } catch(e) { alert("❌ Error"); btn.disabled = false; }
+}
 
         // --- 7. MOTOR DE REPORTES ---
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
