@@ -580,27 +580,40 @@
         }
 
         // --- 7. MOTOR DE REPORTES Y DESCARGAS ---
-        async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-            if(!ini || !fin) return alert("❌ Seleccione fechas");
-            try {
-                const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
-                const data = await res.json();
-                const fil = data.filter(r => {
-                    if(!r.fecha || r.fecha === "N/A") return false;
-                    let p = r.fecha.toString().trim().split(' ')[0].split(r.fecha.includes('/') ? '/' : '-');
-                    if(partes.length !== 3) return false;
-                    let dia, mes, anio;
-                    if (partes[0].length === 4) { anio=partes[0]; mes=partes[1]; dia=partes[2]; } else { dia=partes[0]; mes=partes[1]; anio=partes[2]; }
-                    let fISO = `${anio}-${mes.toString().padStart(2,'0')}-${dia.toString().padStart(2,'0')}`;
-                    return fISO >= ini && fISO <= fin;
-                });
-                if(fil.length === 0) return alert("⚠️ Sin registros.");
-                let csv = "\uFEFFFECHA,HORA,DATOS\n";
-                fil.forEach(r => csv += `${r.fecha},${r.hora},${r.datos.replace(/;/g, ",")}\n`);
-                const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = `${nombre}_${ini}_al_${fin}.csv`; a.click();
-            } catch(e) { alert("❌ Error reporte."); }
-        }
+       async function procesarDescargaUniversal(accion, ini, fin, nombre) {
+    if(!ini || !fin) return alert("❌ Seleccione fechas");
+    try {
+        const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
+        const data = await res.json();
+        
+        // Filtrado por fecha comparando strings simples
+        const fil = data.filter(r => {
+            if(!r.fecha) return false;
+            // Convertimos DD/MM/YYYY a YYYY-MM-DD para comparar con el input date
+            let p = r.fecha.split('/');
+            if(p.length !== 3) return false;
+            let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+            return fISO >= ini && fISO <= fin;
+        });
 
+        if(fil.length === 0) return alert("⚠️ No hay datos en ese rango.");
+
+        let csv = "\uFEFFFECHA,HORA,CONTENIDO\n";
+        fil.forEach(r => {
+            csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ' | ')}"\n`;
+        });
+
+        const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `${nombre}_${ini}_al_${fin}.csv`;
+        a.click();
+    } catch(e) { 
+        console.error(e);
+        alert("❌ Error al generar el Excel."); 
+    }
+}
+        
         function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
         function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Permisos_SSO"); }
         function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
