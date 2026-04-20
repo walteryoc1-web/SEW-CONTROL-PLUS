@@ -350,52 +350,74 @@
     }
 }
         // --- 2. LOGICA DE ACCESO POR ROLES ---
-        async function entrar() {
+      async function entrar() {
     const u = document.getElementById('u').value.toLowerCase().trim();
     const p = document.getElementById('p').value;
     const login = document.getElementById('login');
     const btn = event.target;
 
+    // 1. Efecto visual de carga
+    const originalText = btn.innerText;
     btn.innerText = "SINCRONIZANDO... ⏳";
     btn.disabled = true;
 
-    // Intentamos cargar la base de datos
-    const exito = await cargarCerebroSistema();
+    try {
+        // 2. Intentamos cargar la base de datos UNA SOLA VEZ
+        // Si ya se cargó por el window.onload, esto será instantáneo
+        const exito = await cargarCerebroSistema();
 
-    if (!exito) {
-        alert("⚠️ La red está lenta. El sistema entrará con la última configuración guardada.");
-    }
-
-            // Cargamos datos antes de mostrar cualquier interfaz
-            await cargarCerebroSistema();
-
-            if (u == "operador" && p == "terpac") { 
-                login.style.display = 'none'; document.getElementById('ui-app').style.display = 'block'; 
-                llenarDesplegablesLogistica();
-            } 
-            else if (u == "supervisor" && p == "terpac1") { 
-                login.style.display = 'none'; document.getElementById('ui-supervisor').style.display = 'block'; 
-                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000); 
-            } 
-            else if (u == "supervisor sso" && p == "terpac3") { 
-                login.style.display = 'none'; document.getElementById('ui-monitor-sso').style.display = 'block'; 
-                actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000); 
-            }
-            else if (u == "sso" && p == "terpac2") { 
-                login.style.display = 'none'; document.getElementById('ui-seguridad').style.display = 'block'; 
-                llenarDesplegablesSSO();
-            } 
-            else if (u == "operaciones" && p == "terpac4") { 
-                login.style.display = 'none'; document.getElementById('ui-operaciones').style.display = 'block'; 
-                setOrigenOT('SISTEMA'); llenarDesplegablesOperaciones();
-            }
-            else if (u == "admin" && p == "quetzal2026") { 
-                login.style.display = 'none'; document.getElementById('ui-admin-datos').style.display = 'block'; 
-                ajustarLabelsAdmin(); 
-            }
-            else { alert("❌ Credenciales incorrectas"); }
+        if (!exito) {
+            console.warn("Entrando en modo preventivo por red lenta.");
         }
 
+        // 3. Lógica de accesos por roles
+        if (u == "operador" && p == "terpac") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-app').style.display = 'block'; 
+            llenarDesplegablesLogistica();
+        } 
+        else if (u == "supervisor" && p == "terpac1") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-supervisor').style.display = 'block'; 
+            iniciarReloj(); 
+            actualizarPildoras(); 
+            setInterval(actualizarPildoras, 30000); 
+        } 
+        else if (u == "supervisor sso" && p == "terpac3") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-monitor-sso').style.display = 'block'; 
+            actualizarPildorasSSO(); 
+            cargarPermisosParaCerrar(); 
+            setInterval(actualizarPildorasSSO, 30000); 
+        }
+        else if (u == "sso" && p == "terpac2") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-seguridad').style.display = 'block'; 
+            llenarDesplegablesSSO();
+        } 
+        else if (u == "operaciones" && p == "terpac4") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-operaciones').style.display = 'block'; 
+            setOrigenOT('SISTEMA'); 
+            llenarDesplegablesOperaciones();
+        }
+        else if (u == "admin" && p == "quetzal2026") { 
+            login.style.display = 'none'; 
+            document.getElementById('ui-admin-datos').style.display = 'block'; 
+            ajustarLabelsAdmin(); 
+        }
+        else { 
+            alert("❌ Credenciales incorrectas"); 
+        }
+
+    } catch (e) {
+        alert("❌ Error de comunicación. Verifique su internet.");
+    } finally {
+        // 4. Restaurar el botón siempre
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
         // --- 3. LLENADO DINÁMICO DE LISTAS ---
         function llenarDesplegablesLogistica() {
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
@@ -961,6 +983,10 @@ function enviar() {
         function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
         function cancelarCierre() { location.reload(); }
         async function enviarOT() { /* Lógica de envío OT similar a las anteriores */ }
+        window.onload = () => {
+    console.log("🚀 Iniciando pre-carga de base de datos...");
+    cargarCerebroSistema(); 
+};
     </script>
 </body>
 </html>
