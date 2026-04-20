@@ -400,6 +400,74 @@
             selUbi.disabled = false;
         }
 
+       function actualizarChecklist() {
+    const selector = document.getElementById('p-tipo');
+    if (!selector.value) return;
+
+    // Obtenemos el texto exacto (ej: "EN ALTURA") para comparar con la Sheets
+    const tipoElegido = selector.options[selector.selectedIndex].text.toUpperCase().trim();
+    
+    const contCheck = document.getElementById('contenedor-checklist');
+    const lEpp = document.getElementById('lista-epp');
+    const lHerr = document.getElementById('lista-herramientas');
+    const lCol = document.getElementById('lista-colectiva'); // Nueva lista colectiva
+
+    // Leemos los estados de los switches/checkboxes
+    const usaHerr = document.getElementById('check-herramientas').checked;
+    const usaCol = document.getElementById('check-colectiva').checked;
+
+    contCheck.style.display = 'block';
+    lEpp.innerHTML = "<b>✅ EPP REQUERIDO:</b>";
+    lHerr.innerHTML = "<b>🛠️ HERRAMIENTAS:</b>";
+    
+    // Asegúrate de que este ID exista en tu HTML (Parte 3)
+    if(lCol) lCol.innerHTML = "<b>🚧 PROTECCIÓN COLECTIVA:</b>";
+
+    // 1. DIBUJAR EPP (Siempre se muestran según el trabajo)
+    if (DB_MASTER.EPP) {
+        const epps = DB_MASTER.EPP.filter(e => e.extra1.toUpperCase().trim() === tipoElegido);
+        if (epps.length > 0) {
+            epps.forEach(e => lEpp.appendChild(crearCheck(e.nombre)));
+        } else {
+            lEpp.innerHTML += "<br><span style='color:gray; font-size:11px;'>N/A</span>";
+        }
+    }
+
+    // 2. DIBUJAR HERRAMIENTAS (Solo si el check está activo)
+    if (usaHerr && DB_MASTER.HERRAMIENTA) {
+        lHerr.style.display = 'block';
+        const herrs = DB_MASTER.HERRAMIENTA.filter(h => h.extra1.toUpperCase().trim() === tipoElegido);
+        if (herrs.length > 0) {
+            herrs.forEach(h => lHerr.appendChild(crearCheck(h.nombre)));
+        } else {
+            lHerr.innerHTML += "<br><span style='color:gray; font-size:11px;'>Sin herramientas en base</span>";
+        }
+    } else {
+        lHerr.style.display = 'none';
+    }
+
+    // 3. DIBUJAR PROTECCIÓN COLECTIVA (Solo si el check está activo)
+    if (usaCol && DB_MASTER.COLECTIVA && lCol) {
+        lCol.style.display = 'block';
+        const cols = DB_MASTER.COLECTIVA.filter(c => c.extra1.toUpperCase().trim() === tipoElegido);
+        if (cols.length > 0) {
+            cols.forEach(c => lCol.appendChild(crearCheck(c.nombre)));
+        } else {
+            lCol.innerHTML += "<br><span style='color:gray; font-size:11px;'>Sin protección registrada</span>";
+        }
+    } else if(lCol) {
+        lCol.style.display = 'none';
+    }
+} // <--- AHORA SÍ ESTÁ CERRADA LA FUNCIÓN
+
+// NO OLVIDES ESTA FUNCIÓN AUXILIAR (Si no la tienes, los cuadros no aparecen)
+function crearCheck(texto) {
+    const div = document.createElement('div');
+    div.innerHTML = `<label style="display:flex; align-items:center; gap:10px; margin:5px 0; cursor:pointer; font-size:13px;">
+                        <input type="checkbox" style="width:18px; height:18px;"> ${texto}
+                     </label>`;
+    return div;
+}
         function llenarDesplegablesOperaciones() {
             const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
             if (DB_MASTER.PRIORIDAD_OT) {
