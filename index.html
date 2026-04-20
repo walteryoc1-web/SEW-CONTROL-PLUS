@@ -324,20 +324,47 @@
 
         // --- 1. SINCRONIZACIÓN CON BASE DE DATOS MAESTRA ---
         async function cargarCerebroSistema() {
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
-                DB_MASTER = await res.json();
-                console.log("🧠 Cerebro del Sistema Sincronizado:", DB_MASTER);
-            } catch (e) {
-                alert("❌ Error crítico de sincronización con la base de datos.");
-            }
-        }
+    console.log("🧠 Sincronizando con el búnker de datos...");
+    try {
+        // Le damos un poco más de tiempo de espera al fetch
+        const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
+        
+        if (!res.ok) throw new Error("Servidor no responde");
 
+        DB_MASTER = await res.json();
+        console.log("✅ Cerebro Sincronizado");
+        return true; 
+    } catch (e) {
+        console.warn("⚠️ Reintentando sincronización silenciosa...");
+        // En lugar de un alert que bloquea, intentamos una segunda vez tras 1 segundo
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        try {
+            const res2 = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
+            DB_MASTER = await res2.json();
+            return true;
+        } catch(e2) {
+            // Solo si falla dos veces, avisamos al usuario de forma menos agresiva
+            console.error("Fallo total de conexión");
+            return false;
+        }
+    }
+}
         // --- 2. LOGICA DE ACCESO POR ROLES ---
         async function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            const login = document.getElementById('login');
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const login = document.getElementById('login');
+    const btn = event.target;
+
+    btn.innerText = "SINCRONIZANDO... ⏳";
+    btn.disabled = true;
+
+    // Intentamos cargar la base de datos
+    const exito = await cargarCerebroSistema();
+
+    if (!exito) {
+        alert("⚠️ La red está lenta. El sistema entrará con la última configuración guardada.");
+    }
 
             // Cargamos datos antes de mostrar cualquier interfaz
             await cargarCerebroSistema();
