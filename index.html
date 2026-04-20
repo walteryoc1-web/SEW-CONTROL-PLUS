@@ -319,16 +319,27 @@
     <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
 
     <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
-        <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
-        <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
-            <option value="PILOTO">🚛 Nuevo Piloto</option>
-            <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
-            <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
-            <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
-            <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
-            <option value="COLECTIVA">🚧 Protección Colectiva</option>
-            <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
-        </select>
+       <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
+<select id="adm-categoria" onchange="ajustarLabelsAdmin()">
+    <optgroup label="Personal y Carga">
+        <option value="PILOTO">🚛 Nuevo Piloto</option>
+        <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
+        <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
+        <option value="MOVIMIENTO">🔁 Tipo de Movimiento (Logística)</option>
+    </optgroup>
+    <optgroup label="Seguridad e Infraestructura">
+        <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
+        <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
+        <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
+        <option value="COLECTIVA">🚧 Protección Colectiva</option>
+    </optgroup>
+    <optgroup label="Catálogos de Incidentes y OT">
+        <option value="ESTADO_SALUD">🏥 Opción de Estado de Salud</option>
+        <option value="GRAVEDAD">⚠️ Nivel de Gravedad</option>
+        <option value="PRIORIDAD_OT">⚡ Nivel de Prioridad (OT)</option>
+        <option value="DEPTO_OT">🏢 Departamento Operativo</option>
+    </optgroup>
+</select>
 
         <label style="font-weight:bold; color:#34495e;">ID / Código:</label>
         <input type="text" id="adm-id" placeholder="Código identificador">
