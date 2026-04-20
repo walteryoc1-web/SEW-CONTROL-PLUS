@@ -312,6 +312,40 @@
         <button class="btn-salir" style="background:#777;" onclick="location.reload()">CANCELAR</button>
     </div>
 </div>
+
+<!-- UI ADMINISTRADOR DE DATOS MAESTROS -->
+<div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
+    <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos</h3>
+    <span class="sub-plus">CONFIGURACIÓN DE CATÁLOGOS Y PERSONAL</span>
+
+    <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
+        <label style="font-weight:bold; color:#34495e;">Tipo de Registro:</label>
+        <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
+            <option value="PILOTO">🚛 Nuevo Piloto</option>
+            <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
+            <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
+            <option value="PRODUCTO">📦 Nuevo Producto</option>
+        </select>
+
+        <label style="font-weight:bold; color:#34495e;">ID / Código Único:</label>
+        <input type="text" id="adm-id" placeholder="Ej: 125 o S-005">
+
+        <label style="font-weight:bold; color:#34495e;">Nombre Completo / Valor:</label>
+        <input type="text" id="adm-nombre" placeholder="Nombre del piloto o ubicación">
+
+        <label id="lbl-adm-extra1" style="font-weight:bold; color:#34495e;">Placa / Fase:</label>
+        <input type="text" id="adm-extra1" placeholder="Dato complementario 1">
+
+        <label id="lbl-adm-extra2" style="font-weight:bold; color:#34495e;">Licencia / Departamento:</label>
+        <input type="text" id="adm-extra2" placeholder="Dato complementario 2">
+
+        <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">
+            📥 GUARDAR EN BASE DE DATOS
+        </button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER</button>
+    </div>
+</div>
+    
         <script>
         // --- 1. BASES DE DATOS ---
         const pilotos = { "101": { n: "ALBERT GIRON", t: "SANTA MONICA", c: "PURINA", p: "198CBM" }, "102": { n: "CESAR ADOLFO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "129BZH" }, "103": { n: "EFRAIN ESTRADA", t: "SANTA MONICA", c: "PURINA", p: "474BKX" }, "104": { n: "JUAN GARCIA", t: "SANTA MONICA", c: "PURINA", p: "363BPP" }, "105": { n: "MYNOR JOSUE GUZMAN RIVERA", t: "SANTA MONICA", c: "PURINA", p: "826BZQ" }, "106": { n: "GERSON GALVEZ", t: "SANTA MONICA", c: "PURINA", p: "795BPZ" }, "107": { n: "ROBERTO MARTINEZ", t: "SANTA MONICA", c: "PURINA", p: "635BGC" }, "108": { n: "ESDYBERS GALICIA", t: "SANTA MONICA", c: "PURINA", p: "666BZJ" }, "109": { n: "FEDERICO MENDEZ", t: "SANTA MONICA", c: "PURINA", p: "490BPP" }, "110": { n: "FELIX PERALTA", t: "SANTA MONICA", c: "PURINA", p: "026BBF" }, "111": { n: "FREDY PEREZ", t: "SANTA MONICA", c: "PURINA", p: "775BMT" }, "112": { n: "LUIS AJCALON", t: "SANTA MONICA", c: "PURINA", p: "015BYS" }, "113": { n: "LUIS PINEDA", t: "SANTA MONICA", c: "PURINA", p: "092BNN" }, "114": { n: "ELVIS AVILA", t: "SANTA MONICA", c: "PURINA", p: "360BWD" }, "115": { n: "JORGE HERNANDEZ", t: "SANTA MONICA", c: "PURINA", p: "346BWB" }, "116": { n: "OSCAR AZAÑON", t: "SANTA MONICA", c: "PURINA", p: "781BMQ" }, "117": { n: "REGINALDO GARCIA", t: "SANTA MONICA", c: "PURINA", p: "634BGC" }, "118": { n: "RICARDO MIRANDA COJ", t: "SANTA MONICA", c: "PURINA", p: "904BXF" }, "119": { n: "WILDER NAJERA", t: "SANTA MONICA", c: "PURINA", p: "488BVM" }, "120": { n: "JHONY PINZON", t: "SANTA MONICA", c: "PURINA", p: "146BQR" }, "121": { n: "OSVALDO OBREGON", t: "SANTA MONICA", c: "PURINA", p: "265BQM" }, "122": { n: "REYNABEL PAYES", t: "SANTA MONICA", c: "PURINA", p: "603BJC" } };
