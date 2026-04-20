@@ -356,21 +356,53 @@
         const checklistData = { "altura": { epp: ["Casco barbuquejo", "Arnés de seguridad", "Línea de vida", "Absorbedor"], herr: ["Andamio", "Escalera", "Tablones"], col: ["Cintas", "Barandas"] }, "caliente": { epp: ["Careta soldar", "Guantes cuero", "Mangas de Cuero", "Uniforme Ignififugo", "Gabacha", "Extintor"], herr: ["Soldadora", "Pulidora", "Mangueras"], col: ["Mantas térmicas"] }, "electrico": { epp: ["Guantes dieléctricos", "Botas", "Proteccion Visual"], herr: ["Multímetro", "Kit LOTO"], col: ["Cintas rojas", "Alfombra aislante"] }, "Otros": { epp: ["Mascarrilla Facial", "Guastes", "Lentes de proteccion"], herr: ["Bomba en Buen Estado", "Equipo mecanico en Buen Estado", "Conos"], col: ["Rotulacion", "Delimitacion del Area"] }, "confinado": { epp: ["Monitor gases", "Respirador", "Arnés"], herr: ["Equipo de Limpieza", "Radio Transmisor", "Iluminación"], col: ["Vigía", "Conos", "Barreras"] } };
 
         // --- 2. NAVEGACIÓN Y ACCESO ---
-        function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            const login = document.getElementById('login');
-            if(u=="operador" && p=="terpac") { login.style.display='none'; document.getElementById('ui-app').style.display='block'; } 
-            else if(u=="supervisor" && p=="terpac1") { login.style.display='none'; document.getElementById('ui-supervisor').style.display='block'; iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000); } 
-            else if(u=="supervisor sso" && p=="terpac3") { login.style.display='none'; document.getElementById('ui-monitor-sso').style.display='block'; actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000); }
-            else if(u=="sso" && p=="terpac2") { login.style.display='none'; document.getElementById('ui-seguridad').style.display='block'; } 
-            else if(u=="operaciones" && p=="terpac4") { login.style.display='none'; document.getElementById('ui-operaciones').style.display='block'; setOrigenOT('SISTEMA'); }
-            else { alert("Acceso Incorrecto"); }
-        }
+       function entrar() {
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const login = document.getElementById('login');
 
-        function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-        function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
-        function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
+    if (u == "operador" && p == "terpac") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-app').style.display = 'block'; 
+    } 
+    else if (u == "supervisor" && p == "terpac1") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-supervisor').style.display = 'block'; 
+        iniciarReloj(); 
+        actualizarPildoras(); 
+        setInterval(actualizarPildoras, 30000); 
+    } 
+    else if (u == "supervisor sso" && p == "terpac3") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-monitor-sso').style.display = 'block'; 
+        actualizarPildorasSSO(); 
+        cargarPermisosParaCerrar(); 
+        setInterval(actualizarPildorasSSO, 30000); 
+    }
+    else if (u == "sso" && p == "terpac2") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-seguridad').style.display = 'block'; 
+    } 
+    else if (u == "operaciones" && p == "terpac4") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-operaciones').style.display = 'block'; 
+        setOrigenOT('SISTEMA'); 
+    }
+    // NUEVO ACCESO DE ADMINISTRADOR (Va ANTES del else final)
+    else if (u == "admin" && p == "quetzal2026") { 
+        login.style.display = 'none'; 
+        document.getElementById('ui-admin-datos').style.display = 'block'; 
+        ajustarLabelsAdmin(); // Para que inicie con las etiquetas de Piloto
+    }
+    else { 
+        alert("Acceso Incorrecto"); 
+    }
+} // <--- ESTA LLAVE CIERRA LA FUNCIÓN ENTRAR
+
+// Las funciones de navegación van afuera
+function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
+function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
+function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
 
         // --- 3. LÓGICA LOGÍSTICA ---
         function check() {
@@ -751,6 +783,50 @@ function descargarBase64PDF(base64, nombre) {
     a.href = "data:application/pdf;base64," + base64;
     a.download = nombre;
     a.click();
+}
+            function ajustarLabelsAdmin() {
+    const cat = document.getElementById('adm-categoria').value;
+    const lbl1 = document.getElementById('lbl-adm-extra1');
+    const lbl2 = document.getElementById('lbl-adm-extra2');
+
+    if (cat === "PILOTO") {
+        lbl1.innerText = "Placa del Cabezal:";
+        lbl2.innerText = "Número de Licencia:";
+    } else if (cat === "TECNICO") {
+        lbl1.innerText = "Empresa / Especialidad:";
+        lbl2.innerText = "Departamento (SSO/Taller):";
+    } else if (cat === "UBICACION") {
+        lbl1.innerText = "Fase (1, 2 o 3):";
+        lbl2.innerText = "Tipo (Silo/Bin/Bodega):";
+    } else {
+        lbl1.innerText = "Categoría:";
+        lbl2.innerText = "Observaciones:";
+    }
+}
+
+async function guardarDatoMaestro() {
+    const datos = {
+        action: "guardarConfig",
+        categoria: document.getElementById('adm-categoria').value,
+        id: document.getElementById('adm-id').value.toUpperCase().trim(),
+        nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(),
+        extra1: document.getElementById('adm-extra1').value.toUpperCase().trim(),
+        extra2: document.getElementById('adm-extra2').value.toUpperCase().trim()
+    };
+
+    if(!datos.id || !datos.nombre) return alert("❌ El ID y el Nombre son obligatorios");
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        if(await res.text() === "OK_CONFIG") {
+            alert("✅ ¡Dato Maestro guardado exitosamente!");
+            // Limpiar campos
+            document.getElementById('adm-id').value = "";
+            document.getElementById('adm-nombre').value = "";
+            document.getElementById('adm-extra1').value = "";
+            document.getElementById('adm-extra2').value = "";
+        }
+    } catch(e) { alert("Error de conexión"); }
 }
 </script>
 </body>
