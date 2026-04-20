@@ -323,6 +323,7 @@
         let DB_MASTER = {};
         let datosVinculados = null;
         
+        
 // --- 1. SINCRONIZACIÓN Y ACCESO ---
         async function cargarCerebroSistema() {
             try {
@@ -370,6 +371,9 @@
             else { alert("❌ Credenciales incorrectas"); }
             btn.innerText = originalText; btn.disabled = false;
         }
+        function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
+         function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
+        function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
 
         // --- 2. LOGÍSTICA ---
         function llenarDesplegablesLogistica() {
