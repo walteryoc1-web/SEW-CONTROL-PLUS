@@ -313,36 +313,40 @@
     </div>
 </div>
 
-<!-- UI ADMINISTRADOR DE DATOS MAESTROS -->
+<!-- UI ADMINISTRADOR DE DATOS MAESTROS (ACTUALIZADA) -->
 <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
-    <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos</h3>
-    <span class="sub-plus">CONFIGURACIÓN DE CATÁLOGOS Y PERSONAL</span>
+    <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos Maatros</h3>
+    <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
 
     <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
-        <label style="font-weight:bold; color:#34495e;">Tipo de Registro:</label>
+        <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
         <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
             <option value="PILOTO">🚛 Nuevo Piloto</option>
             <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
             <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
-            <option value="PRODUCTO">📦 Nuevo Producto</option>
+            <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
+            <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
+            <option value="COLECTIVA">🚧 Protección Colectiva</option>
+            <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
         </select>
 
-        <label style="font-weight:bold; color:#34495e;">ID / Código Único:</label>
-        <input type="text" id="adm-id" placeholder="Ej: 125 o S-005">
+        <label style="font-weight:bold; color:#34495e;">ID / Código:</label>
+        <input type="text" id="adm-id" placeholder="Código identificador">
 
-        <label style="font-weight:bold; color:#34495e;">Nombre Completo / Valor:</label>
-        <input type="text" id="adm-nombre" placeholder="Nombre del piloto o ubicación">
+        <label style="font-weight:bold; color:#34495e;">Nombre / Descripción:</label>
+        <input type="text" id="adm-nombre" placeholder="Nombre completo">
 
+        <!-- Estas etiquetas cambian solas con la función JS -->
         <label id="lbl-adm-extra1" style="font-weight:bold; color:#34495e;">Placa / Fase:</label>
-        <input type="text" id="adm-extra1" placeholder="Dato complementario 1">
+        <input type="text" id="adm-extra1" placeholder="Dato 1">
 
-        <label id="lbl-adm-extra2" style="font-weight:bold; color:#34495e;">Licencia / Departamento:</label>
-        <input type="text" id="adm-extra2" placeholder="Dato complementario 2">
+        <label id="lbl-adm-extra2" style="font-weight:bold; color:#34495e;">Licencia / Depto:</label>
+        <input type="text" id="adm-extra2" placeholder="Dato 2">
 
         <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">
-            📥 GUARDAR EN BASE DE DATOS
+            📥 REGISTRAR EN SISTEMA
         </button>
-        <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER</button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER AL MENU</button>
     </div>
 </div>
     
@@ -784,23 +788,38 @@ function descargarBase64PDF(base64, nombre) {
     a.download = nombre;
     a.click();
 }
-            function ajustarLabelsAdmin() {
+           function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
     const lbl1 = document.getElementById('lbl-adm-extra1');
     const lbl2 = document.getElementById('lbl-adm-extra2');
+    const inp1 = document.getElementById('adm-extra1');
+    const inp2 = document.getElementById('adm-extra2');
+
+    // Reset de placeholders
+    inp1.placeholder = "Dato complementario";
+    inp2.placeholder = "Dato complementario";
 
     if (cat === "PILOTO") {
         lbl1.innerText = "Placa del Cabezal:";
         lbl2.innerText = "Número de Licencia:";
-    } else if (cat === "TECNICO") {
+    } 
+    else if (cat === "TECNICO") {
         lbl1.innerText = "Empresa / Especialidad:";
         lbl2.innerText = "Departamento (SSO/Taller):";
-    } else if (cat === "UBICACION") {
+    } 
+    else if (cat === "UBICACION") {
         lbl1.innerText = "Fase (1, 2 o 3):";
-        lbl2.innerText = "Tipo (Silo/Bin/Bodega):";
-    } else {
-        lbl1.innerText = "Categoría:";
-        lbl2.innerText = "Observaciones:";
+        lbl2.innerText = "Tipo (Silo/Bodega/Área):";
+    } 
+    else if (cat === "EPP" || cat === "HERRAMIENTA" || cat === "COLECTIVA") {
+        lbl1.innerText = "Tipo de Trabajo Asociado:";
+        inp1.placeholder = "alturas, caliente, confinado, electrico, Otros";
+        lbl2.innerText = "Observación Técnica:";
+    }
+    else if (cat === "PRODUCTO") {
+        lbl1.innerText = "Tipo de Carga:";
+        inp1.placeholder = "Granel, Liquido, etc.";
+        lbl2.innerText = "Código Arancelario (Opcional):";
     }
 }
 
