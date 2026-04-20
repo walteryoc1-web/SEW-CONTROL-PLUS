@@ -905,45 +905,44 @@ function enviar() {
 }
 
         // --- 7. MOTOR DE REPORTES ---
-       async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
+      async function procesarDescargaUniversal(accion, ini, fin, nombreArchivo) {
     if(!ini || !fin) return alert("❌ Seleccione ambas fechas para filtrar el reporte.");
     
     try {
         const res = await fetch(URL_SCRIPT + "?accion=" + accion);
         const data = await res.json();
         
-        if (!data || data.length === 0) return alert("⚠️ No se encontraron registros en la base de datos.");
+        if (!data || data.length === 0) return alert("⚠️ No se encontraron registros en esta hoja.");
 
         const fil = data.filter(r => {
+            if(!r.fecha) return false;
             try {
-                if(!r.fecha) return false;
-
-                // 1. Limpiador: Aseguramos que solo venga DD/MM/YYYY
-                let fechaTexto = r.fecha.toString().split(' ')[0];
+                // LECTOR UNIVERSAL: Convierte cualquier formato de fecha a algo que JS entienda
+                let p = r.fecha.toString().split(' '); // Quitamos la hora si viniera pegada
+                let partes = p[0].split(p[0].includes('/') ? '/' : '-');
                 
-                // 2. Detectar separador dinámicamente (/ o -)
-                let p = fechaTexto.includes('/') ? fechaTexto.split('/') : fechaTexto.split('-');
+                let dia, mes, anio;
+                if (partes[0].length === 4) { // Si viene YYYY-MM-DD
+                    anio = partes[0]; mes = partes[1]; dia = partes[2];
+                } else { // Si viene DD/MM/YYYY
+                    dia = partes[0]; mes = partes[1]; anio = partes[2];
+                Partes[0] = partes[0].padStart(2,'0');
+                Partes[1] = partes[1].padStart(2,'0');
                 
-                if(p.length !== 3) return false;
-
-                // 3. Convertir a formato ISO (YYYY-MM-DD) para comparar con el calendario
-                // Manejamos DD/MM/YYYY (común en Google Sheets Guatemala)
-                let fISO = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+                // Creamos un string YYYY-MM-DD limpio para comparar
+                let fISO = `${anio}-${mes.padStart(2,'0')}-${dia.padStart(2,'0')}`;
                 
                 return fISO >= ini && fISO <= fin;
-            } catch(e) {
-                return false; // Si la fila tiene fecha basura, la ignoramos
-            }
+            } catch(e) { return false; }
         });
 
-        if(fil.length === 0) return alert("⚠️ No hay registros para el rango: " + ini + " al " + fin);
+        if(fil.length === 0) return alert("⚠️ No hay datos entre " + ini + " y " + fin);
 
-        // 4. Construcción del CSV con BOM para Excel (Soporta tildes y eñes)
+        // CONSTRUCCIÓN DEL CSV
         let csv = "\uFEFFFECHA,HORA,DATOS_SISTEMA\n";
         fil.forEach(r => {
-            // Limpiamos los datos de saltos de línea para no romper las filas del CSV
-            let datosLimpios = r.datos ? r.datos.replace(/\n/g, " | ").replace(/;/g, ",") : "";
-            csv += `${r.fecha},${r.hora},${datosLimpios}\n`;
+            let dLimpios = r.datos ? r.datos.replace(/\n/g, " ").replace(/;/g, ",") : "";
+            csv += `${r.fecha},${r.hora},${dLimpios}\n`;
         });
 
         const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -953,10 +952,11 @@ function enviar() {
         a.click();
         
     } catch(e) { 
-        console.error("Error técnico en descarga:", e);
-        alert("❌ Error al procesar los datos del servidor. Verifique que el Excel no tenga filas vacías.");
+        console.error("Error en motor descarga:", e);
+        alert("❌ Error de comunicación. Verifique que la red no esté bloqueando la descarga.");
     }
 }
+        
         // --- 8. FUNCIONES DE NAVEGACIÓN Y APOYO ---
 function irAIncidentes() { 
     document.getElementById('ui-monitor-sso').style.display='none'; 
