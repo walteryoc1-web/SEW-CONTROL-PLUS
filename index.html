@@ -686,52 +686,70 @@ function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
     const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
     const inpId = document.getElementById('adm-id');
-    const inpEx2 = document.getElementById('adm-extra2'); // Capturamos el campo de Licencia
+    const inpEx2 = document.getElementById('adm-extra2'); // Licencia
     const btnReg = document.querySelector('#ui-admin-datos .btn');
 
-    // 1. Ajuste de etiquetas (Tu lógica original perfecta)
+    // 1. Ajuste de etiquetas
     if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Licencia:"; }
     else if(cat==="TECNICO") { l1.innerText="Empresa:"; l2.innerText="Depto:"; }
     else if(cat==="UBICACION") { l1.innerText="Fase (1,2,3):"; l2.innerText="Tipo:"; }
-    else if(cat==="EPP" || cat==="HERRAMIENTA" || cat==="COLECTIVA") { l1.innerText="Trabajo Vinculado:"; l2.innerText="Obs Técnica:"; }
     else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
 
-    // 2. MOTOR DE BÚSQUEDA INTELIGENTE (ID o LICENCIA)
-    const buscarExistente = function() {
-        const idBusca = inpId.value.toUpperCase().trim();
+    // 2. MOTOR DE BÚSQUEDA POR LICENCIA (Prioridad Alta)
+    const buscarPorLicencia = function() {
         const licBusca = inpEx2.value.toUpperCase().trim();
-        
-        let encontrado = null;
+        if(!licBusca || cat !== "PILOTO") return;
 
-        // Buscamos en toda la DB_MASTER
+        // Buscamos si la licencia ya existe en la categoría PILOTO
+        let pilotoHallado = DB_MASTER.PILOTO ? 
+            DB_MASTER.PILOTO.find(x => (x.extra2 || "").toString().toUpperCase().trim() === licBusca) : null;
+
+        if (pilotoHallado) {
+            // 🚨 SI LA LICENCIA EXISTE: Forzamos los datos del piloto original
+            // No importa qué ID hayas escrito, el sistema te regresa al ID real
+            inpId.value = pilotoHallado.id; 
+            document.getElementById('adm-nombre').value = pilotoHallado.nombre;
+            document.getElementById('adm-extra1').value = pilotoHallado.extra1;
+            
+            btnReg.innerText = "⚠️ LICENCIA EXISTENTE: ACTUALIZAR";
+            btnReg.style.background = "#e67e22"; // Naranja alerta
+            btnReg.onclick = () => guardarDatoMaestro(true); 
+        }
+    };
+
+    // 3. MOTOR DE BÚSQUEDA POR ID (Solo si no hay match de licencia)
+    const buscarPorId = function() {
+        const idBusca = inpId.value.toUpperCase().trim();
+        if(!idBusca) return;
+
+        let encontrado = null;
         for (let categoria in DB_MASTER) {
-            encontrado = DB_MASTER[categoria].find(x => 
-                // Coincide con el ID
-                x.id.toString().toUpperCase() === idBusca || 
-                // O coincide con la Licencia (solo si es categoría PILOTO)
-                (cat === "PILOTO" && x.extra2 && x.extra2.toString().toUpperCase() === licBusca && licBusca !== "")
-            );
+            encontrado = DB_MASTER[categoria].find(x => x.id.toString().toUpperCase() === idBusca);
             if(encontrado) break;
         }
 
         if (encontrado) {
-            // SI EXISTE: Llenamos automáticamente y activamos modo edición
-            inpId.value = encontrado.id; // Si lo halló por licencia, ponemos el ID correcto
             document.getElementById('adm-nombre').value = encontrado.nombre;
             document.getElementById('adm-extra1').value = encontrado.extra1;
             inpEx2.value = encontrado.extra2;
-            
-            btnReg.innerText = "🔄 ACTUALIZAR REGISTRO EXISTENTE";
-            btnReg.style.background = "#e67e22"; // Naranja para advertir que ya existe
-            btnReg.onclick = () => guardarDatoMaestro(true); 
+            btnReg.innerText = "🔄 ACTUALIZAR REGISTRO";
+            btnReg.style.background = "#2980b9"; // Azul edición
+            btnReg.onclick = () => guardarDatoMaestro(true);
         } else {
-            // SI ES TOTALMENTE NUEVO
+            // Si el ID es nuevo, verificamos que la licencia no esté ocupada
+            buscarPorLicencia(); 
+            if (btnReg.innerText.includes("ACTUALIZAR")) return; // Si la licencia lo bloqueó, no hacemos nada
+
             btnReg.innerText = "📥 REGISTRAR EN SISTEMA";
             btnReg.style.background = "#2c3e50"; 
             btnReg.onclick = () => guardarDatoMaestro(false);
         }
     };
 
+    // Asignamos los eventos
+    inpId.oninput = buscarPorId;
+    inpEx2.oninput = buscarPorLicencia;
+}
     // Activamos el sensor en ambos campos
     inpId.oninput = buscarExistente;
     inpEx2.oninput = buscarExistente;
