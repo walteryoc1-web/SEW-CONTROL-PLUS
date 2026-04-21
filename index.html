@@ -335,42 +335,60 @@
         }
 
         async function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = "SINCRO... ⏳";
-            btn.disabled = true;
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const btn = event.target;
+    const originalText = "INGRESAR"; // Texto original del botón
 
-            await cargarCerebroSistema();
+    btn.innerText = "SINCRO... ⏳";
+    btn.disabled = true;
 
-            if (u == "operador" && p == "terpac") { 
-                document.getElementById('login').style.display='none'; document.getElementById('ui-app').style.display='block'; 
-                llenarDesplegablesLogistica();
-            } 
-            else if (u == "supervisor" && p == "terpac1") {
-                document.getElementById('login').style.display='none'; document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-            }
-            else if (u == "supervisor sso" && p == "terpac3") { 
-                document.getElementById('login').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block'; 
-                actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000);
-            }
-            else if (u == "sso" && p == "terpac2") {
-                document.getElementById('login').style.display='none'; document.getElementById('ui-seguridad').style.display='block';
-                llenarDesplegablesSSO();
-            }
-            else if (u == "operaciones" && p == "terpac4") {
-                document.getElementById('login').style.display='none'; document.getElementById('ui-operaciones').style.display='block';
-                setOrigenOT('SISTEMA'); llenarDesplegablesOperaciones();
-            }
-            else if (u == "admin" && p == "quetzal2026") { 
-                document.getElementById('login').style.display='none'; document.getElementById('ui-admin-datos').style.display='block';
-                ajustarLabelsAdmin();
-            }
-            else { alert("❌ Credenciales incorrectas"); }
-            btn.innerText = originalText; btn.disabled = false;
-        }
+    try {
+        // Intentamos cargar la data de la Sheets, pero si falla, el catch nos salva
+        await cargarCerebroSistema();
+    } catch (e) {
+        console.warn("⚠️ No se pudo sincronizar con Sheets, usando data local si existe.");
+    }
+
+    // Lógica de accesos
+    if (u == "operador" && p == "terpac") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-app').style.display='block'; 
+        llenarDesplegablesLogistica();
+    } 
+    else if (u == "supervisor" && p == "terpac1") {
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-supervisor').style.display='block';
+        iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+    }
+    else if (u == "supervisor sso" && p == "terpac3") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-monitor-sso').style.display='block'; 
+        actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000);
+    }
+    else if (u == "sso" && p == "terpac2") {
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-seguridad').style.display='block';
+        llenarDesplegablesSSO();
+    }
+    else if (u == "operaciones" && p == "terpac4") {
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-operaciones').style.display='block';
+        setOrigenOT('SISTEMA'); llenarDesplegablesOperaciones();
+    }
+    else if (u == "admin" && p == "quetzal2026") { 
+        document.getElementById('login').style.display='none'; 
+        document.getElementById('ui-admin-datos').style.display='block';
+        ajustarLabelsAdmin();
+    }
+    else { 
+        alert("❌ Credenciales incorrectas"); 
+    }
+
+    // SIEMPRE restauramos el botón al final, pase lo que pase
+    btn.innerText = originalText; 
+    btn.disabled = false;
+}
         function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
          function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
         function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
