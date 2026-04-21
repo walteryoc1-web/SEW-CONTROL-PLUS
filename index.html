@@ -728,48 +728,40 @@ function cancelarCierre() {
 }
         
 async function guardarDatoMaestro(esEdicion = false) {
-    // 1. CAPTURA DE VALORES (Primero capturamos, luego validamos)
     const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
-    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
+    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim(); // LICENCIA
 
-    // Validaciones básicas
-    if (!idVal || !nomVal) {
-        alert("❌ El ID y el Nombre son obligatorios.");
-        return;
-    }
+    // 1. Validaciones Críticas
+    if (!idVal || !nomVal) return alert("❌ El Código ID y el Nombre son obligatorios.");
 
-    // 2. 🛡️ ESCUDO DE LICENCIA ÚNICA (Solo si NO es edición)
-    // Si estamos editando un piloto existente, permitimos que mantenga su licencia
-    if (catVal === "PILOTO" && !esEdicion) {
-        if (!ex2Val) {
-            alert("❌ El número de Licencia es obligatorio para pilotos.");
-            return;
-        }
+    // 2. 🛡️ FILTRO DE LICENCIA PARA TODA LA DATA DE PILOTOS
+    if (catVal === "PILOTO") {
+        if (!ex2Val) return alert("❌ La Licencia es obligatoria para pilotos.");
 
-        const pilotoExiste = DB_MASTER.PILOTO ? 
-            DB_MASTER.PILOTO.find(p => {
-                const licenciaExistente = (p.extra2 || "").toString().toUpperCase().trim();
-                return licenciaExistente === ex2Val;
-            }) : null;
+        // Buscamos si esa licencia ya existe en CUALQUIER registro de pilotos
+        const duplicado = DB_MASTER.PILOTO ? DB_MASTER.PILOTO.find(p => {
+            const licDB = (p.extra2 || "").toString().trim().toUpperCase();
+            return licDB === ex2Val;
+        }) : null;
 
-        if (pilotoExiste) {
-            alert("🚫 ERROR DE DUPLICIDAD:\nLa Licencia '" + ex2Val + "' ya pertenece a: " + pilotoExiste.nombre);
-            return;
+        // Si es un registro NUEVO pero la licencia ya existe -> BLOQUEO TOTAL
+        if (!esEdicion && duplicado) {
+            return alert(`🚫 ERROR DE TRAZABILIDAD:
+            La Licencia '${ex2Val}' ya pertenece al piloto: ${duplicado.nombre} (ID: ${duplicado.id}).
+            No se permite duplicar licencias.`);
         }
     }
 
-    // 3. PREPARACIÓN VISUAL DEL BOTÓN
-    // Buscamos el botón de la interfaz Admin de forma segura
+    // 3. Preparación del Botón
     const btn = document.querySelector('#ui-admin-datos .btn');
     const originalText = btn.innerText;
-    btn.disabled = true; 
-    btn.innerText = esEdicion ? "ACTUALIZANDO NUBE... ⏳" : "GUARDANDO NUEVO... ⏳";
+    btn.disabled = true;
+    btn.innerText = "VERIFICANDO INTEGRIDAD... ⏳";
 
-    // 4. CONSTRUCCIÓN DEL PAQUETE (PAYLOAD)
-    const datosEnvio = {
+    const datos = {
         action: esEdicion ? "actualizarConfig" : "guardarConfig",
         categoria: catVal,
         id: idVal,
@@ -779,30 +771,22 @@ async function guardarDatoMaestro(esEdicion = false) {
     };
 
     try {
-        // 5. DISPARO AL SERVIDOR
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(datosEnvio) 
-        });
-        
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
         const txt = await res.text();
-        
         if (txt.includes("OK")) {
-            alert("✅ " + (esEdicion ? "ACTUALIZACIÓN EXITOSA" : "REGISTRO EXITOSO"));
+            alert("✅ SISTEMA ACTUALIZADO: " + nomVal);
             location.reload();
         } else {
-            alert("⚠️ Servidor dice: " + txt);
+            alert("⚠️ Servidor: " + txt);
             btn.disabled = false;
             btn.innerText = originalText;
         }
     } catch (e) {
-        console.error(e);
-        alert("❌ Error de comunicación con el servidor. Intente de nuevo.");
+        alert("❌ Error de red.");
         btn.disabled = false;
         btn.innerText = originalText;
     }
-}
-        
+}        
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
             const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
