@@ -689,34 +689,69 @@ function cancelarCierre() {
         }
 
      async function guardarDatoMaestro() {
-    const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
     const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
-    // 1. Validaciones básicas de campos vacíos
-    if (!idVal || !nomVal) {
-        alert("❌ El ID y el Nombre son obligatorios.");
-        return; // Aquí el return es legal porque está DENTRO de la función
+    // 1. AUTO-GENERACIÓN DE ID SI ESTÁ VACÍO (Para EPP, Herramientas, etc.)
+    if (!idVal) {
+        if (catVal === "PILOTO" || catVal === "TECNICO") return alert("❌ Pilotos y Técnicos requieren un ID/Código manual.");
+        const prefijo = catVal.substring(0, 3);
+        idVal = `${prefijo}-${Math.floor(Math.random() * 900 + 100)}`;
     }
 
-    // 2. 🛡️ VERIFICACIÓN DE LICENCIA ÚNICA (Solo para PILOTO)
+    // 2. 🛡️ DETECTOR DE DUPLICADOS (La Clave)
+    // Revisamos si el ID ya existe en cualquier categoría dentro de DB_MASTER
+    let duplicadoId = false;
+    for (let cat in DB_MASTER) {
+        if (DB_MASTER[cat].some(item => item.id.toString() === idVal)) {
+            duplicadoId = true;
+            break;
+        }
+    }
+
+    if (duplicadoId) {
+        return alert("🚫 ERROR: El ID o Código '" + idVal + "' ya existe en el sistema. Ingrese uno diferente.");
+    }
+
+    // 3. 🛡️ DETECTOR DE LICENCIAS DUPLICADAS (Solo para Pilotos)
     if (catVal === "PILOTO") {
-        if (!ex2Val) {
-            alert("❌ El número de Licencia es obligatorio para pilotos.");
-            return;
-        }
-
-        // Buscamos en la memoria DB_MASTER si esa licencia ya existe
-        const pilotoExiste = DB_MASTER.PILOTO ? 
-            DB_MASTER.PILOTO.find(p => p.extra2.trim() === ex2Val) : null;
-
-        if (pilotoExiste) {
-            alert("🚫 ERROR: La Licencia '" + ex2Val + "' ya está registrada.\nAsociada a: " + pilotoExiste.nombre);
-            return; // Bloqueamos el envío
+        let duplicadoLicencia = DB_MASTER.PILOTO?.some(p => p.extra2 === ex2Val);
+        if (duplicadoLicencia) {
+            return alert("🚫 ERROR: La Licencia '" + ex2Val + "' ya está registrada con otro piloto.");
         }
     }
+
+    if (!nomVal) return alert("❌ El Nombre es obligatorio.");
+
+    // 4. ENVÍO AL SERVIDOR
+    const datos = {
+        action: "guardarConfig",
+        categoria: catVal,
+        id: idVal,
+        nombre: nomVal,
+        extra1: ex1Val,
+        extra2: ex2Val
+    };
+
+    const btn = event.target;
+    btn.disabled = true; btn.innerText = "VERIFICANDO Y GUARDANDO... ⏳";
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const txt = await res.text();
+        if (txt === "OK_CONFIG") {
+            alert("✅ REGISTRO EXITOSO: " + nomVal);
+            location.reload();
+        }
+    } catch (e) { 
+        alert("❌ Error de red"); 
+        btn.disabled = false; 
+        btn.innerText = "REGISTRAR EN SISTEMA"; 
+    }
+}
 
     // 3. Preparación y bloqueo del botón
     const btn = event.target;
