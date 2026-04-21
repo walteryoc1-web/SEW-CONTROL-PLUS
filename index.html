@@ -688,33 +688,55 @@ function cancelarCierre() {
             else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
         }
 
-       async function guardarDatoMaestro() {
-    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+      async function guardarDatoMaestro() {
+    const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
-    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
+    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim(); // Esta es la Licencia en PILOTO
 
-    // 1. AUTO-GENERACIÓN DE ID SI ESTÁ VACÍO (Para EPP, Herramientas, etc.)
-    if (!idVal) {
-        if (catVal === "PILOTO" || catVal === "TECNICO") return alert("❌ Pilotos y Técnicos requieren un ID/Código manual.");
-        const prefijo = catVal.substring(0, 3);
-        idVal = `${prefijo}-${Math.floor(Math.random() * 900 + 100)}`;
-    }
+    // 1. Validación de campos básicos
+    if (!idVal || !nomVal) return alert("❌ El ID y el Nombre son obligatorios.");
 
-    // 2. 🛡️ DETECTOR DE DUPLICADOS (La Clave)
-    // Revisamos si el ID ya existe en cualquier categoría dentro de DB_MASTER
-    let duplicadoId = false;
-    for (let cat in DB_MASTER) {
-        if (DB_MASTER[cat].some(item => item.id.toString() === idVal)) {
-            duplicadoId = true;
-            break;
+    // 2. 🛡️ VERIFICACIÓN DE LICENCIA DUPLICADA (Solo para categoría PILOTO)
+    if (catVal === "PILOTO") {
+        if (!ex2Val) return alert("❌ El número de Licencia es obligatorio para pilotos.");
+
+        // Escaneamos la base de datos actual (extra2 es donde guardamos la licencia)
+        const pilotoExistente = DB_MASTER.PILOTO ? 
+            DB_MASTER.PILOTO.find(p => p.extra2.trim() === ex2Val) : null;
+
+        if (pilotoExistente) {
+            return alert(`🚫 ERROR: La Licencia '${ex2Val}' ya está registrada.\nAsociada al piloto: ${pilotoExistente.nombre}\n(ID interno: ${pilotoExistente.id})`);
         }
     }
 
-    if (duplicadoId) {
-        return alert("🚫 ERROR: El ID o Código '" + idVal + "' ya existe en el sistema. Ingrese uno diferente.");
+    // 3. Preparación de envío
+    const datos = {
+        action: "guardarConfig",
+        categoria: catVal,
+        id: idVal,
+        nombre: nomVal,
+        extra1: ex1Val,
+        extra2: ex2Val
+    };
+
+    const btn = event.target;
+    btn.disabled = true; btn.innerText = "VERIFICANDO LICENCIA... ⏳";
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const txt = await res.text();
+        if (txt === "OK_CONFIG") {
+            alert("✅ PILOTO REGISTRADO EXITOSAMENTE");
+            location.reload();
+        }
+    } catch (e) { 
+        alert("❌ Error de comunicación"); 
+        btn.disabled = false; 
+        btn.innerText = "REGISTRAR EN SISTEMA"; 
     }
+}
 
     // 3. 🛡️ DETECTOR DE LICENCIAS DUPLICADAS (Solo para Pilotos)
     if (catVal === "PILOTO") {
