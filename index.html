@@ -630,56 +630,43 @@
         btn.innerText = "🚀 ABRIR ORDEN";
     }
 }
-        async function finalizarTareaOT() {
+       async function finalizarTareaOT() {
     const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
     const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
-    const comentarios = document.getElementById('ot-comentarios-cierre').value.trim();
+    
+    if (!fOT || !fATS) return alert("❌ Ingrese Folio OT y ATS.");
 
-    if (!fOT || !fATS) {
-        return alert("❌ Ingrese el Folio de la OT y el Folio del ATS vinculado.");
-    }
-
-    // Feedback visual en el botón
     const btn = event.target;
-    const originalText = btn.innerText;
     btn.disabled = true;
-    btn.innerText = "VINCULANDO CIERRE... ⏳";
+    btn.innerText = "VERIFICANDO... ⏳";
 
-    const payload = {
-        action: "cerrarOT",
-        folioOT: fOT,
-        folioATS: fATS,
-        comentarios: comentarios || "Tarea finalizada sin observaciones adicionales."
-    };
+    const payload = { action: "cerrarOT", folioOT: fOT, folioATS: fATS, comentarios: document.getElementById('ot-comentarios-cierre').value };
 
     try {
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-        
-        const textoRespuesta = await res.text();
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const respuesta = await res.text();
 
-        if (textoRespuesta.includes("OK_CIERRE_VINCULADO")) {
-            alert("✅ ¡ÉXITO!\nLa Orden de Trabajo " + fOT + " ha sido vinculada al ATS " + fATS + " y cerrada formalmente.");
+        if (respuesta === "OK_CIERRE_VINCULADO") {
+            alert("✅ ORDEN CERRADA Y REGISTRADA.");
             location.reload();
-        } else if (textoRespuesta.includes("ERROR: ATS NO CERRADO")) {
-            alert("⚠️ Bloqueo de Seguridad:\nEl ATS " + fATS + " aún aparece como ABIERTO. El Supervisor de Seguridad debe cerrarlo antes de finalizar la OT.");
-            btn.disabled = false;
-            btn.innerText = originalText;
-        } else {
-            alert("⚠️ " + textoRespuesta);
-            btn.disabled = false;
-            btn.innerText = originalText;
+        } 
+        else if (respuesta === "ERROR_YA_CERRADA") {
+            alert("🚫 BLOQUEO DE TRAZABILIDAD:\nEsta Orden de Trabajo ya fue cerrada anteriormente y no puede ser modificada.");
+            location.reload();
+        } 
+        else if (respuesta === "ERROR_ATS_ABIERTO") {
+            alert("⚠️ SEGURIDAD:\nEl ATS vinculado aún aparece como ABIERTO. El supervisor debe cerrarlo primero.");
+            btn.disabled = false; btn.innerText = "FINALIZAR TAREA";
+        }
+        else {
+            alert("⚠️ " + respuesta);
+            btn.disabled = false; btn.innerText = "FINALIZAR TAREA";
         }
     } catch (e) {
-        console.error(e);
-        alert("❌ Error de comunicación con el servidor.");
+        alert("❌ Error de red.");
         btn.disabled = false;
-        btn.innerText = originalText;
     }
 }
-
 // Función adicional para mostrar el panel de cierre si no la tienes:
 function mostrarSeccionCierre() {
     document.getElementById('ot-seccion-apertura').style.display = 'none';
