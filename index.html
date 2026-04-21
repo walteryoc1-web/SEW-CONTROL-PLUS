@@ -693,50 +693,30 @@ async function guardarDatoMaestro() {
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
-    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim(); // Esta es la Licencia en PILOTO
+    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
-    // 1. Validación de campos básicos
-    if (!idVal || !nomVal) return alert("❌ El ID y el Nombre son obligatorios.");
+    // 1. Validaciones básicas de campos vacíos
+    if (!idVal || !nomVal) {
+        alert("❌ El ID y el Nombre son obligatorios.");
+        return; // Aquí el return es legal porque está DENTRO de la función
+    }
 
-    // 2. 🛡️ VERIFICACIÓN DE LICENCIA DUPLICADA (Solo para categoría PILOTO)
+    // 2. 🛡️ VERIFICACIÓN DE LICENCIA ÚNICA (Solo para PILOTO)
     if (catVal === "PILOTO") {
-        if (!ex2Val) return alert("❌ El número de Licencia es obligatorio para pilotos.");
+        if (!ex2Val) {
+            alert("❌ El número de Licencia es obligatorio para pilotos.");
+            return;
+        }
 
-        // Escaneamos la base de datos actual (extra2 es donde guardamos la licencia)
-        const pilotoExistente = DB_MASTER.PILOTO ? 
+        // Buscamos en la memoria DB_MASTER si esa licencia ya existe
+        const pilotoExiste = DB_MASTER.PILOTO ? 
             DB_MASTER.PILOTO.find(p => p.extra2.trim() === ex2Val) : null;
 
-        if (pilotoExistente) {
-            return alert(`🚫 ERROR: La Licencia '${ex2Val}' ya está registrada.\nAsociada al piloto: ${pilotoExistente.nombre}\n(ID interno: ${pilotoExistente.id})`);
+        if (pilotoExiste) {
+            alert("🚫 ERROR: La Licencia '" + ex2Val + "' ya está registrada.\nAsociada a: " + pilotoExiste.nombre);
+            return; // Bloqueamos el envío
         }
     }
-
-    // 3. Preparación de envío
-    const datos = {
-        action: "guardarConfig",
-        categoria: catVal,
-        id: idVal,
-        nombre: nomVal,
-        extra1: ex1Val,
-        extra2: ex2Val
-    };
-
-    const btn = event.target;
-    btn.disabled = true; btn.innerText = "VERIFICANDO LICENCIA... ⏳";
-
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-        const txt = await res.text();
-        if (txt === "OK_CONFIG") {
-            alert("✅ PILOTO REGISTRADO EXITOSAMENTE");
-            location.reload();
-        }
-    } catch (e) { 
-        alert("❌ Error de comunicación"); 
-        btn.disabled = false; 
-        btn.innerText = "REGISTRAR EN SISTEMA"; 
-    }
-}
 
     // 3. Preparación y bloqueo del botón
     const btn = event.target;
@@ -773,43 +753,6 @@ async function guardarDatoMaestro() {
     }
 } 
         
-    // 3. 🛡️ DETECTOR DE LICENCIAS DUPLICADAS (Solo para Pilotos)
-    if (catVal === "PILOTO") {
-        let duplicadoLicencia = DB_MASTER.PILOTO?.some(p => p.extra2 === ex2Val);
-        if (duplicadoLicencia) {
-            return alert("🚫 ERROR: La Licencia '" + ex2Val + "' ya está registrada con otro piloto.");
-        }
-    }
-
-    if (!nomVal) return alert("❌ El Nombre es obligatorio.");
-
-    // 4. ENVÍO AL SERVIDOR
-    const datos = {
-        action: "guardarConfig",
-        categoria: catVal,
-        id: idVal,
-        nombre: nomVal,
-        extra1: ex1Val,
-        extra2: ex2Val
-    };
-
-    const btn = event.target;
-    btn.disabled = true; btn.innerText = "VERIFICANDO Y GUARDANDO... ⏳";
-
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-        const txt = await res.text();
-        if (txt === "OK_CONFIG") {
-            alert("✅ REGISTRO EXITOSO: " + nomVal);
-            location.reload();
-        }
-    } catch (e) { 
-        alert("❌ Error de red"); 
-        btn.disabled = false; 
-        btn.innerText = "REGISTRAR EN SISTEMA"; 
-    }
-}
-
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
             const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
