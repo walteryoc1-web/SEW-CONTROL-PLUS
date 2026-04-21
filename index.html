@@ -372,7 +372,7 @@
             btn.innerText = originalText; btn.disabled = false;
         }
         function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-         function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
+        function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
         function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
 
         // --- 2. LOGÍSTICA ---
@@ -636,7 +636,7 @@
     };
 
     try {
-        // 3. Envío al servidor
+        // 3. Envío al servidor usando await (por eso la función es async)
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
             body: JSON.stringify(payload) 
@@ -644,35 +644,24 @@
         
         const textoRespuesta = await res.text();
 
-        // 4. Manejo de trazabilidad y errores
-        if (textoRespuesta.includes("OK_CIERRE_VINCULADO")) {
-            alert("✅ ¡ÉXITO!\nLa Orden de Trabajo " + fOT + " ha sido vinculada al ATS y cerrada formalmente.");
+        // 4. Manejo de respuesta
+        if (textoRespuesta.includes("OK")) {
+            alert("✅ ORDEN CERRADA EXITOSAMENTE.");
             location.reload(); 
-        } 
-        else if (textoRespuesta.includes("YA FUE CERRADA")) {
-            // BLOQUEO DE TRAZABILIDAD: Si ya existe el cierre, no permite sobrescribir
-            alert("🚫 ERROR DE SEGURIDAD:\n" + textoRespuesta);
-            location.reload(); 
-        } 
-        else if (textoRespuesta.includes("ATS NO CERRADO")) {
-            alert("⚠️ BLOQUEO OPERATIVO:\nEl ATS " + fATS + " sigue ABIERTO en el sistema. Debe cerrarlo en el panel SSO antes de finalizar la OT.");
-            btn.disabled = false;
-            btn.innerText = originalText;
-        } 
-        else {
-            alert("⚠️ SERVIDOR: " + textoRespuesta);
+        } else {
+            alert("⚠️ Servidor: " + textoRespuesta);
             btn.disabled = false;
             btn.innerText = originalText;
         }
     } catch (e) {
         console.error(e);
-        alert("❌ Error crítico de comunicación con el búnker de datos.");
+        alert("❌ Error de red al intentar cerrar la orden.");
         btn.disabled = false;
         btn.innerText = originalText;
     }
-}
-
-    try {
+} 
+        
+        try {
         // 3. Envío al servidor
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
