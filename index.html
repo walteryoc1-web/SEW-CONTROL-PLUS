@@ -771,16 +771,41 @@ function cancelarCierre() {
             else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
         }
 
-        async function guardarDatoMaestro() {
-            let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
-            const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
-            const catVal = document.getElementById('adm-categoria').value;
-            if (!idVal && catVal !== "PILOTO" && catVal !== "TECNICO") idVal = `${catVal.slice(0,3)}-${nomVal.slice(0,5)}-${Math.floor(Math.random()*900+100)}`;
-            const datos = { action: "guardarConfig", categoria: catVal, id: idVal, nombre: nomVal, extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: document.getElementById('adm-extra2').value.toUpperCase() };
-            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-            alert("✅ Guardado: " + idVal); location.reload();
-        }
+           function guardarDatoMaestro() {
+    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+    const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
+    const catVal = document.getElementById('adm-categoria').value;
 
+    if (!idVal && catVal !== "PILOTO" && catVal !== "TECNICO") {
+        idVal = `${catVal.slice(0,3)}-${nomVal.slice(0,5)}-${Math.floor(Math.random()*900+100)}`;
+    }
+    
+    if (!nomVal) return alert("❌ Nombre Requerido");
+
+    const datos = { 
+        action: "guardarConfig", 
+        categoria: catVal, 
+        id: idVal, 
+        nombre: nomVal, 
+        extra1: document.getElementById('adm-extra1').value.toUpperCase(), 
+        extra2: document.getElementById('adm-extra2').value.toUpperCase() 
+    };
+
+    const btn = event.target;
+    btn.disabled = true; btn.innerText = "INYECTANDO... ⏳";
+
+    fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) })
+    .then(res => res.text())
+    .then(txt => {
+        alert("✅ Guardado con éxito: " + idVal); 
+        location.reload();
+    })
+    .catch(e => {
+        alert("❌ Error de red");
+        btn.disabled = false; btn.innerText = "REGISTRAR";
+    });
+}
+        
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
             const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
