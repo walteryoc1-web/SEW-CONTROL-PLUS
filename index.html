@@ -268,7 +268,7 @@
         </div>
     </div>
 
-    <!-- UI ADMINISTRADOR DE DATOS MAESTROS (RESTAURADA) -->
+    <!-- UI ADMINISTRADOR DE DATOS MAESTROS  -->
 <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
     <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos Maestros</h3>
     <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
@@ -309,7 +309,11 @@
 
         <label id="lbl-adm-extra2" style="font-weight:bold; color:#34495e;">Dato Extra 2:</label>
         <input type="text" id="adm-extra2">
-
+        <label style="font-weight:bold; font-size:12px; color:#555;">ESTADO DEL PERSONAL/DATO:</label>
+        <select id="adm-estado">
+        <option value="ACTIVO" selected>🟢 ACTIVO (Habilitado)</option>
+        <option value="INACTIVO">🔴 INACTIVO (Bloqueado)</option>
+        </select>
         <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">
             📥 REGISTRAR EN SISTEMA
             <button class="btn" style="background:#27ae60; color:white; margin-top:10px;" onclick="descargarDataMaestra()">
@@ -402,13 +406,36 @@
             if (DB_MASTER.PRODUCTO) { selProd.innerHTML = ""; DB_MASTER.PRODUCTO.forEach(p => selProd.add(new Option(p.nombre, p.nombre))); }
             if (DB_MASTER.MOVIMIENTO) { selMov.innerHTML = ""; DB_MASTER.MOVIMIENTO.forEach(m => selMov.add(new Option(m.nombre, m.nombre))); }
         }
-
         function check() {
-            const id = document.getElementById('id-in').value.trim(), box = document.getElementById('piloto-box');
+            const id = document.getElementById('id-in').value.trim();
+            const box = document.getElementById('piloto-box');
+    
+    // 1. Buscamos al piloto en la base de datos dinámica
             const p = DB_MASTER.PILOTO ? DB_MASTER.PILOTO.find(x => x.id.toString() === id) : null;
-            if (p) { box.innerHTML = `👨‍✈️ Piloto: ${p.nombre}<br>🚛 Cabezal: ${p.extra1} | Placa: ${p.extra2}`; box.style.display = 'block'; } else box.style.display = 'none';
+
+            if (p) {
+        // 🛡️ CANDADO DE SEGURIDAD: ¿Está activo o bloqueado?
+        // extra3 es el campo donde guardamos ACTIVO/INACTIVO
+            const estado = (p.extra3 || "ACTIVO").toUpperCase();
+
+            if (estado === "INACTIVO") {
+            alert("🚫 ACCESO DENEGADO\n\nEl piloto " + p.nombre + " se encuentra INACTIVO.\nNo tiene autorización para realizar movimientos en báscula.");
+            document.getElementById('id-in').value = ""; // Limpiamos el ID por seguridad
+            box.style.display = 'none';
+            return;
         }
 
+        // 🟢 Si está ACTIVO, mostramos la información normal
+            box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
+                         🚛 Cabezal: ${p.extra1} | 💳 Placa/Lic: ${p.extra2}<br>
+                         <span style="color:#27ae60; font-size:11px;">● ESTADO: OPERATIVO</span>`;
+            box.style.display = 'block';
+        } else {
+        // Si no existe el ID
+            box.style.display = 'none';
+        }
+    }
+        
         function enviar() {
             const id = document.getElementById('id-in').value.trim();
             const p = DB_MASTER.PILOTO ? DB_MASTER.PILOTO.find(x => x.id.toString() === id) : null;
@@ -736,54 +763,60 @@ function ajustarLabelsAdmin() {
         }
     };
 }
+        
 async function guardarDatoMaestro(esEdicion = false) {
     const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
-    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim(); // LICENCIA
+    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim(); // DPI/LICENCIA
+    const estadoVal = document.getElementById('adm-estado').value; // 🟢 NUEVO: Captura ACTIVO/INACTIVO
 
     // 1. Validaciones Críticas
     if (!idVal || !nomVal) return alert("❌ El Código ID y el Nombre son obligatorios.");
 
     // 2. 🛡️ FILTRO DE LICENCIA PARA TODA LA DATA DE PILOTOS
     if (catVal === "PILOTO") {
-        if (!ex2Val) return alert("❌ La Licencia es obligatoria para pilotos.");
+        if (!ex2Val) return alert("❌ La Licencia/DPI es obligatoria para pilotos.");
 
-        // Buscamos si esa licencia ya existe en CUALQUIER registro de pilotos
         const duplicado = DB_MASTER.PILOTO ? DB_MASTER.PILOTO.find(p => {
             const licDB = (p.extra2 || "").toString().trim().toUpperCase();
             return licDB === ex2Val;
         }) : null;
 
-        // Si es un registro NUEVO pero la licencia ya existe -> BLOQUEO TOTAL
+        // Bloqueo solo si es nuevo registro, si es edición permitimos avanzar
         if (!esEdicion && duplicado) {
-            return alert(`🚫 ERROR DE TRAZABILIDAD:
-            La Licencia '${ex2Val}' ya pertenece al piloto: ${duplicado.nombre} (ID: ${duplicado.id}).
-            No se permite duplicar licencias.`);
+            return alert(`🚫 ERROR DE TRAZABILIDAD:\nLa Licencia '${ex2Val}' ya pertenece a: ${duplicado.nombre}.\nNo se permiten duplicados.`);
         }
     }
 
-    // 3. Preparación del Botón
+    // 3. Preparación visual del botón
     const btn = document.querySelector('#ui-admin-datos .btn');
     const originalText = btn.innerText;
     btn.disabled = true;
-    btn.innerText = "VERIFICANDO INTEGRIDAD... ⏳";
+    btn.innerText = "ACTUALIZANDO NUBE... ⏳";
 
-    const datos = {
+    // 4. CONSTRUCCIÓN DEL PAQUETE (Añadimos extra3 como ESTADO)
+    const datosEnvio = {
         action: esEdicion ? "actualizarConfig" : "guardarConfig",
         categoria: catVal,
         id: idVal,
         nombre: nomVal,
         extra1: ex1Val,
-        extra2: ex2Val
+        extra2: ex2Val,
+        extra3: estadoVal // <--- Aquí viaja el permiso de operación
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(datosEnvio) 
+        });
+        
         const txt = await res.text();
+        
         if (txt.includes("OK")) {
-            alert("✅ SISTEMA ACTUALIZADO: " + nomVal);
+            alert("✅ BASE DE DATOS ACTUALIZADA\nID: " + idVal + " [" + estadoVal + "]");
             location.reload();
         } else {
             alert("⚠️ Servidor: " + txt);
@@ -791,11 +824,11 @@ async function guardarDatoMaestro(esEdicion = false) {
             btn.innerText = originalText;
         }
     } catch (e) {
-        alert("❌ Error de red.");
+        alert("❌ Error de red. El búnker no responde.");
         btn.disabled = false;
         btn.innerText = originalText;
     }
-}        
+}
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
             const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
