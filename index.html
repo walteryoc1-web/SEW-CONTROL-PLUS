@@ -594,13 +594,14 @@
             } catch(e) { btn.disabled = false; alert("❌ Error"); }
         }
 
-        async function enviarInspeccionExtintor() {
+async function enviarInspeccionExtintor() {
     const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
     if(!idExt) return alert("❌ Ingrese ID del Extintor");
 
     const btn = event.target;
+    const originalText = btn.innerText;
     btn.disabled = true; 
-    btn.innerText = "INYECTANDO DATOS... ⏳";
+    btn.innerText = "GENERANDO PDF... ⏳";
 
     const datos = { 
         action: "registrarExtintor", 
@@ -615,24 +616,34 @@
     };
 
     try {
-        // SOLUCIÓN CORS: Usamos una petición tipo texto para que Google no la bloquee
+        // Quitamos 'no-cors' para PODER LEER el PDF de vuelta
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
-            mode: 'no-cors', // <--- Clave para evitar el bloqueo inicial
             body: JSON.stringify(datos) 
         });
 
-        // Como usamos no-cors, no podemos leer la respuesta b64 directamente 
-        // pero el registro YA CAYÓ en el Excel. 
-        alert("✅ REGISTRO ENVIADO AL BÚNKER.\n\nNota: Si no descarga el PDF automáticamente por seguridad del navegador, verifíquelo en su Excel.");
-        location.reload();
+        // Leemos la respuesta como texto (el Base64 del PDF)
+        const resTexto = await res.text();
+
+        if (resTexto.length > 500) { 
+            // Si la respuesta es larga, es el PDF exitoso
+            descargarBase64PDF(resTexto, `Inspeccion_${idExt}_${Date.now()}.pdf`);
+            alert("✅ INSPECCIÓN REGISTRADA Y PDF GENERADO CON ÉXITO");
+            location.reload();
+        } else {
+            // Si es corta, probablemente es un mensaje de confirmación o error
+            alert("✅ REGISTRO GUARDADO: " + resTexto);
+            location.reload();
+        }
 
     } catch(e) { 
-        alert("❌ Error de red."); 
-        btn.disabled = false; 
+        console.error("Error en envío:", e);
+        alert("❌ Error de comunicación con el servidor. Verifique su internet."); 
+        btn.disabled = false;
+        btn.innerText = originalText;
     }
 }
-        async function enviarIncidenteCompleto() {
+async function enviarIncidenteCompleto() {
     // 1. Verificación de Vínculo ATS
     if (!window.datosVinculados) return alert("❌ Primero debe vincular un Folio SSO válido.");
 
