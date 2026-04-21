@@ -749,12 +749,7 @@ function ajustarLabelsAdmin() {
     // Asignamos los eventos
     inpId.oninput = buscarPorId;
     inpEx2.oninput = buscarPorLicencia;
-}
-    // Activamos el sensor en ambos campos
-    inpId.oninput = buscarExistente;
-    inpEx2.oninput = buscarExistente;
-}
-       
+}       
 async function guardarDatoMaestro(esEdicion = false) {
     const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
