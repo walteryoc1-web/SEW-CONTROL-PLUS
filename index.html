@@ -518,60 +518,77 @@
             } catch(e) { display.innerHTML = "⚠️ Error red"; }
         }
          // --- 5. REGISTROS TÉCNICOS Y GENERACIÓN DE PDF ---
-       async function enviarPermisoSSO() {
-        // 1. Capturamos los IDs ingresados
-        const inputsTécnicos = Array.from(document.querySelectorAll('.p-id-clase'));
-        const idsIngresados = inputsTécnicos.map(i => i.value.toUpperCase().trim()).filter(v => v !== "");
+    async function enviarPermisoSSO() {
+    // 1. Captura y Limpieza de IDs
+            const inputs = Array.from(document.querySelectorAll('.p-id-clase'));
+            const ids = inputs.map(i => i.value.toUpperCase().trim()).filter(v => v !== "");
 
-        if (idsIngresados.length === 0) return alert("❌ Ingrese al menos un técnico válido.");
+            if (ids.length === 0) return alert("❌ Ingrese al menos un técnico válido.");
 
-    // 2. 🛡️ REVISIÓN DE SEGURIDAD (Estado Activo/Inactivo)
-        let tecnicosBloqueados = [];
-    
-    idsIngresados.forEach(id => {
-        const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === id) : null;
-        // Si el técnico existe y su estado (extra3) es INACTIVO, lo guardamos en la lista negra
-        if (t && (t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
-            tecnicosBloqueados.push(t.nombre);
+    // 2. 🛡️ Filtro de Seguridad (Activos/Inactivos)
+            let bloqueados = [];
+            ids.forEach(id => {
+            const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === id) : null;
+            if (t && (t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
+            bloqueados.push(t.nombre);
         }
     });
 
-    if (tecnicosBloqueados.length > 0) {
-        return alert("🚫 ACCESO DENEGADO:\n\nEl siguiente personal está INACTIVO en el sistema:\n- " + 
-                     tecnicosBloqueados.join("\n- ") + 
-                     "\n\nNo se puede generar el ATS hasta que el administrador los habilite.");
+            if (bloqueados.length > 0) {
+                return alert("🚫 ACCESO DENEGADO:\nPersonal INACTIVO:\n- " + bloqueados.join("\n- "));
     }
 
-    // 3. Si todos están activos, procedemos con el envío normal
-    const btn = document.getElementById('btn-sso'); 
-    btn.disabled = true; 
-    btn.innerText = "GENERANDO ATS... ⏳";
+    // 3. Preparación de envío
+            const btn = document.getElementById('btn-sso'); 
+            const originalText = btn.innerText;
+        btn.disabled = true; 
+        btn.innerText = "GENERANDO ATS... ⏳";
 
-    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+    // Captura de datos del formulario
+            const fase = document.getElementById('p-fase').value;
+            const ubi = document.getElementById('p-ubicacion').value;
+            const tipo = document.getElementById('p-tipo').value;
+            const desc = document.getElementById('p-descripcion').value.replace(/;/g, ","); // Evitamos que el ; rompa el split
+            const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
                           .map(c => c.parentElement.innerText.trim()).join(" | ");
 
-    const nombresParaPDF = idsIngresados.map(id => { 
-        const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id); 
-        return t ? `${t.nombre} (${t.extra2})` : id; 
-    }).join("\n");
+    // Procesamos nombres eliminando saltos de línea problemáticos para el envío
+            const nombresFull = ids.map(id => { 
+                const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === id) : null; 
+                return t ? `${t.nombre} (${t.extra2})` : id; 
+            }).join(" / "); // Usamos "/" en lugar de salto de línea para el transporte de datos
 
-    const datosATS = `PERMISO;${nombresParaPDF};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+    // Construcción de cadena (Asegurando que no falte ningún campo)
+            const datosATS = `PERMISO;${nombresFull};${fase};${ubi};${tipo};${desc};${marcados}`;
 
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: datosATS });
-        const pdfB64 = await res.text();
-        if (pdfB64.length > 500) {
-            descargarBase64PDF(pdfB64, `ATS_${Date.now()}.pdf`);
-            alert("✅ ATS REGISTRADO Y DESCARGADO");
-            location.reload();
-        }
-    } catch (e) {
-        alert("⚠️ Error de red");
-        btn.disabled = false;
-        btn.innerText = "REGISTRAR PERMISO";
+            try {
+                console.log("📤 Enviando ATS al búnker...");
+                const res = await fetch(URL_SCRIPT, { 
+                method: 'POST', 
+                mode: 'cors', // Aseguramos el modo de conexión
+                body: datosATS 
+                });
+            
+                const resTexto = await res.text();
+    
+                if (resTexto.length > 500) {
+                    descargarBase64PDF(resTexto, `ATS_${fase}_${Date.now()}.pdf`);
+                    alert("✅ ATS REGISTRADO Y DESCARGADO CON ÉXITO");
+                    location.reload();
+                } else {
+                    console.log("Respuesta servidor:", resTexto);
+                    alert("✅ REGISTRADO (Servidor confirmó recepción)");
+                    location.reload();
+                }
+            } catch (e) {
+            console.error("Error envío:", e);
+            alert("⚠️ Error de conexión. Verifique su internet y reintente.");
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }    
     }
-}
 
+        
         async function enviarFichaMedica() {
             const idCol = document.getElementById('med-id').value.toUpperCase().trim();
             if(!idCol) return alert("❌ Ingrese ID");
