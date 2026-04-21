@@ -612,7 +612,7 @@
         btn.innerText = "🚀 ABRIR ORDEN";
     }
 }
-       async function finalizarTareaOT() {
+      async function finalizarTareaOT() {
     const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
     const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
     const comentarios = document.getElementById('ot-comentarios-cierre').value.trim();
@@ -634,6 +634,43 @@
         folioATS: fATS,
         comentarios: comentarios || "Tarea finalizada sin observaciones adicionales."
     };
+
+    try {
+        // 3. Envío al servidor
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(payload) 
+        });
+        
+        const textoRespuesta = await res.text();
+
+        // 4. Manejo de trazabilidad y errores
+        if (textoRespuesta.includes("OK_CIERRE_VINCULADO")) {
+            alert("✅ ¡ÉXITO!\nLa Orden de Trabajo " + fOT + " ha sido vinculada al ATS y cerrada formalmente.");
+            location.reload(); 
+        } 
+        else if (textoRespuesta.includes("YA FUE CERRADA")) {
+            // BLOQUEO DE TRAZABILIDAD: Si ya existe el cierre, no permite sobrescribir
+            alert("🚫 ERROR DE SEGURIDAD:\n" + textoRespuesta);
+            location.reload(); 
+        } 
+        else if (textoRespuesta.includes("ATS NO CERRADO")) {
+            alert("⚠️ BLOQUEO OPERATIVO:\nEl ATS " + fATS + " sigue ABIERTO en el sistema. Debe cerrarlo en el panel SSO antes de finalizar la OT.");
+            btn.disabled = false;
+            btn.innerText = originalText;
+        } 
+        else {
+            alert("⚠️ SERVIDOR: " + textoRespuesta);
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    } catch (e) {
+        console.error(e);
+        alert("❌ Error crítico de comunicación con el búnker de datos.");
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+}
 
     try {
         // 3. Envío al servidor
