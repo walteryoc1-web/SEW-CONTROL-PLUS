@@ -518,19 +518,59 @@
             } catch(e) { display.innerHTML = "⚠️ Error red"; }
         }
          // --- 5. REGISTROS TÉCNICOS Y GENERACIÓN DE PDF ---
-        async function enviarPermisoSSO() {
-            const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase()).filter(v => v!=="");
-            if(ids.length == 0) return alert("❌ Ingrese técnicos");
-            const btn = document.getElementById('btn-sso'); btn.disabled = true; btn.innerText = "GENERANDO... ⏳";
-            const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
-            const nombres = ids.map(id => { const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id); return t ? `${t.nombre} (${t.extra2})` : id; }).join("\n");
-            const d = `PERMISO;${nombres};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: d });
-                descargarBase64PDF(await res.text(), `ATS_${Date.now()}.pdf`);
-                alert("✅ Permiso Registrado"); location.reload();
-            } catch (e) { alert("❌ Error"); btn.disabled = false; }
+       async function enviarPermisoSSO() {
+        // 1. Capturamos los IDs ingresados
+        const inputsTécnicos = Array.from(document.querySelectorAll('.p-id-clase'));
+        const idsIngresados = inputsTécnicos.map(i => i.value.toUpperCase().trim()).filter(v => v !== "");
+
+        if (idsIngresados.length === 0) return alert("❌ Ingrese al menos un técnico válido.");
+
+    // 2. 🛡️ REVISIÓN DE SEGURIDAD (Estado Activo/Inactivo)
+        let tecnicosBloqueados = [];
+    
+    idsIngresados.forEach(id => {
+        const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === id) : null;
+        // Si el técnico existe y su estado (extra3) es INACTIVO, lo guardamos en la lista negra
+        if (t && (t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
+            tecnicosBloqueados.push(t.nombre);
         }
+    });
+
+    if (tecnicosBloqueados.length > 0) {
+        return alert("🚫 ACCESO DENEGADO:\n\nEl siguiente personal está INACTIVO en el sistema:\n- " + 
+                     tecnicosBloqueados.join("\n- ") + 
+                     "\n\nNo se puede generar el ATS hasta que el administrador los habilite.");
+    }
+
+    // 3. Si todos están activos, procedemos con el envío normal
+    const btn = document.getElementById('btn-sso'); 
+    btn.disabled = true; 
+    btn.innerText = "GENERANDO ATS... ⏳";
+
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+                          .map(c => c.parentElement.innerText.trim()).join(" | ");
+
+    const nombresParaPDF = idsIngresados.map(id => { 
+        const t = DB_MASTER.TECNICO.find(x => x.id.toString() === id); 
+        return t ? `${t.nombre} (${t.extra2})` : id; 
+    }).join("\n");
+
+    const datosATS = `PERMISO;${nombresParaPDF};${document.getElementById('p-fase').value};${document.getElementById('p-ubicacion').value};${document.getElementById('p-tipo').value};${document.getElementById('p-descripcion').value};${marcados}`;
+
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: datosATS });
+        const pdfB64 = await res.text();
+        if (pdfB64.length > 500) {
+            descargarBase64PDF(pdfB64, `ATS_${Date.now()}.pdf`);
+            alert("✅ ATS REGISTRADO Y DESCARGADO");
+            location.reload();
+        }
+    } catch (e) {
+        alert("⚠️ Error de red");
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR PERMISO";
+    }
+}
 
         async function enviarFichaMedica() {
             const idCol = document.getElementById('med-id').value.toUpperCase().trim();
