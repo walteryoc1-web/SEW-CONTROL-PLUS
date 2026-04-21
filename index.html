@@ -686,70 +686,56 @@ function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
     const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
     const inpId = document.getElementById('adm-id');
-    const inpEx2 = document.getElementById('adm-extra2'); // Licencia
+    const inpDPI = document.getElementById('adm-extra2'); // Extra 2 es el DPI/Licencia
     const btnReg = document.querySelector('#ui-admin-datos .btn');
 
-    // 1. Ajuste de etiquetas
-    if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Licencia:"; }
-    else if(cat==="TECNICO") { l1.innerText="Empresa:"; l2.innerText="Depto:"; }
-    else if(cat==="UBICACION") { l1.innerText="Fase (1,2,3):"; l2.innerText="Tipo:"; }
-    else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
+    // 1. Ajuste de etiquetas según rol
+    if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Licencia / DPI:"; }
+    else if(cat==="TECNICO") { l1.innerText="Empresa:"; l2.innerText="DPI del Técnico:"; }
+    else if(cat==="UBICACION") { l1.innerText="Fase:"; l2.innerText="Tipo:"; }
+    else { l1.innerText="Atributo 1:"; l2.innerText="DPI / Identificación:"; }
 
-    // 2. MOTOR DE BÚSQUEDA POR LICENCIA (Prioridad Alta)
-    const buscarPorLicencia = function() {
-        const licBusca = inpEx2.value.toUpperCase().trim();
-        if(!licBusca || cat !== "PILOTO") return;
+    // 2. MOTOR DE BÚSQUEDA POR IDENTIDAD (DPI)
+   
+    inpDPI.onblur = function() {
+        const dpiBusca = this.value.toUpperCase().trim();
+        if(!dpiBusca || dpiBusca.length < 5) return;
 
-        // Buscamos si la licencia ya existe en la categoría PILOTO
-        let pilotoHallado = DB_MASTER.PILOTO ? 
-            DB_MASTER.PILOTO.find(x => (x.extra2 || "").toString().toUpperCase().trim() === licBusca) : null;
+        console.log("🔍 Verificando identidad por DPI...");
+        let personaEncontrada = null;
 
-        if (pilotoHallado) {
-            // 🚨 SI LA LICENCIA EXISTE: Forzamos los datos del piloto original
-            // No importa qué ID hayas escrito, el sistema te regresa al ID real
-            inpId.value = pilotoHallado.id; 
-            document.getElementById('adm-nombre').value = pilotoHallado.nombre;
-            document.getElementById('adm-extra1').value = pilotoHallado.extra1;
+        // Buscamos en TODOS los registros de la base de datos (Pilotos, Técnicos, etc)
+        // porque el DPI es único para el ser humano, no para el puesto.
+        for (let categoria in DB_MASTER) {
+            personaEncontrada = DB_MASTER[categoria].find(x => 
+                (x.extra2 || "").toString().toUpperCase().trim() === dpiBusca
+            );
+            if(personaEncontrada) break;
+        }
+
+        if (personaEncontrada) {
+            // SI EL DPI YA EXISTE: Bloqueamos creación y forzamos edición
+            inpId.value = personaEncontrada.id; 
+            document.getElementById('adm-nombre').value = personaEncontrada.nombre;
+            document.getElementById('adm-extra1').value = personaEncontrada.extra1;
             
-            btnReg.innerText = "⚠️ LICENCIA EXISTENTE: ACTUALIZAR";
+            // Si la categoría es diferente, avisamos (ej: era piloto y ahora lo quieren meter como técnico)
+            if(cat !== personaEncontrada.categoria) {
+                alert(`ℹ️ Esta persona ya existe como: ${personaEncontrada.categoria}\nSe cargarán sus datos para actualizar.`);
+                document.getElementById('adm-categoria').value = personaEncontrada.categoria;
+            }
+
+            btnReg.innerText = "🔄 DPI EXISTENTE: ACTUALIZAR DATOS";
             btnReg.style.background = "#e67e22"; // Naranja alerta
             btnReg.onclick = () => guardarDatoMaestro(true); 
-        }
-    };
-
-    // 3. MOTOR DE BÚSQUEDA POR ID (Solo si no hay match de licencia)
-    const buscarPorId = function() {
-        const idBusca = inpId.value.toUpperCase().trim();
-        if(!idBusca) return;
-
-        let encontrado = null;
-        for (let categoria in DB_MASTER) {
-            encontrado = DB_MASTER[categoria].find(x => x.id.toString().toUpperCase() === idBusca);
-            if(encontrado) break;
-        }
-
-        if (encontrado) {
-            document.getElementById('adm-nombre').value = encontrado.nombre;
-            document.getElementById('adm-extra1').value = encontrado.extra1;
-            inpEx2.value = encontrado.extra2;
-            btnReg.innerText = "🔄 ACTUALIZAR REGISTRO";
-            btnReg.style.background = "#2980b9"; // Azul edición
-            btnReg.onclick = () => guardarDatoMaestro(true);
         } else {
-            // Si el ID es nuevo, verificamos que la licencia no esté ocupada
-            buscarPorLicencia(); 
-            if (btnReg.innerText.includes("ACTUALIZAR")) return; // Si la licencia lo bloqueó, no hacemos nada
-
-            btnReg.innerText = "📥 REGISTRAR EN SISTEMA";
+            // SI EL DPI ES NUEVO: Permitimos registro normal
+            btnReg.innerText = "📥 REGISTRAR NUEVA IDENTIDAD";
             btnReg.style.background = "#2c3e50"; 
             btnReg.onclick = () => guardarDatoMaestro(false);
         }
     };
-
-    // Asignamos los eventos
-    inpId.oninput = buscarPorId;
-    inpEx2.oninput = buscarPorLicencia;
-}       
+}
 async function guardarDatoMaestro(esEdicion = false) {
     const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
