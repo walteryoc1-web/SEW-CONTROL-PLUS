@@ -688,12 +688,12 @@ function cancelarCierre() {
             else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
         }
 
-     async function guardarDatoMaestro() {
-    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
-    const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
-    const catVal = document.getElementById('adm-categoria').value;
-    const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
-    const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
+    async function guardarDatoMaestro() {
+          let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+          const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
+          const catVal = document.getElementById('adm-categoria').value;
+          const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
+          const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
     // 1. AUTO-GENERACIÓN DE ID SI ESTÁ VACÍO (Para EPP, Herramientas, etc.)
     if (!idVal) {
