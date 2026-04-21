@@ -372,7 +372,7 @@
             btn.innerText = originalText; btn.disabled = false;
         }
         function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-        function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
+         function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
         function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
 
         // --- 2. LOGÍSTICA ---
@@ -612,91 +612,14 @@
         btn.innerText = "🚀 ABRIR ORDEN";
     }
 }
-      async function finalizarTareaOT() {
+        async function finalizarTareaOT() {
     const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
     const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
     const comentarios = document.getElementById('ot-comentarios-cierre').value.trim();
 
-    // 1. Validación de campos obligatorios
     if (!fOT || !fATS) {
         return alert("❌ Ingrese el Folio de la OT y el Folio del ATS vinculado.");
     }
-
-    // 2. Bloqueo visual del botón
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = "VINCULANDO CIERRE... ⏳";
-
-    const payload = {
-        action: "cerrarOT",
-        folioOT: fOT,
-        folioATS: fATS,
-        comentarios: comentarios || "Tarea finalizada sin observaciones adicionales."
-    };
-
-    try {
-        // 3. Envío al servidor usando await (por eso la función es async)
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-        
-        const textoRespuesta = await res.text();
-
-        // 4. Manejo de respuesta
-        if (textoRespuesta.includes("OK")) {
-            alert("✅ ORDEN CERRADA EXITOSAMENTE.");
-            location.reload(); 
-        } else {
-            alert("⚠️ Servidor: " + textoRespuesta);
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
-    } catch (e) {
-        console.error(e);
-        alert("❌ Error de red al intentar cerrar la orden.");
-        btn.disabled = false;
-        btn.innerText = originalText;
-    }
-} 
-        
-        try {
-        // 3. Envío al servidor
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            body: JSON.stringify(payload) 
-        });
-        
-        const textoRespuesta = await res.text();
-
-        // 4. Manejo de trazabilidad y errores
-        if (textoRespuesta.includes("OK_CIERRE_VINCULADO")) {
-            alert("✅ ¡ÉXITO!\nLa Orden de Trabajo " + fOT + " ha sido vinculada al ATS y cerrada formalmente.");
-            location.reload(); 
-        } 
-        else if (textoRespuesta.includes("YA FUE CERRADA")) {
-            // BLOQUEO DE TRAZABILIDAD: Si ya existe el cierre, no permite sobrescribir
-            alert("🚫 ERROR DE SEGURIDAD:\n" + textoRespuesta);
-            location.reload(); 
-        } 
-        else if (textoRespuesta.includes("ATS NO CERRADO")) {
-            alert("⚠️ BLOQUEO OPERATIVO:\nEl ATS " + fATS + " sigue ABIERTO en el sistema. Debe cerrarlo en el panel SSO antes de finalizar la OT.");
-            btn.disabled = false;
-            btn.innerText = originalText;
-        } 
-        else {
-            alert("⚠️ SERVIDOR: " + textoRespuesta);
-            btn.disabled = false;
-            btn.innerText = originalText;
-        }
-    } catch (e) {
-        console.error(e);
-        alert("❌ Error crítico de comunicación con el búnker de datos.");
-        btn.disabled = false;
-        btn.innerText = originalText;
-    }
-}
 
     // Feedback visual en el botón
     const btn = event.target;
@@ -760,41 +683,16 @@ function cancelarCierre() {
             else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
         }
 
-           function guardarDatoMaestro() {
-    let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
-    const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
-    const catVal = document.getElementById('adm-categoria').value;
+        async function guardarDatoMaestro() {
+            let idVal = document.getElementById('adm-id').value.toUpperCase().trim();
+            const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
+            const catVal = document.getElementById('adm-categoria').value;
+            if (!idVal && catVal !== "PILOTO" && catVal !== "TECNICO") idVal = `${catVal.slice(0,3)}-${nomVal.slice(0,5)}-${Math.floor(Math.random()*900+100)}`;
+            const datos = { action: "guardarConfig", categoria: catVal, id: idVal, nombre: nomVal, extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: document.getElementById('adm-extra2').value.toUpperCase() };
+            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+            alert("✅ Guardado: " + idVal); location.reload();
+        }
 
-    if (!idVal && catVal !== "PILOTO" && catVal !== "TECNICO") {
-        idVal = `${catVal.slice(0,3)}-${nomVal.slice(0,5)}-${Math.floor(Math.random()*900+100)}`;
-    }
-    
-    if (!nomVal) return alert("❌ Nombre Requerido");
-
-    const datos = { 
-        action: "guardarConfig", 
-        categoria: catVal, 
-        id: idVal, 
-        nombre: nomVal, 
-        extra1: document.getElementById('adm-extra1').value.toUpperCase(), 
-        extra2: document.getElementById('adm-extra2').value.toUpperCase() 
-    };
-
-    const btn = event.target;
-    btn.disabled = true; btn.innerText = "INYECTANDO... ⏳";
-
-    fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) })
-    .then(res => res.text())
-    .then(txt => {
-        alert("✅ Guardado con éxito: " + idVal); 
-        location.reload();
-    })
-    .catch(e => {
-        alert("❌ Error de red");
-        btn.disabled = false; btn.innerText = "REGISTRAR";
-    });
-}
-        
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
             const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
