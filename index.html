@@ -695,26 +695,29 @@ async function guardarDatoMaestro() {
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
     const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
-    // 1. Validaciones básicas de campos vacíos
     if (!idVal || !nomVal) {
         alert("❌ El ID y el Nombre son obligatorios.");
-        return; // Aquí el return es legal porque está DENTRO de la función
+        return;
     }
 
-    // 2. 🛡️ VERIFICACIÓN DE LICENCIA ÚNICA (Solo para PILOTO)
+    // 2. 🛡️ VERIFICACIÓN DE LICENCIA ÚNICA (Blindada contra errores de tipo)
     if (catVal === "PILOTO") {
         if (!ex2Val) {
             alert("❌ El número de Licencia es obligatorio para pilotos.");
             return;
         }
 
-        // Buscamos en la memoria DB_MASTER si esa licencia ya existe
+        // Buscamos en la memoria DB_MASTER
         const pilotoExiste = DB_MASTER.PILOTO ? 
-            DB_MASTER.PILOTO.find(p => p.extra2.trim() === ex2Val) : null;
+            DB_MASTER.PILOTO.find(p => {
+                // Convertimos el dato a texto y validamos que exista antes de usar .trim()
+                const licenciaExistente = (p.extra2 || "").toString().toUpperCase().trim();
+                return licenciaExistente === ex2Val;
+            }) : null;
 
         if (pilotoExiste) {
-            alert("🚫 ERROR: La Licencia '" + ex2Val + "' ya está registrada.\nAsociada a: " + pilotoExiste.nombre);
-            return; // Bloqueamos el envío
+            alert("🚫 ERROR DE DUPLICIDAD:\nLa Licencia '" + ex2Val + "' ya pertenece a: " + pilotoExiste.nombre);
+            return;
         }
     }
 
@@ -722,7 +725,7 @@ async function guardarDatoMaestro() {
     const btn = event.target;
     const originalText = btn.innerText;
     btn.disabled = true; 
-    btn.innerText = "VERIFICANDO Y GUARDANDO... ⏳";
+    btn.innerText = "SINCRO Y GUARDANDO... ⏳";
 
     const datos = {
         action: "guardarConfig",
@@ -734,12 +737,11 @@ async function guardarDatoMaestro() {
     };
 
     try {
-        // 4. Envío al servidor
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
         const txt = await res.text();
         
         if (txt === "OK_CONFIG") {
-            alert("✅ REGISTRO EXITOSO EN BASE DE DATOS");
+            alert("✅ REGISTRO EXITOSO");
             location.reload();
         } else {
             alert("⚠️ Servidor: " + txt);
@@ -747,11 +749,11 @@ async function guardarDatoMaestro() {
             btn.innerText = originalText;
         }
     } catch (e) {
-        alert("❌ Error de comunicación con el búnker.");
+        alert("❌ Error de red.");
         btn.disabled = false;
         btn.innerText = originalText;
     }
-} 
+}
         
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if(!ini || !fin) return alert("❌ Seleccione fechas");
