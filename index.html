@@ -680,37 +680,74 @@ function cancelarCierre() {
         
         // --- 6. GESTIÓN ADMINISTRATIVA Y MOTOR DE REPORTES ---
         function ajustarLabelsAdmin() {
-            const cat = document.getElementById('adm-categoria').value;
-            const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
-            if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Licencia:"; }
-            else if(cat==="TECNICO") { l1.innerText="Empresa:"; l2.innerText="Depto:"; }
-            else if(cat==="UBICACION") { l1.innerText="Fase (1,2,3):"; l2.innerText="Tipo:"; }
-            else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
+           const cat = document.getElementById('adm-categoria').value;
+           const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
+           const inpId = document.getElementById('adm-id');
+           const btnReg = document.querySelector('#ui-admin-datos .btn'); // Seleccionamos el botón de registro
+
+    // 1. Ajuste normal de etiquetas según categoría
+          if(cat==="PILOTO") { l1.innerText="Placa Cabezal:"; l2.innerText="Licencia:"; }
+          else if(cat==="TECNICO") { l1.innerText="Empresa:"; l2.innerText="Depto:"; }
+          else if(cat==="UBICACION") { l1.innerText="Fase (1,2,3):"; l2.innerText="Tipo:"; }
+          else if(cat==="EPP" || cat==="HERRAMIENTA" || cat==="COLECTIVA") { l1.innerText="Trabajo Vinculado:"; l2.innerText="Obs Técnica:"; }
+          else { l1.innerText="Atributo 1:"; l2.innerText="Atributo 2:"; }
+
+    // 2. ACTIVAR EL BUSCADOR DE EDICIÓN
+    // Cada vez que escriban en el campo ID, buscaremos si ya existe
+    inpId.oninput = function() {
+        const idBusca = this.value.toUpperCase().trim();
+        if(!idBusca) return;
+
+        let encontrado = null;
+        // Buscamos en todas las categorías de la data maestra
+        for (let categoria in DB_MASTER) {
+            let item = DB_MASTER[categoria].find(x => x.id.toString().toUpperCase() === idBusca);
+            if(item) { encontrado = item; break; }
         }
+
+        if (encontrado) {
+            // SI EXISTE: Llenamos los campos y cambiamos el botón
+            document.getElementById('adm-nombre').value = encontrado.nombre;
+            document.getElementById('adm-extra1').value = encontrado.extra1;
+            document.getElementById('adm-extra2').value = encontrado.extra2;
+            
+            btnReg.innerText = "🔄 ACTUALIZAR REGISTRO";
+            btnReg.style.background = "#2980b9"; // Cambia a azul para indicar edición
+            // Le indicamos a la función de guardado que es una edición
+            btnReg.onclick = () => guardarDatoMaestro(true); 
+        } else {
+            // SI ES NUEVO: Limpiamos campos (opcional) y dejamos botón normal
+            btnReg.innerText = "📥 REGISTRAR EN SISTEMA";
+            btnReg.style.background = "#2c3e50"; // Volver al color original
+            btnReg.onclick = () => guardarDatoMaestro(false);
+        }
+    };
+}
         
-async function guardarDatoMaestro() {
+async function guardarDatoMaestro(esEdicion = false) {
+    // 1. CAPTURA DE VALORES (Primero capturamos, luego validamos)
     const idVal = document.getElementById('adm-id').value.toUpperCase().trim();
     const nomVal = document.getElementById('adm-nombre').value.toUpperCase().trim();
     const catVal = document.getElementById('adm-categoria').value;
     const ex1Val = document.getElementById('adm-extra1').value.toUpperCase().trim();
     const ex2Val = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
+    // Validaciones básicas
     if (!idVal || !nomVal) {
         alert("❌ El ID y el Nombre son obligatorios.");
         return;
     }
 
-    // 2. 🛡️ VERIFICACIÓN DE LICENCIA ÚNICA (Blindada contra errores de tipo)
-    if (catVal === "PILOTO") {
+    // 2. 🛡️ ESCUDO DE LICENCIA ÚNICA (Solo si NO es edición)
+    // Si estamos editando un piloto existente, permitimos que mantenga su licencia
+    if (catVal === "PILOTO" && !esEdicion) {
         if (!ex2Val) {
             alert("❌ El número de Licencia es obligatorio para pilotos.");
             return;
         }
 
-        // Buscamos en la memoria DB_MASTER
         const pilotoExiste = DB_MASTER.PILOTO ? 
             DB_MASTER.PILOTO.find(p => {
-                // Convertimos el dato a texto y validamos que exista antes de usar .trim()
                 const licenciaExistente = (p.extra2 || "").toString().toUpperCase().trim();
                 return licenciaExistente === ex2Val;
             }) : null;
@@ -721,14 +758,16 @@ async function guardarDatoMaestro() {
         }
     }
 
-    // 3. Preparación y bloqueo del botón
-    const btn = event.target;
+    // 3. PREPARACIÓN VISUAL DEL BOTÓN
+    // Buscamos el botón de la interfaz Admin de forma segura
+    const btn = document.querySelector('#ui-admin-datos .btn');
     const originalText = btn.innerText;
     btn.disabled = true; 
-    btn.innerText = "SINCRO Y GUARDANDO... ⏳";
+    btn.innerText = esEdicion ? "ACTUALIZANDO NUBE... ⏳" : "GUARDANDO NUEVO... ⏳";
 
-    const datos = {
-        action: "guardarConfig",
+    // 4. CONSTRUCCIÓN DEL PAQUETE (PAYLOAD)
+    const datosEnvio = {
+        action: esEdicion ? "actualizarConfig" : "guardarConfig",
         categoria: catVal,
         id: idVal,
         nombre: nomVal,
@@ -737,19 +776,25 @@ async function guardarDatoMaestro() {
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
+        // 5. DISPARO AL SERVIDOR
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            body: JSON.stringify(datosEnvio) 
+        });
+        
         const txt = await res.text();
         
-        if (txt === "OK_CONFIG") {
-            alert("✅ REGISTRO EXITOSO");
+        if (txt.includes("OK")) {
+            alert("✅ " + (esEdicion ? "ACTUALIZACIÓN EXITOSA" : "REGISTRO EXITOSO"));
             location.reload();
         } else {
-            alert("⚠️ Servidor: " + txt);
+            alert("⚠️ Servidor dice: " + txt);
             btn.disabled = false;
             btn.innerText = originalText;
         }
     } catch (e) {
-        alert("❌ Error de red.");
+        console.error(e);
+        alert("❌ Error de comunicación con el servidor. Intente de nuevo.");
         btn.disabled = false;
         btn.innerText = originalText;
     }
