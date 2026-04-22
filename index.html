@@ -358,27 +358,27 @@
     }
 
     // Lógica de accesos
-    if (u == "operador" && p == "terpac") { 
+    if (u == "operador" && p == "operador") { 
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-app').style.display='block'; 
         llenarDesplegablesLogistica();
     } 
-    else if (u == "supervisor" && p == "terpac1") {
+    else if (u == "supervisor" && p == "supervisor") {
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-supervisor').style.display='block';
         iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
     }
-    else if (u == "supervisor sso" && p == "terpac3") { 
+    else if (u == "supervisor sso" && p == "supervisorsso") { 
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-monitor-sso').style.display='block'; 
         actualizarPildorasSSO(); cargarPermisosParaCerrar(); setInterval(actualizarPildorasSSO, 30000);
     }
-    else if (u == "sso" && p == "terpac2") {
+    else if (u == "sso" && p == "sso") {
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-seguridad').style.display='block';
         llenarDesplegablesSSO();
     }
-    else if (u == "operaciones" && p == "terpac4") {
+    else if (u == "operaciones" && p == "operaciones") {
         document.getElementById('login').style.display='none'; 
         document.getElementById('ui-operaciones').style.display='block';
         setOrigenOT('SISTEMA'); llenarDesplegablesOperaciones();
