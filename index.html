@@ -719,14 +719,46 @@ async function enviarIncidenteCompleto() {
         return alert("❌ Ingrese un Folio y un ID de Técnico válido.");
     }
 function enviar() {
-        const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
-        const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
-        const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
-        const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
-        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
-    }
+    const id = document.getElementById('id-in').value.trim(); 
+    if(!pilotos[id]) return alert("ID piloto no válido");
+    
+    const btn = document.getElementById('btn-env'); 
+    btn.innerText = "Enviando..."; 
+    btn.disabled = true;
 
+    // RECOLECCIÓN DE DATOS PARA LOGÍSTICA
+    const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+    
+    // CREAMOS UN OBJETO JSON (Para que el servidor lo entienda)
+    const payload = {
+        action: "registrarLogistica", // Nueva acción para identificar este envío
+        id: id,
+        nombre: pilotos[id].n,
+        movimiento: document.getElementById('mov').value,
+        producto: document.getElementById('prod').value,
+        transporte: pilotos[id].t,
+        placa: pilotos[id].p,
+        licencia: pilotos[id].c,
+        terpac: document.getElementById('CicloTer').value,
+        epq: document.getElementById('CicloEPQ').value,
+        extras: extra
+    };
 
+    fetch(URL_SCRIPT, { 
+        method: 'POST', 
+        mode: 'no-cors', // Mantenemos no-cors como querías
+        body: JSON.stringify(payload) // Enviamos el JSON convertido a texto
+    })
+    .then(() => { 
+        alert("Registro Exitoso"); 
+        location.reload(); 
+    })
+    .catch(() => { 
+        alert("Error al conectar con el servidor"); 
+        btn.disabled = false; 
+        btn.innerText = "REINTENTAR";
+    });
+}
     const btn = event.target;
     btn.disabled = true;
     btn.innerText = "GENERANDO PDF... ⏳";
