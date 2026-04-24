@@ -1008,28 +1008,39 @@ function agregarInvolucradoInc() {
             div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
             document.getElementById('contenedor-involucrados-inc').appendChild(div);
         }
-      async function actualizarPildoras() {
-    try {
-        const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
-        const d = await res.json();
-        
-        const pnd = document.getElementById('count-pendientes');
-        const prc = document.getElementById('count-proceso');
-        const dsp = document.getElementById('count-despachadas');
+      function pintarPildoras(d) {
+    const pnd = document.getElementById('count-pendientes');
+    const prc = document.getElementById('count-proceso');
+    const dsp = document.getElementById('count-despachadas');
 
-        // Solo escribe si los elementos están presentes (Interfaz Logística)
-        if(pnd) pnd.innerText = (d.pendientes || 0).toString().padStart(2, '0');
-        if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
-        if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
+    if(pnd) pnd.innerText = (d.pendientes || 0).toString().padStart(2, '0');
+    if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
+    if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
+    
+    console.log("Píldoras actualizadas con éxito vía JSONP");
+}
 
-    } catch (e) {
-        console.error("Error al actualizar píldoras:", e);
-    }
+// 2. Esta función PIDE los datos (Salta el CORS)
+function actualizarPildoras() {
+    // Usamos la URL de tu script de Google
+    const urlBase = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec";
+    const urlFinal = urlBase + "?modo=dash&callback=pintarPildoras&t=" + new Date().getTime();
+
+    // Eliminamos el script anterior para no llenar el HTML de basura
+    const oldScript = document.getElementById('script-motor-pildoras');
+    if (oldScript) oldScript.remove();
+
+    // Creamos el elemento script (Esto es lo que salta el bloqueo)
+    const script = document.createElement('script');
+    script.id = 'script-motor-pildoras';
+    script.src = urlFinal;
+    document.body.appendChild(script);
 }
 
 // Iniciar el monitor
-actualizarPildorasMonitor();
-setInterval(actualizarPildorasMonitor, 30000);         
+actualizarPildoras(); 
+setInterval(actualizarPildoras, 30000); 
+        
     </script>
 </body>
 </html>
