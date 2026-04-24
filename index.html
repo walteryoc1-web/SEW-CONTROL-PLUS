@@ -718,6 +718,14 @@ async function enviarIncidenteCompleto() {
     if (!folio || !tData) {
         return alert("❌ Ingrese un Folio y un ID de Técnico válido.");
     }
+function enviar() {
+        const id = document.getElementById('id-in').value.trim(); if(!pilotos[id]) return alert("ID piloto no válido");
+        const btn = document.getElementById('btn-env'); btn.innerText = "Enviando..."; btn.disabled = true;
+        const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+        const t = `${id};${pilotos[id].n};${document.getElementById('mov').value};${document.getElementById('prod').value};${pilotos[id].t};${pilotos[id].c};${pilotos[id].p};${document.getElementById('CicloTer').value};${document.getElementById('CicloEPQ').value};${extra}`;
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: t }).then(() => { alert("Registro Exitoso"); location.reload(); }).catch(() => { alert("Error"); btn.disabled = false; });
+    }
+
 
     const btn = event.target;
     btn.disabled = true;
