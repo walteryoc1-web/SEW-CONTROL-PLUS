@@ -1008,38 +1008,33 @@ function agregarInvolucradoInc() {
             div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
             document.getElementById('contenedor-involucrados-inc').appendChild(div);
         }
-        function actualizarPildorasMonitor() {
-    
+      function actualizarPildorasMonitor() {
     const urlBase = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec";
     const urlFinal = urlBase + "?modo=dash&callback=pintarPildoras";
 
-    // Borramos cualquier intento anterior de script para no saturar
-    const viejo = document.getElementById('script-cors');
-    if (viejo) viejo.remove();
+    // Eliminamos el script anterior si existe para no saturar la memoria
+    const antiguo = document.getElementById('script-jsonp');
+    if (antiguo) antiguo.remove();
 
-    // Creamos un elemento script para saltar el CORS
+    // Creamos un elemento "script" que el navegador NO bloquea
     const script = document.createElement('script');
-    script.id = 'script-cors';
+    script.id = 'script-jsonp';
     script.src = urlFinal;
     document.body.appendChild(script);
 }
 
+// Esta función es la que recibe los datos de Google y los pone en tus píldoras
 function pintarPildoras(data) {
     document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
     document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
     document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
     
-    // Si tienes el contador de SSO:
-    if(document.getElementById('count-sso')) {
-        document.getElementById('count-sso').innerText = data.riesgoSSO.toString().padStart(2, '0');
-    }
-    console.log("Monitor actualizado vía JSONP");
+    console.log("Monitor actualizado exitosamente");
 }
 
-// Iniciar
+// Iniciar el monitor
 actualizarPildorasMonitor();
-setInterval(actualizarPildorasMonitor, 30000);
-        
+setInterval(actualizarPildorasMonitor, 30000);         
     </script>
 </body>
 </html>
