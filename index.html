@@ -1008,28 +1008,23 @@ function agregarInvolucradoInc() {
             div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
             document.getElementById('contenedor-involucrados-inc').appendChild(div);
         }
-      function actualizarPildorasMonitor() {
-    const urlBase = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec";
-    const urlFinal = urlBase + "?modo=dash&callback=pintarPildoras";
+      async function actualizarPildoras() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?t=" + new Date().getTime()); 
+        const d = await res.json();
+        
+        const pnd = document.getElementById('count-pendientes');
+        const prc = document.getElementById('count-proceso');
+        const dsp = document.getElementById('count-despachadas');
 
-    // Eliminamos el script anterior si existe para no saturar la memoria
-    const antiguo = document.getElementById('script-jsonp');
-    if (antiguo) antiguo.remove();
+        // Solo escribe si los elementos están presentes (Interfaz Logística)
+        if(pnd) pnd.innerText = (d.pendientes || 0).toString().padStart(2, '0');
+        if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
+        if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
 
-    // Creamos un elemento "script" que el navegador NO bloquea
-    const script = document.createElement('script');
-    script.id = 'script-jsonp';
-    script.src = urlFinal;
-    document.body.appendChild(script);
-}
-
-// Esta función es la que recibe los datos de Google y los pone en tus píldoras
-function pintarPildoras(data) {
-    document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
-    document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
-    document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
-    
-    console.log("Monitor actualizado exitosamente");
+    } catch (e) {
+        console.error("Error al actualizar píldoras:", e);
+    }
 }
 
 // Iniciar el monitor
