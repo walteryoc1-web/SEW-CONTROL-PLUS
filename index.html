@@ -1009,23 +1009,35 @@ function agregarInvolucradoInc() {
             document.getElementById('contenedor-involucrados-inc').appendChild(div);
         }
         function actualizarPildorasMonitor() {
-  // Asegúrate de usar la URL real de tu implementación
-  const url = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec"; 
+    
+    const urlBase = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec";
+    const urlFinal = urlBase + "?modo=dash&callback=pintarPildoras";
 
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      // Sincronizado con tus IDs actuales:
-      document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
-      document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
-      document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
-      
-      console.log("Monitor actualizado: " + new Date().toLocaleTimeString());
-    })
-    .catch(err => console.error("Error en monitor:", err));
+    // Borramos cualquier intento anterior de script para no saturar
+    const viejo = document.getElementById('script-cors');
+    if (viejo) viejo.remove();
+
+    // Creamos un elemento script para saltar el CORS
+    const script = document.createElement('script');
+    script.id = 'script-cors';
+    script.src = urlFinal;
+    document.body.appendChild(script);
 }
 
-// Iniciar el ciclo de actualización
+function pintarPildoras(data) {
+    document.getElementById('count-pendientes').innerText = data.pendientes.toString().padStart(2, '0');
+    document.getElementById('count-proceso').innerText = data.proceso.toString().padStart(2, '0');
+    document.getElementById('count-despachadas').innerText = data.despachadas.toString().padStart(2, '0');
+    
+    // Si tienes el contador de SSO:
+    if(document.getElementById('count-sso')) {
+        document.getElementById('count-sso').innerText = data.riesgoSSO.toString().padStart(2, '0');
+    }
+    console.log("Monitor actualizado vía JSONP");
+}
+
+// Iniciar
+actualizarPildorasMonitor();
 setInterval(actualizarPildorasMonitor, 30000);
         
     </script>
