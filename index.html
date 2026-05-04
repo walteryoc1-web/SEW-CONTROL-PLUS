@@ -604,14 +604,39 @@
         obs: document.getElementById('med-obs').value 
     };
 
-    // ==========================================
-    // 🚀 BLOQUE NUEVO: ENVÍO Y DESCARGA DEL PDF
-    // ==========================================
+   // =======================================================
+// 🩺 FUNCIÓN 1: FICHA MÉDICA
+// =======================================================
+async function enviarFichaMedica() {
+    const idCol = document.getElementById('med-id').value.toUpperCase().trim();
+    if(!idCol) return alert("❌ Ingrese ID");
+    
+    const btn = document.querySelector('#ui-medico-sso .btn'); 
+    btn.disabled = true;
+
+    const datos = { 
+        action: "registrarMedico", 
+        id: idCol, 
+        fecha: document.getElementById('med-fecha').value, 
+        tipo: document.getElementById('med-tipo').value, 
+        glucosa: document.getElementById('med-glucosa').value, 
+        presion: document.getElementById('med-presion').value, 
+        temp: document.getElementById('med-temp').value, 
+        peso: document.getElementById('med-peso').value, 
+        oxigeno: document.getElementById('med-oxigeno').value, 
+        ritmo: document.getElementById('med-ritmo').value, 
+        resultado: document.getElementById('med-resultado').value, 
+        obs: document.getElementById('med-obs').value 
+    };
+
     try {
+        if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
+            throw new Error("La variable URL_SCRIPT no está definida.");
+        }
+
         // 1. Enviamos la petición a Google
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
-            // Forzamos texto plano para evitar bloqueos estrictos de CORS
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             redirect: 'follow',
             body: JSON.stringify(datos) 
@@ -620,8 +645,8 @@
         const textoBase64 = await res.text();
 
         // 2. Validamos si hubo un error en el servidor
-        if (textoBase64.startsWith("ERROR")) {
-            alert("❌ " + textoBase64);
+        if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
+            alert("❌ Servidor: " + textoBase64);
         } else {
             // 3. Ejecutamos la descarga del PDF pasándole el texto Base64
             descargarBase64PDF(textoBase64, `MED_${idCol}.pdf`);
@@ -630,55 +655,16 @@
         }
 
     } catch(e) { 
-        alert("❌ Error de comunicación con la base de datos."); 
+        console.error("Detalle del error:", e);
+        alert("❌ Ocurrió un error en el envío de la ficha médica."); 
     } finally {
         btn.disabled = false; 
     }
 }
 
-
-function descargarBase64PDF(base64, nombreArchivo) {
-    const linkSource = `data:application/pdf;base64,${base64}`;
-    const downloadLink = document.createElement("a");
-    downloadLink.href = linkSource;
-    downloadLink.download = nombreArchivo;
-    downloadLink.click();
-}
-
-   try {
-        if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
-            throw new Error("La variable URL_SCRIPT no está definida. Revisa arriba de tu código.");
-        }
-
-       
-        const res = await fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            redirect: 'follow', 
-            body: JSON.stringify(datos) 
-        });
-
-        const textoBase64 = await res.text();
-
-        if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
-            alert("❌ Servidor: " + textoBase64);
-            btn.disabled = false;
-            return;
-        }
-
-       Si todo salió bien, forzamos la descarga del PDF
-        descargarBase64PDF(textoBase64, `MED_${idCol}.pdf`);
-        
-        alert("✅ Ficha guardada y descargada exitosamente."); 
-        location.reload();
-
-    } catch(e) { 
-        btn.disabled = false; 
-        console.error("Detalle del error:", e);
-        alert("❌ Ocurrió un error en el envío. Revisa la consola."); 
-    }
+// =======================================================
+// 🧯 FUNCIÓN 2: REVISIÓN DE EXTINTORES
+// =======================================================
 async function enviarInspeccionExtintor() {
     const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
     if(!idExt) return alert("❌ Ingrese ID del Extintor");
@@ -701,32 +687,49 @@ async function enviarInspeccionExtintor() {
     };
 
     try {
-        // Quitamos 'no-cors' para PODER LEER el PDF de vuelta
+        if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
+            throw new Error("La variable URL_SCRIPT no está definida.");
+        }
+
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow',
             body: JSON.stringify(datos) 
         });
 
-        // Leemos la respuesta como texto (el Base64 del PDF)
         const resTexto = await res.text();
 
-        if (resTexto.length > 500) { 
-            // Si la respuesta es larga, es el PDF exitoso
+        if (resTexto.startsWith("Error") || resTexto.startsWith("ERROR")) {
+            alert("❌ Servidor: " + resTexto);
+        } else if (resTexto.length > 500) { 
+            // Si la respuesta es larga, es el PDF exitoso en Base64
             descargarBase64PDF(resTexto, `Inspeccion_${idExt}_${Date.now()}.pdf`);
             alert("✅ INSPECCIÓN REGISTRADA Y PDF GENERADO CON ÉXITO");
             location.reload();
         } else {
-            // Si es corta, probablemente es un mensaje de confirmación o error
             alert("✅ REGISTRO GUARDADO: " + resTexto);
             location.reload();
         }
 
     } catch(e) { 
         console.error("Error en envío:", e);
-        alert("❌ Error de comunicación con el servidor. Verifique su internet."); 
+        alert("❌ Error de comunicación con el servidor."); 
+    } finally {
         btn.disabled = false;
         btn.innerText = originalText;
     }
+}
+
+// =======================================================
+// 📥 FUNCIÓN AUXILIAR: DESCARGAR PDF
+// =======================================================
+function descargarBase64PDF(base64, nombreArchivo) {
+    const linkSource = `data:application/pdf;base64,${base64}`;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = linkSource;
+    downloadLink.download = nombreArchivo;
+    downloadLink.click();
 }
 async function enviarIncidenteCompleto() {
     // 1. Verificación de Vínculo ATS
