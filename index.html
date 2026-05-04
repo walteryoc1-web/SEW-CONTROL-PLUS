@@ -765,28 +765,30 @@ async function enviarIncidenteCompleto() {
     }
 } 
 
-            // 4. Construcción del paquete (Payload)
+           // 4. Construcción del paquete (Payload) - BLINDADO
     const payload = { 
         action: "registrarIncidente", 
-        area: window.datosVinculados.fase, 
-        ubicacion: window.datosVinculados.ubi, 
-        trabajo: window.datosVinculados.tipo, 
+        
+        // 🚨 AQUÍ ESTABA EL CRUCE: Si window.datosVinculados no existe, pondrá "N/A"
+        area: window.datosVinculados?.fase || "N/A", 
+        ubicacion: window.datosVinculados?.ubi || "N/A", 
+        trabajo: window.datosVinculados?.tipo || "N/A", 
+        
         involucrados: involucradosNombres, 
-        salud: document.getElementById('inc-salud').value, 
-        intervencion: document.getElementById('inc-intervencion-momento').value, 
-        tipoEvento: document.getElementById('inc-tipo').value, 
-        gravedad: document.getElementById('inc-gravedad').value, 
-        riesgo: document.getElementById('inc-riesgo').value || "N/A", 
-        contaminacion: document.getElementById('inc-contaminacion').value || "N/A", 
-        estructura: document.getElementById('inc-estructura').value || "N/A", 
-        reparacion: document.getElementById('inc-reparacion').value || "N/A", 
-        obsEstructura: document.getElementById('inc-obs-estructura').value || "N/A", 
-        reincidencia: document.getElementById('inc-reincidencia').value || "No", 
-        seguridad: document.getElementById('inc-riesgo-seguridad').value || "N/A", 
-        recomendacion: document.getElementById('inc-recomendacion').value || "N/A", 
-        estadoFinal: document.getElementById('inc-estado-final').value 
+        salud: document.getElementById('inc-salud')?.value || "N/A", 
+        intervencion: document.getElementById('inc-intervencion-momento')?.value || "N/A", 
+        tipoEvento: document.getElementById('inc-tipo')?.value || "N/A", 
+        gravedad: document.getElementById('inc-gravedad')?.value || "N/A", 
+        riesgo: document.getElementById('inc-riesgo')?.value || "N/A", 
+        contaminacion: document.getElementById('inc-contaminacion')?.value || "N/A", 
+        estructura: document.getElementById('inc-estructura')?.value || "N/A", 
+        reparacion: document.getElementById('inc-reparacion')?.value || "N/A", 
+        obsEstructura: document.getElementById('inc-obs-estructura')?.value || "N/A", 
+        reincidencia: document.getElementById('inc-reincidencia')?.value || "No", 
+        seguridad: document.getElementById('inc-riesgo-seguridad')?.value || "N/A", 
+        recomendacion: document.getElementById('inc-recomendacion')?.value || "N/A", 
+        estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
     };
-
     try {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
         const resTexto = await res.text();
