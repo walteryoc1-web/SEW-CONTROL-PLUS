@@ -604,6 +604,47 @@
         obs: document.getElementById('med-obs').value 
     };
 
+    // ==========================================
+    // 🚀 BLOQUE NUEVO: ENVÍO Y DESCARGA DEL PDF
+    // ==========================================
+    try {
+        // 1. Enviamos la petición a Google
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            // Forzamos texto plano para evitar bloqueos estrictos de CORS
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow',
+            body: JSON.stringify(datos) 
+        });
+
+        const textoBase64 = await res.text();
+
+        // 2. Validamos si hubo un error en el servidor
+        if (textoBase64.startsWith("ERROR")) {
+            alert("❌ " + textoBase64);
+        } else {
+            // 3. Ejecutamos la descarga del PDF pasándole el texto Base64
+            descargarBase64PDF(textoBase64, `MED_${idCol}.pdf`);
+            alert("✅ Ficha guardada y descargada exitosamente.");
+            location.reload();
+        }
+
+    } catch(e) { 
+        alert("❌ Error de comunicación con la base de datos."); 
+    } finally {
+        btn.disabled = false; 
+    }
+}
+
+
+function descargarBase64PDF(base64, nombreArchivo) {
+    const linkSource = `data:application/pdf;base64,${base64}`;
+    const downloadLink = document.createElement("a");
+    downloadLink.href = linkSource;
+    downloadLink.download = nombreArchivo;
+    downloadLink.click();
+}
+
     try {
         // --- CAMBIOS CLAVE AQUÍ ---
         const res = await fetch(URL_SCRIPT, { 
