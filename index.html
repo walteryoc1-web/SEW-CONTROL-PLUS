@@ -604,9 +604,9 @@
         obs: document.getElementById('med-obs').value 
     };
 
-  // =======================================================
-// 🩺 FUNCIÓN 1: FICHA MÉDICA
-// =======================================================
+// ==========================================
+// 🩺 CONFIGURACIÓN SEGURA PARA FICHA MÉDICA
+// ==========================================
 async function enviarFichaMedica() {
     const idCol = document.getElementById('med-id').value.toUpperCase().trim();
     if(!idCol) return alert("❌ Ingrese ID");
@@ -614,19 +614,20 @@ async function enviarFichaMedica() {
     const btn = document.querySelector('#ui-medico-sso .btn'); 
     btn.disabled = true;
 
+    // Aseguramos que todas las propiedades existan antes de mandarlas
     const datos = { 
         action: "registrarMedico", 
         id: idCol, 
-        fecha: document.getElementById('med-fecha').value, 
-        tipo: document.getElementById('med-tipo').value, 
-        glucosa: document.getElementById('med-glucosa').value, 
-        presion: document.getElementById('med-presion').value, 
-        temp: document.getElementById('med-temp').value, 
-        peso: document.getElementById('med-peso').value, 
-        oxigeno: document.getElementById('med-oxigeno').value, 
-        ritmo: document.getElementById('med-ritmo').value, 
-        resultado: document.getElementById('med-resultado').value, 
-        obs: document.getElementById('med-obs').value 
+        fecha: document.getElementById('med-fecha')?.value || "N/A", 
+        tipo: document.getElementById('med-tipo')?.value || "N/A", 
+        glucosa: document.getElementById('med-glucosa')?.value || "N/A", 
+        presion: document.getElementById('med-presion')?.value || "N/A", 
+        temp: document.getElementById('med-temp')?.value || "N/A", 
+        peso: document.getElementById('med-peso')?.value || "N/A", 
+        oxigeno: document.getElementById('med-oxigeno')?.value || "N/A", 
+        ritmo: document.getElementById('med-ritmo')?.value || "N/A", 
+        resultado: document.getElementById('med-resultado')?.value || "N/A", 
+        obs: document.getElementById('med-obs')?.value || "N/A" 
     };
 
     try {
