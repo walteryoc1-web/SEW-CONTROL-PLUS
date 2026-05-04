@@ -583,16 +583,48 @@
 }
         
         async function enviarFichaMedica() {
-            const idCol = document.getElementById('med-id').value.toUpperCase().trim();
-            if(!idCol) return alert("❌ Ingrese ID");
-            const btn = document.querySelector('#ui-medico-sso .btn'); btn.disabled = true;
-            const datos = { action: "registrarMedico", id: idCol, fecha: document.getElementById('med-fecha').value, tipo: document.getElementById('med-tipo').value, glucosa: document.getElementById('med-glucosa').value, presion: document.getElementById('med-presion').value, temp: document.getElementById('med-temp').value, peso: document.getElementById('med-peso').value, oxigeno: document.getElementById('med-oxigeno').value, ritmo: document.getElementById('med-ritmo').value, resultado: document.getElementById('med-resultado').value, obs: document.getElementById('med-obs').value };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(datos) });
-                descargarBase64PDF(await res.text(), `MED_${idCol}.pdf`);
-                alert("✅ Ficha guardada"); location.reload();
-            } catch(e) { btn.disabled = false; alert("❌ Error"); }
-        }
+    const idCol = document.getElementById('med-id').value.toUpperCase().trim();
+    if(!idCol) return alert("❌ Ingrese ID");
+    
+    const btn = document.querySelector('#ui-medico-sso .btn'); 
+    btn.disabled = true;
+
+    const datos = { 
+        action: "registrarMedico", 
+        id: idCol, 
+        fecha: document.getElementById('med-fecha').value, 
+        tipo: document.getElementById('med-tipo').value, 
+        glucosa: document.getElementById('med-glucosa').value, 
+        presion: document.getElementById('med-presion').value, 
+        temp: document.getElementById('med-temp').value, 
+        peso: document.getElementById('med-peso').value, 
+        oxigeno: document.getElementById('med-oxigeno').value, 
+        ritmo: document.getElementById('med-ritmo').value, 
+        resultado: document.getElementById('med-resultado').value, 
+        obs: document.getElementById('med-obs').value 
+    };
+
+    try {
+        // --- CAMBIOS CLAVE AQUÍ ---
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            // 1. Forzamos a la petición a ser de texto plano
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            // 2. Obligamos al navegador a seguir el redireccionamiento de Google
+            redirect: 'follow', 
+            body: JSON.stringify(datos) 
+        });
+
+        descargarBase64PDF(await res.text(), `MED_${idCol}.pdf`);
+        alert("✅ Ficha guardada"); 
+        location.reload();
+    } catch(e) { 
+        btn.disabled = false; 
+        alert("❌ Error"); 
+    }
+}
 
 async function enviarInspeccionExtintor() {
     const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
