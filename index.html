@@ -713,7 +713,7 @@ async function enviarIncidenteCompleto() {
     // 1. Verificación de Vínculo ATS
     if (!window.datosVinculados) return alert("❌ Primero debe vincular un Folio SSO válido.");
 
-    // 2. Captura de Involucrados
+  // 2. Captura de Involucrados
     const inputs = Array.from(document.querySelectorAll('.inc-id-clase'));
     const idsValidos = inputs.map(i => i.value.toUpperCase().trim()).filter(id => id !== "");
 
@@ -731,55 +731,33 @@ async function enviarIncidenteCompleto() {
     btn.innerText = "GENERANDO INFORME... ⏳";
 
     try {
-        // [⚠️ ATENCIÓN: El resto de tu código de envío no venía completo]
-        // Se coloca este try/catch de relleno para cerrar la llave.
-        console.log("Datos listos para enviar");
-    } catch(e) {
-        console.error(e);
-    } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
-    }
-} 
-
-           // 4. Construcción del paquete (Payload) - BLINDADO
-    const payload = { 
-        action: "registrarIncidente", 
-        area: window.datosVinculados?.fase || "N/A", 
-        ubicacion: window.datosVinculados?.ubi || "N/A", 
-        trabajo: window.datosVinculados?.tipo || "N/A", 
-        involucrados: involucradosNombres, 
-        salud: document.getElementById('inc-salud')?.value || "N/A", 
-        intervencion: document.getElementById('inc-intervencion-momento')?.value || "N/A", 
-        tipoEvento: document.getElementById('inc-tipo')?.value || "N/A", 
-        gravedad: document.getElementById('inc-gravedad')?.value || "N/A", 
-        riesgo: document.getElementById('inc-riesgo')?.value || "N/A", 
-        contaminacion: document.getElementById('inc-contaminacion')?.value || "N/A", 
-        estructura: document.getElementById('inc-estructura')?.value || "N/A", 
-        reparacion: document.getElementById('inc-reparacion')?.value || "N/A", 
-        obsEstructura: document.getElementById('inc-obs-estructura')?.value || "N/A", 
-        reincidencia: document.getElementById('inc-reincidencia')?.value || "No", 
-        seguridad: document.getElementById('inc-riesgo-seguridad')?.value || "N/A", 
-        recomendacion: document.getElementById('inc-recomendacion')?.value || "N/A", 
-        estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
-    };
-
-  
-async function enviarIncidenteCompleto() {
-    
-    
-    const btn = event.target;
-    const originalText = btn.innerText;
-    
-    
-    // ==========================================
-    // 🚀 BLOQUE DE ENVÍO SEGURO (Cierre de Incidentes)
-    // ==========================================
-    try {
         if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
             throw new Error("La variable URL_SCRIPT no está definida.");
         }
 
+        // 4. Construcción del paquete (Payload) - DENTRO DEL TRY
+        const payload = { 
+            action: "registrarIncidente", 
+            area: window.datosVinculados?.fase || "N/A", 
+            ubicacion: window.datosVinculados?.ubi || "N/A", 
+            trabajo: window.datosVinculados?.tipo || "N/A", 
+            involucrados: involucradosNombres, 
+            salud: document.getElementById('inc-salud')?.value || "N/A", 
+            intervencion: document.getElementById('inc-intervencion-momento')?.value || "N/A", 
+            tipoEvento: document.getElementById('inc-tipo')?.value || "N/A", 
+            gravedad: document.getElementById('inc-gravedad')?.value || "N/A", 
+            riesgo: document.getElementById('inc-riesgo')?.value || "N/A", 
+            contaminacion: document.getElementById('inc-contaminacion')?.value || "N/A", 
+            estructura: document.getElementById('inc-estructura')?.value || "N/A", 
+            reparacion: document.getElementById('inc-reparacion')?.value || "N/A", 
+            obsEstructura: document.getElementById('inc-obs-estructura')?.value || "N/A", 
+            reincidencia: document.getElementById('inc-reincidencia')?.value || "No", 
+            seguridad: document.getElementById('inc-riesgo-seguridad')?.value || "N/A", 
+            recomendacion: document.getElementById('inc-recomendacion')?.value || "N/A", 
+            estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
+        };
+
+        // 5. Enviamos la petición a Google
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -808,7 +786,8 @@ async function enviarIncidenteCompleto() {
         btn.disabled = false;
         btn.innerText = originalText;
     }
-}
+} // <--- Esta llave cierra la función async enviarIncidenteCompleto()
+        
 // ==========================================
 // 🛠️ FUNCIÓN: ÓRDENES DE TRABAJO (OT)
 // ==========================================
