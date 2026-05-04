@@ -606,8 +606,7 @@ async function enviarFichaMedica() {
         ritmo: document.getElementById('med-ritmo')?.value || "N/A", 
         resultado: document.getElementById('med-resultado')?.value || "N/A", 
         obs: document.getElementById('med-obs')?.value || "N/A" 
-    };
-}
+    }; // <--- AQUÍ QUITÉ LA LLAVE DE CIERRE QUE ESTABA DE MÁS
 
     try {
         if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
@@ -637,7 +636,7 @@ async function enviarFichaMedica() {
     } finally {
         btn.disabled = false; 
     }
-}
+} // <--- AQUÍ ES DONDE SE 
 // =======================================================
 // 🧯 FUNCIÓN 2: REVISIÓN DE EXTINTORES
 // =======================================================
