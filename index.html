@@ -645,28 +645,40 @@ function descargarBase64PDF(base64, nombreArchivo) {
     downloadLink.click();
 }
 
-    try {
-        // --- CAMBIOS CLAVE AQUÍ ---
+   try {
+        if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
+            throw new Error("La variable URL_SCRIPT no está definida. Revisa arriba de tu código.");
+        }
+
+       
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
-            // 1. Forzamos a la petición a ser de texto plano
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
             },
-            // 2. Obligamos al navegador a seguir el redireccionamiento de Google
             redirect: 'follow', 
             body: JSON.stringify(datos) 
         });
 
-        descargarBase64PDF(await res.text(), `MED_${idCol}.pdf`);
-        alert("✅ Ficha guardada"); 
+        const textoBase64 = await res.text();
+
+        if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
+            alert("❌ Servidor: " + textoBase64);
+            btn.disabled = false;
+            return;
+        }
+
+       Si todo salió bien, forzamos la descarga del PDF
+        descargarBase64PDF(textoBase64, `MED_${idCol}.pdf`);
+        
+        alert("✅ Ficha guardada y descargada exitosamente."); 
         location.reload();
+
     } catch(e) { 
         btn.disabled = false; 
-        alert("❌ Error"); 
+        console.error("Detalle del error:", e);
+        alert("❌ Ocurrió un error en el envío. Revisa la consola."); 
     }
-}
-
 async function enviarInspeccionExtintor() {
     const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
     if(!idExt) return alert("❌ Ingrese ID del Extintor");
