@@ -604,7 +604,7 @@
         obs: document.getElementById('med-obs').value 
     };
 
-   // =======================================================
+  // =======================================================
 // 🩺 FUNCIÓN 1: FICHA MÉDICA
 // =======================================================
 async function enviarFichaMedica() {
@@ -731,7 +731,8 @@ function descargarBase64PDF(base64, nombreArchivo) {
     downloadLink.download = nombreArchivo;
     downloadLink.click();
 }
-async function enviarIncidenteCompleto() {
+            
+            async function enviarIncidenteCompleto() {
     // 1. Verificación de Vínculo ATS
     if (!window.datosVinculados) return alert("❌ Primero debe vincular un Folio SSO válido.");
 
