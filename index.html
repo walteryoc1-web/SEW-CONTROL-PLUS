@@ -764,6 +764,14 @@ async function enviarIncidenteCompleto() {
         estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
     };
 
+  
+async function enviarIncidenteCompleto() {
+    
+    
+    const btn = event.target;
+    const originalText = btn.innerText;
+    
+    
     // ==========================================
     // 🚀 BLOQUE DE ENVÍO SEGURO (Cierre de Incidentes)
     // ==========================================
@@ -800,8 +808,7 @@ async function enviarIncidenteCompleto() {
         btn.disabled = false;
         btn.innerText = originalText;
     }
-} 
-
+}
 // ==========================================
 // 🛠️ FUNCIÓN: ÓRDENES DE TRABAJO (OT)
 // ==========================================
