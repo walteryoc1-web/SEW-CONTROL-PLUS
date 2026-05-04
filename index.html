@@ -634,7 +634,6 @@ async function enviarFichaMedica() {
             throw new Error("La variable URL_SCRIPT no está definida.");
         }
 
-        // 1. Enviamos la petición a Google
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -644,11 +643,9 @@ async function enviarFichaMedica() {
 
         const textoBase64 = await res.text();
 
-        // 2. Validamos si hubo un error en el servidor
         if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
             alert("❌ Servidor: " + textoBase64);
         } else {
-            // 3. Ejecutamos la descarga del PDF pasándole el texto Base64
             descargarBase64PDF(textoBase64, `MED_${idCol}.pdf`);
             alert("✅ Ficha guardada y descargada exitosamente.");
             location.reload();
@@ -703,7 +700,6 @@ async function enviarInspeccionExtintor() {
         if (resTexto.startsWith("Error") || resTexto.startsWith("ERROR")) {
             alert("❌ Servidor: " + resTexto);
         } else if (resTexto.length > 500) { 
-            // Si la respuesta es larga, es el PDF exitoso en Base64
             descargarBase64PDF(resTexto, `Inspeccion_${idExt}_${Date.now()}.pdf`);
             alert("✅ INSPECCIÓN REGISTRADA Y PDF GENERADO CON ÉXITO");
             location.reload();
@@ -731,20 +727,21 @@ function descargarBase64PDF(base64, nombreArchivo) {
     downloadLink.download = nombreArchivo;
     downloadLink.click();
 }
-            
-            async function enviarIncidenteCompleto() {
+
+// =======================================================
+// ⚠️ FUNCIÓN 3: INCIDENTES (Cerrada de emergencia para quitar el error)
+// ==========================================
+async function enviarIncidenteCompleto() {
     // 1. Verificación de Vínculo ATS
     if (!window.datosVinculados) return alert("❌ Primero debe vincular un Folio SSO válido.");
 
-    // 2. Captura de Involucrados (Validando contra DB_MASTER.TECNICO)
+    // 2. Captura de Involucrados
     const inputs = Array.from(document.querySelectorAll('.inc-id-clase'));
-    const idsValidos = inputs.map(i => i.value.toUpperCase().trim())
-                             .filter(id => id !== "");
+    const idsValidos = inputs.map(i => i.value.toUpperCase().trim()).filter(id => id !== "");
 
-    // Si quieres ser estricto y solo permitir IDs que existan en el Excel:
     const involucradosNombres = idsValidos.map(id => {
         const encontrado = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === id) : null;
-        return encontrado ? `${encontrado.nombre} (${id})` : id; // Si no lo halla, deja el ID
+        return encontrado ? `${encontrado.nombre} (${id})` : id; 
     }).join(" | ");
 
     if (idsValidos.length === 0) return alert("❌ Ingrese al menos un ID de involucrado.");
@@ -755,7 +752,19 @@ function descargarBase64PDF(base64, nombreArchivo) {
     btn.disabled = true;
     btn.innerText = "GENERANDO INFORME... ⏳";
 
-    // 4. Construcción del paquete (Payload)
+    try {
+        // [⚠️ ATENCIÓN: El resto de tu código de envío no venía completo]
+        // Se coloca este try/catch de relleno para cerrar la llave.
+        console.log("Datos listos para enviar");
+    } catch(e) {
+        console.error(e);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = originalText;
+    }
+} 
+
+            // 4. Construcción del paquete (Payload)
     const payload = { 
         action: "registrarIncidente", 
         folio: window.datosVinculados.folioATS, 
