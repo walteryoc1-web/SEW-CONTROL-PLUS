@@ -896,12 +896,17 @@ function ajustarLabelsAdmin() {
         // Buscamos en TODOS los registros de la base de datos (Pilotos, Técnicos, etc)
         // porque el DPI es único para el ser humano, no para el puesto.
         for (let categoria in DB_MASTER) {
-            personaEncontrada = DB_MASTER[categoria].find(x => 
+            // SEGURIDAD: Convertimos a lista por si la categoría viene en formato de Objeto
+            const listaSegura = Array.isArray(DB_MASTER[categoria]) 
+                ? DB_MASTER[categoria] 
+                : Object.values(DB_MASTER[categoria] || {});
+
+            personaEncontrada = listaSegura.find(x => 
                 (x.extra2 || "").toString().toUpperCase().trim() === dpiBusca
             );
             if(personaEncontrada) break;
         }
-
+        
         if (personaEncontrada) {
             // SI EL DPI YA EXISTE: Bloqueamos creación y forzamos edición
             inpId.value = personaEncontrada.id; 
