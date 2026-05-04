@@ -582,7 +582,33 @@
     }
 }
         
-     // ==========================================
+// ==========================================
+// 🩺 CONFIGURACIÓN SEGURA PARA FICHA MÉDICA
+// ==========================================
+async function enviarFichaMedica() {
+    const idCol = document.getElementById('med-id').value.toUpperCase().trim();
+    if(!idCol) return alert("❌ Ingrese ID");
+    
+    const btn = document.querySelector('#ui-medico-sso .btn'); 
+    btn.disabled = true;
+
+    // Aseguramos que todas las propiedades existan antes de mandarlas
+    const datos = { 
+        action: "registrarMedico", 
+        id: idCol, 
+        fecha: document.getElementById('med-fecha')?.value || "N/A", 
+        tipo: document.getElementById('med-tipo')?.value || "N/A", 
+        glucosa: document.getElementById('med-glucosa')?.value || "N/A", 
+        presion: document.getElementById('med-presion')?.value || "N/A", 
+        temp: document.getElementById('med-temp')?.value || "N/A", 
+        peso: document.getElementById('med-peso')?.value || "N/A", 
+        oxigeno: document.getElementById('med-oxigeno')?.value || "N/A", 
+        ritmo: document.getElementById('med-ritmo')?.value || "N/A", 
+        resultado: document.getElementById('med-resultado')?.value || "N/A", 
+        obs: document.getElementById('med-obs')?.value || "N/A" 
+    };
+
+    / ==========================================
 // 🩺 CONFIGURACIÓN SEGURA PARA FICHA MÉDICA
 // ==========================================
 async function enviarFichaMedica() {
