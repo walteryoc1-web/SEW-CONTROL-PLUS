@@ -765,7 +765,7 @@ async function enviarIncidenteCompleto() {
     };
 
     // ==========================================
-    // 🚀 BLOQUE DE ENVÍO SEGURO
+    // 🚀 BLOQUE DE ENVÍO SEGURO (Cierre de Incidentes)
     // ==========================================
     try {
         if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
@@ -776,7 +776,7 @@ async function enviarIncidenteCompleto() {
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             redirect: 'follow',
-            body: JSON.stringify(payload) // Enviamos el objeto blindado
+            body: JSON.stringify(payload) 
         });
 
         const textoBase64 = await res.text();
@@ -784,7 +784,6 @@ async function enviarIncidenteCompleto() {
         if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
             alert("❌ Servidor: " + textoBase64);
         } else if (textoBase64.length > 500) { 
-            // Si la respuesta es larga, forzamos la descarga del PDF de incidente
             const folioIncidente = document.getElementById('inc-folio')?.value || "SINFOLIO";
             descargarBase64PDF(textoBase64, `INCIDENTE_${folioIncidente}.pdf`);
             alert("✅ INFORME DE INCIDENTE REGISTRADO Y DESCARGADO");
@@ -798,21 +797,65 @@ async function enviarIncidenteCompleto() {
         console.error("Error en envío:", e);
         alert("❌ Error de comunicación con el servidor."); 
     } finally {
-        // Regresamos el botón a su estado original
         btn.disabled = false;
         btn.innerText = originalText;
     }
-} // <--- Esta llave cierra por fi        
-      async function enviarOT() {
+} 
+
+// ==========================================
+// 🛠️ FUNCIÓN: ÓRDENES DE TRABAJO (OT)
+// ==========================================
+async function enviarOT() {
     const folio = document.getElementById('ot-folio').value.trim();
     const idTec = document.getElementById('ot-id-tec').value.trim().toUpperCase();
     
-    // Validamos que el técnico exista antes de enviar
     const tData = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === idTec) : null;
 
     if (!folio || !tData) {
         return alert("❌ Ingrese un Folio y un ID de Técnico válido.");
     }
+
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "GENERANDO PDF... ⏳";
+
+    const payload = {
+        action: "registrarOT",
+        folio: folio,
+        tecnico: tData.nombre, 
+        prioridad: document.getElementById('ot-prioridad').value,
+        departamento: document.getElementById('ot-depto').value,
+        descripcion: document.getElementById('ot-descripcion').value
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            redirect: 'follow',
+            body: JSON.stringify(payload) 
+        });
+        
+        const pdfB64 = await res.text();
+        
+        if (pdfB64.length > 500) {
+            descargarBase64PDF(pdfB64, `OT_${folio}.pdf`);
+            alert("✅ ORDEN DE TRABAJO REGISTRADA Y PDF GENERADO");
+            location.reload();
+        } else {
+            alert("✅ REGISTRADO EN EXCEL: " + pdfB64);
+            location.reload();
+        }
+    } catch (e) {
+        alert("❌ Error de conexión");
+        btn.disabled = false;
+        btn.innerText = "🚀 ABRIR ORDEN";
+    }
+}
+
+// ==========================================
+// 🚛 FUNCIÓN: LOGÍSTICA (Envío de Operador)
+// ==========================================
 function enviar() {
     const id = document.getElementById('id-in').value.trim(); 
     if(!pilotos[id]) return alert("ID piloto no válido");
@@ -821,12 +864,10 @@ function enviar() {
     btn.innerText = "Enviando..."; 
     btn.disabled = true;
 
-    // RECOLECCIÓN DE DATOS PARA LOGÍSTICA
     const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
     
-    // CREAMOS UN OBJETO JSON (Para que el servidor lo entienda)
     const payload = {
-        action: "registrarLogistica", // Nueva acción para identificar este envío
+        action: "registrarLogistica", 
         id: id,
         nombre: pilotos[id].n,
         movimiento: document.getElementById('mov').value,
@@ -841,11 +882,13 @@ function enviar() {
 
     fetch(URL_SCRIPT, { 
         method: 'POST', 
-        mode: 'no-cors', // Mantenemos no-cors como querías
-        body: JSON.stringify(payload) // Enviamos el JSON convertido a texto
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        body: JSON.stringify(payload) 
     })
-    .then(() => { 
-        alert("Registro Exitoso"); 
+    .then(async res => { 
+        const txt = await res.text();
+        alert("Registro Exitoso: " + txt); 
         location.reload(); 
     })
     .catch(() => { 
@@ -854,38 +897,7 @@ function enviar() {
         btn.innerText = "REINTENTAR";
     });
 }
-    const btn = event.target;
-    btn.disabled = true;
-    btn.innerText = "GENERANDO PDF... ⏳";
-
-    const payload = {
-        action: "registrarOT",
-        folio: folio,
-        tecnico: tData.nombre, // Mandamos el nombre real, no el ID
-        prioridad: document.getElementById('ot-prioridad').value,
-        departamento: document.getElementById('ot-depto').value,
-        descripcion: document.getElementById('ot-descripcion').value
-    };
-
-    try {
-        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        const pdfB64 = await res.text();
-        
-        if (pdfB64.length > 500) {
-            descargarBase64PDF(pdfB64, `OT_${folio}.pdf`);
-            alert("✅ ORDEN DE TRABAJO REGISTRADA Y PDF GENERADO");
-            location.reload();
-        } else {
-            alert("✅ REGISTRADO EN EXCEL (Sin PDF)");
-            location.reload();
-        }
-    } catch (e) {
-        alert("❌ Error de conexión");
-        btn.disabled = false;
-        btn.innerText = "🚀 ABRIR ORDEN";
-    }
-}
-       async function finalizarTareaOT() {
+        async function finalizarTareaOT() {
     const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
     const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
     
