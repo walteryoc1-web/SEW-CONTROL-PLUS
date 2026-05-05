@@ -419,9 +419,30 @@
     btn.innerText = originalText; 
     btn.disabled = false;
 }
-        function irAIncidentes() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-incidentes-sso').style.display='block'; }
-         function irAMedico() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-medico-sso').style.display='block'; }
-        function irAExtintores() { document.getElementById('ui-monitor-sso').style.display='none'; document.getElementById('ui-extintores-sso').style.display='block'; }
+        function irAIncidentes() { 
+    const el = document.getElementById('ui-incidentes-sso');
+    if(el) {
+        document.getElementById('ui-monitor-sso').style.display='none';
+        el.style.display='block';
+    } else { alert("❌ Error: No se encontró el ID 'ui-incidentes-sso'"); }
+}
+
+function irAMedico() { 
+    const el = document.getElementById('ui-medico-sso');
+    if(el) {
+        document.getElementById('ui-monitor-sso').style.display='none';
+        el.style.display='block';
+    } else { alert("❌ Error: No se encontró el ID 'ui-medico-sso'"); }
+}
+
+function irAExtintores() { 
+    const el = document.getElementById('ui-extintores-sso');
+    if(el) {
+        document.getElementById('ui-monitor-sso').style.display='none';
+        el.style.display='block';
+    } else { alert("❌ Error: No se encontró el ID 'ui-extintores-sso'"); }
+}
+
 
         // --- 2. LOGÍSTICA ---
         function llenarDesplegablesLogistica() {
