@@ -1239,6 +1239,7 @@ function mostrarSeccionCierre() {
     document.getElementById('ot-seccion-cierre').style.display='block'; 
 }
 
+// --- FUNCIÓN 1: DESCARGA DE REPORTES POR FECHA (LOGÍSTICA, SSO, ETC) ---
 async function procesarDescargaUniversal(accion, ini, fin, nombre) {
     if(!ini || !fin) return alert("❌ Seleccione fechas");
     try {
@@ -1257,24 +1258,37 @@ async function procesarDescargaUniversal(accion, ini, fin, nombre) {
         a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); 
         a.download = `${nombre}.csv`; 
         a.click();
-    } catch(e) { alert("❌ Error al descargar"); }
+    } catch(e) { 
+        console.error(e);
+        alert("❌ Error al descargar reporte"); 
+    }
 }
 
+// --- FUNCIÓN 2: DESCARGA DE TODA LA BASE DE DATOS (ADMIN) ---
+function descargarDataMaestra() {
+    if (!DB_MASTER || Object.keys(DB_MASTER).length === 0) return alert("❌ No hay datos cargados en el cerebro.");
     
     let csv = "\uFEFFCATEGORIA,ID_CODIGO,NOMBRE_VALOR,ATRIBUTO_1,ATRIBUTO_2\n";
     
     for (let cat in DB_MASTER) {
-        DB_MASTER[cat].forEach(item => {
-            csv += `${cat},${item.id},${item.nombre},${item.extra1},${item.extra2}\n`;
+        // Usamos Array.isArray para evitar el error .find o .forEach is not a function
+        const lista = Array.isArray(DB_MASTER[cat]) ? DB_MASTER[cat] : Object.values(DB_MASTER[cat] || {});
+        
+        lista.forEach(item => {
+            // Limpiamos comas internas para no arruinar el CSV
+            const n = (item.nombre || "").toString().replace(/,/g, " ");
+            const e1 = (item.extra1 || "").toString().replace(/,/g, " ");
+            const e2 = (item.extra2 || "").toString().replace(/,/g, " ");
+            csv += `${cat},${item.id},${n},${e1},${e2}\n`;
         });
     }
 
     const b = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(b);
-    a.download = `Base_Datos_Maestra_Terpac_${new Date().toLocaleDateString()}.csv`;
+    a.download = `DB_MAESTRA_TERPAC_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
- }
+}
         
         window.onload = () => { cargarCerebroSistema(); };
         
