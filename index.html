@@ -443,42 +443,62 @@ function irAIncidentes() {
     } else { alert("❌ No se encontró el contenedor: ui-incidentes-sso"); }
 }
 
-function irAMedico() { 
+/ ==========================================
+// 🔄 MOTOR DE NAVEGACIÓN SSO COMPLETO
+// ==========================================
+
+function irAIncidentes() {
+    console.log("Cambiando a pantalla de Incidentes...");
+    // 1. Ocultamos el Login y el Monitor
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    
+    const el = document.getElementById('ui-incidentes-sso');
+    if (el) {
+        // 2. Mostramos el formulario de Incidentes
+        el.style.display = 'block';
+        window.scrollTo(0, 0);
+        // Cargamos los folios ATS para que el buscador funcione
+        cargarPermisosParaCerrar();
+    } else {
+        alert("❌ Error: No se encontró el contenedor 'ui-incidentes-sso'");
+    }
+}
+
+function irAMedico() {
+    console.log("Cambiando a pantalla Médica...");
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    
     const el = document.getElementById('ui-medico-sso');
-    if(el) {
-        document.getElementById('ui-monitor-sso').style.display='none';
-        document.getElementById('login').style.display='none';
-        
+    if (el) {
         el.style.display = 'block';
-        el.style.zIndex = '9999';
-        el.style.background = '#ffffff';
-        el.style.position = 'relative';
-        el.style.minHeight = '100vh';
-        window.scrollTo(0,0);
-    } else { alert("❌ No se encontró el contenedor: ui-medico-sso"); }
+        window.scrollTo(0, 0);
+    } else {
+        alert("❌ Error: El contenedor 'ui-medico-sso' no existe.");
+    }
 }
 
-function irAExtintores() { 
+function irAExtintores() {
+    console.log("Cambiando a pantalla de Extintores...");
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    
     const el = document.getElementById('ui-extintores-sso');
-    if(el) {
-        document.getElementById('ui-monitor-sso').style.display='none';
-        document.getElementById('login').style.display='none';
-        
+    if (el) {
         el.style.display = 'block';
-        el.style.zIndex = '9999';
-        el.style.background = '#ffffff';
-        el.style.position = 'relative';
-        el.style.minHeight = '100vh';
-        window.scrollTo(0,0);
-    } else { alert("❌ No se encontró el contenedor: ui-extintores-sso"); }
+        window.scrollTo(0, 0);
+    } else {
+        alert("❌ Error: El contenedor 'ui-extintores-sso' no existe.");
+    }
 }
 
-// Función para regresar al Monitor (Píldoras)
+// Úsala para los botones de CANCELAR de cada formulario
 function volverAlMonitorSSO() {
-    document.getElementById('ui-incidentes-sso').style.display='none';
-    document.getElementById('ui-medico-sso').style.display='none';
-    document.getElementById('ui-extintores-sso').style.display='none';
-    document.getElementById('ui-monitor-sso').style.display='block';
+    document.getElementById('ui-incidentes-sso').style.display = 'none';
+    document.getElementById('ui-medico-sso').style.display = 'none';
+    document.getElementById('ui-extintores-sso').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'block';
 }
 
         // --- 2. LOGÍSTICA ---
@@ -741,17 +761,19 @@ async function enviarFichaMedica() {
     }
 }
 
-// ==========================================
-// 🧯 FUNCIÓN 2: INSPECCIÓN DE EXTINTORES (Alineada con Google)
-// ==========================================
 async function enviarInspeccionExtintor() {
     const idExt = document.getElementById('ext-id').value.toUpperCase().trim();
     if(!idExt) return alert("❌ Ingrese ID del Extintor");
 
-    const btn = event.target;
-    const originalText = btn.innerText;
-    btn.disabled = true; 
-    btn.innerText = "GENERANDO PDF... ⏳";
+    // 🚨 AJUSTE AQUÍ: Buscamos el botón específicamente por su ubicación o etiqueta
+    // Esto evita el error de "event is undefined"
+    const btn = document.querySelector('#ui-extintores-sso .btn');
+    const originalText = btn ? btn.innerText : "REGISTRAR";
+    
+    if(btn) {
+        btn.disabled = true; 
+        btn.innerText = "GENERANDO PDF... ⏳";
+    }
 
     const datos = { 
         action: "registrarExtintor", 
@@ -788,11 +810,12 @@ async function enviarInspeccionExtintor() {
     } catch(e) { 
         alert("❌ Error de comunicación con el servidor."); 
     } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
+        if(btn) {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
     }
-}
-        
+}        
 // =======================================================
 // 📥 FUNCIÓN AUXILIAR: DESCARGAR PDF
 // =======================================================
