@@ -769,12 +769,15 @@ async function enviarIncidenteCompleto() {
             throw new Error("La variable URL_SCRIPT no está definida.");
         }
 
-        // 4. Construcción del paquete (Payload) - DENTRO DEL TRY
+         // 4. Construcción del paquete (Payload)
         const payload = { 
             action: "registrarIncidente", 
+            // Usamos folioATS o folio según lo que guarde tu función de vinculación
+            folio: window.datosVinculados?.folioATS || window.datosVinculados?.folio || "N/A",
             area: window.datosVinculados?.fase || "N/A", 
             ubicacion: window.datosVinculados?.ubi || "N/A", 
             trabajo: window.datosVinculados?.tipo || "N/A", 
+            
             involucrados: involucradosNombres, 
             salud: document.getElementById('inc-salud')?.value || "N/A", 
             intervencion: document.getElementById('inc-intervencion-momento')?.value || "N/A", 
@@ -791,7 +794,7 @@ async function enviarIncidenteCompleto() {
             estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
         };
 
-        // 5. Enviamos la petición a Google
+        // 5. Envío a Google
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -801,18 +804,19 @@ async function enviarIncidenteCompleto() {
 
         const textoBase64 = await res.text();
 
-        if (textoBase64.startsWith("Error") || textoBase64.startsWith("ERROR")) {
+        if (textoBase64.includes("Error") || textoBase64.includes("ERROR")) {
             alert("❌ Servidor: " + textoBase64);
         } else if (textoBase64.length > 500) { 
-            const folioIncidente = document.getElementById('inc-folio')?.value || "SINFOLIO";
-            descargarBase64PDF(textoBase64, `INCIDENTE_${folioIncidente}.pdf`);
+            // Usamos el folio vinculado para el nombre del archivo
+            const nombreArchivo = `INCIDENTE_${payload.folio}.pdf`;
+            descargarBase64PDF(textoBase64, nombreArchivo);
             alert("✅ INFORME DE INCIDENTE REGISTRADO Y DESCARGADO");
             location.reload();
         } else {
-            alert("✅ REGISTRO GUARDADO: " + textoBase64);
+            alert("✅ REGISTRO GUARDADO (Sin PDF): " + textoBase64);
             location.reload();
         }
-
+        
     } catch(e) { 
         console.error("Error en envío:", e);
         alert("❌ Error de comunicación con el servidor."); 
@@ -1275,25 +1279,43 @@ async function procesarDescargaUniversal(accion, ini, fin, nombre) {
         
 function checkInvolucrado(inp) {
     const idBusca = inp.value.toUpperCase().trim();
-    
-    // Ahora buscamos en DB_MASTER.TECNICO (que es donde cargamos la data de la Sheets)
-    const tecnicoEncontrado = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(t => t.id.toString() === idBusca) : null;
+    if (idBusca.length < 2) { inp.style.background = "#fff"; return; }
 
-    if (tecnicoEncontrado) {
-        // Si lo encuentra, ponemos el fondo verde y podemos mostrar un aviso visual pequeño
-        inp.style.background = "#e8f5e9"; 
-        console.log("✅ Involucrado identificado: " + tecnicoEncontrado.nombre);
+    let persona = null;
+    
+    // 🧠 BUSQUEDA UNIVERSAL: Buscamos en todas las categorías del cerebro
+    for (let cat in DB_MASTER) {
+        const lista = Array.isArray(DB_MASTER[cat]) ? DB_MASTER[cat] : Object.values(DB_MASTER[cat] || {});
+        persona = lista.find(x => x.id.toString().toUpperCase() === idBusca);
+        if (persona) break; // Si lo encuentra en cualquier tabla, se detiene aquí
+    }
+
+    if (persona) {
+        // ✅ ÉXITO: Fondo verde y borde
+        inp.style.background = "#e8f5e9";
+        inp.style.border = "2px solid #27ae60";
+        inp.title = "Identificado: " + persona.nombre; // Al poner el mouse encima verás el nombre
+        console.log("✅ Involucrado: " + persona.nombre);
     } else {
-        // Si no existe o el campo está vacío, fondo blanco normal
+        // ❌ NO ENCONTRADO (o campo vacío)
         inp.style.background = "#fff";
+        inp.style.border = "1px solid #ccc";
+        inp.title = "No registrado";
     }
 }
-function agregarInvolucradoInc() {
-            const div = document.createElement('div');
-            div.style.cssText = "margin-bottom: 10px; display:flex; gap:10px;";
-            div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px;">X</button>`;
-            document.getElementById('contenedor-involucrados-inc').appendChild(div);
-        }
+        ffunction agregarInvolucradoInc() {
+    const cont = document.getElementById('contenedor-involucrados-inc');
+    if(!cont) return; // Seguridad por si el div no existe en pantalla
+    
+    const div = document.createElement('div');
+    div.style.cssText = "margin-bottom: 10px; display:flex; gap:10px;";
+    div.innerHTML = `
+        <input type="text" class="inc-id-clase" placeholder="ID" oninput="checkInvolucrado(this)" style="flex:1;">
+        <button type="button" onclick="this.parentElement.remove()" style="background:#ff6b6b; color:white; border:none; border-radius:8px; width:40px; cursor:pointer;">X</button>
+    `;
+    cont.appendChild(div);
+}
+        
       function pintarPildoras(d) {
     const pnd = document.getElementById('count-pendientes');
     const prc = document.getElementById('count-proceso');
