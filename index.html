@@ -843,46 +843,60 @@ async function enviarOT() {
 // 🚛 FUNCIÓN: LOGÍSTICA (Envío de Operador)
 // ==========================================
 function enviar() {
-    const id = document.getElementById('id-in').value.trim(); 
-    if(!pilotos[id]) return alert("ID piloto no válido");
+    const id = document.getElementById('id-in').value.trim().toUpperCase(); 
+    
+    // 🔍 CAMBIO CLAVE: Ahora buscamos en DB_MASTER.PILOTO
+    const listaPilotos = DB_MASTER.PILOTO || [];
+    const datosPiloto = listaPilotos.find(p => p.id.toString() === id);
+
+    if(!datosPiloto) return alert("❌ ID de piloto no válido o no registrado en la base de datos.");
     
     const btn = document.getElementById('btn-env'); 
-    btn.innerText = "Enviando..."; 
+    const originalText = btn.innerText;
+    btn.innerText = "ENVIANDO... ⏳"; 
     btn.disabled = true;
 
-    const extra = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value).filter(v => v).join(",");
+    // RECOLECCIÓN DE DATOS ADICIONALES (ATS/EXTRAS)
+    const extra = Array.from(document.querySelectorAll('.p-id-clase'))
+                       .map(i => i.value)
+                       .filter(v => v)
+                       .join(",");
     
+    // CREAMOS EL PAQUETE JSON PARA EL SERVIDOR
     const payload = {
         action: "registrarLogistica", 
         id: id,
-        nombre: pilotos[id].n,
+        nombre: datosPiloto.nombre,
         movimiento: document.getElementById('mov').value,
         producto: document.getElementById('prod').value,
-        transporte: pilotos[id].t,
-        placa: pilotos[id].p,
-        licencia: pilotos[id].c,
+        transporte: datosPiloto.extra1, // Asumiendo que extra1 es el transporte/placa
+        placa: datosPiloto.extra1,
+        licencia: datosPiloto.extra2,   // Asumiendo que extra2 es la licencia
         terpac: document.getElementById('CicloTer').value,
         epq: document.getElementById('CicloEPQ').value,
         extras: extra
     };
 
+    // ENVÍO A GOOGLE
     fetch(URL_SCRIPT, { 
         method: 'POST', 
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         redirect: 'follow',
-        body: JSON.stringify(payload) 
+        body: JSON.stringify(payload)
     })
     .then(async res => { 
         const txt = await res.text();
-        alert("Registro Exitoso: " + txt); 
+        alert("✅ REGISTRO EXITOSO: " + txt); 
         location.reload(); 
     })
-    .catch(() => { 
-        alert("Error al conectar con el servidor"); 
+    .catch(err => { 
+        console.error(err);
+        alert("❌ Error al conectar con el búnker de datos"); 
         btn.disabled = false; 
-        btn.innerText = "REINTENTAR";
+        btn.innerText = originalText;
     });
 }
+        
         async function finalizarTareaOT() {
     const fOT = document.getElementById('ot-folio-cierre').value.trim().toUpperCase();
     const fATS = document.getElementById('ot-ats-cierre').value.trim().toUpperCase();
