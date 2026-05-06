@@ -484,61 +484,71 @@ function irAIncidentes() {
     }
 }
 
-function irAIncidentes() {
-    console.log("Limpiando pantalla para Incidentes...");
-    // 1. APAGADO TOTAL DE TODAS LAS INTERFACES
-    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
-    interfaces.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
-    // 2. ENCENDIDO EXCLUSIVO DE INCIDENTES
-    const destino = document.getElementById('ui-incidentes-sso');
-    if (destino) {
-        destino.style.display = 'block';
-        destino.style.opacity = '1';
-        destino.style.visibility = 'visible';
-        window.scrollTo(0, 0);
-        cargarPermisosParaCerrar(); // Carga folios
-    } else {
-        alert("Error: No existe el contenedor 'ui-incidentes-sso'");
-    }
-}
+// ==========================================
+// 🚀 NAVEGACIÓN SSO - VERSIÓN RESCATE
+// ==========================================
 
 function irAMedico() {
-    console.log("Limpiando pantalla para Médico...");
-    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
-    interfaces.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
+    console.log("Abriendo pantalla Médica...");
+    const login = document.getElementById('login');
+    const monitor = document.getElementById('ui-monitor-sso');
     const destino = document.getElementById('ui-medico-sso');
+
+    // 1. Apagado forzado de todo lo demás
+    if(login) login.style.display = 'none';
+    if(monitor) monitor.style.display = 'none';
+
+    // 2. Encendido forzado con prioridad
     if (destino) {
-        destino.style.display = 'block';
-        destino.style.opacity = '1';
-        destino.style.visibility = 'visible';
+        destino.style.setProperty('display', 'block', 'important');
+        destino.style.background = "#ffffff";
+        destino.style.minHeight = "100vh";
         window.scrollTo(0, 0);
+    } else {
+        alert("❌ Error crítico: No se halló el div 'ui-medico-sso'");
     }
 }
 
 function irAExtintores() {
-    console.log("Limpiando pantalla para Extintores...");
-    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
-    interfaces.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
+    console.log("Abriendo pantalla de Extintores...");
+    const login = document.getElementById('login');
+    const monitor = document.getElementById('ui-monitor-sso');
     const destino = document.getElementById('ui-extintores-sso');
+
+    if(login) login.style.display = 'none';
+    if(monitor) monitor.style.display = 'none';
+
     if (destino) {
-        destino.style.display = 'block';
-        destino.style.opacity = '1';
-        destino.style.visibility = 'visible';
+        destino.style.setProperty('display', 'block', 'important');
+        destino.style.background = "#ffffff";
+        destino.style.minHeight = "100vh";
         window.scrollTo(0, 0);
+    } else {
+        alert("❌ Error crítico: No se halló el div 'ui-extintores-sso'");
     }
 }
+
+function irAIncidentes() {
+    console.log("Abriendo pantalla de Incidentes...");
+    const login = document.getElementById('login');
+    const monitor = document.getElementById('ui-monitor-sso');
+    const destino = document.getElementById('ui-incidentes-sso');
+
+    if(login) login.style.display = 'none';
+    if(monitor) monitor.style.display = 'none';
+
+    if (destino) {
+        destino.style.setProperty('display', 'block', 'important');
+        destino.style.background = "#ffffff";
+        destino.style.minHeight = "100vh";
+        window.scrollTo(0, 0);
+        // Intentamos cargar folios por si acaso
+        if(typeof cargarPermisosParaCerrar === 'function') cargarPermisosParaCerrar();
+    } else {
+        alert("❌ Error crítico: No se halló el div 'ui-incidentes-sso'");
+    }
+}
+
         // --- 2. LOGÍSTICA ---
         function llenarDesplegablesLogistica() {
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
