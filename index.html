@@ -112,73 +112,6 @@
 </div>
 
    <!-- 5. UI INFORME TÉCNICO INCIDENTE -->
-<div id="ui-incidentes-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
-    <div style="background:#d63031; color:white; padding:20px; text-align:center;">
-        <h2 style="margin:0; font-size:24px; letter-spacing:2px;">INFORME TÉCNICO SSO</h2>
-    </div>
-    
-    <div style="padding:30px; max-width:1200px; margin:auto;">
-        <!-- 1. VINCULACIÓN -->
-        <label style="font-weight:bold; color:#d63031;">1. 🔍 VINCULACIÓN CON PERMISO SSO</label>
-        <div style="display:flex; gap:10px; margin-bottom:5px;">
-            <input type="text" id="inc-folio" placeholder="DIGITE FOLIO (SSO-XXXX)" style="flex:1;">
-            <!-- Usamos un botón para disparar la búsqueda de forma segura -->
-            <button type="button" class="btn" onclick="vincularDatosPermiso(document.getElementById('inc-folio').value)" style="width:150px; background:#2c3e50; color:white;">🔍 VINCULAR</button>
-        </div>
-        <div id="datos-vinculados-sso" style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #ddd; min-height:50px; margin-bottom:20px;">
-            <span style="color:#999; font-style:italic;">Esperando vinculación de folio...</span>
-        </div>
-        
-        <!-- 2. INVOLUCRADOS -->
-        <label style="font-weight:bold; color:#3498db; display:block;">2. 👥 COLABORADORES AFECTADOS</label>
-        <div id="contenedor-involucrados-inc">
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <input type="text" class="inc-id-clase" placeholder="ID colaborador" onblur="checkInvolucradoIncidente(this)" style="flex:1;">
-                <button type="button" class="btn" style="width:50px; padding:0; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
-            </div>
-        </div>
-        <!-- Espacio para mostrar nombres de involucrados detectados -->
-        <div id="nombres-involucrados-detectados" style="font-size:11px; color:#7f8c8d; margin-top:5px;"></div>
-
-        <label style="font-weight:bold; display:block; margin-top:15px;">Estado de Salud:</label>
-        <select id="inc-salud" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
-            <option value="SIN_AFECTADOS">No hay afectados</option>
-            <option>Atención en Clínica Médica Terpac</option>
-            <option>Traslado a IGSS</option>
-            <option>Suspensión Médica</option>
-        </select>
-
-            <label style="font-weight:bold; color:#e67e22; margin-top:20px; display:block;">3. ⚖️ ACCIONES Y RIESGO</label>
-            <input type="text" id="inc-intervencion-momento" placeholder="Acciones realizadas...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <select id="inc-tipo"><option disabled selected>Tipo</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option></select>
-                <select id="inc-gravedad"><option disabled selected>Gravedad</option><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <select id="inc-riesgo"><option disabled selected>Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
-                <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Moderado</option><option>Crítico</option></select>
-            </div>
-
-            <label style="font-weight:bold; color:#636e72; margin-top:20px; display:block;">4. 🏗️ INFRAESTRUCTURA</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <select id="inc-estructura"><option disabled selected>Dalo Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
-                <select id="inc-reparacion"><option disabled selected>Reparación</option><option>No requerida</option><option>Preventiva</option><option>Urgente</option></select>
-            </div>
-            <select id="inc-reincidencia" style="margin-top:10px;"><option disabled selected>¿Reincidente?</option><option value="No">No</option><option value="Si">Si</option></select>
-            <input type="text" id="inc-obs-estructura" placeholder="Observación Infraestructura">
-            <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos Seguridad Industrial">
-
-            <label style="font-weight:bold; color:#2d3436; margin-top:20px; display:block;">5. 📝 RECOMENDACIONES Y CIERRE</label>
-            <textarea id="inc-recomendacion" placeholder="Medidas correctivas..." rows="4"></textarea>
-            <select id="inc-estado-final">
-                <option disabled selected>Estado Final</option>
-                <option>Caso cerrado</option><option>Pendiente</option>
-            </select>
-            
-            <button class="btn" style="background:#d63031; color:white; margin-top:20px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
-            <button class="btn-salir" onclick="location.reload()">CANCELAR</button>
-        </div>
-    </div>
     <!-- 6. UI OPERADOR SSO (PERMISOS ATS) -->
     <div id="ui-seguridad" class="card-full" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO</h3>
@@ -241,51 +174,7 @@
     </div>
 
     <!-- 8. UI MÉDICO (TODOS LOS CAMPOS RESTAURADOS) -->
-    <div id="ui-medico-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
-        <div style="background:#16a085; color:white; padding:20px; text-align:center;"><h2>FICHA DE CONTROL MÉDICO</h2></div>
-        <div style="padding:30px; max-width:1000px; margin:auto;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
-                <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase;">
-                <input type="date" id="med-fecha">
-                <select id="med-tipo"><option>Pre-empleo</option><option selected>Control Periódico</option><option>Post-Incidente</option></select>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background:#f9f9f9; padding:20px; border-radius:15px; margin-bottom:20px;">
-                <div><label>💉 GLUCOSA</label><input type="number" id="med-glucosa"></div>
-                <div><label>💓 PRESIÓN</label><input type="text" id="med-presion" placeholder="120/80"></div>
-                <div><label>🌡️ TEMP.</label><input type="number" id="med-temp" step="0.1"></div>
-                <div><label>PESO (Lbs)</label><input type="number" id="med-peso"></div>
-                <div><label>OXIGENO (%)</label><input type="number" id="med-oxigeno"></div>
-                <div><label>RITMO CARD.</label><input type="number" id="med-ritmo"></div>
-            </div>
-            <select id="med-resultado"><option value="APTO">✅ APTO</option><option value="RESTRICCION">⚠️ RESTRICCIÓN</option><option value="NO_APTO">❌ NO APTO</option></select>
-            <textarea id="med-obs" placeholder="Observaciones médicas..." rows="3"></textarea>
-            <button class="btn" style="background:#16a085; color:white; margin-top:15px;" onclick="enviarFichaMedica()">REGISTRAR FICHA ⚕️</button>
-            <button class="btn-salir" style="background:#777;" onclick="location.reload()">CANCELAR</button>
-        </div>
-    </div>
-
-    <!-- 9. UI EXTINTORES -->
-    <div id="ui-extintores-sso" class="card-full" style="display:none; text-align:left; background:#fff; padding:0;">
-        <div style="background:#2c3e50; color:white; padding:20px; text-align:center;"><h2>INSPECCIÓN DE EXTINTORES</h2></div>
-        <div style="padding:30px; max-width:1000px; margin:auto;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
-                <input type="text" id="ext-id" placeholder="ID EXT-XXX">
-                <input type="text" id="ext-ubi" placeholder="UBICACIÓN">
-                <select id="ext-agente"><option>PQS (ABC)</option><option>CO2</option><option>Agua</option></select>
-            </div>
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 15px; background:#f4f7f6; padding:20px; border-radius:15px;">
-                <div><label>Presión OK?</label><select id="ext-presion"><option>Si</option><option>No</option></select></div>
-                <div><label>Manguera OK?</label><select id="ext-manguera"><option>Si</option><option>No</option></select></div>
-                <div><label>Seguro OK?</label><select id="ext-seguro"><option>Si</option><option>No</option></select></div>
-                <div><label>Vence</label><input type="month" id="ext-vence"></div>
-            </div>
-            <textarea id="ext-obs" placeholder="Observaciones técnicas..." rows="3"></textarea>
-            <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="enviarInspeccionExtintor()">REGISTRAR INSPECCIÓN 🧯</button>
-            <button class="btn-salir" style="background:#777;" onclick="location.reload()">CANCELAR</button>
-        </div>
-    </div>
-
-    <!-- UI ADMINISTRADOR DE DATOS MAESTROS  -->
+        <!-- UI ADMINISTRADOR DE DATOS MAESTROS  -->
 <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
     <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión de Datos Maestros</h3>
     <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
@@ -419,22 +308,18 @@
     btn.innerText = originalText; 
     btn.disabled = false;
 }
-// =======================================================
-// 🚨 BLOQUE DE FUNCIONES
-// =======================================================
-
 function irAIncidentes() {
     console.log("Forzando entrada a Incidentes...");
-    // Apagamos TODO lo que conocemos
     const ids = ['login','ui-supervisor','ui-operador','ui-admin','ui-monitor-sso','ui-medico-sso','ui-extintores-sso','ui-incidentes-sso'];
     ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
     
-    // Encendemos Incidentes
     const target = document.getElementById('ui-incidentes-sso');
     if(target) {
         target.style.setProperty('display', 'block', 'important');
+        target.style.color = "#000000"; // 🚨 FORZAMOS TEXTO NEGRO
+        target.style.background = "#ffffff"; // 🚨 FORZAMOS FONDO BLANCO
         window.scrollTo(0,0);
-    } else { alert("Error: No se encontró el div ui-incidentes-sso al final del archivo"); }
+    } else { alert("Error: No se encontró el div ui-incidentes-sso"); }
 }
 
 function irAMedico() {
@@ -445,6 +330,8 @@ function irAMedico() {
     const target = document.getElementById('ui-medico-sso');
     if(target) {
         target.style.setProperty('display', 'block', 'important');
+        target.style.color = "#000000"; // 🚨 FORZAMOS TEXTO NEGRO
+        target.style.background = "#ffffff";
         window.scrollTo(0,0);
     } else { alert("Error: No se encontró el div ui-medico-sso"); }
 }
@@ -457,6 +344,8 @@ function irAExtintores() {
     const target = document.getElementById('ui-extintores-sso');
     if(target) {
         target.style.setProperty('display', 'block', 'important');
+        target.style.color = "#000000"; // 🚨 FORZAMOS TEXTO NEGRO
+        target.style.background = "#ffffff";
         window.scrollTo(0,0);
     } else { alert("Error: No se encontró el div ui-extintores-sso"); }
 }
@@ -1404,6 +1293,128 @@ function actualizarPildoras() {
 // Inicio del monitor 
 actualizarPildoras(); 
 setInterval(actualizarPildoras, 30000); 
+        
+        <div id="ui-incidentes-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
+    <div style="background:#d63031; color:white; padding:20px; text-align:center;">
+        <h2 style="margin:0; font-size:24px; letter-spacing:2px;">INFORME TÉCNICO SSO</h2>
+    </div>
+    
+    <div style="padding:30px; max-width:1000px; margin:auto; color: #333;">
+        <!-- 1. VINCULACIÓN -->
+        <label style="font-weight:bold; color:#d63031; display:block; margin-bottom:5px;">1. 🔍 VINCULACIÓN CON PERMISO SSO</label>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input type="text" id="inc-folio" placeholder="DIGITE FOLIO (SSO-XXXX)" style="flex:1; padding:12px; border:1px solid #ccc; border-radius:8px;">
+            <button type="button" class="btn" onclick="vincularDatosPermiso(document.getElementById('inc-folio').value)" style="width:120px; background:#2c3e50; color:white;">VINCULAR</button>
+        </div>
+        <div id="datos-vinculados-sso" style="background:#f9f9f9; padding:15px; border-radius:12px; border:1px solid #ddd; min-height:40px; margin-bottom:20px; font-size:13px;">
+            <span style="color:#999;">Esperando vinculación de folio...</span>
+        </div>
+        
+          <!-- 2. INVOLUCRADOS -->
+            
+        <label style="font-weight:bold; color:#3498db; display:block; margin-bottom:5px;">2. 👥 COLABORADORES AFECTADOS</label>
+        <div id="contenedor-involucrados-inc">
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="text" class="inc-id-clase" placeholder="ID colaborador" onblur="checkInvolucradoIncidente(this)" style="flex:1; padding:10px;">
+                <button type="button" class="btn" style="width:50px; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
+            </div>
+        </div>
+        <div id="nombres-involucrados-detectados" style="font-size:11px; color:#7f8c8d; margin-top:5px;"></div>
+
+        <label style="font-weight:bold; display:block; margin-top:15px;">Estado de Salud:</label>
+        <select id="inc-salud" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;">
+            <option value="SIN_AFECTADOS">No hay afectados</option>
+            <option>Atención en Clínica Médica Terpac</option>
+            <option>Traslado a IGSS</option>
+            <option>Suspensión Médica</option>
+        </select>
+
+        <label style="font-weight:bold; color:#e67e22; margin-top:20px; display:block;">3. ⚖️ ACCIONES Y RIESGO</label>
+        <input type="text" id="inc-intervencion-momento" placeholder="Acciones realizadas..." style="width:100%; padding:10px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="inc-tipo" style="padding:10px;"><option disabled selected>Tipo</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option></select>
+            <select id="inc-gravedad" style="padding:10px;"><option disabled selected>Gravedad</option><option>Leve</option><option>Moderada</option><option>Crítica</option></select>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <select id="inc-riesgo" style="padding:10px;"><option disabled selected>Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
+            <select id="inc-contaminacion" style="padding:10px;"><option disabled selected>Contaminación</option><option>Nulo</option><option>Moderado</option><option>Crítico</option></select>
+        </div>
+
+        <label style="font-weight:bold; color:#636e72; margin-top:20px; display:block;">4. 🏗️ INFRAESTRUCTURA</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="inc-estructura" style="padding:10px;"><option disabled selected>Daño Estructura</option><option>Sin daños</option><option>Daño superficial</option><option>Comprometida</option></select>
+            <select id="inc-reparacion" style="padding:10px;"><option disabled selected>Reparación</option><option>No requerida</option><option>Preventiva</option><option>Urgente</option></select>
+        </div>
+        <select id="inc-reincidencia" style="margin-top:10px; width:100%; padding:10px;"><option disabled selected>¿Reincidente?</option><option value="No">No</option><option value="Si">Si</option></select>
+        <input type="text" id="inc-obs-estructura" placeholder="Observación Infraestructura" style="width:100%; padding:10px; margin-top:10px;">
+        <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos Seguridad Industrial" style="width:100%; padding:10px; margin-top:10px;">
+
+        <label style="font-weight:bold; color:#2d3436; margin-top:20px; display:block;">5. 📝 RECOMENDACIONES Y CIERRE</label>
+        <textarea id="inc-recomendacion" placeholder="Medidas correctivas..." rows="4" style="width:100%; padding:10px; border-radius:8px;"></textarea>
+        <select id="inc-estado-final" style="width:100%; padding:10px; margin-top:10px;">
+            <option disabled selected>Estado Final</option>
+            <option>Caso cerrado</option><option>Pendiente</option>
+        </select>
+        
+        <button class="btn" style="background:#d63031; color:white; margin-top:20px; width:100%; padding:15px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
+        <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-incidentes-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
+    </div>
+</div>
+Usa el código con precaución.🛠️ Paso 2: El Script de NavegaciónAsegúrate de que tu función irAIncidentes() sea así de simple:javascriptfunction irAIncidentes() {
+    console.log("Mostrando formulario de Incidentes...");
+    // Apagamos el monitor
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    // Encendemos el formulario de incidentes
+    document.getElementById('ui-incidentes-sso').style.display = 'block';
+    window.scrollTo(0,0);
+}
+        <!-- 8. UI MÉDICO (ZONA DE RESCATE) -->
+<div id="ui-medico-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
+    <div style="background:#16a085; color:white; padding:20px; text-align:center;"><h2>FICHA DE CONTROL MÉDICO</h2></div>
+    <div style="padding:30px; max-width:1000px; margin:auto; color: #333;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
+            <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase; padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="date" id="med-fecha" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <select id="med-tipo" style="padding:10px; border:1px solid #ccc; border-radius:8px;"><option>Pre-empleo</option><option selected>Control Periódico</option><option>Post-Incidente</option></select>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background:#f9f9f9; padding:20px; border-radius:15px; margin-bottom:20px;">
+            <div><label style="font-size:11px; font-weight:bold;">💉 GLUCOSA</label><input type="number" id="med-glucosa" style="width:100%; padding:8px;"></div>
+            <div><label style="font-size:11px; font-weight:bold;">💓 PRESIÓN</label><input type="text" id="med-presion" placeholder="120/80" style="width:100%; padding:8px;"></div>
+            <div><label style="font-size:11px; font-weight:bold;">🌡️ TEMP.</label><input type="number" id="med-temp" step="0.1" style="width:100%; padding:8px;"></div>
+            <div><label style="font-size:11px; font-weight:bold;">PESO (Lbs)</label><input type="number" id="med-peso" style="width:100%; padding:8px;"></div>
+            <div><label style="font-size:11px; font-weight:bold;">OXIGENO (%)</label><input type="number" id="med-oxigeno" style="width:100%; padding:8px;"></div>
+            <div><label style="font-size:11px; font-weight:bold;">RITMO CARD.</label><input type="number" id="med-ritmo" style="width:100%; padding:8px;"></div>
+        </div>
+        <select id="med-resultado" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px;"><option value="APTO">✅ APTO</option><option value="RESTRICCION">⚠️ RESTRICCIÓN</option><option value="NO_APTO">❌ NO APTO</option></select>
+        <textarea id="med-obs" placeholder="Observaciones médicas..." rows="3" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+        
+        <button class="btn" style="background:#16a085; color:white; margin-top:20px; width:100%; padding:15px; font-weight:bold;" onclick="enviarFichaMedica()">REGISTRAR FICHA ⚕️</button>
+        <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-medico-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
+    </div>
+</div>
+
+<!-- 9. UI EXTINTORES (ZONA DE RESCATE) -->
+<div id="ui-extintores-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
+    <div style="background:#2c3e50; color:white; padding:20px; text-align:center;"><h2>INSPECCIÓN DE EXTINTORES</h2></div>
+    <div style="padding:30px; max-width:1000px; margin:auto; color: #333;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
+            <input type="text" id="ext-id" placeholder="ID EXT-XXX" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="text" id="ext-ubi" placeholder="UBICACIÓN" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <select id="ext-agente" style="padding:10px; border:1px solid #ccc; border-radius:8px;"><option>PQS (ABC)</option><option>CO2</option><option>Agua</option></select>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 15px; background:#f4f7f6; padding:20px; border-radius:15px;">
+            <div><label style="font-size:11px; font-weight:bold;">Presión OK?</label><select id="ext-presion" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Manguera OK?</label><select id="ext-manguera" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Seguro OK?</label><select id="ext-seguro" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Vence</label><input type="month" id="ext-vence" style="width:100%; padding:3px;"></div>
+        </div>
+        <textarea id="ext-obs" placeholder="Observaciones técnicas..." rows="3" style="width:100%; margin-top:15px; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+        
+        <button class="btn" style="background:#2c3e50; color:white; margin-top:20px; width:100%; padding:15px; font-weight:bold;" onclick="enviarInspeccionExtintor()">REGISTRAR INSPECCIÓN 🧯</button>
+        <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-extintores-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
+    </div>
+</div>
+
         
     </script>
 </body>
