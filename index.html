@@ -1307,27 +1307,6 @@ function irAIncidentes() {
 
 
 <!-- 9. UI EXTINTORES (ZONA DE RESCATE) -->
-<div id="ui-extintores-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
-    <div style="background:#2c3e50; color:white; padding:20px; text-align:center;"><h2>INSPECCIÓN DE EXTINTORES</h2></div>
-    <div style="padding:30px; max-width:1000px; margin:auto; color: #333;">
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
-            <input type="text" id="ext-id" placeholder="ID EXT-XXX" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
-            <input type="text" id="ext-ubi" placeholder="UBICACIÓN" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
-            <select id="ext-agente" style="padding:10px; border:1px solid #ccc; border-radius:8px;"><option>PQS (ABC)</option><option>CO2</option><option>Agua</option></select>
-        </div>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 15px; background:#f4f7f6; padding:20px; border-radius:15px;">
-            <div><label style="font-size:11px; font-weight:bold;">Presión OK?</label><select id="ext-presion" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
-            <div><label style="font-size:11px; font-weight:bold;">Manguera OK?</label><select id="ext-manguera" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
-            <div><label style="font-size:11px; font-weight:bold;">Seguro OK?</label><select id="ext-seguro" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
-            <div><label style="font-size:11px; font-weight:bold;">Vence</label><input type="month" id="ext-vence" style="width:100%; padding:3px;"></div>
-        </div>
-        <textarea id="ext-obs" placeholder="Observaciones técnicas..." rows="3" style="width:100%; margin-top:15px; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
-        
-        <button class="btn" style="background:#2c3e50; color:white; margin-top:20px; width:100%; padding:15px; font-weight:bold;" onclick="enviarInspeccionExtintor()">REGISTRAR INSPECCIÓN 🧯</button>
-        <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-extintores-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
-    </div>
-</div>
-
         
     </script>
            <div id="ui-incidentes-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
@@ -1419,6 +1398,27 @@ function irAIncidentes() {
         <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-medico-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
     </div>
 </div>
+         <div id="ui-extintores-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
+    <div style="background:#2c3e50; color:white; padding:20px; text-align:center;"><h2>INSPECCIÓN DE EXTINTORES</h2></div>
+    <div style="padding:30px; max-width:1000px; margin:auto; color: #333;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
+            <input type="text" id="ext-id" placeholder="ID EXT-XXX" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <input type="text" id="ext-ubi" placeholder="UBICACIÓN" style="padding:10px; border:1px solid #ccc; border-radius:8px;">
+            <select id="ext-agente" style="padding:10px; border:1px solid #ccc; border-radius:8px;"><option>PQS (ABC)</option><option>CO2</option><option>Agua</option></select>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 15px; background:#f4f7f6; padding:20px; border-radius:15px;">
+            <div><label style="font-size:11px; font-weight:bold;">Presión OK?</label><select id="ext-presion" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Manguera OK?</label><select id="ext-manguera" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Seguro OK?</label><select id="ext-seguro" style="width:100%; padding:5px;"><option>Si</option><option>No</option></select></div>
+            <div><label style="font-size:11px; font-weight:bold;">Vence</label><input type="month" id="ext-vence" style="width:100%; padding:3px;"></div>
+        </div>
+        <textarea id="ext-obs" placeholder="Observaciones técnicas..." rows="3" style="width:100%; margin-top:15px; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+        
+        <button class="btn" style="background:#2c3e50; color:white; margin-top:20px; width:100%; padding:15px; font-weight:bold;" onclick="enviarInspeccionExtintor()">REGISTRAR INSPECCIÓN 🧯</button>
+        <button class="btn-salir" style="background:#777; width:100%; margin-top:10px; color:white; padding:10px;" onclick="document.getElementById('ui-extintores-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
+    </div>
+</div>
+
 </body>
 </html>
        
