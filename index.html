@@ -743,12 +743,50 @@ function descargarBase64PDF(b, n) {
             else { l1.innerText = "Dato Extra 1:"; l2.innerText = "Dato Extra 2:"; }
         }
 
-        function irAIncidentes() { document.getElementById('ui-incidentes-sso').style.display='block'; llenarListasIncidentes(); }
+       function irAIncidentes() { 
+            document.getElementById('ui-incidentes-sso').style.display='block'; 
+            llenarListasIncidentes(); 
+        }
+        
+        function llenarListasIncidentes() {
+            const selSalud = document.getElementById('inc-salud');
+            const selGrav = document.getElementById('inc-gravedad');
+            if (selSalud && DB_MASTER.ESTADO_SALUD) {
+                selSalud.innerHTML = '<option value="SIN_AFECTADOS">No hay afectados</option>';
+                DB_MASTER.ESTADO_SALUD.forEach(x => selSalud.add(new Option(x.nombre, x.nombre)));
+            }
+            if (selGrav && DB_MASTER.GRAVEDAD) {
+                selGrav.innerHTML = '<option disabled selected>Gravedad</option>';
+                DB_MASTER.GRAVEDAD.forEach(x => selGrav.add(new Option(x.nombre, x.nombre)));
+            }
+        }
+
         function irAMedico() { document.getElementById('ui-medico-sso').style.display='block'; }
         function irAExtintores() { document.getElementById('ui-extintores-sso').style.display='block'; }
-        function setOrigenOT(t) { if(t==='SISTEMA') document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6); }
-        function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
-        function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
+        
+        function setOrigenOT(t) { 
+            if(t==='SISTEMA') document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6); 
+        }
+        
+        function mostrarSeccionCierre() { 
+            document.getElementById('ot-seccion-apertura').style.display='none'; 
+            document.getElementById('ot-seccion-cierre').style.display='block'; 
+        }
+        
+        function cancelarCierre() { 
+            document.getElementById('ot-seccion-cierre').style.display='none'; 
+            document.getElementById('ot-seccion-apertura').style.display='block'; 
+        }
+
+        async function finalizarTareaOT() {
+            const folio = document.getElementById('ot-folio-cierre').value.trim();
+            const ats = document.getElementById('ot-ats-cierre').value.trim();
+            if(!folio || !ats) return alert("❌ Ingrese Folio OT y ATS");
+            const payload = { action: "finalizarOT", folio: folio, ats: ats, obs: document.getElementById('ot-comentarios-cierre').value };
+            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            alert("✅ OT FINALIZADA");
+            location.reload();
+        }
 
         async function cargarPermisosParaCerrar() {
             const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
@@ -766,8 +804,14 @@ function descargarBase64PDF(b, n) {
 
         function llenarDesplegablesOperaciones() {
             const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
-            if (DB_MASTER.PRIORIDAD_OT) DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
-            if (DB_MASTER.DEPTO_OT) DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
+            if (DB_MASTER.PRIORIDAD_OT) {
+                selPrio.innerHTML = '';
+                DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
+            }
+            if (DB_MASTER.DEPTO_OT) {
+                selDepto.innerHTML = '';
+                DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
+            }
         }
 
         function checkTecnicoOperaciones(id) {
