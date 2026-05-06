@@ -484,46 +484,61 @@ function irAIncidentes() {
     }
 }
 
-function irAMedico() {
-    console.log("Ejecutando cambio a Médico...");
-    document.getElementById('ui-monitor-sso').style.display = 'none';
-    const el = document.getElementById('ui-medico-sso');
-    if (el) {
-        el.style.display = 'block';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-        el.style.background = '#ffffff';
-        el.style.minHeight = '100vh';
+function irAIncidentes() {
+    console.log("Limpiando pantalla para Incidentes...");
+    // 1. APAGADO TOTAL DE TODAS LAS INTERFACES
+    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
+    interfaces.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
+    // 2. ENCENDIDO EXCLUSIVO DE INCIDENTES
+    const destino = document.getElementById('ui-incidentes-sso');
+    if (destino) {
+        destino.style.display = 'block';
+        destino.style.opacity = '1';
+        destino.style.visibility = 'visible';
         window.scrollTo(0, 0);
+        cargarPermisosParaCerrar(); // Carga folios
     } else {
-        alert("❌ No existe el div 'ui-medico-sso'");
+        alert("Error: No existe el contenedor 'ui-incidentes-sso'");
+    }
+}
+
+function irAMedico() {
+    console.log("Limpiando pantalla para Médico...");
+    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
+    interfaces.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
+    const destino = document.getElementById('ui-medico-sso');
+    if (destino) {
+        destino.style.display = 'block';
+        destino.style.opacity = '1';
+        destino.style.visibility = 'visible';
+        window.scrollTo(0, 0);
     }
 }
 
 function irAExtintores() {
-    console.log("Ejecutando cambio a Extintores...");
-    document.getElementById('ui-monitor-sso').style.display = 'none';
-    const el = document.getElementById('ui-extintores-sso');
-    if (el) {
-        el.style.display = 'block';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-        el.style.background = '#ffffff';
-        el.style.minHeight = '100vh';
+    console.log("Limpiando pantalla para Extintores...");
+    const interfaces = ['login', 'ui-supervisor', 'ui-operador', 'ui-admin', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso', 'ui-incidentes-sso'];
+    interfaces.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
+    const destino = document.getElementById('ui-extintores-sso');
+    if (destino) {
+        destino.style.display = 'block';
+        destino.style.opacity = '1';
+        destino.style.visibility = 'visible';
         window.scrollTo(0, 0);
-    } else {
-        alert("❌ No existe el div 'ui-extintores-sso'");
     }
 }
-
-// Úsala para los botones de CANCELAR de cada formulario
-function volverAlMonitorSSO() {
-    document.getElementById('ui-incidentes-sso').style.display = 'none';
-    document.getElementById('ui-medico-sso').style.display = 'none';
-    document.getElementById('ui-extintores-sso').style.display = 'none';
-    document.getElementById('ui-monitor-sso').style.display = 'block';
-}
-
         // --- 2. LOGÍSTICA ---
         function llenarDesplegablesLogistica() {
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
