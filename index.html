@@ -615,11 +615,11 @@
         duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpi);
         if (duplicado) break;
     }
-            if (duplicado && duplicado.id !== id) return alert(`🚫 EL DPI '${dpi}' YA EXISTE EN EL ID '${duplicado.id}' (${duplicado.nombre}).`);
-            const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
-            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            alert("✅ BASE DE DATOS ACTUALIZADA"); location.reload();
-        }
+    if (duplicado && duplicado.id !== id) return alert(`🚫 ERROR: El DPI '${dpi}' ya existe en el ID '${duplicado.id}' (${duplicado.nombre}).`);
+    const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
+    await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+    alert("✅ BASE ACTUALIZADA"); location.reload();
+}
 
         function ajustarLabelsAdmin() {
             const c = document.getElementById('adm-categoria').value;
