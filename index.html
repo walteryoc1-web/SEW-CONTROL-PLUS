@@ -322,7 +322,31 @@
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
 let DB_MASTER = {};
 let datosVinculados = null;
+        
+function iniciarReloj() {
+    setInterval(() => {
+        const r = document.getElementById('reloj');
+        if (r) r.innerText = new Date().toLocaleTimeString();
+        const f = document.getElementById('fecha-actual');
+        if (f) f.innerText = new Date().toLocaleDateString();
+    }, 1000);
+}
 
+async function actualizarPildoras() {
+    try {
+        const r = await fetch(URL_SCRIPT);
+        const d = await r.json();
+        // Logística
+        if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
+        // SSO
+        if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
+        if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
+        if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
+    } catch(e) { console.error("Error pildoras:", e); }
+}
+        
 // --- 1. SINCRONIZACIÓN Y ACCESO ---
 async function cargarCerebroSistema() {
     try {
@@ -677,7 +701,90 @@ function agregarFilaEjecutor() {
 }
 
 window.onload = () => { cargarCerebroSistema(); };
+function llenarDesplegablesSSO() {
+    const selFase = document.getElementById('p-fase'), selTipo = document.getElementById('p-tipo');
+    if (!selFase || !selTipo) return;
+    selFase.innerHTML = '<option disabled selected>Area Labores</option>';
+    if (DB_MASTER.UBICACION) {
+        const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
+        fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
+    }
+    selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
+    if (DB_MASTER.TRABAJO) {
+        DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase() !== "INACTIVO")
+            .forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
+    }
+}
 
+function llenarDesplegablesOperaciones() {
+    const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
+    if (selPrio && DB_MASTER.PRIORIDAD_OT) {
+        selPrio.innerHTML = '';
+        DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
+    }
+    if (selDepto && DB_MASTER.DEPTO_OT) {
+        selDepto.innerHTML = '';
+        DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
+    }
+}
+
+function checkTecnicoOperaciones(id) {
+    const box = document.getElementById('ot-tec-box');
+    const idBusca = id.toUpperCase().trim();
+    if (!idBusca) { box.style.display = 'none'; return; }
+    const t = DB_MASTER.TECNICO ? DB_MASTER.TECNICO.find(x => x.id.toString() === idBusca) : null;
+    if (t) {
+        box.innerHTML = `👨‍🔧 Técnico: <b>${t.nombre}</b><br>🏢 Depto: ${t.extra2}`;
+        box.style.display = 'block';
+    } else box.style.display = 'none';
+}
+
+function checkInvolucradoIncidente(inp) {
+    const idBusca = inp.value.toUpperCase().trim();
+    if (!idBusca) return;
+    let persona = null;
+    for (let cat in DB_MASTER) {
+        const lista = Array.isArray(DB_MASTER[cat]) ? DB_MASTER[cat] : Object.values(DB_MASTER[cat] || {});
+        persona = lista.find(x => x.id.toString().toUpperCase() === idBusca);
+        if (persona) break;
+    }
+    inp.style.background = persona ? "#e8f5e9" : "#fff";
+    inp.style.border = persona ? "2px solid #27ae60" : "1px solid #ccc";
+}
+
+function setOrigenOT(t) {
+    const f = document.getElementById('ot-folio');
+    if(f && t==='SISTEMA') f.value = "OT-" + Date.now().toString().slice(-6);
+}
+
+function mostrarSeccionCierre() {
+    document.getElementById('ot-seccion-apertura').style.display='none';
+    document.getElementById('ot-seccion-cierre').style.display='block';
+}
+
+async function cargarPermisosParaCerrar() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        const data = await res.json();
+        const cont = document.getElementById('contenedor-tabla-sso');
+        if(!cont) return; cont.innerHTML = "";
+        data.filter(r => !r.datos.toUpperCase().includes("CERRADO")).forEach(p => {
+            const d = p.datos.split(";");
+            const div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
+            div.innerHTML = `<span><b>${d[0]}</b> - ${d[2] || ''}</span> 
+                             <button onclick="cerrarPermiso('${d[0]}')" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
+            cont.appendChild(div);
+        });
+    } catch(e){ console.error("Error cargando folios:", e); }
+}
+
+async function cerrarPermiso(f) {
+    if(confirm("¿Desea finalizar el permiso "+f+"?")) {
+        await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f });
+        alert("✅ Permiso Cerrado"); location.reload();
+    }
+}
 </script>
 </body>
 </html>
