@@ -333,21 +333,36 @@
             }, 1000);
         }
 
-        async function actualizarPildoras() {
-            try {
-                const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig"); 
-                const d = await r.json();
-                // Conteo Logística
-                if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
-                // Conteo SSO
-                if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
-            } catch(e) { console.error("Error pildoras:", e); }
-        }
+       async function actualizarPildoras() {
+    try {
+        // 🚨 CAMBIO CLAVE: Quitamos "accion=getGlobalConfig" para que entre al proceso de conteo
+        const r = await fetch(URL_SCRIPT + "?t=" + Date.now()); 
+        const d = await r.json();
+        
+        console.log("📊 Conteos recibidos:", d); // Para que veas en consola si llegan los números
 
+        // Conteos de Logística
+        const elPend = document.getElementById('count-pendientes');
+        const elProc = document.getElementById('count-proceso');
+        const elDesp = document.getElementById('count-despachadas');
+
+        if(elPend) elPend.innerText = (d.pendientes || 0).toString().padStart(2,'0');
+        if(elProc) elProc.innerText = (d.proceso || 0).toString().padStart(2,'0');
+        if(elDesp) elDesp.innerText = (d.despachadas || 0).toString().padStart(2,'0');
+
+        // Conteos de SSO
+        const ssoPnd = document.getElementById('sso-pnd');
+        const ssoRie = document.getElementById('sso-riesgo');
+        const ssoPer = document.getElementById('sso-personal');
+
+        if(ssoPnd) ssoPnd.innerText = (d.totalSSO || 0).toString().padStart(2,'0');
+        if(ssoRie) ssoRie.innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
+        if(ssoPer) ssoPer.innerText = (d.personalSSO || 0).toString().padStart(2,'0');
+
+    } catch(e) { 
+        console.error("❌ Error en motor de píldoras:", e); 
+    }
+}
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
             try {
