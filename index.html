@@ -419,136 +419,75 @@
     btn.innerText = originalText; 
     btn.disabled = false;
 }
-        // ==========================================
-// 🔄 NAVEGACIÓN SSO FORZADA (INCIDENTES, MÉDICO, EXTINTORES)
 // ==========================================
-
-function irAIncidentes() { 
-    const el = document.getElementById('ui-incidentes-sso');
-    if(el) {
-        // Apagamos las capas que estorban
-        document.getElementById('ui-monitor-sso').style.display='none';
-        document.getElementById('login').style.display='none';
-        
-        // Forzamos visibilidad del formulario de Incidentes
-        el.style.display = 'block';
-        el.style.zIndex = '9999';
-        el.style.background = '#ffffff'; 
-        el.style.position = 'relative';
-        el.style.minHeight = '100vh';
-        
-        // Cargamos folios para que el buscador funcione de inmediato
-        cargarPermisosParaCerrar();
-        window.scrollTo(0,0); // Sube la pantalla al inicio
-    } else { alert("❌ No se encontró el contenedor: ui-incidentes-sso"); }
-}
-
-// ==========================================
-// 🔄 MOTOR DE NAVEGACIÓN SSO COMPLETO
+// 🚀 MOTOR ÚNICO DE NAVEGACIÓN SSO (LIMPIO)
 // ==========================================
 
 function irAIncidentes() {
-    console.log("Cambiando a pantalla de Incidentes...");
-    // 1. Ocultamos el Login y el Monitor
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('ui-monitor-sso').style.display = 'none';
-    
-    const el = document.getElementById('ui-incidentes-sso');
-    if (el) {
-        // 2. Mostramos el formulario de Incidentes
-        el.style.display = 'block';
+    console.log("Navegando a Incidentes...");
+    // 1. Apagamos TODO lo que pueda estorbar
+    const capas = ['login', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso'];
+    capas.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
+    // 2. Encendemos Incidentes
+    const destino = document.getElementById('ui-incidentes-sso');
+    if (destino) {
+        destino.style.setProperty('display', 'block', 'important');
         window.scrollTo(0, 0);
         // Cargamos los folios ATS para que el buscador funcione
-        cargarPermisosParaCerrar();
+        if(typeof cargarPermisosParaCerrar === 'function') cargarPermisosParaCerrar();
     } else {
         alert("❌ Error: No se encontró el contenedor 'ui-incidentes-sso'");
     }
 }
 
-function irAIncidentes() {
-    console.log("Ejecutando cambio a Incidentes...");
-    // 1. Apagamos monitor
-    document.getElementById('ui-monitor-sso').style.display = 'none';
-    
-    const el = document.getElementById('ui-incidentes-sso');
-    if (el) {
-        // 2. FORZAMOS VISIBILIDAD TOTAL
-        el.style.display = 'block';      // Lo encendemos
-        el.style.visibility = 'visible'; // Por si tiene visibility: hidden
-        el.style.opacity = '1';          // Por si tiene opacidad 0
-        el.style.background = '#ffffff'; // Fondo blanco obligatorio
-        el.style.minHeight = '100vh';    // Que ocupe toda la pantalla
-        window.scrollTo(0, 0);           // Sube al inicio
-    } else {
-        alert("❌ No existe el div 'ui-incidentes-sso'");
-    }
-}
-
-// ==========================================
-// 🚀 NAVEGACIÓN SSO - VERSIÓN RESCATE
-// ==========================================
-
 function irAMedico() {
-    console.log("Abriendo pantalla Médica...");
-    const login = document.getElementById('login');
-    const monitor = document.getElementById('ui-monitor-sso');
+    console.log("Navegando a Médico...");
+    const capas = ['login', 'ui-monitor-sso', 'ui-incidentes-sso', 'ui-extintores-sso'];
+    capas.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
     const destino = document.getElementById('ui-medico-sso');
-
-    // 1. Apagado forzado de todo lo demás
-    if(login) login.style.display = 'none';
-    if(monitor) monitor.style.display = 'none';
-
-    // 2. Encendido forzado con prioridad
     if (destino) {
         destino.style.setProperty('display', 'block', 'important');
-        destino.style.background = "#ffffff";
-        destino.style.minHeight = "100vh";
         window.scrollTo(0, 0);
     } else {
-        alert("❌ Error crítico: No se halló el div 'ui-medico-sso'");
+        alert("❌ Error: No se encontró el contenedor 'ui-medico-sso'");
     }
 }
 
 function irAExtintores() {
-    console.log("Abriendo pantalla de Extintores...");
-    const login = document.getElementById('login');
-    const monitor = document.getElementById('ui-monitor-sso');
+    console.log("Navegando a Extintores...");
+    const capas = ['login', 'ui-monitor-sso', 'ui-incidentes-sso', 'ui-medico-sso'];
+    capas.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+
     const destino = document.getElementById('ui-extintores-sso');
-
-    if(login) login.style.display = 'none';
-    if(monitor) monitor.style.display = 'none';
-
     if (destino) {
         destino.style.setProperty('display', 'block', 'important');
-        destino.style.background = "#ffffff";
-        destino.style.minHeight = "100vh";
         window.scrollTo(0, 0);
     } else {
-        alert("❌ Error crítico: No se halló el div 'ui-extintores-sso'");
+        alert("❌ Error: No se encontró el contenedor 'ui-extintores-sso'");
     }
 }
 
-function irAIncidentes() {
-    console.log("Abriendo pantalla de Incidentes...");
-    const login = document.getElementById('login');
-    const monitor = document.getElementById('ui-monitor-sso');
-    const destino = document.getElementById('ui-incidentes-sso');
-
-    if(login) login.style.display = 'none';
-    if(monitor) monitor.style.display = 'none';
-
-    if (destino) {
-        destino.style.setProperty('display', 'block', 'important');
-        destino.style.background = "#ffffff";
-        destino.style.minHeight = "100vh";
-        window.scrollTo(0, 0);
-        // Intentamos cargar folios por si acaso
-        if(typeof cargarPermisosParaCerrar === 'function') cargarPermisosParaCerrar();
-    } else {
-        alert("❌ Error crítico: No se halló el div 'ui-incidentes-sso'");
-    }
+// Función para volver al monitor desde cualquier formulario
+function volverAlMonitorSSO() {
+    const formularios = ['ui-incidentes-sso', 'ui-medico-sso', 'ui-extintores-sso'];
+    formularios.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.style.display = 'none';
+    });
+    document.getElementById('ui-monitor-sso').style.display = 'block';
 }
-
+        
         // --- 2. LOGÍSTICA ---
         function llenarDesplegablesLogistica() {
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
