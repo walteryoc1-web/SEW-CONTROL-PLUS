@@ -465,31 +465,54 @@ function irAIncidentes() {
     }
 }
 
-function irAMedico() {
-    console.log("Cambiando a pantalla Médica...");
-    document.getElementById('login').style.display = 'none';
+function irAIncidentes() {
+    console.log("Ejecutando cambio a Incidentes...");
+    // 1. Apagamos monitor
     document.getElementById('ui-monitor-sso').style.display = 'none';
     
+    const el = document.getElementById('ui-incidentes-sso');
+    if (el) {
+        // 2. FORZAMOS VISIBILIDAD TOTAL
+        el.style.display = 'block';      // Lo encendemos
+        el.style.visibility = 'visible'; // Por si tiene visibility: hidden
+        el.style.opacity = '1';          // Por si tiene opacidad 0
+        el.style.background = '#ffffff'; // Fondo blanco obligatorio
+        el.style.minHeight = '100vh';    // Que ocupe toda la pantalla
+        window.scrollTo(0, 0);           // Sube al inicio
+    } else {
+        alert("❌ No existe el div 'ui-incidentes-sso'");
+    }
+}
+
+function irAMedico() {
+    console.log("Ejecutando cambio a Médico...");
+    document.getElementById('ui-monitor-sso').style.display = 'none';
     const el = document.getElementById('ui-medico-sso');
     if (el) {
         el.style.display = 'block';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+        el.style.background = '#ffffff';
+        el.style.minHeight = '100vh';
         window.scrollTo(0, 0);
     } else {
-        alert("❌ Error: El contenedor 'ui-medico-sso' no existe.");
+        alert("❌ No existe el div 'ui-medico-sso'");
     }
 }
 
 function irAExtintores() {
-    console.log("Cambiando a pantalla de Extintores...");
-    document.getElementById('login').style.display = 'none';
+    console.log("Ejecutando cambio a Extintores...");
     document.getElementById('ui-monitor-sso').style.display = 'none';
-    
     const el = document.getElementById('ui-extintores-sso');
     if (el) {
         el.style.display = 'block';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+        el.style.background = '#ffffff';
+        el.style.minHeight = '100vh';
         window.scrollTo(0, 0);
     } else {
-        alert("❌ Error: El contenedor 'ui-extintores-sso' no existe.");
+        alert("❌ No existe el div 'ui-extintores-sso'");
     }
 }
 
