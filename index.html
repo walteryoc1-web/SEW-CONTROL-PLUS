@@ -498,38 +498,33 @@
         }
         // --- 6. ENVÍOS TÉCNICOS SSO Y OT ---
         async function enviarPermisoSSO() {
-            const inputs = Array.from(document.querySelectorAll('.p-id-clase'));
-            const ids = inputs.map(i => i.value.toUpperCase().trim()).filter(v => v);
-            if (ids.length === 0) return alert("❌ Ingrese técnicos");
-            const btn = document.getElementById('btn-sso');
-            btn.disabled = true; btn.innerText = "GENERANDO ATS Y PDF... ⏳";
-            const nombres = ids.map(id => {
-                const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
-                return t ? `${t.nombre} (${t.extra2})` : id;
-            }).join(" / ");
-            const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
-            const payload = { action: "registrarPermiso", personal: nombres, fase: document.getElementById('p-fase').value, ubi: document.getElementById('p-ubicacion').value, tipo: document.getElementById('p-tipo').value, desc: document.getElementById('p-descripcion').value, checklist: marcados };
-            try {
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-                const txt = await res.text();
-                if (txt.length > 500) { descargarBase64PDF(txt, `ATS_${payload.fase}.pdf`); alert("✅ ATS REGISTRADO Y PDF GENERADO"); location.reload(); }
-                else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
-            } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
-        }
+    const btn = document.getElementById('btn-sso');
+    btn.disabled = true; btn.innerText = "GENERANDO ATS Y PDF... ⏳";
+    const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
+    const nombres = ids.map(id => { const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id); return t ? `${t.nombre} (${t.extra2})` : id; }).join(" / ");
+    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
+    const payload = { action: "registrarPermiso", personal: nombres, fase: document.getElementById('p-fase').value, ubi: document.getElementById('p-ubicacion').value, tipo: document.getElementById('p-tipo').value, desc: document.getElementById('p-descripcion').value, checklist: marcados };
+    try {
+        const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        const txt = await res.text();
+        if (txt.length > 500) { descargarBase64PDF(txt, `ATS_${payload.fase}.pdf`); alert("✅ ATS REGISTRADO Y PDF GENERADO"); location.reload(); }
+        else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
+    } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
+}
 
         async function vincularDatosPermiso(folio) {
-            const display = document.getElementById('datos-vinculados-sso');
-            if (!folio) return;
-            display.innerHTML = "⌛ Buscando folio...";
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === folio.toUpperCase().trim());
-            if (p) {
-                const d = p.datos.split(";");
-                window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
-                display.innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'><b>✅ VINCULADO:</b> ${d[0]}<br><small>📍 ${d[2]} - ${d[3]}</small></div>`;
-            } else { alert("❌ Folio no hallado"); display.innerHTML = ""; }
-        }
+    const display = document.getElementById('datos-vinculados-sso');
+    if (!folio) return;
+    display.innerHTML = "⌛ Buscando folio...";
+    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+    const data = await res.json();
+    const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === folio.toUpperCase().trim());
+    if (p) {
+        const d = p.datos.split(";");
+        window.datosVinculados = { folioATS: d[0], fase: d[2], ubi: d[3], tipo: d[4] };
+        display.innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #c3e6cb; color:#27ae60;'><b>✅ VINCULADO:</b> ${d[0]}</div>`;
+    } else { alert("❌ Folio no hallado"); display.innerHTML = ""; }
+}
 
         async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
@@ -612,14 +607,19 @@
 
         // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
         async function guardarDatoMaestro() {
-            const dpi = document.getElementById('adm-extra2').value.toUpperCase().trim();
-            const id = document.getElementById('adm-id').value.toUpperCase().trim();
-            let duplicado = null;
-            for (let c in DB_MASTER) {
-                const lista = Array.isArray(DB_MASTER[c]) ? DB_MASTER[c] : Object.values(DB_MASTER[c] || {});
-                duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpi);
-                if (duplicado) break;
-            }
+    const dpi = document.getElementById('adm-extra2').value.toUpperCase().trim();
+    const id = document.getElementById('adm-id').value.toUpperCase().trim();
+    let duplicado = null;
+    for (let c in DB_MASTER) {
+        const lista = Array.isArray(DB_MASTER[c]) ? DB_MASTER[c] : Object.values(DB_MASTER[c] || {});
+        duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpi);
+        if (duplicado) break;
+    }
+    if (duplicado && duplicado.id !== id) return alert(`🚫 ERROR: El DPI '${dpi}' ya existe en el ID '${duplicado.id}' (${duplicado.nombre}).`);
+    const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
+    await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+    alert("✅ BASE ACTUALIZADA"); location.reload();
+}
             if (duplicado && duplicado.id !== id) return alert(`🚫 EL DPI '${dpi}' YA EXISTE EN EL ID '${duplicado.id}' (${duplicado.nombre}).`);
             const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
             await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
