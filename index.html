@@ -842,17 +842,14 @@ async function enviarIncidenteCompleto() {
         if (typeof URL_SCRIPT === 'undefined' || !URL_SCRIPT) {
             throw new Error("La variable URL_SCRIPT no está definida.");
         }
-
-         // 4. Construcción del paquete (Payload)
+// 4. Construcción del paquete (Payload) - CORREGIDO Y CERRADO
         const payload = { 
             action: "registrarIncidente", 
-            // Usamos folioATS o folio según lo que guarde tu función de vinculación
             folio: window.datosVinculados?.folioATS || window.datosVinculados?.folio || "N/A",
             area: window.datosVinculados?.fase || "N/A", 
             ubicacion: window.datosVinculados?.ubi || "N/A", 
             trabajo: window.datosVinculados?.tipo || "N/A", 
-            
-            involucrados: involucradosNombres, 
+            involucrados: involucradosNombres || "N/A", 
             salud: document.getElementById('inc-salud')?.value || "N/A", 
             intervencion: document.getElementById('inc-intervencion-momento')?.value || "N/A", 
             tipoEvento: document.getElementById('inc-tipo')?.value || "N/A", 
@@ -868,7 +865,7 @@ async function enviarIncidenteCompleto() {
             estadoFinal: document.getElementById('inc-estado-final')?.value || "N/A" 
         };
 
-        // 5. Envío a Google
+        // 5. Envío a Google (Fetch)
         const res = await fetch(URL_SCRIPT, { 
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -878,27 +875,24 @@ async function enviarIncidenteCompleto() {
 
         const textoBase64 = await res.text();
 
-        if (textoBase64.includes("Error") || textoBase64.includes("ERROR")) {
+        if (textoBase64.includes("Error")) {
             alert("❌ Servidor: " + textoBase64);
-        } else if (textoBase64.length > 500) { 
-            // Usamos el folio vinculado para el nombre del archivo
-            const nombreArchivo = `INCIDENTE_${payload.folio}.pdf`;
-            descargarBase64PDF(textoBase64, nombreArchivo);
-            alert("✅ INFORME DE INCIDENTE REGISTRADO Y DESCARGADO");
-            location.reload();
         } else {
-            alert("✅ REGISTRO GUARDADO (Sin PDF): " + textoBase64);
+            descargarBase64PDF(textoBase64, `INCIDENTE_${payload.folio}.pdf`);
+            alert("✅ INFORME REGISTRADO");
             location.reload();
         }
-        
+
     } catch(e) { 
-        console.error("Error en envío:", e);
-        alert("❌ Error de comunicación con el servidor."); 
+        console.error("Error envío incidente:", e);
+        alert("❌ Error de red"); 
     } finally {
-        btn.disabled = false;
-        btn.innerText = originalText;
+        if(typeof btn !== 'undefined') {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
     }
-} // <--- Esta llave cierra la función async enviarIncidenteCompleto()
+} // <--- LLAVE FINAL DE CIERRE DE LA FUNCIÓN
         
 // ==========================================
 // 🛠️ FUNCIÓN: ÓRDENES DE TRABAJO (OT)
