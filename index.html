@@ -147,34 +147,45 @@
             <button class="btn-salir" onclick="location.reload()">CERRAR / CANCELAR</button>
         </div>
     </div>
-    <!-- 6. UI OPERACIONES (OT) -->
-    <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
-        <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
-        <div id="ot-seccion-apertura">
-            <div style="display:flex; gap:10px; margin-bottom:10px;">
-                <button class="btn" style="background:#3498db; color:white; font-size:11px;" onclick="setOrigenOT('SISTEMA')">GENERAR FOLIO</button>
-                <button class="btn" style="background:#95a5a6; color:white; font-size:11px;" onclick="setOrigenOT('SAP')">MANUAL / SAP</button>
+   <!-- 6. UI OPERACIONES (OT) -->
+ <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
+    <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
+    
+    <div id="ot-seccion-apertura">
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <button class="btn" style="background:#3498db; color:white; font-size:11px;" onclick="setOrigenOT('SISTEMA')">GENERAR FOLIO</button>
+            <button class="btn" style="background:#95a5a6; color:white; font-size:11px;" onclick="setOrigenOT('SAP')">MANUAL / SAP</button>
+        </div>
+        <input type="text" id="ot-folio" placeholder="Folio OT">
+        <input type="text" id="ot-id-tec" placeholder="ID Técnico" oninput="checkTecnicoOperaciones(this.value)">
+        <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border:1px dashed #3498db; font-size:12px; margin-bottom:10px; text-align:left;"></div>
+        <select id="ot-prioridad"><option disabled selected>Prioridad</option></select>
+        <select id="ot-depto"><option disabled selected>Departamento</option></select>
+        <textarea id="ot-descripcion" placeholder="Descripción de la tarea..."></textarea>
+        <button class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
+        <button class="btn" style="background:#e67e22; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CIERRE Y ATS</button>
+        
+        <!-- 📅 SECCIÓN DE DESCARGA AGREGADA -->
+        <div style="background:#f4f7f6; padding:10px; border-radius:10px; margin-top:15px; border:1px solid #ddd;">
+            <p style="margin:0 0 5px; font-size:10px; font-weight:bold; color:#666;">DESCARGAR REPORTES OT</p>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="date" id="f-ini-ot" style="padding:5px; font-size:11px;">
+                <input type="date" id="f-fin-ot" style="padding:5px; font-size:11px;">
             </div>
-            <input type="text" id="ot-folio" placeholder="Folio OT">
-            <input type="text" id="ot-id-tec" placeholder="ID Técnico" oninput="checkTecnicoOperaciones(this.value)">
-            <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border:1px dashed #3498db; font-size:12px; margin-bottom:10px; text-align:left;"></div>
-            <select id="ot-prioridad"><option disabled selected>Prioridad</option></select>
-            <select id="ot-depto"><option disabled selected>Departamento</option></select>
-            <textarea id="ot-descripcion" placeholder="Descripción de la tarea..."></textarea>
-            <button class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
-            <button class="btn" style="background:#e67e22; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CIERRE Y ATS</button>
-            <input type="date" id="f-ini-sso" style="width:45%;"><input type="date" id="f-fin-sso" style="width:45%;">
-            <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:12px; font-size:10px; flex:1;">📥 REPORTE OT</button>
+            <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:10px; font-size:11px;">📥 DESCARGAR EXCEL OT</button>
         </div>
-        <div id="ot-seccion-cierre" style="display:none;">
-            <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
-            <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
-            <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales..."></textarea>
-            <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR TAREA</button>
-            <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
-        </div>
-        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
+
+    <div id="ot-seccion-cierre" style="display:none;">
+        <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
+        <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
+        <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales..."></textarea>
+        <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR TAREA</button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
+    </div>
+    <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
+</div>
+    
     <!-- 7. UI ADMIN DATOS MAESTROS -->
     <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
         <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
@@ -583,46 +594,144 @@
             alert("✅ REGISTRADA"); location.reload();
         }
 
-        async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-            if (!ini || !fin) return alert("❌ Seleccione fechas");
-            const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
-            const data = await res.json();
-            const fil = data.filter(r => {
-                if (!r.fecha) return false;
-                let partes = r.fecha.split(/[\/-]/);
-                let fISO = partes.length == 3 ? (partes[2].length == 4 ? `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}` : `${partes[0]}-${partes[1].padStart(2,'0')}-${partes[2].padStart(2,'0')}`) : "";
-                return fISO >= ini && fISO <= fin;
-            });
-            if (fil.length === 0) return alert("⚠️ No hay datos");
-            let csv = "\uFEFFFECHA,HORA,DATOS\n";
-            fil.forEach(r => csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ",")}"\n`);
-            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = `${nombre}.csv`; a.click();
+       // ==========================================
+// 📥 MOTOR DE REPORTES Y DESCARGAS COMPLETAS
+// ==========================================
+
+async function procesarDescargaUniversal(accion, ini, fin, nombre) {
+    if (!ini || !fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
+    
+    console.log("⌛ Preparando descarga: " + nombre);
+    try {
+        const url = `${URL_SCRIPT}?accion=${accion}&t=${Date.now()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        if (!Array.isArray(data)) {
+            console.error("Respuesta no válida:", data);
+            return alert("❌ Error: El servidor no devolvió una lista de registros.");
         }
 
-        function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
-        function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO"); }
-        function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
-        function descargarCSV_Medico() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico"); }
-        function descargarCSV_Extintores() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores"); }
-        function descargarCSV_OT() { procesarDescargaUniversal("reporteOT", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Ordenes_Trabajo"); }
+        // 🔍 FILTRADO DE FECHAS (Soporta formatos DD/MM/YYYY y YYYY-MM-DD)
+        const fil = data.filter(r => {
+            if (!r.fecha) return false;
+            let fISO = r.fecha.toString().substring(0, 10).replace(/\//g, '-');
+            if(fISO.indexOf('-') === 2) { // Si es DD-MM-YYYY
+                let p = fISO.split('-');
+                fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            }
+            return fISO >= ini && fISO <= fin;
+        });
+
+        if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
+
+        let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
+        fil.forEach(r => {
+            const datosLimpios = r.datos ? r.datos.replace(/;/g, ",") : "";
+            csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${nombre}_${ini}_al_${fin}.csv`;
+        link.click();
+        console.log("✅ Descarga exitosa.");
+    } catch (e) {
+        console.error("Error en descarga:", e);
+        alert("❌ Error de comunicación con la base de datos.");
+    }
+}
+
+// --- ASIGNACIÓN DE BOTONES DE REPORTES ---
+function descargarCSV() { 
+    procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); 
+}
+
+function descargarCSV_SSO() { 
+    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO"); 
+}
+
+function descargarCSV_Incidentes() { 
+    procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); 
+}
+
+function descargarCSV_Medico() { 
+    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico"); 
+}
+
+function descargarCSV_Extintores() { 
+    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores"); 
+}
+
+function descargarCSV_OT() { 
+    // Busca primero en fechas de OT, si no, usa las de SSO
+    const ini = document.getElementById('f-ini-ot')?.value || document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-ot')?.value || document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteOT", ini, fin, "Ordenes_Trabajo"); 
+}
+
+// --- FUNCIÓN DE EXPORTACIÓN PARA ADMINISTRADOR ---
+function descargarDataMaestra() {
+    try {
+        let csv = "\uFEFFCATEGORIA,ID,NOMBRE,EXTRA1,EXTRA2,ESTADO\n";
+        for (let cat in DB_MASTER) {
+            const lista = Array.isArray(DB_MASTER[cat]) ? DB_MASTER[cat] : [];
+            lista.forEach(i => {
+                csv += `${cat},${i.id},"${(i.nombre||"").replace(/"/g,'') || ""}","${(i.extra1||"").replace(/"/g,'') || ""}","${(i.extra2||"").replace(/"/g,'') || ""}",${i.extra3 || 'ACTIVO'}\n`;
+            });
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        a.download = `DB_MAESTRA_TERPAC_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+    } catch (e) { alert("❌ Error exportando base de datos."); }
+}
+
+// --- MOTOR DE PDF ---
+function descargarBase64PDF(b, n) { 
+    if(!b || b.length < 500) return; 
+    const a = document.createElement("a"); 
+    a.href = "data:application/pdf;base64," + b.trim(); 
+    a.download = n; 
+    a.click(); 
+}
 
 
         function descargarBase64PDF(b, n) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b.trim(); a.download = n; a.click(); }
 
         // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
-        async function guardarDatoMaestro() {
-    const dpi = document.getElementById('adm-extra2').value.toUpperCase().trim();
-    const id = document.getElementById('adm-id').value.toUpperCase().trim();
+       async function guardarDatoMaestro() {
+    const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
+    const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
+    const cat = document.getElementById('adm-categoria').value;
+
     let duplicado = null;
+    // 🛡️ RECORRE TODA LA DATA MAESTRA BUSCANDO EL DPI
     for (let c in DB_MASTER) {
-        const lista = Array.isArray(DB_MASTER[c]) ? DB_MASTER[c] : Object.values(DB_MASTER[c] || {});
-        duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpi);
+        const lista = Array.isArray(DB_MASTER[c]) ? DB_MASTER[c] : [];
+        duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpiNuevo);
         if (duplicado) break;
     }
-    if (duplicado && duplicado.id !== id) return alert(`🚫 ERROR: El DPI '${dpi}' ya existe en el ID '${duplicado.id}' (${duplicado.nombre}).`);
-    const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
+
+    // 🚫 SI ENCUENTRA EL DPI PERO CON OTRO ID, BLOQUEA EL REGISTRO
+    if (duplicado && duplicado.id !== idNuevo) {
+        return alert(`🚫 BLOQUEADO: El DPI ${dpiNuevo} ya está registrado con el ID ${duplicado.id} (${duplicado.nombre}).`);
+    }
+
+    const payload = { 
+        action: "guardarConfig", 
+        categoria: cat, 
+        id: idNuevo, 
+        nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(),
+        extra1: document.getElementById('adm-extra1').value.toUpperCase(),
+        extra2: dpiNuevo,
+        extra3: document.getElementById('adm-estado').value
+    };
+
     await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-    alert("✅ BASE ACTUALIZADA"); location.reload();
+    alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
+    location.reload();
 }
 
         function ajustarLabelsAdmin() {
