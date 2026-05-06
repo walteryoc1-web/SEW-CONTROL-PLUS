@@ -6,34 +6,30 @@
     <title>SISTEMA TERPAC LTDA - SCAPPV2</title>
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; } 
-        body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
-        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
+        body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; color: #333; }
+        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 450px; margin: 20px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
-        input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
-        .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
-        .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; font-size: 14px; width: 100%; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; max-width: 300px; }
-        #piloto-box, #incidente-box, #ot-tec-box { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; }
-        .pildoras-horizontal { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; padding: 0 10px; }
-        .pildora { background: white; padding: 20px 10px; border-radius: 15px; flex: 1; min-width: 150px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-bottom: 8px solid var(--verde-oscuro); }
-        .pildora h3 { font-size: 14px; margin: 0 0 10px 0; color: #777; text-transform: uppercase; }
-        .pildora p { font-size: 35px; font-weight: bold; margin: 0; color: #222; }
-        .reloj-container { margin: 20px 0; display: flex; flex-direction: column; align-items: flex-start; padding: 0 25px; }
-        #reloj { font-size: 22px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 15px; border-radius: 15px; margin-top: 5px; }
-        .sub-plus { font-size: 11px; color: #888; font-weight: bold; letter-spacing: 1.5px; margin-top: 5px; margin-bottom: 20px; display: block; text-transform: uppercase; }
-        .box-descarga { background: #eee; padding: 10px 15px; border-radius: 15px; margin: 20px auto; max-width: 500px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ccc; font-size: 15px; box-sizing: border-box; }
+        .btn { background: var(--verde); border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; color: #333; font-size: 15px; margin-top: 5px; }
+        .btn-salir { background: #ff6b6b; color: white; margin-top: 20px; padding: 12px; width: 100%; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        #piloto-box, #ot-tec-box, #datos-vinculados-sso { font-weight: bold; color: var(--verde-oscuro); margin: 10px 0; display: none; padding: 15px; background: #f0fdf0; border-radius: 10px; border: 1px dashed var(--verde); text-align: left; font-size: 13px; }
+        .pildoras-horizontal { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .pildora { background: white; padding: 15px 5px; border-radius: 12px; flex: 1; min-width: 100px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-bottom: 6px solid var(--verde-oscuro); }
+        .pildora h3 { font-size: 11px; margin: 0; color: #777; text-transform: uppercase; }
+        .pildora p { font-size: 28px; font-weight: bold; margin: 5px 0 0; }
         .chk-label { font-weight: bold; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin: 5px 0; }
         .chk-input { width: 20px !important; height: 20px !important; margin: 0 !important; }
-        .dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        #reloj { font-size: 18px; font-weight: bold; color: white; background: var(--azul-reloj); padding: 5px 12px; border-radius: 10px; display: inline-block; margin: 10px; }
+        .dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; background:#3498db; }
         .live-status { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 15px; }
-        /* Clase para formularios de rescate fixed */
-        .rescatada { position: fixed !important; top: 0; left: 0; z-index: 999999; overflow-y: auto; display: none; background: white; width: 100%; height: 100%; text-align: left; }
+        .rescatada { position: fixed !important; top: 0; left: 0; z-index: 99999; overflow-y: auto; display: none; background: white; width: 100%; height: 100%; text-align: left; }
     </style>
 </head>
 <body>
     <!-- 1. LOGIN -->
     <div id="login" class="card-compacta">
-        <h2 style="color:var(--verde-oscuro); margin:0; font-size: 24px;">TERPAC USUARIO</h2>
-        <span class="sub-plus">SEW-CONTROL PLUS SC-APP-V2</span>
+        <h2 style="color:var(--verde-oscuro); margin:0;">TERPAC USUARIO</h2>
+        <span style="font-size:10px; color:#888;">SEW-CONTROL PLUS V2</span>
         <input type="text" id="u" placeholder="Usuario" autofocus>
         <input type="password" id="p" placeholder="Contraseña">
         <button class="btn" onclick="entrar()">INGRESAR</button>
@@ -45,8 +41,8 @@
         <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
         <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
         <div id="piloto-box"></div>
-        <select id="mov"><option disabled selected>Cargando movimientos...</option></select>
-        <select id="prod"><option disabled selected>Cargando productos...</option></select>
+        <select id="mov"></select>
+        <select id="prod"></select>
         <input type="text" id="CicloTer" placeholder="Ciclo Terpac">
         <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
         <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
@@ -59,27 +55,31 @@
             <div class="pildora" style="border-bottom-color: #3498db;"><h3>En Proceso</h3><p id="count-proceso">00</p></div>
             <div class="pildora" style="border-bottom-color: #2ecc71;"><h3>Despachadas</h3><p id="count-despachadas">00</p></div>
         </div>
-        <div class="reloj-container"><div id="fecha-actual"></div><div id="reloj">00:00:00</div></div>
+        <div class="reloj-container">
+            <div id="fecha-actual" style="font-size: 14px; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;"></div>
+            <div id="reloj">00:00:00</div>
+        </div>
         <div class="box-descarga">
+            <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE LOGÍSTICA (BÁSCULA)</p>
             <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-                <input type="date" id="f-inicio"><input type="date" id="f-fin">
+                <input type="date" id="f-inicio" style="margin:0; padding:10px; font-size:12px;">
+                <input type="date" id="f-fin" style="margin:0; padding:10px; font-size:12px;">
                 <button class="btn" style="padding:10px; width:auto; font-size:12px;" onclick="descargarCSV()">📥 DESCARGAR</button>
             </div>
         </div>
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
-
     <!-- 4. UI MONITOR SUPERVISOR SSO -->
     <div id="ui-monitor-sso" class="card-full" style="display:none;">
-        <span class="sub-plus">SC-MON-SSO-RT-01</span>
-        <div class="live-status"><div class="dot" style="background:#3498db;"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
+        <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">SC-MON-SSO-RT-01</span>
+        <div class="live-status"><div class="dot"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
         <div class="pildoras-horizontal">
             <div class="pildora" style="border-bottom-color: #e67e22;"><h3>Generados</h3><p id="sso-pnd">00</p></div>
             <div class="pildora" style="border-bottom-color: #9b59b6;"><h3>Abiertos</h3><p id="sso-riesgo">00</p></div>
             <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
         </div>
         
-        <!-- MANDOS DE CONTROL -->
+        <!-- MANDOS DE CONTROL SSO -->
         <div style="display:flex; gap:10px; justify-content:center; margin: 15px auto 25px; max-width:800px;">
             <button class="btn" style="background:#d63031; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAIncidentes()">🚨 REPORTAR<br>INCIDENTE</button>
             <button class="btn" style="background:#16a085; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAMedico()">⚕️ CONTROL<br>MÉDICO</button>
@@ -91,6 +91,7 @@
             <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;"></div>
         </div>
 
+        <!-- REPORTES SSO -->
         <div class="box-descarga">
             <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
             <div style="display:flex; flex-direction:column; gap:10px;">
@@ -168,11 +169,10 @@
         </div>
         <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
-
     <!-- 7. UI ADMIN DATOS MAESTROS -->
     <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
         <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
-        <span class="sub-plus">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
+        <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
         <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
             <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
             <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
@@ -266,7 +266,7 @@
 
             <label style="font-weight:bold; color:#2d3436; margin-top:20px; display:block;">5. 📝 RECOMENDACIONES Y CIERRE</label>
             <textarea id="inc-recomendacion" placeholder="Medidas correctivas..." rows="4"></textarea>
-            <select id="inc-estado-final"><option disabled selected>Estado Final</option><option>Caso cerrado</option><option>Pendiente</option></select>
+            <select id="inc-estado-final"><option>Caso cerrado</option><option>Pendiente</option></select>
             
             <button class="btn" style="background:#d63031; color:white; margin-top:20px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
             <button class="btn-salir" onclick="document.getElementById('ui-incidentes-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
@@ -333,36 +333,25 @@
             }, 1000);
         }
 
-       async function actualizarPildoras() {
-    try {
-        // 🚨 CAMBIO CLAVE: Quitamos "accion=getGlobalConfig" para que entre al proceso de conteo
-        const r = await fetch(URL_SCRIPT + "?t=" + Date.now()); 
-        const d = await r.json();
-        
-        console.log("📊 Conteos recibidos:", d); // Para que veas en consola si llegan los números
+        async function actualizarPildoras() {
+            try {
+                // Al llamar sin acción, el doGet ejecuta la lógica de conteo aritmético
+                const r = await fetch(URL_SCRIPT + "?t=" + Date.now()); 
+                const d = await r.json();
+                console.log("📊 Conteos recibidos:", d);
 
-        // Conteos de Logística
-        const elPend = document.getElementById('count-pendientes');
-        const elProc = document.getElementById('count-proceso');
-        const elDesp = document.getElementById('count-despachadas');
+                // Actualización Logística
+                if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
+                if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
+                if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
+                
+                // Actualización SSO
+                if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
+                if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
+                if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
+            } catch(e) { console.error("Error pildoras:", e); }
+        }
 
-        if(elPend) elPend.innerText = (d.pendientes || 0).toString().padStart(2,'0');
-        if(elProc) elProc.innerText = (d.proceso || 0).toString().padStart(2,'0');
-        if(elDesp) elDesp.innerText = (d.despachadas || 0).toString().padStart(2,'0');
-
-        // Conteos de SSO
-        const ssoPnd = document.getElementById('sso-pnd');
-        const ssoRie = document.getElementById('sso-riesgo');
-        const ssoPer = document.getElementById('sso-personal');
-
-        if(ssoPnd) ssoPnd.innerText = (d.totalSSO || 0).toString().padStart(2,'0');
-        if(ssoRie) ssoRie.innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
-        if(ssoPer) ssoPer.innerText = (d.personalSSO || 0).toString().padStart(2,'0');
-
-    } catch(e) { 
-        console.error("❌ Error en motor de píldoras:", e); 
-    }
-}
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
             try {
@@ -423,8 +412,8 @@
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
             selProd.innerHTML = '<option disabled selected>Producto</option>';
             selMov.innerHTML = '<option disabled selected>Movimiento</option>';
-            if (DB_MASTER.PRODUCTO) DB_MASTER.PRODUCTO.filter(x => x.extra3 !== "INACTIVO").forEach(p => selProd.add(new Option(p.nombre, p.nombre)));
-            if (DB_MASTER.MOVIMIENTO) DB_MASTER.MOVIMIENTO.filter(x => x.extra3 !== "INACTIVO").forEach(m => selMov.add(new Option(m.nombre, m.nombre)));
+            if (DB_MASTER.PRODUCTO) DB_MASTER.PRODUCTO.filter(x => (x.extra3||"ACTIVO").toUpperCase() !== "INACTIVO").forEach(p => selProd.add(new Option(p.nombre, p.nombre)));
+            if (DB_MASTER.MOVIMIENTO) DB_MASTER.MOVIMIENTO.filter(x => (x.extra3||"ACTIVO").toUpperCase() !== "INACTIVO").forEach(m => selMov.add(new Option(m.nombre, m.nombre)));
         }
 
         function llenarDesplegablesSSO() {
@@ -433,28 +422,22 @@
             selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
             if (DB_MASTER.UBICACION) {
                 const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
-                fases.forEach(f => selFase.add(new Option(f, f)));
+                fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
             }
             if (DB_MASTER.TRABAJO) {
-                DB_MASTER.TRABAJO.filter(x => x.extra3 !== "INACTIVO").forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
+                DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase() !== "INACTIVO").forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
+            }
+        }
+        function actualizarUbicaciones() {
+            const fase = document.getElementById('p-fase').value, selUbi = document.getElementById('p-ubicacion');
+            if (!selUbi) return;
+            selUbi.innerHTML = '<option disabled selected>Lugar específico</option>';
+            if (DB_MASTER.UBICACION) {
+                DB_MASTER.UBICACION.filter(u => u.extra1 === fase).forEach(u => selUbi.add(new Option(u.nombre, u.nombre)));
+                selUbi.disabled = false;
             }
         }
 
-        function llenarDesplegablesOperaciones() {
-            const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
-            selPrio.innerHTML = '<option disabled selected>Prioridad</option>';
-            selDepto.innerHTML = '<option disabled selected>Departamento</option>';
-            if (DB_MASTER.PRIORIDAD_OT) DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
-            if (DB_MASTER.DEPTO_OT) DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
-        }
-
-        function llenarListasIncidentes() {
-            const selSalud = document.getElementById('inc-salud'), selGrav = document.getElementById('inc-gravedad');
-            selSalud.innerHTML = '<option value="SIN_AFECTADOS">No hay afectados</option>';
-            selGrav.innerHTML = '<option disabled selected>Gravedad</option>';
-            if (DB_MASTER.ESTADO_SALUD) DB_MASTER.ESTADO_SALUD.forEach(x => selSalud.add(new Option(x.nombre, x.nombre)));
-            if (DB_MASTER.GRAVEDAD) DB_MASTER.GRAVEDAD.forEach(x => selGrav.add(new Option(x.nombre, x.nombre)));
-        }
         // --- 4. MOTOR DE CHECKLIST DINÁMICO (ATS) ---
         function actualizarChecklist() {
             const selector = document.getElementById('p-tipo');
@@ -477,7 +460,7 @@
             return div;
         }
 
-        // --- 5. VALIDACIÓN DE PERSONAL Y SEGURIDAD ---
+        // --- 5. VALIDACIÓN DE PERSONAL Y BUSCADORES SEGURIDAD ---
         function check() {
             const id = document.getElementById('id-in').value.trim();
             const box = document.getElementById('piloto-box');
@@ -497,25 +480,18 @@
             const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
             if (t) {
                 if ((t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
-                    alert("🚫 TÉCNICO BLOQUEADO"); inp.value = ""; box.style.display = 'none'; return;
+                    alert("🚫 TÉCNICO BLOQUEADO en sistema."); inp.value = ""; box.style.display = 'none'; return;
                 }
                 box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`; box.style.display = 'block';
             } else box.style.display = 'none';
         }
 
-        function checkInvolucradoIncidente(inp) {
-            const idBusca = inp.value.toUpperCase().trim();
-            if (!idBusca) return;
-            let persona = null;
-            for (let cat in DB_MASTER) {
-                const lista = Array.isArray(DB_MASTER[cat]) ? DB_MASTER[cat] : Object.values(DB_MASTER[cat] || {});
-                persona = lista.find(x => x.id.toString().toUpperCase() === idBusca);
-                if (persona) break;
-            }
-            inp.style.background = persona ? "#e8f5e9" : "#fff";
-            inp.style.border = persona ? "2px solid #27ae60" : "1px solid #ccc";
+        function agregarFilaEjecutor() {
+            const cont = document.getElementById('contenedor-ejecutores');
+            const div = document.createElement('div'); div.className = 'grupo-ejecutor'; div.style.marginTop = "10px";
+            div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:red; color:white; border-radius:50%; width:30px; border:none;">-</button></div><div class="personal-box-clase" style="display:none; font-size:12px; padding:5px;"></div>`;
+            cont.appendChild(div);
         }
-
         // --- 6. ENVÍOS TÉCNICOS SSO Y OT ---
         async function enviarPermisoSSO() {
             const inputs = Array.from(document.querySelectorAll('.p-id-clase'));
@@ -534,7 +510,21 @@
                 const txt = await res.text();
                 if (txt.length > 500) { descargarBase64PDF(txt, `ATS_${payload.fase}.pdf`); alert("✅ ATS REGISTRADO Y PDF GENERADO"); location.reload(); }
                 else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
-            } catch (e) { alert("❌ Error"); btn.disabled = false; }
+            } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
+        }
+
+        async function vincularDatosPermiso(folio) {
+            const display = document.getElementById('datos-vinculados-sso');
+            if (!folio) return;
+            display.innerHTML = "⌛ Buscando folio...";
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+            const data = await res.json();
+            const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === folio.toUpperCase().trim());
+            if (p) {
+                const d = p.datos.split(";");
+                window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
+                display.innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'><b>✅ VINCULADO:</b> ${d[0]}<br><small>📍 ${d[2]} - ${d[3]}</small></div>`;
+            } else { alert("❌ Folio no hallado"); display.innerHTML = ""; }
         }
 
         async function enviarIncidenteCompleto() {
@@ -555,37 +545,57 @@
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
             const txt = await res.text();
             if (txt.length > 500) descargarBase64PDF(txt, `INCIDENTE_${payload.folio}.pdf`);
-            alert("✅ INFORME REGISTRADO"); location.reload();
+            alert("✅ REGISTRADO"); location.reload();
+        }
+
+        async function enviarFichaMedica() {
+            const id = document.getElementById('med-id').value;
+            const payload = { action: "registrarMedico", id: id, fecha: document.getElementById('med-fecha').value, tipo: document.getElementById('med-tipo').value, glucosa: document.getElementById('med-glucosa').value, presion: document.getElementById('med-presion').value, temp: document.getElementById('med-temp').value, peso: document.getElementById('med-peso').value, oxigeno: document.getElementById('med-oxigeno').value, ritmo: document.getElementById('med-ritmo').value, resultado: document.getElementById('med-resultado').value, obs: document.getElementById('med-obs').value };
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const txt = await res.text(); if(txt.length > 500) descargarBase64PDF(txt, `MED_${id}.pdf`);
+            alert("✅ GUARDADO"); location.reload();
+        }
+
+        async function enviarInspeccionExtintor() {
+            const id = document.getElementById('ext-id').value;
+            const payload = { action: "registrarExtintor", id: id, ubi: document.getElementById('ext-ubi').value, agente: document.getElementById('ext-agente').value, presion: document.getElementById('ext-presion').value, manguera: document.getElementById('ext-manguera').value, seguro: document.getElementById('ext-seguro').value, vence: document.getElementById('ext-vence').value, obs: document.getElementById('ext-obs').value };
+            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            const txt = await res.text(); if(txt.length > 500) descargarBase64PDF(txt, `EXT_${id}.pdf`);
+            alert("✅ GUARDADO"); location.reload();
+        }
+
+        // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
+        async function enviar() {
+            const id = document.getElementById('id-in').value.trim();
+            const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
+            const payload = { action: "registrarLogistica", id: id, nombre: p.nombre, movimiento: document.getElementById('mov').value, producto: document.getElementById('prod').value, placa: p.extra1, epq: document.getElementById('CicloEPQ').value };
+            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+            alert("✅ REGISTRO EXITOSO"); location.reload();
         }
 
         async function enviarOT() {
-            const folio = document.getElementById('ot-folio').value.trim();
-            const idTec = document.getElementById('ot-id-tec').value.trim().toUpperCase();
-            const tData = DB_MASTER.TECNICO?.find(t => t.id.toString() === idTec);
-            if (!folio || !tData) return alert("❌ Datos incompletos");
-            const payload = { action: "registrarOT", folio: folio, tecnico: tData.nombre, prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
+            const folio = document.getElementById('ot-folio').value;
+            const tData = DB_MASTER.TECNICO?.find(t => t.id.toString() === document.getElementById('ot-id-tec').value.toUpperCase());
+            const payload = { action: "registrarOT", folio: folio, tecnico: tData ? tData.nombre : "N/A", prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
             const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text();
-            if (txt.length > 500) descargarBase64PDF(txt, `OT_${folio}.pdf`);
-            alert("✅ ORDEN REGISTRADA"); location.reload();
+            const txt = await res.text(); if (txt.length > 500) descargarBase64PDF(txt, `OT_${folio}.pdf`);
+            alert("✅ REGISTRADA"); location.reload();
         }
-        // --- 7. MOTOR DE REPORTES CSV Y GENERACIÓN DE PDF ---
+
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if (!ini || !fin) return alert("❌ Seleccione fechas");
-            try {
-                const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
-                const data = await res.json();
-                const fil = data.filter(r => {
-                    if (!r.fecha) return false;
-                    let pt = r.fecha.toString().split(' ').split(r.fecha.includes('/') ? '/' : '-');
-                    let fISO = pt.length == 3 ? (pt.length == 4 ? `${pt}-${pt.padStart(2, '0')}-${pt.padStart(2, '0')}` : `${pt}-${pt.padStart(2, '0')}-${pt.padStart(2, '0')}`) : "";
-                    return fISO >= ini && fISO <= fin;
-                });
-                if (fil.length === 0) return alert("⚠️ No hay datos en ese rango");
-                let csv = "\uFEFFFECHA,HORA,DATOS\n";
-                fil.forEach(r => csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ",")}"\n`);
-                const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = `${nombre}.csv`; a.click();
-            } catch (e) { alert("❌ Error descarga"); }
+            const res = await fetch(`${URL_SCRIPT}?accion=${accion}`);
+            const data = await res.json();
+            const fil = data.filter(r => {
+                if (!r.fecha) return false;
+                let partes = r.fecha.split(/[\/-]/);
+                let fISO = partes.length == 3 ? (partes[2].length == 4 ? `${partes[2]}-${partes[1].padStart(2,'0')}-${partes[0].padStart(2,'0')}` : `${partes[0]}-${partes[1].padStart(2,'0')}-${partes[2].padStart(2,'0')}`) : "";
+                return fISO >= ini && fISO <= fin;
+            });
+            if (fil.length === 0) return alert("⚠️ No hay datos");
+            let csv = "\uFEFFFECHA,HORA,DATOS\n";
+            fil.forEach(r => csv += `${r.fecha},${r.hora},"${r.datos.replace(/;/g, ",")}"\n`);
+            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' })); a.download = `${nombre}.csv`; a.click();
         }
 
         function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
@@ -594,15 +604,9 @@
         function descargarCSV_Medico() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico"); }
         function descargarCSV_Extintores() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores"); }
 
-        function descargarBase64PDF(base64, nombreArchivo) {
-            const linkSource = `data:application/pdf;base64,${base64.trim()}`;
-            const downloadLink = document.createElement("a");
-            downloadLink.href = linkSource;
-            downloadLink.download = nombreArchivo;
-            downloadLink.click();
-        }
+        function descargarBase64PDF(b, n) { const a = document.createElement("a"); a.href = "data:application/pdf;base64," + b.trim(); a.download = n; a.click(); }
 
-        // --- 8. ADMINISTRACIÓN (SIN DUPLICADOS) ---
+        // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
         async function guardarDatoMaestro() {
             const dpi = document.getElementById('adm-extra2').value.toUpperCase().trim();
             const id = document.getElementById('adm-id').value.toUpperCase().trim();
@@ -612,45 +616,69 @@
                 duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpi);
                 if (duplicado) break;
             }
-            if (duplicado && duplicado.id !== id) return alert(`🚫 ERROR: El DPI '${dpi}' ya pertenece al ID '${duplicado.id}' (${duplicado.nombre}).`);
+            if (duplicado && duplicado.id !== id) return alert(`🚫 EL DPI '${dpi}' YA EXISTE EN EL ID '${duplicado.id}' (${duplicado.nombre}).`);
             const payload = { action: "guardarConfig", categoria: document.getElementById('adm-categoria').value, id: id, nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(), extra1: document.getElementById('adm-extra1').value.toUpperCase(), extra2: dpi, extra3: document.getElementById('adm-estado').value };
             await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            alert("✅ ACTUALIZADO"); location.reload();
+            alert("✅ BASE DE DATOS ACTUALIZADA"); location.reload();
         }
 
         function ajustarLabelsAdmin() {
             const c = document.getElementById('adm-categoria').value;
             const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
             if (c === "PILOTO") { l1.innerText = "Placa Cabezal:"; l2.innerText = "Licencia:"; }
-            else if (c === "TECNICO") { l1.innerText = "Empresa:"; l2.innerText = "DPI:"; }
+            else if (c === "TECNICO") { l1.innerText = "Empresa:"; l2.innerText = "DPI Técnico:"; }
+            else if (c === "UBICACION") { l1.innerText = "Fase:"; l2.innerText = "Tipo:"; }
             else { l1.innerText = "Dato Extra 1:"; l2.innerText = "Dato Extra 2:"; }
         }
 
-        // --- 9. APOYO Y VINCULACIÓN ---
-        async function vincularDatosPermiso(folio) {
-            const display = document.getElementById('datos-vinculados-sso');
-            if (!folio) return;
-            display.innerHTML = "⌛ Buscando folio...";
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-            const data = await res.json();
-            const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === folio.toUpperCase().trim());
-            if (p) {
-                const d = p.datos.split(";");
-                window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
-                display.innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'><b>✅ VINCULADO:</b> ${d[0]}</div>`;
-            } else { alert("❌ Folio no hallado"); display.innerHTML = ""; }
-        }
-
-        function agregarFilaEjecutor() { const div = document.createElement('div'); div.innerHTML = `<div style="display:flex; gap:10px; margin-top:10px;"><input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border:none; border-radius:50%; width:30px;">-</button></div><div class="personal-box-clase" style="display:none; font-size:12px; padding:5px;"></div>`; document.getElementById('contenedor-ejecutores').appendChild(div); }
-        function agregarInvolucradoInc() { const div = document.createElement('div'); div.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="margin-top:5px;">`; document.getElementById('contenedor-involucrados-inc').appendChild(div); }
+        function irAIncidentes() { document.getElementById('ui-incidentes-sso').style.display='block'; llenarListasIncidentes(); }
+        function irAMedico() { document.getElementById('ui-medico-sso').style.display='block'; }
+        function irAExtintores() { document.getElementById('ui-extintores-sso').style.display='block'; }
         function setOrigenOT(t) { if(t==='SISTEMA') document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6); }
         function mostrarSeccionCierre() { document.getElementById('ot-seccion-apertura').style.display='none'; document.getElementById('ot-seccion-cierre').style.display='block'; }
         function cancelarCierre() { document.getElementById('ot-seccion-cierre').style.display='none'; document.getElementById('ot-seccion-apertura').style.display='block'; }
 
-        window.onload = () => { 
-            cargarCerebroSistema(); 
-            iniciarReloj(); 
-        };
+        async function cargarPermisosParaCerrar() {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+            const data = await res.json();
+            const cont = document.getElementById('contenedor-tabla-sso'); if (!cont) return; cont.innerHTML = "";
+            data.filter(r => !r.datos.toUpperCase().includes("CERRADO")).forEach(p => {
+                const d = p.datos.split(";");
+                const div = document.createElement('div'); div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
+                div.innerHTML = `<span><b>${d[0]}</b> - ${d[2] || ''}</span><button onclick="cerrarPermiso('${d[0]}')" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
+                cont.appendChild(div);
+            });
+        }
+
+        async function cerrarPermiso(f) { if (confirm("¿Cerrar permiso " + f + "?")) { await fetch(URL_SCRIPT, { method: 'POST', body: "CERRAR_PERMISO;" + f }); alert("✅ CERRADO"); location.reload(); } }
+
+        function llenarDesplegablesOperaciones() {
+            const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
+            if (DB_MASTER.PRIORIDAD_OT) DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
+            if (DB_MASTER.DEPTO_OT) DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
+        }
+
+        function checkTecnicoOperaciones(id) {
+            const box = document.getElementById('ot-tec-box');
+            const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id.toUpperCase());
+            if (t) { box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`; box.style.display = 'block'; } else box.style.display = 'none';
+        }
+
+        function checkInvolucradoIncidente(inp) {
+            const id = inp.value.toUpperCase().trim();
+            const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
+            inp.style.background = persona ? "#e8f5e9" : "#fff";
+            inp.style.border = persona ? "2px solid #27ae60" : "1px solid #ccc";
+        }
+
+        function agregarInvolucradoInc() {
+            const cont = document.getElementById('contenedor-involucrados-inc');
+            const d = document.createElement('div'); d.style.cssText = "display:flex; gap:10px; margin-top:5px;";
+            d.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border-radius:5px; width:40px; border:none;">X</button>`;
+            cont.appendChild(d);
+        }
+
+        window.onload = () => { cargarCerebroSistema(); };
     </script>
 </body>
 </html>
