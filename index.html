@@ -1248,9 +1248,10 @@ function checkInvolucrado(inp) {
         inp.title = "No registrado";
     }
 }
-        function agregarInvolucradoInc() {
+        // 1. FUNCIÓN PARA AGREGAR FILAS DE INVOLUCRADOS
+function agregarInvolucradoInc() {
     const cont = document.getElementById('contenedor-involucrados-inc');
-    if(!cont) return; // Seguridad por si el div no existe en pantalla
+    if(!cont) return; 
     
     const div = document.createElement('div');
     div.style.cssText = "margin-bottom: 10px; display:flex; gap:10px;";
@@ -1260,8 +1261,9 @@ function checkInvolucrado(inp) {
     `;
     cont.appendChild(div);
 }
-        
-      function pintarPildoras(d) {
+
+// 2. FUNCIÓN QUE DIBUJA LOS DATOS EN PANTALLA
+function pintarPildoras(d) {
     const pnd = document.getElementById('count-pendientes');
     const prc = document.getElementById('count-proceso');
     const dsp = document.getElementById('count-despachadas');
@@ -1270,44 +1272,37 @@ function checkInvolucrado(inp) {
     if(prc) prc.innerText = (d.proceso || 0).toString().padStart(2, '0');
     if(dsp) dsp.innerText = (d.despachadas || 0).toString().padStart(2, '0');
     
-    console.log("Píldoras actualizadas con éxito vía JSONP");
+    console.log("Píldoras actualizadas con éxito");
 }
 
-// 2. Esta función PIDE los datos (Salta el CORS)
+// 3. FUNCIÓN QUE PIDE LOS DATOS AL SERVIDOR
 function actualizarPildoras() {
-    // Usamos la URL de tu script de Google
     const urlBase = "https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec";
     const urlFinal = urlBase + "?modo=dash&callback=pintarPildoras&t=" + new Date().getTime();
 
-    // Eliminamos el script anterior para no llenar el HTML de basura
     const oldScript = document.getElementById('script-motor-pildoras');
     if (oldScript) oldScript.remove();
 
-    // Creamos el elemento script (Esto es lo que salta el bloqueo)
     const script = document.createElement('script');
     script.id = 'script-motor-pildoras';
     script.src = urlFinal;
     document.body.appendChild(script);
-// 1. INICIO DEL MONITOR (Esto corre solo al entrar)
+} // <--- ESTA LLAVE ES LA QUE FALTABA
+
+// 4. INICIO AUTOMÁTICO DEL MONITOR
 actualizarPildoras(); 
 setInterval(actualizarPildoras, 30000); 
 
-// 2. FUNCIÓN PARA EL BOTÓN DE INCIDENTES
+// 5. FUNCIÓN DE NAVEGACIÓN A INCIDENTES
 function irAIncidentes() {
-    // Apagamos el monitor de píldoras
-    document.getElementById('ui-monitor-sso').style.display = 'none';
+    const monitor = document.getElementById('ui-monitor-sso');
+    const formulario = document.getElementById('ui-incidentes-sso');
+
+    if(monitor) monitor.style.display = 'none';
+    if(formulario) formulario.style.display = 'block';
     
-    // Encendemos el formulario de incidentes
-    document.getElementById('ui-incidentes-sso').style.display = 'block';
-    
-    // Subimos al inicio de la página
     window.scrollTo(0,0);
-} 
-        <!-- 8. UI MÉDICO (ZONA DE RESCATE) -->
-
-
-<!-- 9. UI EXTINTORES (ZONA DE RESCATE) -->
-        
+}               
     </script>
            <div id="ui-incidentes-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
     <div style="background:#d63031; color:white; padding:20px; text-align:center;">
