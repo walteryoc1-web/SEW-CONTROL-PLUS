@@ -419,73 +419,46 @@
     btn.innerText = originalText; 
     btn.disabled = false;
 }
-// ==========================================
-// 🚀 MOTOR ÚNICO DE NAVEGACIÓN SSO (LIMPIO)
-// ==========================================
+// =======================================================
+// 🚨 BLOQUE DE FUNCIONES
+// =======================================================
 
 function irAIncidentes() {
-    console.log("Navegando a Incidentes...");
-    // 1. Apagamos TODO lo que pueda estorbar
-    const capas = ['login', 'ui-monitor-sso', 'ui-medico-sso', 'ui-extintores-sso'];
-    capas.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
-    // 2. Encendemos Incidentes
-    const destino = document.getElementById('ui-incidentes-sso');
-    if (destino) {
-        destino.style.setProperty('display', 'block', 'important');
-        window.scrollTo(0, 0);
-        // Cargamos los folios ATS para que el buscador funcione
-        if(typeof cargarPermisosParaCerrar === 'function') cargarPermisosParaCerrar();
-    } else {
-        alert("❌ Error: No se encontró el contenedor 'ui-incidentes-sso'");
-    }
+    console.log("Forzando entrada a Incidentes...");
+    // Apagamos TODO lo que conocemos
+    const ids = ['login','ui-supervisor','ui-operador','ui-admin','ui-monitor-sso','ui-medico-sso','ui-extintores-sso','ui-incidentes-sso'];
+    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
+    
+    // Encendemos Incidentes
+    const target = document.getElementById('ui-incidentes-sso');
+    if(target) {
+        target.style.setProperty('display', 'block', 'important');
+        window.scrollTo(0,0);
+    } else { alert("Error: No se encontró el div ui-incidentes-sso al final del archivo"); }
 }
 
 function irAMedico() {
-    console.log("Navegando a Médico...");
-    const capas = ['login', 'ui-monitor-sso', 'ui-incidentes-sso', 'ui-extintores-sso'];
-    capas.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
-    const destino = document.getElementById('ui-medico-sso');
-    if (destino) {
-        destino.style.setProperty('display', 'block', 'important');
-        window.scrollTo(0, 0);
-    } else {
-        alert("❌ Error: No se encontró el contenedor 'ui-medico-sso'");
-    }
+    console.log("Forzando entrada a Médico...");
+    const ids = ['login','ui-supervisor','ui-operador','ui-admin','ui-monitor-sso','ui-medico-sso','ui-extintores-sso','ui-incidentes-sso'];
+    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
+    
+    const target = document.getElementById('ui-medico-sso');
+    if(target) {
+        target.style.setProperty('display', 'block', 'important');
+        window.scrollTo(0,0);
+    } else { alert("Error: No se encontró el div ui-medico-sso"); }
 }
 
 function irAExtintores() {
-    console.log("Navegando a Extintores...");
-    const capas = ['login', 'ui-monitor-sso', 'ui-incidentes-sso', 'ui-medico-sso'];
-    capas.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-
-    const destino = document.getElementById('ui-extintores-sso');
-    if (destino) {
-        destino.style.setProperty('display', 'block', 'important');
-        window.scrollTo(0, 0);
-    } else {
-        alert("❌ Error: No se encontró el contenedor 'ui-extintores-sso'");
-    }
-}
-
-// Función para volver al monitor desde cualquier formulario
-function volverAlMonitorSSO() {
-    const formularios = ['ui-incidentes-sso', 'ui-medico-sso', 'ui-extintores-sso'];
-    formularios.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.style.display = 'none';
-    });
-    document.getElementById('ui-monitor-sso').style.display = 'block';
+    console.log("Forzando entrada a Extintores...");
+    const ids = ['login','ui-supervisor','ui-operador','ui-admin','ui-monitor-sso','ui-medico-sso','ui-extintores-sso','ui-incidentes-sso'];
+    ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = 'none'; });
+    
+    const target = document.getElementById('ui-extintores-sso');
+    if(target) {
+        target.style.setProperty('display', 'block', 'important');
+        window.scrollTo(0,0);
+    } else { alert("Error: No se encontró el div ui-extintores-sso"); }
 }
         
         // --- 2. LOGÍSTICA ---
