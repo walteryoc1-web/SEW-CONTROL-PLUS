@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1288,17 +1288,21 @@ function actualizarPildoras() {
     script.id = 'script-motor-pildoras';
     script.src = urlFinal;
     document.body.appendChild(script);
-}
-
-// Inicio del monitor 
+// 1. INICIO DEL MONITOR (Esto corre solo al entrar)
 actualizarPildoras(); 
 setInterval(actualizarPildoras, 30000); 
-        
-      document.getElementById('ui-monitor-sso').style.display = 'none';
+
+// 2. FUNCIÓN PARA EL BOTÓN DE INCIDENTES
+function irAIncidentes() {
+    // Apagamos el monitor de píldoras
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    
     // Encendemos el formulario de incidentes
     document.getElementById('ui-incidentes-sso').style.display = 'block';
+    
+    // Subimos al inicio de la página
     window.scrollTo(0,0);
-}
+} 
         <!-- 8. UI MÉDICO (ZONA DE RESCATE) -->
 <div id="ui-medico-sso" class="card-full" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999999; overflow-y: auto; text-align: left;">
     <div style="background:#16a085; color:white; padding:20px; text-align:center;"><h2>FICHA DE CONTROL MÉDICO</h2></div>
