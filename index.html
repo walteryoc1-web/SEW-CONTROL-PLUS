@@ -528,39 +528,43 @@
        async function vincularDatosPermiso(folio) {
     const display = document.getElementById('datos-vinculados-sso');
     if (!folio) return alert("❌ Ingrese el folio SSO");
-    display.innerHTML = "⌛ Buscando folio en hoja SSO...";
+    display.innerHTML = "⌛ Buscando...";
     
     try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        // Añadimos marca de tiempo para que no use datos viejos guardados en el navegador
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
         const data = await res.json();
         
-        // Buscamos coincidencia exacta en el Folio (índice 0 del split)
-        const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === folio.toUpperCase().trim());
+        const busqueda = folio.toUpperCase().trim();
         
-        if (p) {
-            const d = p.datos.split(";");
-            // Guardamos en memoria global para el envío del incidente
-            window.datosVinculados = { 
-                folioATS: d[0], 
-                fase: d[2], 
-                ubi: d[3], 
-                tipo: d[4] 
-            };
+        // 🔍 Buscamos el folio (índice 0 del split)
+        const encontrado = data.find(r => {
+            const fEnFila = r.datos.split(";")[0].toUpperCase().trim();
+            return fEnFila === busqueda;
+        });
+
+        if (encontrado) {
+            const d = encontrado.datos.split(";");
+            
+            // Validamos si el ATS ya está cerrado (opcional pero recomendado)
+            if (d[5] === "CERRADO") {
+                alert("⚠️ Este folio ya está CERRADO. No puede vincularse a nuevos reportes.");
+                return;
+            }
+
+            window.datosVinculados = { folioATS: d[0], fase: d[2], ubi: d[3], tipo: d[4] };
             
             display.innerHTML = `
                 <div style='background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #c3e6cb; color:#27ae60;'>
                     <b>✅ VINCULADO:</b> ${d[0]}<br>
                     <small>📍 ${d[2]} - ${d[3]}</small>
                 </div>`;
-            console.log("Vínculo exitoso:", window.datosVinculados);
         } else { 
-            alert("❌ Folio no hallado en la base de datos."); 
+            alert("❌ El folio '" + busqueda + "' no existe en la hoja SSO."); 
             display.innerHTML = ""; 
-            window.datosVinculados = null;
         }
     } catch (e) {
-        display.innerHTML = "⚠️ Error de conexión";
-        console.error(e);
+        alert("⚠️ Error de conexión con la base de datos.");
     }
 }
         async function enviarIncidenteCompleto() {
