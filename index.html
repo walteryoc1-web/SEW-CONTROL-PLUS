@@ -74,70 +74,71 @@
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
     
-    <!-- 4. UI MONITOR SUPERVISOR SSO -->
-    <div id="ui-monitor-sso" class="card-full" style="display:none;">
-        <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">SC-MON-SSO-RT-01</span>
-        <div class="live-status"><div class="dot"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
-        <div class="pildoras-horizontal">
-            <div class="pildora" style="border-bottom-color: #e67e22;"><h3>Generados</h3><p id="sso-pnd">00</p></div>
-            <div class="pildora" style="border-bottom-color: #9b59b6;"><h3>Abiertos</h3><p id="sso-riesgo">00</p></div>
-            <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
-        </div>
-        <div style="display:flex; gap:10px; justify-content:center; margin: 15px auto 25px; max-width:800px;">
-            <button class="btn" style="background:#d63031; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAIncidentes()">🚨 REPORTAR<br>INCIDENTE</button>
-            <button class="btn" style="background:#16a085; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAMedico()">⚕️ CONTROL<br>MÉDICO</button>
-            <button class="btn" style="background:#2c3e50; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAExtintores()">🧯 INSPECCIÓN<br>EXTINTORES</button>
-        </div>
-        <div style="margin: 20px auto; max-width: 500px;">
-            <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">Permisos activos para cierre</p>
-            <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;"></div>
-        </div>
-        <div class="box-descarga">
-            <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-                <div style="display:flex; gap:10px; justify-content:center;">
-                    <input type="date" id="f-ini-sso" style="width:45%;"><input type="date" id="f-fin-sso" style="width:45%;">
-                </div>
-                <div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center;">
-                    <button type="button" class="btn" onclick="descargarCSV_SSO()" style="background:#3498db; color:white; padding:12px; font-size:10px; flex:1;">📥 PERMISOS</button>
-                    <button type="button" class="btn" onclick="descargarCSV_Incidentes()" style="background:#d63031; color:white; padding:12px; font-size:10px; flex:1;">📥 INCIDENTES</button>
-                    <button type="button" class="btn" onclick="descargarCSV_Medico()" style="background:#16a085; color:white; padding:12px; font-size:10px; flex:1;">📥 MÉDICO</button>
-                    <button type="button" class="btn" onclick="descargarCSV_Extintores()" style="background:#2c3e50; color:white; padding:12px; font-size:10px; flex:1;">📥 EXTINTORES</button>
-                </div>
-            </div>
-        <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
+   <!-- 4. UI MONITOR SUPERVISOR SSO -->
+<div id="ui-monitor-sso" class="card-full" style="display:none;">
+    <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">SC-MON-SSO-RT-01</span>
+    <div class="live-status"><div class="dot"></div> MONITOR DE SEGURIDAD (EN VIVO)</div>
+    <div class="pildoras-horizontal">
+        <div class="pildora" style="border-bottom-color: #e67e22;"><h3>Generados</h3><p id="sso-pnd">00</p></div>
+        <div class="pildora" style="border-bottom-color: #9b59b6;"><h3>Abiertos</h3><p id="sso-riesgo">00</p></div>
+        <div class="pildora" style="border-bottom-color: #16a085;"><h3>Cerrados</h3><p id="sso-personal">00</p></div>
     </div>
-    
-    <!-- 5. UI OPERADOR SSO (PERMISOS ATS) -->
-    <div id="ui-seguridad" class="card-full" style="display:none;">
-        <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO (ATS)</h3>
-        <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
-            <div id="contenedor-ejecutores">
-                <div class="grupo-ejecutor" style="margin-bottom:15px;">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
-                        <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border-radius:50%; width:35px; height:35px; border:none; cursor:pointer;">+</button>
-                    </div>
-                    <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>
-                </div>
-            </div>
-            <select id="p-fase" onchange="actualizarUbicaciones()"><option disabled selected>Area Labores</option></select>
-            <select id="p-ubicacion" disabled><option>Lugar específico</option></select>
-            <select id="p-tipo" onchange="actualizarChecklist()"><option disabled selected>Tipo de Trabajo</option></select>
-            <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
-                <label class="chk-label"><input type="checkbox" id="check-herramientas" class="chk-input" onchange="actualizarChecklist()"> ¿Usa Herramientas?</label>
-                <label class="chk-label"><input type="checkbox" id="check-colectiva" class="chk-input" onchange="actualizarChecklist()"> ¿Protección Colectiva?</label>
-            </div>
-            <div id="contenedor-checklist" style="display:none; margin-bottom:10px;">
-                <div id="lista-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; border:1px solid #c3e6cb; margin-bottom:5px; font-size:13px;"></div>
-                <div id="lista-herramientas" style="background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:5px; display:none; font-size:13px;"></div>
-                <div id="lista-colectiva" style="background:#e7f3ff; padding:10px; border-radius:10px; border:1px solid #b8daff; margin-bottom:5px; display:none; font-size:13px;"></div>
-            </div>
-            <textarea id="p-descripcion" rows="2" placeholder="Descripción detallada de la tarea..."></textarea>
-            <button id="btn-sso" class="btn" onclick="enviarPermisoSSO()">🚀 REGISTRAR PERMISO</button>
-            <button class="btn-salir" onclick="location.reload()">CERRAR / CANCELAR</button>
-        </div>
+    <div style="display:flex; gap:10px; justify-content:center; margin: 15px auto 25px; max-width:800px;">
+        <button class="btn" style="background:#d63031; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAIncidentes()">🚨 REPORTAR<br>INCIDENTE</button>
+        <button class="btn" style="background:#16a085; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAMedico()">⚕️ CONTROL<br>MÉDICO</button>
+        <button class="btn" style="background:#2c3e50; color:white; flex:1; font-size:11px; padding:15px 5px;" onclick="irAExtintores()">🧯 INSPECCIÓN<br>EXTINTORES</button>
     </div>
+    <div style="margin: 20px auto; max-width: 500px;">
+        <p style="margin:0; font-size:11px; font-weight:bold; color:#555; text-transform:uppercase;">Permisos activos para cierre</p>
+        <div id="contenedor-tabla-sso" style="background:#fff; border: 1px solid #ddd; border-radius:15px; min-height:60px; margin-top:5px; max-height:250px; overflow-y:auto;"></div>
+    </div>
+    <div class="box-descarga">
+        <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE SEGURIDAD INDUSTRIAL</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:10px; justify-content:center;">
+                <input type="date" id="f-ini-sso" style="width:45%;"><input type="date" id="f-fin-sso" style="width:45%;">
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:5px; justify-content:center;">
+                <button type="button" class="btn" onclick="descargarCSV_SSO()" style="background:#3498db; color:white; padding:12px; font-size:10px; flex:1;">📥 PERMISOS</button>
+                <button type="button" class="btn" onclick="descargarCSV_Incidentes()" style="background:#d63031; color:white; padding:12px; font-size:10px; flex:1;">📥 INCIDENTES</button>
+                <button type="button" class="btn" onclick="descargarCSV_Medico()" style="background:#16a085; color:white; padding:12px; font-size:10px; flex:1;">📥 MÉDICO</button>
+                <button type="button" class="btn" onclick="descargarCSV_Extintores()" style="background:#2c3e50; color:white; padding:12px; font-size:10px; flex:1;">📥 EXTINTORES</button>
+            </div>
+        </div> <!-- Cierre de flex-direction:column que faltaba -->
+    </div> <!-- Cierre de box-descarga que faltaba -->
+    <button class="btn-salir" onclick="location.reload()">CERRAR PANEL</button>
+</div>
+
+<!-- 5. UI OPERADOR SSO (PERMISOS ATS) -->
+<div id="ui-seguridad" class="card-full" style="display:none;">
+    <h3 style="color:var(--verde-oscuro); margin:0;">PERMISO DE TRABAJO SEGURO (ATS)</h3>
+    <div class="card-compacta" style="max-width:100%; margin:10px 0; text-align:left;">
+        <div id="contenedor-ejecutores">
+            <div class="grupo-ejecutor" style="margin-bottom:15px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" class="p-id-clase" placeholder="ID ejecutor" oninput="checkSSO_Dinamico(this)">
+                    <button type="button" onclick="agregarFilaEjecutor()" style="background:#3498db; color:white; border-radius:50%; width:35px; height:35px; border:none; cursor:pointer;">+</button>
+                </div>
+                <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>
+            </div>
+        </div>
+        <select id="p-fase" onchange="actualizarUbicaciones()"><option disabled selected>Area Labores</option></select>
+        <select id="p-ubicacion" disabled><option>Lugar específico</option></select>
+        <select id="p-tipo" onchange="actualizarChecklist()"><option disabled selected>Tipo de Trabajo</option></select>
+        <div style="display:flex; flex-direction:column; gap:5px; margin:10px 0;">
+            <label class="chk-label"><input type="checkbox" id="check-herramientas" class="chk-input" onchange="actualizarChecklist()"> ¿Usa Herramientas?</label>
+            <label class="chk-label"><input type="checkbox" id="check-colectiva" class="chk-input" onchange="actualizarChecklist()"> ¿Protección Colectiva?</label>
+        </div>
+        <div id="contenedor-checklist" style="display:none; margin-bottom:10px;">
+            <div id="lista-epp" style="background:#f0fdf0; padding:10px; border-radius:10px; border:1px solid #c3e6cb; margin-bottom:5px; font-size:13px;"></div>
+            <div id="lista-herramientas" style="background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffeeba; margin-bottom:5px; display:none; font-size:13px;"></div>
+            <div id="lista-colectiva" style="background:#e7f3ff; padding:10px; border-radius:10px; border:1px solid #b8daff; margin-bottom:5px; display:none; font-size:13px;"></div>
+        </div>
+        <textarea id="p-descripcion" rows="2" placeholder="Descripción detallada de la tarea..."></textarea>
+        <button id="btn-sso" class="btn" onclick="enviarPermisoSSO()">🚀 REGISTRAR PERMISO</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR / CANCELAR</button>
+    </div>
+</div>
     
     <!-- 6. UI OPERACIONES (OT) -->
     <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
