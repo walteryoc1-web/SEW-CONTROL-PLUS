@@ -527,40 +527,42 @@
 
       async function vincularDatosPermiso(folio) {
     const display = document.getElementById('datos-vinculados-sso');
-    if (!folio) return alert("❌ Ingrese el folio SSO");
-    display.innerHTML = "⌛ Verificando folio en el servidor...";
+    if (!folio) return alert("❌ Ingrese el folio");
+    display.innerHTML = "⌛ Escaneando base de datos...";
     
     try {
-        const url = URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now();
-        const res = await fetch(url);
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
         const data = await res.json();
         
-        // Limpieza extrema del folio buscado
         const busqueda = folio.toString().toUpperCase().trim();
         
-        // Buscamos en la lista recibida
+        // 🔍 Buscamos la fila que CONTENGA el folio
         const encontrado = data.find(r => {
-            const fEnFila = r.datos.split(";")[0].toUpperCase().trim();
-            return fEnFila === busqueda;
+            return r.datos.toUpperCase().includes(busqueda);
         });
 
         if (encontrado) {
             const d = encontrado.datos.split(";");
-            window.datosVinculados = { folioATS: d[0], fase: d[2], ubi: d[3], tipo: d[4] };
+            // Ajustamos los índices basándonos en que:
+            // d[1]=Folio, d[3]=Fase, d[4]=Ubicación, d[5]=Tipo
+            window.datosVinculados = { 
+                folioATS: d[1] || busqueda, 
+                fase: d[3] || "N/A", 
+                ubi: d[4] || "N/A", 
+                tipo: d[5] || "N/A" 
+            };
             
             display.innerHTML = `
                 <div style='background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #c3e6cb; color:#27ae60;'>
-                    <b>✅ ATS ENCONTRADO Y VINCULADO</b><br>
-                    <small>Folio: ${d[0]}</small><br>
-                    <small>📍 ${d[2]} - ${d[3]}</small>
+                    <b>✅ ATS VINCULADO</b><br>
+                    <small>📍 ${window.datosVinculados.fase} - ${window.datosVinculados.ubi}</small>
                 </div>`;
-            console.log("Vínculo OK:", window.datosVinculados);
         } else { 
-            alert("❌ ERROR: El folio '" + busqueda + "' no se encuentra en la hoja SSO.\n\nRevise que el folio esté en la columna B de la hoja SSO."); 
+            alert("❌ El folio '" + busqueda + "' no se encuentra en ninguna columna de la hoja SSO."); 
             display.innerHTML = ""; 
         }
     } catch (e) {
-        alert("⚠️ Error de red: No se pudo conectar con la base de datos.");
+        alert("⚠️ Error de conexión.");
     }
 }
         async function enviarIncidenteCompleto() {
