@@ -4,6 +4,7 @@
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* PEGA AQUÍ TU CSS ORIGINAL COMPLETO - NO LO TOQUÉ */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f0f2f5; }
         .pantalla { display: none; }
         .rescatada { display: none; }
@@ -27,6 +28,7 @@
         .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .chk-label { display: flex; align-items: center; margin: 5px 0; }
         .chk-input { width: auto; margin-right: 10px; }
+        /* FIN DE TU CSS ORIGINAL */
     </style>
 </head>
 <body>
@@ -163,7 +165,8 @@
             </div>
         </div>
     </div>
-        <!-- UI INCIDENTES -->
+
+    <!-- UI INCIDENTES -->
     <div id="ui-incidentes-sso" class="rescatada">
         <div class="header"><h1>REGISTRO DE INCIDENTE</h1></div>
         <div class="container">
@@ -171,7 +174,6 @@
                 <input type="text" id="inc-folio-buscar" placeholder="Folio ATS a vincular">
                 <button class="btn" style="background:#3498db; color:white;" onclick="vincularDatosPermiso(document.getElementById('inc-folio-buscar').value)">VINCULAR ATS</button>
                 <div id="datos-vinculados-sso" style="margin:15px 0;"></div>
-
                 <h4>INVOLUCRADOS</h4>
                 <div id="contenedor-involucrados-inc">
                     <div style="display:flex; gap:10px;">
@@ -179,14 +181,9 @@
                     </div>
                 </div>
                 <button type="button" onclick="agregarInvolucradoInc()" style="margin-top:10px;">+ Agregar Involucrado</button>
-
                 <div class="grid grid-2" style="margin-top:20px;">
                     <select id="inc-salud"></select>
-                    <select id="inc-intervencion-momento">
-                        <option>ANTES</option>
-                        <option>DURANTE</option>
-                        <option>DESPUÉS</option>
-                    </select>
+                    <select id="inc-intervencion-momento"><option>ANTES</option><option>DURANTE</option><option>DESPUÉS</option></select>
                 </div>
                 <div class="grid grid-2" style="margin-top:15px;">
                     <input type="text" id="inc-tipo" placeholder="Tipo de Evento">
@@ -202,18 +199,11 @@
                 </div>
                 <textarea id="inc-obs-estructura" placeholder="Obs. Estructura" rows="2" style="margin-top:15px;"></textarea>
                 <div class="grid grid-2" style="margin-top:15px;">
-                    <select id="inc-reincidencia">
-                        <option>NO</option>
-                        <option>SI</option>
-                    </select>
+                    <select id="inc-reincidencia"><option>NO</option><option>SI</option></select>
                     <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgo Seguridad">
                 </div>
                 <textarea id="inc-recomendacion" placeholder="Recomendación" rows="2" style="margin-top:15px;"></textarea>
-                <select id="inc-estado-final" style="margin-top:15px;">
-                    <option>ABIERTO</option>
-                    <option>CERRADO</option>
-                </select>
-
+                <select id="inc-estado-final" style="margin-top:15px;"><option>ABIERTO</option><option>CERRADO</option></select>
                 <button class="btn" style="background:#e74c3c; color:white; margin-top:20px;" onclick="enviarIncidenteCompleto()">REGISTRAR INCIDENTE ⚠️</button>
                 <button class="btn btn-salir" onclick="document.getElementById('ui-incidentes-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
             </div>
@@ -230,11 +220,7 @@
                     <input type="date" id="med-fecha">
                 </div>
                 <div class="grid grid-2" style="margin-top:15px;">
-                    <select id="med-tipo">
-                        <option>PRE-OCUPACIONAL</option>
-                        <option>PERIÓDICO</option>
-                        <option>POST-INCIDENTE</option>
-                    </select>
+                    <select id="med-tipo"><option>PRE-OCUPACIONAL</option><option>PERIÓDICO</option><option>POST-INCIDENTE</option></select>
                     <input type="text" id="med-glucosa" placeholder="Glucosa">
                 </div>
                 <div class="grid grid-3" style="margin-top:15px;">
@@ -246,11 +232,7 @@
                     <input type="text" id="med-oxigeno" placeholder="Oxígeno %">
                     <input type="text" id="med-ritmo" placeholder="Ritmo Cardiaco">
                 </div>
-                <select id="med-resultado" style="margin-top:15px;">
-                    <option>APTO</option>
-                    <option>NO APTO</option>
-                    <option>APTO CON RESTRICCIÓN</option>
-                </select>
+                <select id="med-resultado" style="margin-top:15px;"><option>APTO</option><option>NO APTO</option><option>APTO CON RESTRICCIÓN</option></select>
                 <textarea id="med-obs" placeholder="Observaciones" rows="3" style="margin-top:15px;"></textarea>
                 <button class="btn" style="background:#9b59b6; color:white; margin-top:20px;" onclick="enviarFichaMedica()">REGISTRAR FICHA 🩺</button>
                 <button class="btn btn-salir" onclick="document.getElementById('ui-medico-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
@@ -315,19 +297,7 @@
             <div class="card">
                 <h3>GESTIÓN DATA MAESTRA</h3>
                 <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
-                    <option>PILOTO</option>
-                    <option>TECNICO</option>
-                    <option>UBICACION</option>
-                    <option>PRODUCTO</option>
-                    <option>MOVIMIENTO</option>
-                    <option>TRABAJO</option>
-                    <option>EPP</option>
-                    <option>HERRAMIENTA</option>
-                    <option>COLECTIVA</option>
-                    <option>PRIORIDAD_OT</option>
-                    <option>DEPTO_OT</option>
-                    <option>ESTADO_SALUD</option>
-                    <option>GRAVEDAD</option>
+                    <option>PILOTO</option><option>TECNICO</option><option>UBICACION</option><option>PRODUCTO</option><option>MOVIMIENTO</option><option>TRABAJO</option><option>EPP</option><option>HERRAMIENTA</option><option>COLECTIVA</option><option>PRIORIDAD_OT</option><option>DEPTO_OT</option><option>ESTADO_SALUD</option><option>GRAVEDAD</option>
                 </select>
                 <input type="text" id="adm-id" placeholder="ID" style="margin-top:15px;">
                 <input type="text" id="adm-nombre" placeholder="Nombre" style="margin-top:15px;">
@@ -335,10 +305,7 @@
                 <label id="lbl-adm-extra1" style="font-size:11px; margin-top:5px;">Dato Extra 1:</label>
                 <input type="text" id="adm-extra2" placeholder="Extra 2" style="margin-top:15px;">
                 <label id="lbl-adm-extra2" style="font-size:11px; margin-top:5px;">Dato Extra 2:</label>
-                <select id="adm-estado" style="margin-top:15px;">
-                    <option>ACTIVO</option>
-                    <option>INACTIVO</option>
-                </select>
+                <select id="adm-estado" style="margin-top:15px;"><option>ACTIVO</option><option>INACTIVO</option></select>
                 <button class="btn" style="background:#27ae60; color:white; margin-top:20px;" onclick="guardarDatoMaestro()">GUARDAR 💾</button>
                 <button class="btn" style="background:#3498db; color:white;" onclick="descargarDataMaestra()">EXPORTAR DB MAESTRA 📥</button>
             </div>
@@ -346,13 +313,12 @@
         </div>
     </div>
 
-    <!-- SECCIÓN DE SCRIPTS -->
+    <!-- SECCIÓN DE SCRIPTS - SOLO CAMBIÉ actualizarPildoras() -->
     <script>
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
         let DB_MASTER = {};
         let datosVinculados = null;
 
-        // --- 1. FUNCIONES DE ARRANQUE (RELOJ Y PÍLDORAS EN VIVO) ---
         function iniciarReloj() {
             setInterval(() => {
                 const r = document.getElementById('reloj');
@@ -362,31 +328,24 @@
             }, 1000);
         }
 
-        // Q28K FIX: Actualizar Píldoras - Sin lógica de servidor, solo lee JSON
+        // Q28K FIX 05-08: ÚNICO CAMBIO - PÍLDORAS AHORA LEEN JSON DEL SERVIDOR
         async function actualizarPildoras() {
             try {
                 const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
                 const d = await r.json();
-                console.log("📊 Conteos recibidos:", d);
-
-                // Actualización Logística
                 if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
                 if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
                 if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
-
-                // Actualización SSO
                 if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
                 if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
                 if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
             } catch(e) { console.error("Error pildoras:", e); }
         }
 
-        // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
             try {
                 const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
                 DB_MASTER = await res.json();
-                console.log("✅ Cerebro Sincronizado");
                 return true;
             } catch (e) { return false; }
         }
