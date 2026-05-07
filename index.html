@@ -358,9 +358,13 @@
                 console.log("📊 Conteos recibidos:", d);
 
                 // Actualización Logística
-                if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
+                var mov = String(vL[i][3] || "").trim().toUpperCase();
+                if(!isNaN(fechaFila.getTime()) && fechaFila >= corte){
+                if(mov == "ARRIBO") totalArribos++;
+                else if(mov == "ENTRADA") totalEntradas++;
+                else if(mov == "CONTROL 1") totalControl1++;
+                else if(mov == "SALIDA" || mov == "DESPACHADA") totalSalidas++;
+        }
                 
                 // Actualización SSO
                 if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
