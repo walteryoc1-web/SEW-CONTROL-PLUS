@@ -524,12 +524,15 @@
         else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
     } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
 }
-
-      async function vincularDatosPermiso(folio) {
+async function vincularDatosPermiso(folio) {
     const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
     const data = await res.json();
-    const busqueda = folio.toUpperCase().trim();
-    const encontrado = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === busqueda);
+    const busqueda = folio.toString().toUpperCase().trim(); // toString() es la clave
+
+    const encontrado = data.find(r => {
+        const d = r.datos.split(";");
+        return d[0].toString().toUpperCase().trim() === busqueda; // toString() aquí también
+    });
 
     if (encontrado) {
         const d = encontrado.datos.split(";");
