@@ -524,22 +524,24 @@
         else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
     } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
 }
-        async function vincularDatosPermiso(folio) {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
+       async function vincularDatosPermiso(folio) {
+    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), {
+        cache: "no-store"
+    });
     const data = await res.json();
     const busqueda = String(folio || "").toUpperCase().trim();
 
     const encontrado = data.find(r => {
         const d = r.datos.split(";");
-        const folioEnHoja = String(d[1] || "").toUpperCase().trim(); // d[1] = folio
+        const folioEnHoja = String(d[0] || "").toUpperCase().trim(); // d[0] = folio ahora
         return folioEnHoja === busqueda;
     });
 
     if (encontrado) {
         const d = encontrado.datos.split(";");
         window.datosVinculados = {
-            folioATS: d[1], // d[1] = folio
-            personal: d[0], // d[0] = nombre
+            folioATS: d[0], // d[0] = folio
+            personal: d[1], // d[1] = nombre
             fase: d[2],
             ubi: d[3],
             tipo: d[4]
@@ -547,16 +549,16 @@
         document.getElementById('datos-vinculados-sso').innerHTML = `
             <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60;'>
                 <b>✅ ATS VINCULADO</b><br>
-                <small>🆔 Folio: ${d[1]}</small><br>
-                <small>👤 Personal: ${d[0]}</small>
+                <small>🆔 Folio: ${d[0]}</small><br>
+                <small>👤 Personal: ${d[1]}</small>
             </div>`;
     } else {
         console.log("Buscado:", `"${busqueda}"`);
-        console.log("Folios en hoja:", data.slice(0,5).map(r => `"${String(r.datos.split(";")[1]).trim()}"`));
+        console.log("Datos crudos:", data.slice(0,2)); // Mira qué trae data realmente
+        console.log("Folios en hoja:", data.slice(0,5).map(r => `"${String(r.datos.split(";")[0]).trim()}"`));
         alert("❌ Folio no encontrado");
     }
 }
-
         async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
             const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
