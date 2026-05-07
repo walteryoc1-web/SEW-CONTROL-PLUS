@@ -526,43 +526,21 @@
 }
 
       async function vincularDatosPermiso(folio) {
-    const display = document.getElementById('datos-vinculados-sso');
-    if (!folio) return;
-    display.innerHTML = "⌛ Vinculando...";
-    
-    try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
-        const data = await res.json();
-        const busqueda = folio.toString().toUpperCase().trim();
-        
-        // 🔍 Buscamos el folio (d[0] siempre será el primer dato del string)
-        const encontrado = data.find(r => {
-            const folioEnLista = r.datos.split(";")[0].toString().toUpperCase().trim();
-            return folioEnLista === busqueda;
-        });
+    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
+    const data = await res.json();
+    const busqueda = folio.toUpperCase().trim();
+    const encontrado = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === busqueda);
 
-        if (encontrado) {
-            const d = encontrado.datos.split(";");
-            window.datosVinculados = { 
-                folioATS: d[0], 
-                personal: d[1], 
-                fase: d[2], 
-                ubi: d[3], 
-                tipo: d[4] 
-            };
-            
-            display.innerHTML = `
-                <div style='background:#e8f5e9; padding:12px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'>
-                    <b>✅ VINCULADO CON ÉXITO</b><br>
-                    <small>🆔 Folio: ${d[0]}</small><br>
-                    <small>👤 Personal: ${d[1]}</small><br>
-                    <small>📍 Área: ${d[2]} - ${d[3]}</small>
-                </div>`;
-        } else {
-            alert("❌ El folio '" + busqueda + "' no existe.\n\nPruebe copiando el folio exacto de la Columna B.");
-            display.innerHTML = "";
-        }
-    } catch (e) { alert("⚠️ Error de conexión."); }
+    if (encontrado) {
+        const d = encontrado.datos.split(";");
+        window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
+        document.getElementById('datos-vinculados-sso').innerHTML = `
+            <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60;'>
+                <b>✅ ATS VINCULADO</b><br>
+                <small>🆔 Folio: ${d[0]}</small><br>
+                <small>👤 Personal: ${d[1]}</small>
+            </div>`;
+    } else { alert("❌ Folio no encontrado"); }
 }
           async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
