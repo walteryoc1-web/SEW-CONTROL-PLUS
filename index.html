@@ -528,24 +528,21 @@
       async function vincularDatosPermiso(folio) {
     const display = document.getElementById('datos-vinculados-sso');
     if (!folio) return;
-    display.innerHTML = "⌛ Vinculando Folio...";
+    display.innerHTML = "⌛ Vinculando...";
     
     try {
         const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
         const data = await res.json();
-        
-        // Limpiamos el folio que escribes para que sea exacto
         const busqueda = folio.toString().toUpperCase().trim();
         
-        // 🔍 Buscamos el folio en el índice 0 del split
-        const p = data.find(r => {
+        // 🔍 Buscamos el folio (d[0] siempre será el primer dato del string)
+        const encontrado = data.find(r => {
             const folioEnLista = r.datos.split(";")[0].toString().toUpperCase().trim();
             return folioEnLista === busqueda;
         });
 
-        if (p) {
-            const d = p.datos.split(";");
-            // Guardamos los datos para el envío del incidente
+        if (encontrado) {
+            const d = encontrado.datos.split(";");
             window.datosVinculados = { 
                 folioATS: d[0], 
                 personal: d[1], 
@@ -555,21 +552,19 @@
             };
             
             display.innerHTML = `
-                <div style='background:#e8f5e9; padding:15px; border-radius:10px; border:1px solid #c3e6cb; color:#27ae60;'>
-                    <b>✅ ATS VINCULADO:</b> ${d[0]}<br>
+                <div style='background:#e8f5e9; padding:12px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'>
+                    <b>✅ VINCULADO CON ÉXITO</b><br>
+                    <small>🆔 Folio: ${d[0]}</small><br>
                     <small>👤 Personal: ${d[1]}</small><br>
                     <small>📍 Área: ${d[2]} - ${d[3]}</small>
                 </div>`;
         } else {
-            // Si no lo encuentra, mostramos un mensaje de ayuda
-            alert("❌ Folio '" + busqueda + "' no hallado.\n\nEl sistema cargó " + data.length + " registros.\nVerifique que el folio esté en la COLUMNA B de la hoja SSO.");
+            alert("❌ El folio '" + busqueda + "' no existe.\n\nPruebe copiando el folio exacto de la Columna B.");
             display.innerHTML = "";
         }
-    } catch (e) {
-        alert("⚠️ Error de conexión con Google Sheets.");
-    }
+    } catch (e) { alert("⚠️ Error de conexión."); }
 }
-        async function enviarIncidenteCompleto() {
+          async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
             const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
             const involucradosNombres = ids.map(id => {
