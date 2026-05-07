@@ -35,7 +35,7 @@
         <span style="font-size:10px; color:#888;">SEW-CONTROL PLUS V2</span>
         <input type="text" id="u" placeholder="Usuario" autofocus>
         <input type="password" id="p" placeholder="Contraseña">
-        <button class="btn" onclick="entrar()">INGRESAR</button>
+        <button id="btn-login" class="btn" onclick="entrar()">INGRESAR</button>
         <p style="font-size: 10px; color: #bbb; margin-top: 15px;">Puerto Quetzal, Guatemala</p>
     </div>
 
@@ -349,50 +349,49 @@
         }
 
         async function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            const btn = document.querySelector('#login.btn'); // ✅ FIX
-            const originalText = "INGRESAR";
-            btn.innerText = "INGRESANDO... ⏳"; btn.disabled = true;
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const btn = document.getElementById('btn-login'); // ✅ FIX DEFINITIVO
+    const originalText = "INGRESAR";
+    btn.innerText = "INGRESANDO... ⏳"; btn.disabled = true;
 
-            await cargarCerebroSistema();
+    await cargarCerebroSistema();
 
-            if (u == "operador" && p == "operador") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-app').style.display='block';
-                llenarDesplegablesLogistica();
-            }
-            else if (u == "supervisor" && p == "supervisor") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-            }
-            else if (u == "supervisor sso" && p == "supervisorsso") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-monitor-sso').style.display='block';
-                actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-            }
-            else if (u == "sso" && p == "sso") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-seguridad').style.display='block';
-                llenarDesplegablesSSO();
-            }
-            else if (u == "operaciones" && p == "operaciones") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-operaciones').style.display='block';
-                llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
-            }
-            else if (u == "admin" && p == "quetzal2026") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('ui-admin-datos').style.display='block';
-                ajustarLabelsAdmin();
-            }
-            else {
-                alert("❌ Credenciales incorrectas");
-                btn.innerText = originalText; btn.disabled = false;
-            }
-        }
-
+    if (u == "operador" && p == "operador") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-app').style.display='block';
+        llenarDesplegablesLogistica();
+    }
+    else if (u == "supervisor" && p == "supervisor") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-supervisor').style.display='block';
+        iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+    }
+    else if (u == "supervisor sso" && p == "supervisorsso") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-monitor-sso').style.display='block';
+        actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+    }
+    else if (u == "sso" && p == "sso") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-seguridad').style.display='block';
+        llenarDesplegablesSSO();
+    }
+    else if (u == "operaciones" && p == "operaciones") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-operaciones').style.display='block';
+        llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
+    }
+    else if (u == "admin" && p == "quetzal2026") {
+        document.getElementById('login').style.display='none';
+        document.getElementById('ui-admin-datos').style.display='block';
+        ajustarLabelsAdmin();
+    }
+    else {
+        alert("❌ Credenciales incorrectas");
+        btn.innerText = originalText; btn.disabled = false;
+    }
+}
         // --- 3. LLENADO DE SELECTS ---
         function llenarDesplegablesLogistica() {
             const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
