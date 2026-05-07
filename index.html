@@ -527,43 +527,26 @@
 
       async function vincularDatosPermiso(folio) {
     const display = document.getElementById('datos-vinculados-sso');
-    if (!folio) return alert("❌ Ingrese el folio");
-    display.innerHTML = "⌛ Escaneando base de datos...";
+    if (!folio) return;
+    display.innerHTML = "⌛ Vinculando...";
     
     try {
-        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&cache=" + Date.now());
         const data = await res.json();
+        const busqueda = folio.toUpperCase().trim();
         
-        const busqueda = folio.toString().toUpperCase().trim();
-        
-        // 🔍 Buscamos la fila que CONTENGA el folio
-        const encontrado = data.find(r => {
-            return r.datos.toUpperCase().includes(busqueda);
-        });
+        // 🔍 Buscamos coincidencia exacta en el Folio (Primer campo)
+        const p = data.find(r => r.datos.split(";")[0].toUpperCase().trim() === busqueda);
 
-        if (encontrado) {
-            const d = encontrado.datos.split(";");
-            // Ajustamos los índices basándonos en que:
-            // d[1]=Folio, d[3]=Fase, d[4]=Ubicación, d[5]=Tipo
-            window.datosVinculados = { 
-                folioATS: d[1] || busqueda, 
-                fase: d[3] || "N/A", 
-                ubi: d[4] || "N/A", 
-                tipo: d[5] || "N/A" 
-            };
-            
-            display.innerHTML = `
-                <div style='background:#e8f5e9; padding:10px; border-radius:10px; border:1px solid #c3e6cb; color:#27ae60;'>
-                    <b>✅ ATS VINCULADO</b><br>
-                    <small>📍 ${window.datosVinculados.fase} - ${window.datosVinculados.ubi}</small>
-                </div>`;
-        } else { 
-            alert("❌ El folio '" + busqueda + "' no se encuentra en ninguna columna de la hoja SSO."); 
-            display.innerHTML = ""; 
+        if (p) {
+            const d = p.datos.split(";");
+            window.datosVinculados = { folioATS: d[0], fase: d[2], ubi: d[3], tipo: d[4] };
+            display.innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; border:1px solid #c3e6cb;'><b>✅ VINCULADO:</b> ${d[0]}</div>`;
+        } else {
+            alert("❌ Folio no hallado. Copie el folio exacto de la columna B de su hoja SSO.");
+            display.innerHTML = "";
         }
-    } catch (e) {
-        alert("⚠️ Error de conexión.");
-    }
+    } catch (e) { alert("⚠️ Error de red"); }
 }
         async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
