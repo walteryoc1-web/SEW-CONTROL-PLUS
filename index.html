@@ -7,7 +7,7 @@
     <style>
         :root { --verde: #ABED87; --verde-oscuro: #5a8a3d; --gris-bg: #f4f7f6; --azul-reloj: #3498db; } 
         body { font-family: sans-serif; background: var(--gris-bg); padding: 0; margin: 0; text-align: center; }
-        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
+        .card-compacta { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0.1); width: 90%; max-width: 400px; margin: 50px auto; border-top: 8px solid var(--verde); box-sizing: border-box; }
         .card-full { background: white; padding: 20px; width: 100%; min-height: 100vh; margin: 0; border-top: 8px solid var(--verde); box-sizing: border-box; display: none; text-align: center; }
         input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ccc; font-size: 16px; box-sizing: border-box; }
         .btn { background: var(--verde); border: none; padding: 18px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; color: #333; font-size: 16px; }
@@ -61,7 +61,7 @@
         </div>
         <div class="reloj-container">
             <div id="fecha-actual" style="font-size: 14px; color: #7f8c8d; font-weight: bold; margin-bottom: 5px;"></div>
-            <div id="reloj">00:00:00</div>
+            <div id="reloj">00:00</div>
         </div>
         <div class="box-descarga">
             <p style="margin:0 0 10px; font-size:12px; font-weight:bold;">REPORTES DE LOGÍSTICA (BÁSCULA)</p>
@@ -70,6 +70,7 @@
                 <input type="date" id="f-fin" style="margin:0; padding:10px; font-size:12px;">
                 <button class="btn" style="padding:10px; width:auto; font-size:12px;" onclick="descargarCSV()">📥 DESCARGAR</button>
             </div>
+        </div>
         <button class="btn-salir" onclick="location.reload()">SALIR</button>
     </div>
     
@@ -119,6 +120,7 @@
                     </div>
                     <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>
                 </div>
+            </div>
             <select id="p-fase" onchange="actualizarUbicaciones()"><option disabled selected>Area Labores</option></select>
             <select id="p-ubicacion" disabled><option>Lugar específico</option></select>
             <select id="p-tipo" onchange="actualizarChecklist()"><option disabled selected>Tipo de Trabajo</option></select>
@@ -161,7 +163,6 @@
                 </div>
                 <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:10px; font-size:11px;">📥 DESCARGAR EXCEL OT</button>
             </div>
-        </div>
         <div id="ot-seccion-cierre" style="display:none;">
             <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
             <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
@@ -218,7 +219,7 @@
         </div>
     </div>
     
-    <!-- 🚨 ZONA DE RESCATE: FORMULARIOS FIXED -->
+    <!-- UI INFORME TÉCNICO INCIDENTE -->
     <div id="ui-incidentes-sso" class="rescatada">
         <div style="background:#d63031; color:white; padding:20px; text-align:center;"><h2 style="margin:0; font-size:20px;">INFORME TÉCNICO SSO</h2></div>
         <div style="padding:25px; max-width:800px; margin:auto;">
@@ -234,6 +235,7 @@
                     <input type="text" class="inc-id-clase" placeholder="ID colaborador" onblur="checkInvolucradoIncidente(this)" style="flex:1;">
                     <button type="button" class="btn" style="width:50px; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
                 </div>
+            </div>
             <label style="font-weight:bold; display:block; margin-top:15px;">Estado de Salud:</label>
             <select id="inc-salud"><option value="SIN_AFECTADOS">No hay afectados</option></select>
             <label style="font-weight:bold; color:#e67e22; margin-top:20px; display:block;">3. ⚖️ ACCIONES Y RIESGO</label>
@@ -262,15 +264,16 @@
         </div>
     </div>
 
+    <!-- UI MÉDICO -->
     <div id="ui-medico-sso" class="rescatada">
         <div style="background:#16a085; color:white; padding:20px; text-align:center;"><h2 style="margin:0; font-size:20px;">FICHA DE CONTROL MÉDICO</h2></div>
         <div style="padding:25px; max-width:800px; margin:auto;">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px; margin-bottom:20px;">
                 <input type="text" id="med-id" placeholder="ID COLABORADOR" style="text-transform:uppercase;">
                 <input type="date" id="med-fecha">
                 <select id="med-tipo"><option>Pre-empleo</option><option selected>Control Periódico</option><option>Post-Incidente</option></select>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background:#f9f9; padding:20px; border-radius:15px; margin-bottom:20px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; background:#f9; padding:20px; border-radius:15px; margin-bottom:20px;">
                 <div><label style="font-size:11px;">💉 GLUCOSA</label><input type="number" id="med-glucosa"></div>
                 <div><label style="font-size:11px;">💓 PRESIÓN</label><input type="text" id="med-presion" placeholder="120/80"></div>
                 <div><label style="font-size:11px;">🌡️ TEMP.</label><input type="number" id="med-temp" step="0.1"></div>
@@ -285,6 +288,7 @@
         </div>
     </div>
     
+    <!-- UI EXTINTORES -->
     <div id="ui-extintores-sso" class="rescatada">
         <div style="background:#2c3e50; color:white; padding:20px; text-align:center;"><h2 style="margin:0; font-size:20px;">INSPECCIÓN DE EXTINTORES</h2></div>
         <div style="padding:25px; max-width:800px; margin:auto;">
@@ -309,7 +313,7 @@
     <script>
         const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
         let DB_MASTER = {};
-         let datosVinculados = null;
+        let datosVinculados = null;
 
         // --- 1. FUNCIONES DE ARRANQUE (RELOJ Y PÍLDORAS EN VIVO) ---
         function iniciarReloj() {
@@ -328,12 +332,10 @@
                 const d = await r.json();
                 console.log("📊 Conteos recibidos:", d);
 
-                // Actualización Logística
                 if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
                 if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
                 if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
 
-                // Actualización SSO
                 if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
                 if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
                 if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
@@ -480,6 +482,7 @@
             div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:red; color:white; border-radius:50%; width:30px; border:none;">-</button></div><div class="personal-box-clase" style="display:none; font-size:12px; padding:5px;"></div>`;
             cont.appendChild(div);
         }
+
         // --- 6. ENVÍOS TÉCNICOS SSO Y OT ---
         async function enviarPermisoSSO() {
             const btn = document.getElementById('btn-sso');
@@ -495,28 +498,19 @@
                 else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
             } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
         }
+
        async function vincularDatosPermiso(folio) {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), {
-                cache: "no-store"
-            });
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), { cache: "no-store" });
             const data = await res.json();
             const busqueda = String(folio || "").toUpperCase().trim();
-
             const encontrado = data.find(r => {
                 const d = r.datos.split(";");
                 const folioEnHoja = String(d[0] || "").toUpperCase().trim();
                 return folioEnHoja === busqueda;
             });
-
             if (encontrado) {
                 const d = encontrado.datos.split(";");
-                window.datosVinculados = {
-                    folioATS: d[0],
-                    personal: d[1],
-                    fase: d[2],
-                    ubi: d[3],
-                    tipo: d[4]
-                };
+                window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
                 document.getElementById('datos-vinculados-sso').innerHTML = `
                     <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60;'>
                         <b>✅ ATS VINCULADO</b><br>
@@ -530,6 +524,7 @@
                 alert("❌ Folio no encontrado");
             }
         }
+
         async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
             const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
@@ -585,44 +580,33 @@
             alert("✅ REGISTRADA"); location.reload();
         }
 
-        // ==========================================
-        // 📥 MOTOR DE REPORTES Y DESCARGAS COMPLETAS
-        // ==========================================
-
         // ✅ CAMBIO Q28K #2: procesarDescargaUniversal() maneja arrays del nuevo backend
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
-
             console.log("⌛ Preparando descarga: " + nombre);
             try {
                 const url = `${URL_SCRIPT}?accion=${accion}&t=${Date.now()}`;
                 const res = await fetch(url);
                 const data = await res.json();
-
                 if (!Array.isArray(data)) {
                     console.error("Respuesta no válida:", data);
                     return alert("❌ Error: El servidor no devolvió una lista de registros.");
                 }
-
-                // 🔍 FILTRADO DE FECHAS (Soporta formatos DD/MM/YYYY y YYYY-MM-DD)
                 const fil = data.filter(r => {
                     if (!r.fecha) return false;
                     let fISO = r.fecha.toString().substring(0, 10).replace(/\//g, '-');
-                    if(fISO.indexOf('-') === 2) { // Si es DD-MM-YYYY
+                    if(fISO.indexOf('-') === 2) {
                         let p = fISO.split('-');
                         fISO = `${p[2]}-${p[1]}-${p[0]}`;
                     }
                     return fISO >= ini && fISO <= fin;
                 });
-
                 if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
-
                 let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
                 fil.forEach(r => {
                     const datosLimpios = r.datos? r.datos.replace(/;/g, ",") : "";
                     csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
                 });
-
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
@@ -635,35 +619,27 @@
             }
         }
 
-        // --- ASIGNACIÓN DE BOTONES DE REPORTES ---
         function descargarCSV() {
             procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica");
         }
-
         function descargarCSV_SSO() {
             procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO");
         }
-
         function descargarCSV_Incidentes() {
             procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes");
         }
-
         function descargarCSV_Medico() {
             procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico");
         }
-
         function descargarCSV_Extintores() {
             procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores");
         }
-
         function descargarCSV_OT() {
-            // Busca primero en fechas de OT, si no, usa las de SSO
             const ini = document.getElementById('f-ini-ot')?.value || document.getElementById('f-ini-sso').value;
             const fin = document.getElementById('f-fin-ot')?.value || document.getElementById('f-fin-sso').value;
             procesarDescargaUniversal("reporteOT", ini, fin, "Ordenes_Trabajo");
         }
 
-        // --- FUNCIÓN DE EXPORTACIÓN PARA ADMINISTRADOR ---
         function descargarDataMaestra() {
             try {
                 let csv = "\uFEFFCATEGORIA,ID,NOMBRE,EXTRA1,EXTRA2,ESTADO\n";
@@ -680,7 +656,6 @@
             } catch (e) { alert("❌ Error exportando base de datos."); }
         }
 
-        // --- MOTOR DE PDF ---
         function descargarBase64PDF(b, n) {
             if(!b || b.length < 500) return;
             const a = document.createElement("a");
@@ -689,25 +664,20 @@
             a.click();
         }
 
-        // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
+        // --- 8. ADMIN Y APOYO ---
        async function guardarDatoMaestro() {
             const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
             const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
             const cat = document.getElementById('adm-categoria').value;
-
             let duplicado = null;
-            // 🛡️ RECORRE TODA LA DATA MAESTRA BUSCANDO EL DPI
             for (let c in DB_MASTER) {
                 const lista = Array.isArray(DB_MASTER[c])? DB_MASTER[c] : [];
                 duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpiNuevo);
                 if (duplicado) break;
             }
-
-            // 🚫 SI ENCUENTRA EL DPI PERO CON OTRO ID, BLOQUEA EL REGISTRO
             if (duplicado && duplicado.id!== idNuevo) {
                 return alert(`🚫 BLOQUEADO: El DPI ${dpiNuevo} ya está registrado con el ID ${duplicado.id} (${duplicado.nombre}).`);
             }
-
             const payload = {
                 action: "guardarConfig",
                 categoria: cat,
@@ -717,7 +687,6 @@
                 extra2: dpiNuevo,
                 extra3: document.getElementById('adm-estado').value
             };
-
             await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
             alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
             location.reload();
@@ -826,4 +795,4 @@
         window.onload = () => { cargarCerebroSistema(); };
     </script>
 </body>
-</html>
+</html> 
