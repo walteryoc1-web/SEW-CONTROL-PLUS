@@ -40,36 +40,19 @@
         <p style="font-size: 10px; color: #bbb; margin-top: 15px;">Puerto Quetzal, Guatemala</p>
     </div>
 
-    <!-- UI OPERADOR LOGISTICA -->
-    <div id="ui-app" class="pantalla">
-        <div class="header"><h1>LOGÍSTICA</h1></div>
-        <div class="container">
-            <div class="card">
-                <div class="grid grid-2">
-                    <div>
-                        <label>ID Piloto</label>
-                        <input type="text" id="id-in" oninput="check()">
-                        <div id="piloto-box" style="display:none; background:#e8f5e9; padding:10px; border-radius:8px; margin-top:10px;"></div>
-                    </div>
-                    <div>
-                        <label>Movimiento</label>
-                        <select id="mov"></select>
-                    </div>
-                </div>
-                <div class="grid grid-2" style="margin-top:15px;">
-                    <div>
-                        <label>Producto</label>
-                        <select id="prod"></select>
-                    </div>
-                    <div>
-                        <label>Ciclo EPQ</label>
-                        <input type="text" id="CicloEPQ" placeholder="Ciclo EPQ">
-                    </div>
-                <button class="btn" style="background:#3498db; color:white; margin-top:20px;" onclick="enviar()">REGISTRAR MOVIMIENTO 🚛</button>
-            </div>
-        </div>
+    <!-- 2. UI OPERADOR LOGÍSTICA -->
+    <div id="ui-app" class="card-compacta" style="display:none;">
+        <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
+        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <div id="piloto-box"></div>
+        <select id="mov"></select>
+        <select id="prod"></select>
+        <input type="text" id="CicloTer" placeholder="Ciclo Terpac">
+        <input type="text" id="CicloEPQ" placeholder="Ciclo E.P.Q">
+        <button id="btn-env" class="btn" onclick="enviar()">REGISTRAR DATOS 🚀</button>
+        <button class="btn-salir" onclick="location.reload()">CERRAR SESIÓN</button>
     </div>
-
+    
     <!-- UI SUPERVISOR -->
     <div id="ui-supervisor" class="pantalla">
         <div class="header"><h1>MONITOR SUPERVISOR</h1></div>
