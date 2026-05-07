@@ -524,14 +524,19 @@
         else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
     } catch (e) { alert("❌ Error"); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
 }
+        
 async function vincularDatosPermiso(folio) {
     const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
     const data = await res.json();
-    const busqueda = folio.toString().toUpperCase().trim(); // toString() es la clave
+
+    // Normaliza el input: texto, mayúsculas, sin espacios
+    const busqueda = String(folio || "").toUpperCase().trim();
+    if (!busqueda) return alert("❌ Ingresa un folio");
 
     const encontrado = data.find(r => {
         const d = r.datos.split(";");
-        return d[0].toString().toUpperCase().trim() === busqueda; // toString() aquí también
+        const folioEnHoja = String(d[0] || "").toUpperCase().trim(); // Normaliza el de Sheets
+        return folioEnHoja === busqueda;
     });
 
     if (encontrado) {
@@ -543,7 +548,11 @@ async function vincularDatosPermiso(folio) {
                 <small>🆔 Folio: ${d[0]}</small><br>
                 <small>👤 Personal: ${d[1]}</small>
             </div>`;
-    } else { alert("❌ Folio no encontrado"); }
+    } else {
+        console.log("Buscado:", `"${busqueda}"`);
+        console.log("Primeros 5 en hoja:", data.slice(0,5).map(r => `"${String(r.datos.split(";")[0]).trim()}"`));
+        alert("❌ Folio no encontrado");
+    }
 }
           async function enviarIncidenteCompleto() {
             if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
