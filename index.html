@@ -792,14 +792,22 @@ function cancelarCierre() {
   if (contenedorBotones) contenedorBotones.style.display = 'block';
 }
 
-// ✅ FIX Q28K #9: FINALIZAR OT - BLINDADO
+// ✅ FIX Q28K #9: FINALIZAR OT - CON DEBUG DE FOLIO
 async function finalizarTareaOT(folioOT, btn) {
+  // Q28K_DEBUG: Ver qué folio recibimos
+  console.log("Q28K_DEBUG folio recibido:", folioOT);
+  alert("Q28K_DEBUG: Folio que voy a mandar = [" + folioOT + "]");
+
+  if (!folioOT || folioOT.toString().trim() === "") {
+    alert("❌ Q28K_ERROR FRONTEND: El folio está vacío. Revisa el botón.");
+    return;
+  }
+
   const obs = prompt("Observaciones de cierre para OT " + folioOT + ":");
   if (obs === null) return;
 
   if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
 
-  // Q28K: Si no te pasan el btn, búscalo por event. Pero mejor pasarlo
   const boton = btn || window.event?.target;
   if (boton) {
     boton.disabled = true;
@@ -814,15 +822,15 @@ async function finalizarTareaOT(folioOT, btn) {
         action: "finalizarOT",
         folio: (folioOT || "").toString().trim(),
         obs: (obs || "").toString().trim(),
-        usuario: "ADMIN" // Cambia por tu variable de usuario
+        usuario: "ADMIN"
       })
     });
 
     const txt = await res.text();
 
-    if (txt.includes("Q28K_OK")) {
+    if (txt.includes("Q28K_OK") || txt.includes("Q28K_DEBUG")) {
       alert("✅ " + txt);
-      cancelarCierre(); // Q28K: Vuelve a pantalla principal
+      cancelarCierre();
       if (typeof cargarOTs === 'function') cargarOTs();
       else location.reload();
     } else {
@@ -831,15 +839,13 @@ async function finalizarTareaOT(folioOT, btn) {
   } catch (err) {
     alert("❌ ERROR DE RED: " + err);
   } finally {
-    // Q28K: Siempre reactiva el botón
     if (boton) {
       boton.disabled = false;
       boton.innerText = "FINALIZAR";
     }
   }
 }
-
-// ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
+        // ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
 async function cargarPermisosParaCerrar() {
   const cont = document.getElementById('contenedor-tabla-sso');
   if (!cont) return;
