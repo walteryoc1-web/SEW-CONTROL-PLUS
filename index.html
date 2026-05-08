@@ -581,14 +581,28 @@
             } catch(e) { alert("❌ Error: " + e.message); }
         }
 
-        async function enviarOT() {
-            const folio = document.getElementById('ot-folio').value;
-            const tData = DB_MASTER.TECNICO?.find(t => t.id.toString() === document.getElementById('ot-id-tec').value.toUpperCase());
-            const payload = { action: "registrarOT", folio: folio, tecnico: tData? tData.nombre : "N/A", prioridad: document.getElementById('ot-prioridad').value, departamento: document.getElementById('ot-depto').value, descripcion: document.getElementById('ot-descripcion').value };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text(); if (txt.length > 500) descargarBase64PDF(txt, `OT_${folio}.pdf`);
-            alert("✅ REGISTRADA"); location.reload();
-        }
+        else if (action === "registrarOT") {
+  var valTecnico = validarPersonaActiva(objetoJSON.tecnico);
+  if (!valTecnico.ok) return ContentService.createTextOutput(valTecnico.msg);
+
+  var hojaOT = ss.getSheetByName("ORDENES_TRABAJO") || ss.insertSheet("ORDENES_TRABAJO");
+  hojaOT.appendRow([
+    new Date(), // Col A
+    Utilities.formatDate(new Date(), "GMT-6", "HH:mm:ss"), // Col B
+    objetoJSON.folio, // Col C: Folio OT
+    objetoJSON.tecnico, // Col D
+    objetoJSON.prioridad, // Col E
+    objetoJSON.departamento, // Col F
+    objetoJSON.ats || "", // Col G: Folio ATS - AQUÍ SÍ VA
+    "ABIERTA", // Col H: Estado
+    "PENDIENTE", // Col I: Status trabajo
+    objetoJSON.descripcion, // Col J
+    "", // Col K: Fecha cierre - vacía al crear
+    "" // Col L: Obs cierre
+  ]);
+  SpreadsheetApp.flush();
+  return ContentService.createTextOutput(generarBase64PDF_OT(objetoJSON));
+}
 
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
@@ -759,15 +773,50 @@ function cancelarCierre() {
     const contenedorBotones = document.querySelector('#ui-operaciones > div');
     if(contenedorBotones) contenedorBotones.style.display = 'block';
 }
-        async function finalizarTareaOT() {
-            const folio = document.getElementById('ot-folio-cierre').value.trim();
-            const ats = document.getElementById('ot-ats-cierre').value.trim();
-            if(!folio ||!ats) return alert("❌ Ingrese Folio OT y ATS");
-            const payload = { action: "finalizarOT", folio: folio, ats: ats, obs: document.getElementById('ot-comentarios-cierre').value };
-            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            alert("✅ OT FINALIZADA");
-            location.reload();
-        }
+       // 3. CASO: FINALIZAR ORDEN DE TRABAJO - RESPETANDO TUS COLUMNAS Q28K
+else if (action === "finalizarOT") {
+  var hojaOT = ss.getSheetByName("ORDENES_TRABAJO") || ss.getSheetByName("OT");
+  var dataOT = hojaOT.getDataRange().getValues();
+  var folioBusca = objetoJSON.folio.toString().toUpperCase().trim();
+
+  // Q28K CANDADO: No cerrar OT si el ATS asociado sigue abierto
+  // Lee el ATS desde Col G de la fila encontrada, no del objetoJSON
+  var atsDeLaOT = "";
+  var filaEncontrada = -1;
+
+  for (var i = 1; i < dataOT.length; i++) {
+    if (dataOT[i][2].toString().toUpperCase().trim() === folioBusca) { // Col C = Folio OT
+      filaEncontrada = i;
+      atsDeLaOT = dataOT[i][6]; // Col G = Folio ATS
+      break;
+    }
+  }
+
+  if (filaEncontrada === -1) {
+    return ContentService.createTextOutput("Q28K_ERROR: Folio OT " + folioBusca + " no hallado");
+  }
+
+  // Valida ATS abierto usando el ATS que está en Col G
+  if (atsDeLaOT && atsDeLaOT.toString().trim()!== "") {
+    var valATS = validarATSCerrado(atsDeLaOT);
+    if (!valATS.ok) return ContentService.createTextOutput(valATS.msg);
+  }
+
+  // ✅ Q28K CANDADO: YA ESTÁ CERRADA, NO JODAS - Revisa Col H
+  var estadoActual = dataOT[filaEncontrada][7].toString().toUpperCase(); // Col H = Estado
+  if (estadoActual === "FINALIZADA" || estadoActual === "CERRADA") {
+    return ContentService.createTextOutput("Q28K_ERROR: OT " + folioBusca + " YA FUE FINALIZADA EL " + dataOT[filaEncontrada][0]);
+  }
+
+  // UPDATE RESPETANDO COLUMNAS: Col H=Estado, Col G=ATS se queda quieto
+  hojaOT.getRange(filaEncontrada + 1, 8).setValue("CERRADA"); // Col H: Estado
+  hojaOT.getRange(filaEncontrada + 1, 9).setValue("FINALIZADA"); // Col I: Status trabajo si usas
+  hojaOT.getRange(filaEncontrada + 1, 10).setValue(objetoJSON.obs || ""); // Col J: Observaciones
+  hojaOT.getRange(filaEncontrada + 1, 11).setValue(new Date()); // Col K: Fecha cierre real
+
+  SpreadsheetApp.flush();
+  return ContentService.createTextOutput("Q28K_OK: OT " + folioBusca + " CERRADA");
+}
 
         async function cargarPermisosParaCerrar() {
             const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
