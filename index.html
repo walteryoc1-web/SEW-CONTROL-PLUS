@@ -782,27 +782,29 @@ function mostrarSeccionCierre() {
 
 // ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
 function cancelarCierre() {
-    // 1. Oculta la sección de cierre
-    const seccionCierre = document.getElementById('ot-seccion-cierre');
-    if(seccionCierre) seccionCierre.style.display = 'none';
-    
-    // 2. Muestra la sección de apertura
-    const seccionApertura = document.getElementById('ot-seccion-apertura');
-    if(seccionApertura) seccionApertura.style.display = 'block';
-    
-    // 3. Muestra el contenedor de botones
-    const contenedorBotones = document.querySelector('#ui-operaciones > div');
-    if(contenedorBotones) contenedorBotones.style.display = 'block';
+  const seccionCierre = document.getElementById('ot-seccion-cierre');
+  if (seccionCierre) seccionCierre.style.display = 'none';
+
+  const seccionApertura = document.getElementById('ot-seccion-apertura');
+  if (seccionApertura) seccionApertura.style.display = 'block';
+
+  const contenedorBotones = document.querySelector('#ui-operaciones > div');
+  if (contenedorBotones) contenedorBotones.style.display = 'block';
 }
-     async function finalizarTareaOT(folioOT) {
+
+// ✅ FIX Q28K #9: FINALIZAR OT - BLINDADO
+async function finalizarTareaOT(folioOT, btn) {
   const obs = prompt("Observaciones de cierre para OT " + folioOT + ":");
-  if (obs === null) return; // Usuario canceló el prompt
+  if (obs === null) return;
 
   if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
 
-  const btn = event.target;
-  btn.disabled = true;
-  btn.innerText = "CERRANDO...";
+  // Q28K: Si no te pasan el btn, búscalo por event. Pero mejor pasarlo
+  const boton = btn || window.event?.target;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerText = "CERRANDO...";
+  }
 
   try {
     const res = await fetch(URL_SCRIPT, {
@@ -810,9 +812,9 @@ function cancelarCierre() {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: "finalizarOT",
-        folio: folioOT,
-        obs: obs,
-        usuario: "ADMIN" // Cambia por tu variable de usuario logueado
+        folio: (folioOT || "").toString().trim(),
+        obs: (obs || "").toString().trim(),
+        usuario: "ADMIN" // Cambia por tu variable de usuario
       })
     });
 
@@ -820,85 +822,107 @@ function cancelarCierre() {
 
     if (txt.includes("Q28K_OK")) {
       alert("✅ " + txt);
-      // Recarga tu tabla de OTs. Cambia el nombre si tu función se llama diferente
+      cancelarCierre(); // Q28K: Vuelve a pantalla principal
       if (typeof cargarOTs === 'function') cargarOTs();
       else location.reload();
     } else {
       alert("❌ " + txt);
-      btn.disabled = false;
-      btn.innerText = "FINALIZAR";
     }
   } catch (err) {
     alert("❌ ERROR DE RED: " + err);
-    btn.disabled = false;
-    btn.innerText = "FINALIZAR";
+  } finally {
+    // Q28K: Siempre reactiva el botón
+    if (boton) {
+      boton.disabled = false;
+      boton.innerText = "FINALIZAR";
+    }
   }
 }
-        async function cargarPermisosParaCerrar() {
+
+// ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
+async function cargarPermisosParaCerrar() {
   const cont = document.getElementById('contenedor-tabla-sso');
   if (!cont) return;
   cont.innerHTML = "Cargando...";
+
   try {
     const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+    if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
+
+    // Q28K: Filtra solo ABIERTO. Col I = índice 8
     const abiertos = data.filter(r => {
-      const campos = r.datos.split(";");
-      const estado = campos[8] || ""; // Col I = estado
-      return!estado.toUpperCase().includes("CERRADO");
+      const campos = (r.datos || "").split(";");
+      const estado = (campos[8] || "").toString().toUpperCase();
+      return estado === "ABIERTO" ||!estado.includes("CERRADO");
     });
+
     cont.innerHTML = "";
     if (abiertos.length === 0) {
       cont.innerHTML = "<p>No hay ATS abiertos</p>";
       return;
     }
+
     abiertos.forEach(p => {
-      const d = p.datos.split(";");
-      const folio = d[1]; // Col B = Folio ATS
-      const personal = d[2] || '';
-      const area = d[3] || '';
+      const d = (p.datos || "").split(";");
+      const folio = (d[1] || "").toString().trim(); // Col B = Folio ATS
+      if (!folio) return; // Q28K: Salta filas vacías
+
+      const personal = (d[2] || "").toString().trim();
+      const area = (d[3] || "").toString().trim();
+
       const div = document.createElement('div');
       div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
+      // Q28K: Pasa this como segundo parámetro para capturar el botón
       div.innerHTML = `
         <span><b>${folio}</b> - ${personal} - ${area}</span>
-        <button onclick="cerrarPermiso('${folio}')" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
+        <button onclick="cerrarPermiso('${folio}', this)" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
       cont.appendChild(div);
     });
+
   } catch (err) {
-    cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err}</p>`;
+    cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
   }
 }
 
-async function cerrarPermiso(f) {
+// ✅ FIX Q28K #11: CERRAR PERMISO ATS - BLINDADO
+async function cerrarPermiso(f, btn) {
   if (!confirm("¿Cerrar permiso " + f + "?")) return;
-  const btn = event.target;
-  btn.disabled = true;
-  btn.innerText = "CERRANDO...";
+
+  const boton = btn || window.event?.target;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerText = "CERRANDO...";
+  }
+
   try {
     const res = await fetch(URL_SCRIPT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: "cerrarATS",
-        folio: f,
+        folio: (f || "").toString().trim(),
         usuario: "ADMIN"
       })
     });
+
     const txt = await res.text();
+
     if (txt.includes("Q28K_OK")) {
       alert("✅ " + txt);
-      cargarPermisosParaCerrar();
+      cargarPermisosParaCerrar(); // Recarga lista
     } else {
       alert("❌ " + txt);
-      btn.disabled = false;
-      btn.innerText = "CERRAR";
     }
   } catch (err) {
     alert("❌ ERROR DE RED: " + err);
-    btn.disabled = false;
-    btn.innerText = "CERRAR";
+  } finally {
+    if (boton) {
+      boton.disabled = false;
+      boton.innerText = "CERRAR";
+    }
   }
 }
-
 function llenarDesplegablesOperaciones() {
   const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
   if (DB_MASTER.PRIORIDAD_OT) {
