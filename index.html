@@ -580,7 +580,7 @@
                 location.reload();
             } catch(e) { alert("❌ Error: " + e.message); }
         }
-
+        
         else if (action === "registrarOT") {
   var valTecnico = validarPersonaActiva(objetoJSON.tecnico);
   if (!valTecnico.ok) return ContentService.createTextOutput(valTecnico.msg);
@@ -603,7 +603,9 @@
   SpreadsheetApp.flush();
   return ContentService.createTextOutput(generarBase64PDF_OT(objetoJSON));
 }
-
+        
+        
+        
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
             if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
             try {
