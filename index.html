@@ -795,7 +795,7 @@ function cancelarCierre() {
     if(contenedorBotones) contenedorBotones.style.display = 'block';
 }
        // 3. CASO: FINALIZAR ORDEN DE TRABAJO - RESPETANDO TUS COLUMNAS Q28K
-else if (action === "finalizarOT") {
+  else if (action === "finalizarOT") {
   var hojaOT = ss.getSheetByName("ORDENES_TRABAJO") || ss.getSheetByName("OT");
   var dataOT = hojaOT.getDataRange().getValues();
   var folioBusca = objetoJSON.folio.toString().toUpperCase().trim();
