@@ -581,29 +581,48 @@
             } catch(e) { alert("❌ Error: " + e.message); }
         }
         
-       
-        if (action === "registrarOT") {
-  var valTecnico = validarPersonaActiva(objetoJSON.tecnico);
-  if (!valTecnico.ok) return ContentService.createTextOutput(valTecnico.msg);
+       async function registrarOT() {
+  const btn = document.getElementById('btn-registrar-ot');
+  btn.disabled = true;
+  btn.innerText = "GUARDANDO...";
 
-  var hojaOT = ss.getSheetByName("ORDENES_TRABAJO") || ss.insertSheet("ORDENES_TRABAJO");
-  hojaOT.appendRow([
-    new Date(), // Col A
-    Utilities.formatDate(new Date(), "GMT-6", "HH:mm:ss"), // Col B
-    objetoJSON.folio, // Col C: Folio OT
-    objetoJSON.tecnico, // Col D
-    objetoJSON.prioridad, // Col E
-    objetoJSON.departamento, // Col F
-    objetoJSON.ats || "", // Col G: Folio ATS
-    "ABIERTA", // Col H: Estado
-    "PENDIENTE", // Col I: Status trabajo
-    objetoJSON.descripcion, // Col J
-    "", // Col K: Fecha cierre
-    "" // Col L: Obs cierre
-  ]);
-  SpreadsheetApp.flush();
-  return ContentService.createTextOutput(generarBase64PDF_OT(objetoJSON));
-}        
+  const datosOT = {
+    action: "registrarOT",
+    folio: document.getElementById('folioOT').value,
+    tecnico: document.getElementById('tecnicoOT').value,
+    prioridad: document.getElementById('prioridadOT').value,
+    departamento: document.getElementById('deptoOT').value,
+    ats: document.getElementById('atsOT').value,
+    descripcion: document.getElementById('descOT').value
+  };
+
+  try {
+    const res = await fetch(URL_SCRIPT, {
+      method: 'POST',
+      body: JSON.stringify(datosOT)
+    });
+
+    const txt = await res.text();
+
+    if (txt.includes("Q28K_OK") || txt.startsWith("data:application/pdf")) {
+      alert("✅ OT REGISTRADA");
+      // Si devuelve PDF base64:
+      if (txt.startsWith("data:application/pdf")) {
+        window.open().document.write('<iframe src="' + txt + '" style="width:100%;height:100vh;"></iframe>');
+      }
+      location.reload();
+    } else {
+      alert("❌ " + txt);
+      btn.disabled = false;
+      btn.innerText = "REGISTRAR OT";
+    }
+  } catch (err) {
+    alert("❌ ERROR DE RED: " + err);
+    btn.disabled = false;
+    btn.innerText = "REGISTRAR OT";
+  }
+}
+       
         
         
         async function procesarDescargaUniversal(accion, ini, fin, nombre) {
