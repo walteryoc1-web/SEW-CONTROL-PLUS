@@ -181,50 +181,60 @@
 </div>    
 
     <!-- 7. UI ADMIN DATOS MAESTROS -->
-    <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
-        <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
-        <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
-        <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
-            <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
-            <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
-                <optgroup label="Personal y Carga">
-                    <option value="PILOTO">🚛 Nuevo Piloto</option>
-                    <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
-                    <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
-                    <option value="MOVIMIENTO">🔁 Tipo de Movimiento (Logística)</option>
-                </optgroup>
-                <optgroup label="Seguridad e Infraestructura">
-                    <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
-                    <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
-                    <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
-                    <option value="COLECTIVA">🚧 Protección Colectiva</option>
-                    <option value="TRABAJO">👷 Tipo de Trabajo</option>
-                </optgroup>
-                <optgroup label="Catálogos de Incidentes y OT">
-                    <option value="ESTADO_SALUD">🏥 Opción de Estado de Salud</option>
-                    <option value="GRAVEDAD">⚠️ Nivel de Gravedad</option>
-                    <option value="PRIORIDAD_OT">⚡ Nivel de Prioridad (OT)</option>
-                    <option value="DEPTO_OT">🏢 Departamento Operativo</option>
-                </optgroup>
-            </select>
-            <label style="font-weight:bold;">ID / Código Único:</label>
-            <input type="text" id="adm-id" placeholder="Obligatorio para Piloto/Técnico">
-            <label style="font-weight:bold;">Nombre Completo / Valor:</label>
-            <input type="text" id="adm-nombre" placeholder="Nombre o descripción">
-            <label id="lbl-adm-extra1" style="font-weight:bold;">Dato Extra 1:</label>
-            <input type="text" id="adm-extra1">
-            <label id="lbl-adm-extra2" style="font-weight:bold;">Dato Extra 2:</label>
-            <input type="text" id="adm-extra2">
-            <label style="font-weight:bold;">ESTADO DEL DATO:</label>
-            <select id="adm-estado">
-                <option value="ACTIVO" selected>🟢 ACTIVO (Habilitado)</option>
-                <option value="INACTIVO">🔴 INACTIVO (Bloqueado)</option>
-            </select>
-            <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">📥 REGISTRAR EN SISTEMA</button>
-            <button class="btn" style="background:#27ae60; color:white; margin-top:10px;" onclick="descargarDataMaestra()">📊 DESCARGAR TODA LA DATA (EXCEL)</button>
-            <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER AL MENU</button>
-        </div>
+<div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
+    <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
+    <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
+    
+    <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
+        <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
+        <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
+            <optgroup label="Personal y Carga">
+                <option value="PILOTO">🚛 Nuevo Piloto</option>
+                <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
+                <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
+                <option value="MOVIMIENTO">🔁 Tipo de Movimiento (Logística)</option>
+            </optgroup>
+            <optgroup label="Seguridad e Infraestructura">
+                <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
+                <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
+                <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
+                <option value="COLECTIVA">🚧 Protección Colectiva</option>
+                <option value="TRABAJO">👷 Tipo de Trabajo</option>
+            </optgroup>
+            <optgroup label="Catálogos de Incidentes y OT">
+                <option value="ESTADO_SALUD">🏥 Opción de Estado de Salud</option>
+                <option value="GRAVEDAD">⚠️ Nivel de Gravedad</option>
+                <option value="PRIORIDAD_OT">⚡ Nivel de Prioridad (OT)</option>
+                <option value="DEPTO_OT">🏢 Departamento Operativo</option>
+            </optgroup>
+        </select>
+
+        <label style="font-weight:bold;">ID / Código Único:</label>
+        <input type="text" id="adm-id" placeholder="Obligatorio para Piloto/Técnico">
+
+        <label style="font-weight:bold;">Nombre Completo / Valor:</label>
+        <input type="text" id="adm-nombre" placeholder="Nombre o descripción">
+
+        <label id="lbl-adm-extra1" style="font-weight:bold;">Cargo / Área:</label>
+        <input type="text" id="adm-extra1">
+
+        <label id="lbl-adm-extra2" style="font-weight:bold;">Teléfono:</label>
+        <input type="text" id="adm-extra2">
+
+        <label id="lbl-adm-extra3" style="font-weight:bold;">DPI:</label>
+        <input type="text" id="adm-extra3" placeholder="Solo para PILOTO y TECNICO">
+
+        <label style="font-weight:bold;">ESTADO DEL DATO:</label>
+        <select id="adm-estado">
+            <option value="ACTIVO" selected>🟢 ACTIVO (Habilitado)</option>
+            <option value="INACTIVO">🔴 INACTIVO (Bloqueado)</option>
+        </select>
+
+        <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">📥 REGISTRAR EN SISTEMA</button>
+        <button class="btn" style="background:#27ae60; color:white; margin-top:10px;" onclick="descargarDataMaestra()">📊 DESCARGAR TODA LA DATA (EXCEL)</button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="location.reload()">VOLVER AL MENU</button>
     </div>
+</div>
     
     <!-- UI INFORME TÉCNICO INCIDENTE -->
     <div id="ui-incidentes-sso" class="rescatada">
@@ -903,6 +913,35 @@
                 alert("Error: " + e);
             }
         }
+        function descargarCSV_Medico(){
+  const ini = document.getElementById('f-ini-sso').value;
+  const fin = document.getElementById('f-fin-sso').value;
+  fetch(URL_SCRIPT + `?accion=reporteMedico&ini=${ini}&fin=${fin}`)
+   .then(r=>r.json()).then(d=>exportarCSV(d,'medico'));
+}
+
+function descargarCSV_Extintores(){
+  const ini = document.getElementById('f-ini-sso').value;
+  const fin = document.getElementById('f-fin-sso').value;
+  fetch(URL_SCRIPT + `?accion=reporteExtintores&ini=${ini}&fin=${fin}`)
+   .then(r=>r.json()).then(d=>exportarCSV(d,'extintores'));
+}
+
+async function checkInvolucradoIncidente(input){
+  const id = input.value.trim();
+  const tec = DB_MASTER.TECNICO?.find(x=>x.id===id);
+  if(tec) input.style.borderColor = "green";
+  else input.style.borderColor = "red";
+}
+
+async function vincularDatosPermiso(folio){
+  const r = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+  const data = await r.json();
+  const encontrado = data.find(x=>x.datos.includes(folio));
+  document.getElementById('datos-vinculados-sso').innerHTML = encontrado
+   ? `<p style="color:green">ATS ${folio} encontrado</p>`
+    : `<p style="color:red">ATS no existe</p>`;
+}
     </script>
 </body>
 </html>
