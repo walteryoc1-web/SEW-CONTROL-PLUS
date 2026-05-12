@@ -845,17 +845,72 @@ async function vincularDatosPermiso(folio) {
      ? `<p style="color:green">ATS ${folio} encontrado</p>`
         : `<p style="color:red">ATS no existe</p>`;
 }
-        function entrar() {
-    // Si la DB no ha cargado, la carga y luego entra
-    if (!DB_MASTER || Object.keys(DB_MASTER).length === 0) {
-        cargarDB().then(() => {
-            mostrarMenu();
-        });
-    } else {
-        mostrarMenu();
-    }
-}
+        async function entrar() {
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const btn = document.getElementById('btn-login');
+    const originalText = "INGRESAR";
 
+    if(btn) {
+        btn.innerText = "INGRESANDO... ⏳";
+        btn.disabled = true;
+    }
+
+    // Carga la DB si no está cargada
+    if (!DB_MASTER ||!DB_MASTER.USUARIOS) {
+        await cargarDB();
+    }
+
+    // Busca el usuario en DB_MASTER.USUARIOS
+    const user = DB_MASTER.USUARIOS.find(u =>
+        u.ESTADO === 'ACTIVO' &&
+        u.USUARIO.toLowerCase() === u.toLowerCase() &&
+        u.PASSWORD === p
+    );
+
+    if (!user) {
+        alert("❌ Credenciales incorrectas");
+        document.getElementById('login').style.display='block';
+        if(btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+        return;
+    }
+
+    // Login ok
+    document.getElementById('login').style.display='none';
+
+    // Manda a la interfaz según el ROL
+    switch(user.ROL) {
+        case 'OPERADOR':
+            document.getElementById('ui-app').style.display='block';
+            llenarDesplegablesLogistica();
+            break;
+        case 'SUPERVISOR':
+            document.getElementById('ui-supervisor').style.display='block';
+            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+            break;
+        case 'SUPERVISOR_SSO':
+            document.getElementById('ui-monitor-sso').style.display='block';
+            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+            break;
+        case 'SSO':
+            document.getElementById('ui-seguridad').style.display='block';
+            llenarDesplegablesSSO();
+            break;
+        case 'OPERACIONES':
+            document.getElementById('ui-operaciones').style.display='block';
+            llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
+            break;
+        case 'ADMIN':
+            document.getElementById('ui-admin-datos').style.display='block';
+            ajustarLabelsAdmin();
+            break;
+    }
+
+    console.log("Login ok:", user.USUARIO, "Rol:", user.ROL);
+}
 function mostrarMenu() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
