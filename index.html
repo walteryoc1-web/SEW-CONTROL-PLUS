@@ -332,19 +332,33 @@
             }, 1000);
         }
 
-        async function actualizarPildoras() {
-            try {
-                const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
-                const d = await r.json();
-                if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'
-                                                                                                                                                                                if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
-            } catch(e) { console.log("Error pildoras:", e); }
-        }
-
+      async function actualizarPildoras() {
+    try {
+        const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
+        const d = await r.json();
+        
+        if(document.getElementById('count-pendientes')) 
+            document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
+        
+        if(document.getElementById('count-proceso')) 
+            document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
+        
+        if(document.getElementById('count-despachadas')) 
+            document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
+        
+        if(document.getElementById('sso-pnd')) 
+            document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
+        
+        if(document.getElementById('sso-riesgo')) 
+            document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
+        
+        if(document.getElementById('sso-personal')) 
+            document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
+            
+    } catch(e) { 
+        console.log("Error pildoras:", e); 
+    }
+}
         async function cargarDB() {
             try {
                 const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + Date.now());
