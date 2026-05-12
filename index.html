@@ -343,20 +343,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function cargarDB() {
+    // 1. Revisa si hay cache reciente
+    const cache = localStorage.getItem('DB_MASTER');
+    const cacheTime = localStorage.getItem('DB_MASTER_TIME');
+    const AHORA = Date.now();
+    const 10MIN = 600000;
+
+    if (cache && cacheTime && (AHORA - cacheTime) < 10MIN) {
+        DB_MASTER = JSON.parse(cache);
+        console.log("DB cargada desde cache ⚡");
+        return;
+    }
+
+    // 2. Si no hay cache, descarga del GAS
     try {
-        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + Date.now());
-        if (!r.ok) throw new Error("HTTP " + r.status + " - " + r.statusText);
+        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA);
+        if (!r.ok) throw new Error("HTTP " + r.status);
         
-        const text = await r.text(); // Primero lee como texto
-        console.log("Respuesta cruda del GAS:", text); // Para debug
-        
-        const d = JSON.parse(text); // Luego parsea a JSON
+        const text = await r.text();
+        const d = JSON.parse(text);
         DB_MASTER = d;
-        console.log("DB cargada correctamente", DB_MASTER);
+        
+        // 3. Guarda cache
+        localStorage.setItem('DB_MASTER', text);
+        localStorage.setItem('DB_MASTER_TIME', AHORA);
+        console.log("DB descargada del GAS y guardada en cache");
         
     } catch(e) {
-        console.error("Error DB completo:", e);
-        alert("Error DB: " + e.message + "\n\nRevisa la consola F12 > Console para ver la respuesta del GAS.");
+        console.error("Error DB:", e);
+        alert("Error DB: " + e.message);
     }
 }
 // ==========================================
