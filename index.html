@@ -325,12 +325,13 @@
             <button class="btn-salir" onclick="document.getElementById('ui-extintores-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
         </div>
     </div>
-
-    <!-- SECCIÓN DE SCRIPTS PARTE 1 -->
     <script>
-        const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
-        let DB_MASTER = {};
-        let datosVinculados = null;
+// ==========================================
+// 1. CONFIGURACIÓN GLOBAL Q28K
+// ==========================================
+const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbyNlHQlrjm4RGWr-D5lAcgcFnzShVwsLAMjwMG-GDDTrrFE3D_QMise1vMqYH5sdpvO/exec';
+let DB_MASTER = {};
+let USUARIO_ACTIVO = null;
 
 // ==========================================
 // 2. INICIO Y CARGA DB
@@ -338,18 +339,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     cargarDB();
     actualizarPildoras();
-    setInterval(actualizarPildoras, 30000); // Actualiza cada 30s
+    setInterval(actualizarPildoras, 30000);
 });
 
 async function cargarDB() {
     try {
         const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + Date.now());
+        if (!r.ok) throw new Error("HTTP " + r.status);
         const d = await r.json();
         DB_MASTER = d;
-        console.log("DB cargada correctamente");
+        console.log("DB cargada correctamente", DB_MASTER);
     } catch(e) {
         console.log("Error DB:", e);
-        alert("Error cargando base de datos. Revisa la conexión con el servidor.");
+        alert("Error cargando base de datos. Revisa que el GAS esté desplegado como 'Cualquier persona, incluso anónima'.");
     }
 }
 
@@ -368,6 +370,17 @@ function mostrarUI(idUI) {
     if (idUI === 'ui-admin-datos') {
         ajustarLabelsAdmin();
     }
+    if (idUI === 'ui-operador-logistica') {
+        llenarSelectsOperador();
+    }
+    if (idUI === 'ui-ot') {
+        generarFolioOT();
+        llenarSelectsOT();
+    }
+    if (idUI === 'ui-incidente') {
+        generarFolioIncidente();
+        llenarSelectsIncidente();
+    }
 }
 
 // ==========================================
@@ -376,26 +389,21 @@ function mostrarUI(idUI) {
 async function actualizarPildoras() {
     try {
         const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
+        if (!r.ok) throw new Error("HTTP " + r.status);
         const d = await r.json();
 
-        if(document.getElementById('count-pendientes')) {
+        if(document.getElementById('count-pendientes'))
             document.getElementById('count-pendientes').innerText = String(d.pendientes || 0).padStart(2,'0');
-        }
-        if(document.getElementById('count-proceso')) {
+        if(document.getElementById('count-proceso'))
             document.getElementById('count-proceso').innerText = String(d.proceso || 0).padStart(2,'0');
-        }
-        if(document.getElementById('count-despachadas')) {
+        if(document.getElementById('count-despachadas'))
             document.getElementById('count-despachadas').innerText = String(d.despachadas || 0).padStart(2,'0');
-        }
-        if(document.getElementById('sso-pnd')) {
+        if(document.getElementById('sso-pnd'))
             document.getElementById('sso-pnd').innerText = String(d.totalSSO || 0).padStart(2,'0');
-        }
-        if(document.getElementById('sso-riesgo')) {
+        if(document.getElementById('sso-riesgo'))
             document.getElementById('sso-riesgo').innerText = String(d.riesgoSSO || 0).padStart(2,'0');
-        }
-        if(document.getElementById('sso-personal')) {
+        if(document.getElementById('sso-personal'))
             document.getElementById('sso-personal').innerText = String(d.personalSSO || 0).padStart(2,'0');
-        }
 
     } catch(e) {
         console.log("Error pildoras:", e);
@@ -405,14 +413,32 @@ async function actualizarPildoras() {
 // ==========================================
 // 5. OPERADOR LOGISTICA
 // ==========================================
+function llenarSelectsOperador() {
+    const selProd = document.getElementById('op-producto');
+    const selMov = document.getElementById('op-movimiento');
+
+    if (selProd && DB_MASTER.PRODUCTO) {
+        selProd.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.PRODUCTO.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selProd.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selMov && DB_MASTER.MOVIMIENTO) {
+        selMov.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.MOVIMIENTO.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selMov.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+}
+
 function registrarLogistica() {
     const id = document.getElementById('op-id-piloto').value.trim();
     const mov = document.getElementById('op-movimiento').value;
-
-    if (!id ||!mov) {
-        alert("ID Piloto y Movimiento son obligatorios");
-        return;
-    }
+    if (!id ||!mov) { alert("ID Piloto y Movimiento son obligatorios"); return; }
 
     const data = {
         action: "registrarLogistica",
@@ -428,35 +454,29 @@ function registrarLogistica() {
         headers: {'Content-Type': 'text/plain'},
         body: JSON.stringify(data)
     })
-   .then(r => r.text())
-   .then(res => {
+ .then(r => r.text())
+ .then(res => {
         alert(res);
         if (res.includes("Q28K_OK")) {
             document.getElementById('form-operador').reset();
             actualizarPildoras();
         }
     })
-   .catch(e => alert("Error: " + e));
+ .catch(e => alert("Error: " + e));
 }
 
 async function checkPiloto(input) {
     const id = input.value.trim();
     const piloto = DB_MASTER.PILOTO?.find(x => x.id === id);
-    if (piloto) {
-        input.style.borderColor = "green";
-        document.getElementById('op-nombre-piloto').value = piloto.nombre;
-    } else {
-        input.style.borderColor = "red";
-        document.getElementById('op-nombre-piloto').value = "NO ENCONTRADO";
-    }
+    input.style.borderColor = piloto? "green" : "red";
+    document.getElementById('op-nombre-piloto').value = piloto? piloto.nombre : "NO ENCONTRADO";
 }
 
 // ==========================================
 // 6. SSO - ATS
 // ==========================================
 function generarFolioATS() {
-    const folio = "SSO-" + Date.now();
-    document.getElementById('sso-folio').value = folio;
+    document.getElementById('sso-folio').value = "SSO-" + Date.now();
 }
 
 function llenarSelectsSSO() {
@@ -471,7 +491,6 @@ function llenarSelectsSSO() {
             }
         });
     }
-
     if (selFase && DB_MASTER.UBICACION) {
         selFase.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.UBICACION.forEach(x => {
@@ -484,10 +503,7 @@ function llenarSelectsSSO() {
 
 async function registrarPermisoSSO() {
     const personal = document.getElementById('sso-personal').value;
-    if (!personal) {
-        alert("Seleccione personal");
-        return;
-    }
+    if (!personal) { alert("Seleccione personal"); return; }
 
     const data = {
         action: "registrarPermiso",
@@ -496,8 +512,8 @@ async function registrarPermisoSSO() {
         ubi: document.getElementById('sso-ubi').value,
         tipo: document.getElementById('sso-tipo').value,
         checklist: JSON.stringify({
-            herramientas: document.getElementById('chk-herr').checked,
-            colectiva: document.getElementById('chk-col').checked
+            herramientas: document.getElementById('chk-herr')?.checked || false,
+            colectiva: document.getElementById('chk-col')?.checked || false
         }),
         desc: document.getElementById('sso-desc').value,
         folio: document.getElementById('sso-folio').value
@@ -511,25 +527,44 @@ async function registrarPermisoSSO() {
         });
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            descargarPDF(res);
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK") &&!res.includes("sin PDF")) descargarPDF(res);
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
-        // ==========================================
+
+// ==========================================
 // 7. ORDENES DE TRABAJO
 // ==========================================
+function generarFolioOT() {
+    document.getElementById('ot-folio').value = "OT-" + Date.now();
+}
+
+function llenarSelectsOT() {
+    const selTec = document.getElementById('ot-tec');
+    const selDepto = document.getElementById('ot-depto');
+
+    if (selTec && DB_MASTER.TECNICO) {
+        selTec.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.TECNICO.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selTec.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selDepto && DB_MASTER.DEPTO_OT) {
+        selDepto.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.DEPTO_OT.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selDepto.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+}
+
 async function registrarOT() {
     const idTec = document.getElementById('ot-tec').value.trim();
     const folio = document.getElementById('ot-folio').value;
-
-    if (!idTec ||!folio) {
-        alert("Técnico y Folio obligatorios");
-        return;
-    }
+    if (!idTec ||!folio) { alert("Técnico y Folio obligatorios"); return; }
 
     const data = {
         action: "registrarOT",
@@ -549,30 +584,20 @@ async function registrarOT() {
         });
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            descargarPDF(res);
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK") &&!res.includes("sin PDF")) descargarPDF(res);
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
 
 async function finalizarOT() {
     const folio = document.getElementById('ot-cerrar-folio').value.trim();
-    const ats = document.getElementById('ot-cerrar-ats').value.trim();
-    const obs = document.getElementById('ot-cerrar-obs').value;
-
-    if (!folio) {
-        alert("Folio OT obligatorio");
-        return;
-    }
+    if (!folio) { alert("Folio OT obligatorio"); return; }
 
     const data = {
         action: "finalizarOT",
         folio: folio,
-        ats: ats,
-        obs: obs
+        ats: document.getElementById('ot-cerrar-ats').value.trim(),
+        obs: document.getElementById('ot-cerrar-obs').value
     };
 
     try {
@@ -583,17 +608,39 @@ async function finalizarOT() {
         });
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
 
 // ==========================================
 // 8. INCIDENTES
 // ==========================================
+function generarFolioIncidente() {
+    document.getElementById('inc-folio').value = "INC-" + Date.now();
+}
+
+function llenarSelectsIncidente() {
+    const selTipo = document.getElementById('inc-tipo');
+    const selGrav = document.getElementById('inc-gravedad');
+
+    if (selTipo && DB_MASTER.TRABAJO) {
+        selTipo.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.TRABAJO.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selTipo.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selGrav && DB_MASTER.GRAVEDAD) {
+        selGrav.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.GRAVEDAD.forEach(x => {
+            if (x.extra4!== 'INACTIVO') {
+                selGrav.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+}
+
 async function registrarIncidente() {
     const data = {
         action: "registrarIncidente",
@@ -602,21 +649,12 @@ async function registrarIncidente() {
         gravedad: document.getElementById('inc-gravedad').value,
         recomendacion: document.getElementById('inc-rec').value
     };
-
     try {
-        const r = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain'},
-            body: JSON.stringify(data)
-        });
+        const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
 
 // ==========================================
@@ -633,22 +671,13 @@ async function registrarMedico() {
         resultado: document.getElementById('med-resultado').value,
         obs: document.getElementById('med-obs').value
     };
-
     try {
-        const r = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain'},
-            body: JSON.stringify(data)
-        });
+        const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            descargarPDF(res);
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK") &&!res.includes("sin PDF")) descargarPDF(res);
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
 
 // ==========================================
@@ -666,22 +695,13 @@ async function registrarExtintor() {
         vence: document.getElementById('ext-vence').value,
         obs: document.getElementById('ext-obs').value
     };
-
     try {
-        const r = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain'},
-            body: JSON.stringify(data)
-        });
+        const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            descargarPDF(res);
-            mostrarUI('menu-principal');
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK") &&!res.includes("sin PDF")) descargarPDF(res);
+        if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
+    } catch(e) { alert("Error: " + e); }
 }
 
 // ==========================================
@@ -691,25 +711,17 @@ function ajustarLabelsAdmin() {
     const cat = document.getElementById('adm-categoria').value;
     const lbl3 = document.getElementById('lbl-adm-extra3');
     const extra3 = document.getElementById('adm-extra3');
-
     if (cat === 'PILOTO' || cat === 'TECNICO') {
-        lbl3.innerText = 'DPI:';
-        extra3.style.display = 'block';
-        lbl3.style.display = 'block';
+        lbl3.innerText = 'DPI:'; extra3.style.display = 'block'; lbl3.style.display = 'block';
     } else {
-        extra3.style.display = 'none';
-        lbl3.style.display = 'none';
+        extra3.style.display = 'none'; lbl3.style.display = 'none';
     }
 }
 
 async function guardarDatoMaestro() {
     const id = document.getElementById('adm-id').value.trim();
     const nombre = document.getElementById('adm-nombre').value.trim();
-
-    if (!id ||!nombre) {
-        alert("ID y Nombre son obligatorios");
-        return;
-    }
+    if (!id ||!nombre) { alert("ID y Nombre son obligatorios"); return; }
 
     const data = {
         action: "guardarConfig",
@@ -723,19 +735,21 @@ async function guardarDatoMaestro() {
     };
 
     try {
-        const r = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: {'Content-Type': 'text/plain'},
-            body: JSON.stringify(data)
-        });
+        const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
         const res = await r.text();
         alert(res);
-        if (res.includes("Q28K_OK")) {
-            location.reload();
-        }
-    } catch(e) {
-        alert("Error: " + e);
-    }
+        if (res.includes("Q28K_OK")) location.reload();
+    } catch(e) { alert("Error: " + e); }
+}
+
+function descargarDataMaestra() {
+    const data = JSON.stringify(DB_MASTER, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `DB_MASTER_${Date.now()}.json`;
+    a.click();
 }
 
 // ==========================================
@@ -745,23 +759,36 @@ function descargarCSV_Medico() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteMedico&ini=${ini}&fin=${fin}`)
-       .then(r => r.json())
-       .then(d => exportarCSV(d, 'medico'));
+     .then(r => r.json())
+     .then(d => exportarCSV(d, 'medico'));
 }
 
 function descargarCSV_Extintores() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteExtintores&ini=${ini}&fin=${fin}`)
-       .then(r => r.json())
-       .then(d => exportarCSV(d, 'extintores'));
+     .then(r => r.json())
+     .then(d => exportarCSV(d, 'extintores'));
+}
+
+function descargarCSV_OT() {
+    const ini = document.getElementById('f-ini-ot').value;
+    const fin = document.getElementById('f-fin-ot').value;
+    fetch(URL_SCRIPT + `?accion=reporteOT&ini=${ini}&fin=${fin}`)
+     .then(r => r.json())
+     .then(d => exportarCSV(d, 'ot'));
+}
+
+function descargarCSV_Logistica() {
+    const ini = document.getElementById('f-ini-log').value;
+    const fin = document.getElementById('f-fin-log').value;
+    fetch(URL_SCRIPT + `?accion=reporte&ini=${ini}&fin=${fin}`)
+     .then(r => r.json())
+     .then(d => exportarCSV(d, 'logistica'));
 }
 
 function exportarCSV(data, nombre) {
-    if (!data || data.length === 0) {
-        alert("No hay datos para exportar");
-        return;
-    }
+    if (!data || data.length === 0) { alert("No hay datos para exportar"); return; }
     const csv = data.map(row => row.datos).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -796,9 +823,10 @@ async function vincularDatosPermiso(folio) {
     const data = await r.json();
     const encontrado = data.find(x => x.datos.includes(folio));
     document.getElementById('datos-vinculados-sso').innerHTML = encontrado
-       ? `<p style="color:green">ATS ${folio} encontrado</p>`
+     ? `<p style="color:green">ATS ${folio} encontrado</p>`
         : `<p style="color:red">ATS no existe</p>`;
 }
 </script>
-</body>
+
+   </body>
 </html>
