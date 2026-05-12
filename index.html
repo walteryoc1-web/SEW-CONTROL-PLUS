@@ -345,16 +345,20 @@ document.addEventListener('DOMContentLoaded', () => {
 async function cargarDB() {
     try {
         const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + Date.now());
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        const d = await r.json();
+        if (!r.ok) throw new Error("HTTP " + r.status + " - " + r.statusText);
+        
+        const text = await r.text(); // Primero lee como texto
+        console.log("Respuesta cruda del GAS:", text); // Para debug
+        
+        const d = JSON.parse(text); // Luego parsea a JSON
         DB_MASTER = d;
         console.log("DB cargada correctamente", DB_MASTER);
+        
     } catch(e) {
-        console.log("Error DB:", e);
-        alert("Error cargando base de datos. Revisa que el GAS esté desplegado como 'Cualquier persona, incluso anónima'.");
+        console.error("Error DB completo:", e);
+        alert("Error DB: " + e.message + "\n\nRevisa la consola F12 > Console para ver la respuesta del GAS.");
     }
 }
-
 // ==========================================
 // 3. NAVEGACIÓN UI
 // ==========================================
