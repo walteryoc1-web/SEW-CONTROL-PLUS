@@ -845,6 +845,21 @@ async function vincularDatosPermiso(folio) {
      ? `<p style="color:green">ATS ${folio} encontrado</p>`
         : `<p style="color:red">ATS no existe</p>`;
 }
+        function entrar() {
+    // Si la DB no ha cargado, la carga y luego entra
+    if (!DB_MASTER || Object.keys(DB_MASTER).length === 0) {
+        cargarDB().then(() => {
+            mostrarMenu();
+        });
+    } else {
+        mostrarMenu();
+    }
+}
+
+function mostrarMenu() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainMenu').style.display = 'block';
+}
     function mostrarMenu() {
     const login = document.getElementById('loginScreen');
     const menu = document.getElementById('mainMenu');
