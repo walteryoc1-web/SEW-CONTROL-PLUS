@@ -523,14 +523,12 @@ function iniciarReloj() {
     }
     actualizar();
     setInterval(actualizar, 1000);
-    console.log("Reloj iniciado");
 }
 
 function setOrigenOT(origen) {
     const inputOrigen = document.getElementById('ot-folio');
     if (inputOrigen) {
         inputOrigen.value = origen === 'SISTEMA'? "OT-" + Date.now() : "";
-        console.log("Origen OT seteado:", origen);
     }
 }
 
@@ -539,47 +537,51 @@ function llenarDesplegablesLogistica() {
     const selMov = document.getElementById('mov');
     if (selProd && DB_MASTER.PRODUCTO) {
         selProd.innerHTML = '<option value="">Seleccione Producto</option>';
-        DB_MASTER.PRODUCTO.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selProd.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        DB_MASTER.PRODUCTO.filter(x => x.estado!== 'INACTIVO').forEach(x => {
+            selProd.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
     if (selMov && DB_MASTER.MOVIMIENTO) {
         selMov.innerHTML = '<option value="">Seleccione Movimiento</option>';
-        DB_MASTER.MOVIMIENTO.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selMov.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        DB_MASTER.MOVIMIENTO.filter(x => x.estado!== 'INACTIVO').forEach(x => {
+            selMov.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
-    console.log("Desplegables logística cargados");
 }
 
 function llenarDesplegablesSSO() {
-    console.log("Desplegables SSO cargados");
+    const selPersonal = document.getElementById('sso-personal');
+    const selTipo = document.getElementById('sso-tipo');
+
+    if (selPersonal && DB_MASTER.TECNICO) {
+        selPersonal.innerHTML = '<option value="">Seleccione Personal</option>';
+        DB_MASTER.TECNICO.filter(x => x.estado === 'ACTIVO').forEach(x => {
+            selPersonal.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+        });
+    }
+    if (selTipo && DB_MASTER.TRABAJO) {
+        selTipo.innerHTML = '<option value="">Seleccione Tipo</option>';
+        DB_MASTER.TRABAJO.filter(x => x.estado === 'ACTIVO').forEach(x => {
+            selTipo.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+        });
+    }
 }
 
 function llenarDesplegablesOperaciones() {
     const selPrioridad = document.getElementById('ot-prioridad');
     const selDepto = document.getElementById('ot-depto');
     if (selPrioridad && DB_MASTER.PRIORIDAD_OT) {
-        selPrioridad.innerHTML = '<option disabled selected>Prioridad</option>';
-        DB_MASTER.PRIORIDAD_OT.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selPrioridad.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        selPrioridad.innerHTML = '<option value="">Prioridad</option>';
+        DB_MASTER.PRIORIDAD_OT.filter(x => x.estado!== 'INACTIVO').forEach(x => {
+            selPrioridad.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
     if (selDepto && DB_MASTER.DEPTO_OT) {
-        selDepto.innerHTML = '<option disabled selected>Departamento</option>';
-        DB_MASTER.DEPTO_OT.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selDepto.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        selDepto.innerHTML = '<option value="">Departamento</option>';
+        DB_MASTER.DEPTO_OT.filter(x => x.estado!== 'ACTIVO').forEach(x => {
+            selDepto.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
-    console.log("Desplegables operaciones cargados");
 }
 
 // ==========================================
@@ -596,19 +598,13 @@ async function actualizarPildoras() {
             document.getElementById('count-proceso').innerText = String(d.proceso || 0).padStart(2,'0');
         if(document.getElementById('count-despachadas'))
             document.getElementById('count-despachadas').innerText = String(d.despachadas || 0).padStart(2,'0');
-        if(document.getElementById('sso-pnd'))
-            document.getElementById('sso-pnd').innerText = String(d.totalSSO || 0).padStart(2,'0');
-        if(document.getElementById('sso-riesgo'))
-            document.getElementById('sso-riesgo').innerText = String(d.riesgoSSO || 0).padStart(2,'0');
-        if(document.getElementById('sso-personal'))
-            document.getElementById('sso-personal').innerText = String(d.personalSSO || 0).padStart(2,'0');
     } catch(e) {
         console.log("Error pildoras:", e);
     }
 }
 
 // ==========================================
-// 5. OPERADOR LOGISTICA - AJUSTADO A TU HTML
+// 5. OPERADOR LOGISTICA
 // ==========================================
 function llenarSelectsOperador() {
     llenarDesplegablesLogistica();
@@ -625,7 +621,7 @@ function check() {
     }
 }
 
-function enviar() {
+async function enviar() {
     const id = document.getElementById('id-in').value.trim();
     const mov = document.getElementById('mov').value;
     if (!id ||!mov) { alert("ID Piloto y Movimiento son obligatorios"); return; }
@@ -639,15 +635,15 @@ function enviar() {
         cicloEPQ: document.getElementById('CicloEPQ').value
     };
 
-    fetch(URL_SCRIPT, {
-        method: 'POST',
-        headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify(data)
-    })
-  .then(r => r.text())
-  .then(res => {
-        alert(res);
-        if (res.includes("Q28K_OK")) {
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok") {
             document.getElementById('id-in').value = '';
             document.getElementById('piloto-box').style.display = 'none';
             document.getElementById('mov').value = '';
@@ -656,19 +652,49 @@ function enviar() {
             document.getElementById('CicloEPQ').value = '';
             actualizarPildoras();
         }
-    })
-  .catch(e => alert("Error: " + e));
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 // ==========================================
 // 6. SSO - ATS
 // ==========================================
 function llenarSelectsSSO() {
-    console.log("SSO listo");
+    llenarDesplegablesSSO();
 }
 
 async function enviarPermisoSSO() {
-    alert("Función enviarPermisoSSO pendiente de conectar");
+    const data = {
+        action: "registrarPermiso",
+        personal: document.getElementById('sso-personal').value,
+        tipo: document.getElementById('sso-tipo').value,
+        folio: document.getElementById('sso-folio').value,
+        desc: document.getElementById('sso-desc').value,
+        fase: document.getElementById('sso-fase')?.value || "",
+        ubi: document.getElementById('sso-ubi')?.value || "",
+        checklist: document.getElementById('sso-checklist')?.value || ""
+    };
+
+    if (!data.personal ||!data.tipo) {
+        alert("Personal y Tipo son obligatorios");
+        return;
+    }
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok" && res.pdfUrl) {
+            window.open(res.pdfUrl, '_blank');
+        }
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 // ==========================================
@@ -692,11 +718,55 @@ function checkTecnicoOperaciones(id) {
 }
 
 async function enviarOT() {
-    alert("Función enviarOT pendiente de conectar");
+    const data = {
+        action: "registrarOT",
+        folio: document.getElementById('ot-folio').value,
+        idTec: document.getElementById('ot-tec').value,
+        prioridad: document.getElementById('ot-prioridad').value,
+        depto: document.getElementById('ot-depto').value,
+        desc: document.getElementById('ot-desc').value
+    };
+
+    if (!data.idTec ||!data.prioridad) {
+        alert("Técnico y Prioridad son obligatorios");
+        return;
+    }
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok" && res.pdfUrl) {
+            window.open(res.pdfUrl, '_blank');
+        }
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 async function finalizarTareaOT() {
-    alert("Función finalizarTareaOT pendiente de conectar");
+    const data = {
+        action: "finalizarOT",
+        folio: document.getElementById('ot-folio-cierre').value,
+        ats: document.getElementById('ot-ats').value,
+        obs: document.getElementById('ot-obs-cierre').value
+    };
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 function mostrarSeccionCierre() {
@@ -720,29 +790,43 @@ function llenarSelectsIncidente() {
     const selTipo = document.getElementById('inc-tipo');
     const selGrav = document.getElementById('inc-gravedad');
     if (selTipo && DB_MASTER.TRABAJO) {
-        selTipo.innerHTML = '<option disabled selected>Tipo</option>';
-        DB_MASTER.TRABAJO.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selTipo.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        selTipo.innerHTML = '<option value="">Tipo</option>';
+        DB_MASTER.TRABAJO.filter(x => x.estado === 'ACTIVO').forEach(x => {
+            selTipo.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
     if (selGrav && DB_MASTER.GRAVEDAD) {
-        selGrav.innerHTML = '<option disabled selected>Gravedad</option>';
-        DB_MASTER.GRAVEDAD.forEach(x => {
-            if (x.extra4!== 'INACTIVO') {
-                selGrav.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
-            }
+        selGrav.innerHTML = '<option value="">Gravedad</option>';
+        DB_MASTER.GRAVEDAD.filter(x => x.estado === 'ACTIVO').forEach(x => {
+            selGrav.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
 }
 
 async function registrarIncidente() {
-    alert("Función registrarIncidente pendiente de conectar");
+    const data = {
+        action: "registrarIncidente",
+        folio: document.getElementById('inc-folio').value,
+        tipo: document.getElementById('inc-tipo').value,
+        gravedad: document.getElementById('inc-gravedad').value,
+        recomendacion: document.getElementById('inc-rec').value
+    };
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 async function enviarIncidenteCompleto() {
-    alert("Función enviarIncidenteCompleto pendiente de conectar");
+    await registrarIncidente();
 }
 
 function agregarInvolucradoInc() {
@@ -761,8 +845,8 @@ async function vincularDatosPermiso(folio) {
     const data = await r.json();
     const encontrado = data.find(x => x.datos.includes(folio));
     document.getElementById('datos-vinculados-sso').innerHTML = encontrado
-  ? `<p style="color:green">ATS ${folio} encontrado</p>`
-     : `<p style="color:red">ATS no existe</p>`;
+   ? `<p style="color:green">ATS ${folio} encontrado</p>`
+    : `<p style="color:red">ATS no existe</p>`;
 }
 
 function irAIncidentes() {
@@ -772,12 +856,36 @@ function irAIncidentes() {
 // ==========================================
 // 9. CONTROL MEDICO
 // ==========================================
-async function registrarMedico() {
-    alert("Función registrarMedico pendiente de conectar");
+async function enviarFichaMedica() {
+    const data = {
+        action: "registrarMedico",
+        id: document.getElementById('med-id').value,
+        fecha: document.getElementById('med-fecha').value,
+        tipo: document.getElementById('med-tipo').value,
+        glucosa: document.getElementById('med-glucosa').value,
+        presion: document.getElementById('med-presion').value,
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value
+    };
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok" && res.pdfUrl) {
+            window.open(res.pdfUrl, '_blank');
+        }
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
-async function enviarFichaMedica() {
-    alert("Función enviarFichaMedica pendiente de conectar");
+async function registrarMedico() {
+    await enviarFichaMedica();
 }
 
 function irAMedico() {
@@ -787,12 +895,37 @@ function irAMedico() {
 // ==========================================
 // 10. CONTROL EXTINTORES
 // ==========================================
-async function registrarExtintor() {
-    alert("Función registrarExtintor pendiente de conectar");
+async function enviarInspeccionExtintor() {
+    const data = {
+        action: "registrarExtintor",
+        id: document.getElementById('ext-id').value,
+        ubi: document.getElementById('ext-ubi').value,
+        agente: document.getElementById('ext-agente').value,
+        presion: document.getElementById('ext-presion').value,
+        manguera: document.getElementById('ext-manguera').value,
+        seguro: document.getElementById('ext-seguro').value,
+        vence: document.getElementById('ext-vence').value,
+        obs: document.getElementById('ext-obs').value
+    };
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok" && res.pdfUrl) {
+            window.open(res.pdfUrl, '_blank');
+        }
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
-async function enviarInspeccionExtintor() {
-    alert("Función enviarInspeccionExtintor pendiente de conectar");
+async function registrarExtintor() {
+    await enviarInspeccionExtintor();
 }
 
 function irAExtintores() {
@@ -807,9 +940,12 @@ function ajustarLabelsAdmin() {
     const lbl3 = document.getElementById('lbl-adm-extra3');
     const extra3 = document.getElementById('adm-extra3');
     if (cat === 'PILOTO' || cat === 'TECNICO') {
-        lbl3.innerText = 'DPI:'; extra3.style.display = 'block'; lbl3.style.display = 'block';
+        lbl3.innerText = 'DPI:';
+        extra3.style.display = 'block';
+        lbl3.style.display = 'block';
     } else {
-        extra3.style.display = 'none'; lbl3.style.display = 'none';
+        extra3.style.display = 'none';
+        lbl3.style.display = 'none';
     }
 }
 
@@ -817,6 +953,7 @@ async function guardarDatoMaestro() {
     const id = document.getElementById('adm-id').value.trim();
     const nombre = document.getElementById('adm-nombre').value.trim();
     if (!id ||!nombre) { alert("ID y Nombre son obligatorios"); return; }
+
     const data = {
         action: "guardarConfig",
         categoria: document.getElementById('adm-categoria').value,
@@ -827,12 +964,19 @@ async function guardarDatoMaestro() {
         extra3: document.getElementById('adm-extra3').value,
         extra4: document.getElementById('adm-estado').value
     };
+
     try {
-        const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
-        const res = await r.text();
-        alert(res);
-        if (res.includes("Q28K_OK")) location.reload();
-    } catch(e) { alert("Error: " + e); }
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify(data)
+        });
+        const res = await r.json();
+        alert(res.msg);
+        if (res.status === "ok") location.reload();
+    } catch(e) {
+        alert("Error: " + e);
+    }
 }
 
 function descargarDataMaestra() {
@@ -852,48 +996,48 @@ function descargarCSV() {
     const ini = document.getElementById('f-inicio').value;
     const fin = document.getElementById('f-fin').value;
     fetch(URL_SCRIPT + `?accion=reporte&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'logistica'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'logistica'));
 }
 
 function descargarCSV_SSO() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteSSO&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'sso'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'sso'));
 }
 
 function descargarCSV_Incidentes() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteIncidentes&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'incidentes'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'incidentes'));
 }
 
 function descargarCSV_Medico() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteMedico&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'medico'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'medico'));
 }
 
 function descargarCSV_Extintores() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteExtintores&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'extintores'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'extintores'));
 }
 
 function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot').value;
     const fin = document.getElementById('f-fin-ot').value;
     fetch(URL_SCRIPT + `?accion=reporteOT&ini=${ini}&fin=${fin}`)
-  .then(r => r.json())
-  .then(d => exportarCSV(d, 'ot'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'ot'));
 }
 
 function exportarCSV(data, nombre) {
