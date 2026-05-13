@@ -560,28 +560,38 @@
 
         // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
         // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
-        async function enviar() {
-            try {
-                const id = document.getElementById('id-in').value.trim();
-                if(!id) throw new Error("Ingresa ID de piloto");
-                const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
-                if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
-                const payload = {
-    action: "registrarLogistica",
-    fechaHora: new Date().toLocaleString('es-MX'), // A
-    id: id,                                        // B
-    nombre: p.nombre,                              // C
-    movimiento: document.getElementById('mov').value, // D
-    producto: document.getElementById('prod').value,  // E
-    transporte: document.getElementById('trans').value || "", // F
-    cliente: document.getElementById('cliente').value || "",  // G
-    placa: p.extra1 || ""                           // H
-};
-await fetch(URL_SCRIPT, { 
-    method: 'POST', 
-    body: JSON.stringify(payload), 
-    headers: { 'Content-Type': 'text/plain' } 
-});
+       async function enviar() {
+  try {
+    const id = document.getElementById('id-in').value.trim();
+    if(!id) throw new Error("Ingresa ID de piloto");
+    
+    const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
+    if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
+    
+    const payload = {
+      action: "registrarLogistica",
+      fechaHora: new Date().toLocaleString('es-MX'), // A
+      id: id,                                        // B
+      nombre: p.nombre,                              // C
+      movimiento: document.getElementById('mov').value, // D
+      producto: document.getElementById('prod').value,  // E
+      transporte: document.getElementById('trans').value || "", // F
+      cliente: document.getElementById('cliente').value || "",  // G
+      placa: p.extra1 || ""                           // H
+    };
+    
+    await fetch(URL_SCRIPT, { 
+      method: 'POST', 
+      body: JSON.stringify(payload), 
+      headers: { 'Content-Type': 'text/plain' } 
+    });
+    
+    alert("✅ REGISTRO EXITOSO");
+    location.reload();
+  } catch(e) { 
+    alert("❌ Error: " + e.message); 
+  }
+}
         
        async function registrarOT() {
   const btn = document.getElementById('btn-registrar-ot');
