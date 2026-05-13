@@ -569,16 +569,16 @@
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
     
     const payload = {
-  action: "registrarLogistica",
-  fechaHora: new Date().toLocaleString('es-MX'), // A
-  id: id,                                        // B
-  nombre: p.nombre,                              // C
-  movimiento: document.getElementById('mov').value, // D
-  producto: document.getElementById('prod').value,  // E
-  transporte: document.getElementById('ciclo terpac').value || "", // F - aquí va ciclo terpac
-  cliente: document.getElementById('ciclo E.P.Q').value || "",       // G - aquí va ciclo EPQ
-  placa: p.placa || p.extra1 || ""                // H
-};    
+    action: "registrarLogistica",
+    fechaHora: new Date().toLocaleString('es-MX'), // A
+    id: id,                                        // B
+    nombre: p.nombre,                              // C
+    movimiento: document.getElementById('mov').value, // D
+    producto: document.getElementById('prod').value,  // E
+    ciclo_terpac: document.getElementById('CicloTer').value || "", // F
+    ciclo_epq: document.getElementById('CicloEPQ').value || "",    // G
+    placa: p.extra1 || ""                           // H
+};
     await fetch(URL_SCRIPT, { 
       method: 'POST', 
       body: JSON.stringify(payload), 
