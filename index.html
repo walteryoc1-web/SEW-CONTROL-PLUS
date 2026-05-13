@@ -569,20 +569,20 @@
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
     
     const ahora = new Date();
-    const fechaHora = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}:${String(ahora.getSeconds()).padStart(2, '0')}`;
+const fechaHora = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')} ${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}:${String(ahora.getSeconds()).padStart(2, '0')}`;
 
-    const payload = {
-        action: "registrarLogistica",
-        fechaHora: fechaHora,
-        id: id,
-        nombre: p.nombre,
-        movimiento: document.getElementById('mov').value,
-        producto: document.getElementById('prod').value,
-        cliente: p.extra4 || "",
-        placa: p.extra1 || "",
-        ciclo_terpac: document.getElementById('CicloTer').value || "",
-        ciclo_epq: document.getElementById('CicloEPQ').value || ""
-    };
+const payload = {
+    action: "registrarLogistica",
+    fechaHora: fechaHora, // 2026-05-13 08:40:57
+    id: id,
+    nombre: p.nombre,
+    movimiento: document.getElementById('mov').value,
+    producto: document.getElementById('prod').value,
+    cliente: p.extra4 || "",
+    placa: p.extra1 || "",
+    ciclo_terpac: document.getElementById('CicloTer').value || "",
+    ciclo_epq: document.getElementById('CicloEPQ').value || ""
+};
 
     await fetch(URL_SCRIPT, { 
       method: 'POST', 
