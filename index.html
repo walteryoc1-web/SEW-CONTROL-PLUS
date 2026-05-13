@@ -560,7 +560,7 @@
 
         // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
         // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
-      async function enviar() {
+     async function enviar() {
   try {
     const id = document.getElementById('id-in').value.trim();
     if(!id) throw new Error("Ingresa ID de piloto");
@@ -569,15 +569,7 @@
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
     
     const ahora = new Date();
-    const fechaHora = [
-      String(ahora.getDate()).padStart(2, '0'),
-      String(ahora.getMonth() + 1).padStart(2, '0'),
-      ahora.getFullYear()
-    ].join('/') + ' + [
-      String(ahora.getHours()).padStart(2, '0'),
-      String(ahora.getMinutes()).padStart(2, '0'),
-      String(ahora.getSeconds()).padStart(2, '0')
-    ].join(':');
+    const fechaHora = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}:${String(ahora.getSeconds()).padStart(2, '0')}`;
 
     const payload = {
         action: "registrarLogistica",
@@ -603,7 +595,7 @@
   } catch(e) { 
     alert("❌ Error: " + e.message); 
   }
-}        
+}
        async function registrarOT() {
   const btn = document.getElementById('btn-registrar-ot');
   btn.disabled = true;
