@@ -466,8 +466,9 @@
         
         box.style.display = 'block';
         box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
-                         🚛 Cliente: ${p.extra3 || 'N/A'}<br>
-                         🚚 Cabezal: ${p.extra1} | 💳 Placa: ${p.extra2}`;
+                         🚛 Cliente: ${p.extra4 || 'N/A'}<br>
+                         🚛 Placa: ${p.extra3 || 'N/A'}<br>
+                         🚚 Cabezal: ${p.extra1} | 💳 Licencia: ${p.extra2}`;
     } else {
         box.style.display = 'none';
     }
