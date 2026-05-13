@@ -568,16 +568,16 @@
     const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
     
-    const ahora = new Date();
-    const fechaHora = [
-    String(ahora.getDate()).padStart(2, '0'),
-   String(ahora.getMonth() + 1).padStart(2, '0'),
-   ahora.getFullYear()
- ].join('/') + ' + [
-   String(ahora.getHours()).padStart(2, '0'),
-   String(ahora.getMinutes()).padStart(2, '0'),
-   String(ahora.getSeconds()).padStart(2, '0')
- ].join(':');
+   const ahora = new Date();
+const fechaHora = [
+  String(ahora.getDate()).padStart(2, '0'),
+  String(ahora.getMonth() + 1).padStart(2, '0'),
+  ahora.getFullYear()
+].join('/') + ' + [
+  String(ahora.getHours()).padStart(2, '0'),
+  String(ahora.getMinutes()).padStart(2, '0'),
+  String(ahora.getSeconds()).padStart(2, '0')
+].join(':');
 
 const payload = {
     action: "registrarLogistica",
