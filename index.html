@@ -348,46 +348,43 @@ async function cargarDB() {
     const AHORA = Date.now();
     const TIEMPO_CACHE = 600000; // 10 min
 
-    // Si hay cache válido, úsalo
+    // 1. Carga cache primero para que la UI no quede en blanco
     if (cache && cacheTime && (AHORA - cacheTime) < TIEMPO_CACHE) {
         DB_MASTER = JSON.parse(cache);
         console.log("DB cargada desde cache ⚡");
-        return;
+        cargarSelects(); // Llama aquí a tu función que llena los dropdowns
     }
 
     try {
-        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
+        // 2. Intenta actualizar en segundo plano con no-cors
+        await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
             method: 'GET',
-            mode: 'cors',
+            mode: 'no-cors',
             cache: 'no-cache'
         });
         
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        
-        const text = await r.text();
-        
-        // GAS a veces devuelve con espacios o texto extra
-        const d = JSON.parse(text.trim());
-        
-        DB_MASTER = d;
-        localStorage.setItem('DB_MASTER', text);
-        localStorage.setItem('DB_MASTER_TIME', AHORA);
-        console.log("DB descargada del GAS y guardada en cache");
+        // Con no-cors no podés leer r.ok ni r.text(), así que asumimos OK si no tira error
+        console.log("Fetch a GAS enviado. Si hay datos nuevos, se verán en la próxima recarga.");
         
     } catch(e) {
         console.error("Error DB:", e);
         
-        // Si falla pero hay cache viejo, úsalo igual
-        if (cache) {
-            DB_MASTER = JSON.parse(cache);
+        // 3. Si no hay cache y falla, recién ahí tira error
+        if (!DB_MASTER) {
+            alert("Error DB: " + e.message + "\nRevisa que el GAS esté desplegado como 'Anyone with the link'");
+        } else {
             console.log("Usando cache viejo por error de red");
             alert("Sin conexión al servidor. Usando datos guardados.");
-        } else {
-            alert("Error DB: " + e.message + "\nRevisa que el GAS esté desplegado como 'Anyone with the link'");
         }
     }
+    
+    // 4. Si no había cache antes, intenta parsear de nuevo por si se actualizó
+    if (!DB_MASTER && cache) {
+        DB_MASTER = JSON.parse(cache);
+        cargarSelects();
+    }
 }
-
+    
 // ==========================================
 // 2.1 LOGIN
 // ==========================================
@@ -395,69 +392,98 @@ async function entrar() {
     const u = document.getElementById('u').value.toLowerCase().trim();
     const p = document.getElementById('p').value;
     const btn = document.getElementById('btn-login');
-    const originalText = "INGRESAR";
+    const originalText = btn ? btn.innerText : "INGRESAR";
 
     if(btn) {
         btn.innerText = "INGRESANDO... ⏳";
         btn.disabled = true;
     }
 
-    if (!DB_MASTER ||!DB_MASTER.USUARIOS) {
-        await cargarDB();
-    }
+    try {
+        // 1. Carga DB si no está
+        if (!DB_MASTER || !DB_MASTER.USUARIOS || DB_MASTER.USUARIOS.length === 0) {
+            await cargarDB();
+        }
 
-    const user = DB_MASTER.USUARIOS.find(usr =>
-        usr.ESTADO === 'ACTIVO' &&
-        usr.USUARIO.toLowerCase() === u &&
-        usr.PASSWORD === p
-    );
+        if (!DB_MASTER || !DB_MASTER.USUARIOS) {
+            throw new Error("No se pudo cargar la base de usuarios");
+        }
 
-    if (!user) {
-        alert("❌ Credenciales incorrectas");
-        document.getElementById('login').style.display='block';
+        // 2. Busca usuario normalizando todo
+        const user = DB_MASTER.USUARIOS.find(usr =>
+            (usr.ESTADO || "").toString().toUpperCase() === 'ACTIVO' &&
+            (usr.USUARIO || "").toString().toLowerCase().trim() === u &&
+            (usr.PASSWORD || "").toString() === p
+        );
+
+        if (!user) {
+            alert("❌ Credenciales incorrectas");
+            document.getElementById('login').style.display = 'block';
+            return;
+        }
+
+        // 3. Normaliza el rol para el switch
+        USUARIO_ACTIVO = user;
+        const rol = (user.ROL || "").toString().trim().toUpperCase().replace(/\s+/g, '_');
+        
+        console.log("Login ok:", user.USUARIO, "Rol original:", user.ROL, "Rol normalizado:", rol);
+        document.getElementById('login').style.display = 'none';
+
+        // 4. Switch con roles normalizados
+        switch(rol) {
+            case 'OPERADOR':
+                mostrarUI('ui-app');
+                if(typeof llenarDesplegablesLogistica === 'function') llenarDesplegablesLogistica();
+                break;
+
+            case 'SUPERVISOR':
+                mostrarUI('ui-supervisor');
+                iniciarReloj(); 
+                actualizarPildoras(); 
+                setInterval(actualizarPildoras, 30000);
+                break;
+
+            case 'SUPERVISOR_SSO':
+                mostrarUI('ui-monitor-sso');
+                actualizarPildoras(); 
+                if(typeof cargarPermisosParaCerrar === 'function') cargarPermisosParaCerrar(); 
+                setInterval(actualizarPildoras, 30000);
+                break;
+
+            case 'SSO':
+                mostrarUI('ui-seguridad');
+                if(typeof llenarDesplegablesSSO === 'function') llenarDesplegablesSSO();
+                break;
+
+            case 'OPERACIONES':
+                mostrarUI('ui-operaciones');
+                if(typeof llenarDesplegablesOperaciones === 'function') llenarDesplegablesOperaciones(); 
+                if(typeof setOrigenOT === 'function') setOrigenOT('SISTEMA');
+                break;
+
+            case 'ADMIN':
+                mostrarUI('ui-admin-datos');
+                if(typeof ajustarLabelsAdmin === 'function') ajustarLabelsAdmin();
+                break;
+
+            default:
+                alert("Rol no configurado: " + user.ROL + "\nRol detectado: " + rol);
+                document.getElementById('login').style.display = 'block';
+                console.error("Roles disponibles:", DB_MASTER.USUARIOS.map(u => u.ROL));
+        }
+
+    } catch(e) {
+        console.error("Error en login:", e);
+        alert("Error al iniciar sesión: " + e.message);
+        document.getElementById('login').style.display = 'block';
+    } finally {
         if(btn) {
             btn.innerText = originalText;
             btn.disabled = false;
         }
-        return;
     }
-
-    USUARIO_ACTIVO = user;
-    document.getElementById('login').style.display='none';
-
-    switch(user.ROL) {
-        case 'OPERADOR':
-            mostrarUI('ui-app');
-            llenarDesplegablesLogistica();
-            break;
-        case 'SUPERVISOR':
-            mostrarUI('ui-supervisor');
-            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-            break;
-        case 'SUPERVISOR_SSO':
-            mostrarUI('ui-monitor-sso');
-            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-            break;
-        case 'SSO':
-            mostrarUI('ui-seguridad');
-            llenarDesplegablesSSO();
-            break;
-        case 'OPERACIONES':
-            mostrarUI('ui-operaciones');
-            llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
-            break;
-        case 'ADMIN':
-            mostrarUI('ui-admin-datos');
-            ajustarLabelsAdmin();
-            break;
-        default:
-            alert("Rol no configurado: " + user.ROL);
-            document.getElementById('login').style.display='block';
-    }
-
-    console.log("Login ok:", user.USUARIO, "Rol:", user.ROL);
 }
-
+    
 // ==========================================
 // 3. NAVEGACIÓN UI
 // ==========================================
