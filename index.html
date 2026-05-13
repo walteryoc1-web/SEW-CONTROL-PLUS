@@ -343,11 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function cargarDB() {
-    // 1. Revisa si hay cache reciente
     const cache = localStorage.getItem('DB_MASTER');
     const cacheTime = localStorage.getItem('DB_MASTER_TIME');
     const AHORA = Date.now();
-    const TIEMPO_CACHE = 600000; // 10 min en ms
+    const TIEMPO_CACHE = 600000;
 
     if (cache && cacheTime && (AHORA - cacheTime) < TIEMPO_CACHE) {
         DB_MASTER = JSON.parse(cache);
@@ -355,20 +354,15 @@ async function cargarDB() {
         return;
     }
 
-    // 2. Si no hay cache, descarga del GAS
     try {
         const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA);
         if (!r.ok) throw new Error("HTTP " + r.status);
-        
         const text = await r.text();
         const d = JSON.parse(text);
         DB_MASTER = d;
-        
-        // 3. Guarda cache
         localStorage.setItem('DB_MASTER', text);
         localStorage.setItem('DB_MASTER_TIME', AHORA);
         console.log("DB descargada del GAS y guardada en cache");
-        
     } catch(e) {
         console.error("Error DB:", e);
         alert("Error DB: " + e.message);
@@ -376,7 +370,7 @@ async function cargarDB() {
 }
 
 // ==========================================
-// 2.1 LOGIN - AGREGADO
+// 2.1 LOGIN
 // ==========================================
 async function entrar() {
     const u = document.getElementById('u').value.toLowerCase().trim();
@@ -389,12 +383,10 @@ async function entrar() {
         btn.disabled = true;
     }
 
-    // Carga la DB si no está cargada
-    if (!DB_MASTER || !DB_MASTER.USUARIOS) {
+    if (!DB_MASTER ||!DB_MASTER.USUARIOS) {
         await cargarDB();
     }
 
-    // Busca el usuario - cambié 'u' por 'usr' para evitar choque
     const user = DB_MASTER.USUARIOS.find(usr =>
         usr.ESTADO === 'ACTIVO' &&
         usr.USUARIO.toLowerCase() === u &&
@@ -411,11 +403,9 @@ async function entrar() {
         return;
     }
 
-    // Login ok
     USUARIO_ACTIVO = user;
     document.getElementById('login').style.display='none';
 
-    // Manda a la interfaz según el ROL
     switch(user.ROL) {
         case 'OPERADOR':
             mostrarUI('ui-operador-logistica');
@@ -477,17 +467,51 @@ function mostrarUI(idUI) {
     }
 }
 
+function mostrarMenu() {
+    const login = document.getElementById('loginScreen');
+    const menu = document.getElementById('mainMenu');
+    if (login) login.style.display = 'none';
+    if (menu) menu.style.display = 'block';
+    if (!login ||!menu) {
+        console.error("No encontré los divs. Revisa los IDs en tu HTML");
+    }
+}
+
 // ==========================================
-// 3.1 FUNCIONES LLENAR DESPLEGABLES - AGREGADAS
+// 3.1 FUNCIONES FALTANTES AGREGADAS
 // ==========================================
+function iniciarReloj() {
+    function actualizar() {
+        const ahora = new Date();
+        const hora = ahora.toLocaleTimeString('es-GT', {hour: '2-digit', minute: '2-digit', second: '2-digit'});
+        const fecha = ahora.toLocaleDateString('es-GT');
+        if (document.getElementById('reloj')) {
+            document.getElementById('reloj').innerText = hora;
+        }
+        if (document.getElementById('fecha')) {
+            document.getElementById('fecha').innerText = fecha;
+        }
+    }
+    actualizar();
+    setInterval(actualizar, 1000);
+    console.log("Reloj iniciado");
+}
+
+function setOrigenOT(origen) {
+    const inputOrigen = document.getElementById('ot-origen');
+    if (inputOrigen) {
+        inputOrigen.value = origen;
+        console.log("Origen OT seteado:", origen);
+    }
+}
+
 function llenarDesplegablesLogistica() {
     const selProd = document.getElementById('op-producto');
     const selMov = document.getElementById('op-movimiento');
-
     if (selProd && DB_MASTER.PRODUCTO) {
         selProd.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.PRODUCTO.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selProd.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -495,7 +519,7 @@ function llenarDesplegablesLogistica() {
     if (selMov && DB_MASTER.MOVIMIENTO) {
         selMov.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.MOVIMIENTO.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selMov.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -506,11 +530,10 @@ function llenarDesplegablesLogistica() {
 function llenarDesplegablesSSO() {
     const selPersonal = document.getElementById('sso-personal');
     const selFase = document.getElementById('sso-fase');
-
     if (selPersonal && DB_MASTER.TECNICO) {
         selPersonal.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.TECNICO.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selPersonal.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -518,7 +541,7 @@ function llenarDesplegablesSSO() {
     if (selFase && DB_MASTER.UBICACION) {
         selFase.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.UBICACION.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selFase.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -529,11 +552,10 @@ function llenarDesplegablesSSO() {
 function llenarDesplegablesOperaciones() {
     const selTec = document.getElementById('ot-tec');
     const selDepto = document.getElementById('ot-depto');
-
     if (selTec && DB_MASTER.TECNICO) {
         selTec.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.TECNICO.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selTec.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -541,7 +563,7 @@ function llenarDesplegablesOperaciones() {
     if (selDepto && DB_MASTER.DEPTO_OT) {
         selDepto.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.DEPTO_OT.forEach(x => {
-            if (x.extra4 !== 'INACTIVO') {
+            if (x.extra4!== 'INACTIVO') {
                 selDepto.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
             }
         });
@@ -557,7 +579,6 @@ async function actualizarPildoras() {
         const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
         if (!r.ok) throw new Error("HTTP " + r.status);
         const d = await r.json();
-
         if(document.getElementById('count-pendientes'))
             document.getElementById('count-pendientes').innerText = String(d.pendientes || 0).padStart(2,'0');
         if(document.getElementById('count-proceso'))
@@ -570,7 +591,6 @@ async function actualizarPildoras() {
             document.getElementById('sso-riesgo').innerText = String(d.riesgoSSO || 0).padStart(2,'0');
         if(document.getElementById('sso-personal'))
             document.getElementById('sso-personal').innerText = String(d.personalSSO || 0).padStart(2,'0');
-
     } catch(e) {
         console.log("Error pildoras:", e);
     }
@@ -582,7 +602,6 @@ async function actualizarPildoras() {
 function llenarSelectsOperador() {
     const selProd = document.getElementById('op-producto');
     const selMov = document.getElementById('op-movimiento');
-
     if (selProd && DB_MASTER.PRODUCTO) {
         selProd.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.PRODUCTO.forEach(x => {
@@ -605,7 +624,6 @@ function registrarLogistica() {
     const id = document.getElementById('op-id-piloto').value.trim();
     const mov = document.getElementById('op-movimiento').value;
     if (!id ||!mov) { alert("ID Piloto y Movimiento son obligatorios"); return; }
-
     const data = {
         action: "registrarLogistica",
         id: id,
@@ -614,21 +632,20 @@ function registrarLogistica() {
         cicloTer: document.getElementById('op-ciclo-ter').value,
         cicloEPQ: document.getElementById('op-ciclo-epq').value
     };
-
     fetch(URL_SCRIPT, {
         method: 'POST',
         headers: {'Content-Type': 'text/plain'},
         body: JSON.stringify(data)
     })
- .then(r => r.text())
- .then(res => {
+   .then(r => r.text())
+   .then(res => {
         alert(res);
         if (res.includes("Q28K_OK")) {
             document.getElementById('form-operador').reset();
             actualizarPildoras();
         }
     })
- .catch(e => alert("Error: " + e));
+   .catch(e => alert("Error: " + e));
 }
 
 async function checkPiloto(input) {
@@ -648,7 +665,6 @@ function generarFolioATS() {
 function llenarSelectsSSO() {
     const selPersonal = document.getElementById('sso-personal');
     const selFase = document.getElementById('sso-fase');
-
     if (selPersonal && DB_MASTER.TECNICO) {
         selPersonal.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.TECNICO.forEach(x => {
@@ -670,7 +686,6 @@ function llenarSelectsSSO() {
 async function registrarPermisoSSO() {
     const personal = document.getElementById('sso-personal').value;
     if (!personal) { alert("Seleccione personal"); return; }
-
     const data = {
         action: "registrarPermiso",
         personal: personal,
@@ -684,7 +699,6 @@ async function registrarPermisoSSO() {
         desc: document.getElementById('sso-desc').value,
         folio: document.getElementById('sso-folio').value
     };
-
     try {
         const r = await fetch(URL_SCRIPT, {
             method: 'POST',
@@ -708,7 +722,6 @@ function generarFolioOT() {
 function llenarSelectsOT() {
     const selTec = document.getElementById('ot-tec');
     const selDepto = document.getElementById('ot-depto');
-
     if (selTec && DB_MASTER.TECNICO) {
         selTec.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.TECNICO.forEach(x => {
@@ -731,7 +744,6 @@ async function registrarOT() {
     const idTec = document.getElementById('ot-tec').value.trim();
     const folio = document.getElementById('ot-folio').value;
     if (!idTec ||!folio) { alert("Técnico y Folio obligatorios"); return; }
-
     const data = {
         action: "registrarOT",
         folio: folio,
@@ -741,7 +753,6 @@ async function registrarOT() {
         desc: document.getElementById('ot-desc').value,
         ats: document.getElementById('ot-ats').value
     };
-
     try {
         const r = await fetch(URL_SCRIPT, {
             method: 'POST',
@@ -758,14 +769,12 @@ async function registrarOT() {
 async function finalizarOT() {
     const folio = document.getElementById('ot-cerrar-folio').value.trim();
     if (!folio) { alert("Folio OT obligatorio"); return; }
-
     const data = {
         action: "finalizarOT",
         folio: folio,
         ats: document.getElementById('ot-cerrar-ats').value.trim(),
         obs: document.getElementById('ot-cerrar-obs').value
     };
-
     try {
         const r = await fetch(URL_SCRIPT, {
             method: 'POST',
@@ -777,7 +786,8 @@ async function finalizarOT() {
         if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
     } catch(e) { alert("Error: " + e); }
 }
-    // ==========================================
+
+// ==========================================
 // 8. INCIDENTES
 // ==========================================
 function generarFolioIncidente() {
@@ -787,7 +797,6 @@ function generarFolioIncidente() {
 function llenarSelectsIncidente() {
     const selTipo = document.getElementById('inc-tipo');
     const selGrav = document.getElementById('inc-gravedad');
-
     if (selTipo && DB_MASTER.TRABAJO) {
         selTipo.innerHTML = '<option value="">Seleccione</option>';
         DB_MASTER.TRABAJO.forEach(x => {
@@ -887,7 +896,6 @@ async function guardarDatoMaestro() {
     const id = document.getElementById('adm-id').value.trim();
     const nombre = document.getElementById('adm-nombre').value.trim();
     if (!id ||!nombre) { alert("ID y Nombre son obligatorios"); return; }
-
     const data = {
         action: "guardarConfig",
         categoria: document.getElementById('adm-categoria').value,
@@ -898,7 +906,6 @@ async function guardarDatoMaestro() {
         extra3: document.getElementById('adm-extra3').value,
         extra4: document.getElementById('adm-estado').value
     };
-
     try {
         const r = await fetch(URL_SCRIPT, {method: 'POST', headers: {'Content-Type': 'text/plain'}, body: JSON.stringify(data)});
         const res = await r.text();
@@ -924,32 +931,32 @@ function descargarCSV_Medico() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteMedico&ini=${ini}&fin=${fin}`)
-    .then(r => r.json())
-    .then(d => exportarCSV(d, 'medico'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'medico'));
 }
 
 function descargarCSV_Extintores() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteExtintores&ini=${ini}&fin=${fin}`)
-    .then(r => r.json())
-    .then(d => exportarCSV(d, 'extintores'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'extintores'));
 }
 
 function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot').value;
     const fin = document.getElementById('f-fin-ot').value;
     fetch(URL_SCRIPT + `?accion=reporteOT&ini=${ini}&fin=${fin}`)
-    .then(r => r.json())
-    .then(d => exportarCSV(d, 'ot'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'ot'));
 }
 
 function descargarCSV_Logistica() {
     const ini = document.getElementById('f-ini-log').value;
     const fin = document.getElementById('f-fin-log').value;
     fetch(URL_SCRIPT + `?accion=reporte&ini=${ini}&fin=${fin}`)
-    .then(r => r.json())
-    .then(d => exportarCSV(d, 'logistica'));
+   .then(r => r.json())
+   .then(d => exportarCSV(d, 'logistica'));
 }
 
 function exportarCSV(data, nombre) {
@@ -988,24 +995,8 @@ async function vincularDatosPermiso(folio) {
     const data = await r.json();
     const encontrado = data.find(x => x.datos.includes(folio));
     document.getElementById('datos-vinculados-sso').innerHTML = encontrado
-    ? `<p style="color:green">ATS ${folio} encontrado</p>`
+   ? `<p style="color:green">ATS ${folio} encontrado</p>`
      : `<p style="color:red">ATS no existe</p>`;
-}
-
-// ==========================================
-// 14. FUNCIONES DE NAVEGACIÓN - UNIFICADAS
-// ==========================================
-function mostrarMenu() {
-    const login = document.getElementById('loginScreen');
-    const menu = document.getElementById('mainMenu');
-
-    if (login) login.style.display = 'none';
-    if (menu) menu.style.display = 'block';
-
-    if (!login ||!menu) {
-        console.error;
-        alert("Error: No encontré loginScreen o mainMenu en el HTML. Abre F12 > Elements y revisa los IDs.");
-    }
 }
 </script>
 </body>
