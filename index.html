@@ -550,17 +550,17 @@ function llenarDesplegablesLogistica() {
 }
 
 function llenarDesplegablesSSO() {
-    const selPersonal = document.getElementById('sso-personal');
-    const selTipo = document.getElementById('sso-tipo');
+    const selFase = document.getElementById('p-fase');
+    const selTipo = document.getElementById('p-tipo');
 
-    if (selPersonal && DB_MASTER.TECNICO) {
-        selPersonal.innerHTML = '<option value="">Seleccione Personal</option>';
-        DB_MASTER.TECNICO.filter(x => x.estado === 'ACTIVO').forEach(x => {
-            selPersonal.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+    if (selFase && DB_MASTER.UBICACION) {
+        selFase.innerHTML = '<option disabled selected>Area Labores</option>';
+        DB_MASTER.UBICACION.filter(x => x.estado === 'ACTIVO').forEach(x => {
+            selFase.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
     }
     if (selTipo && DB_MASTER.TRABAJO) {
-        selTipo.innerHTML = '<option value="">Seleccione Tipo</option>';
+        selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
         DB_MASTER.TRABAJO.filter(x => x.estado === 'ACTIVO').forEach(x => {
             selTipo.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
         });
@@ -665,19 +665,23 @@ function llenarSelectsSSO() {
 }
 
 async function enviarPermisoSSO() {
+    const ejecutores = Array.from(document.querySelectorAll('.p-id-clase'))
+        .map(i => i.value.trim())
+        .filter(v => v);
+
     const data = {
         action: "registrarPermiso",
-        personal: document.getElementById('sso-personal').value,
-        tipo: document.getElementById('sso-tipo').value,
-        folio: document.getElementById('sso-folio').value,
-        desc: document.getElementById('sso-desc').value,
-        fase: document.getElementById('sso-fase')?.value || "",
-        ubi: document.getElementById('sso-ubi')?.value || "",
-        checklist: document.getElementById('sso-checklist')?.value || ""
+        ejecutores: ejecutores,
+        fase: document.getElementById('p-fase')?.value || "",
+        ubicacion: document.getElementById('p-ubicacion')?.value || "",
+        tipo: document.getElementById('p-tipo')?.value || "",
+        desc: document.getElementById('p-descripcion')?.value || "",
+        herramientas: document.getElementById('check-herramientas')?.checked || false,
+        colectiva: document.getElementById('check-colectiva')?.checked || false
     };
 
-    if (!data.personal ||!data.tipo) {
-        alert("Personal y Tipo son obligatorios");
+    if (!data.ejecutores.length || !data.tipo) {
+        alert("Ejecutor y Tipo de Trabajo son obligatorios");
         return;
     }
 
@@ -696,7 +700,6 @@ async function enviarPermisoSSO() {
         alert("Error: " + e);
     }
 }
-
 // ==========================================
 // 7. ORDENES DE TRABAJO
 // ==========================================
