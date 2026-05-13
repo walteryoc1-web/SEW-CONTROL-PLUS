@@ -342,46 +342,47 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(actualizarPildoras, 30000);
 });
 
-async function cargarDB() {
-    const cache = localStorage.getItem('DB_MASTER');
-    const cacheTime = localStorage.getItem('DB_MASTER_TIME');
-    const AHORA = Date.now();
-    const TIEMPO_CACHE = 600000; // 10 min
-
-    // 1. Carga cache primero para que no quede en blanco
-    if (cache && cacheTime && (AHORA - parseInt(cacheTime)) < TIEMPO_CACHE) {
-        DB_MASTER = JSON.parse(cache);
-        console.log("DB cargada desde cache ⚡");
-        cargarSelects();
-    }
-
-    try {
-        // 2. Pide datos nuevos con CORS normal
-        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache'
-        });
-
-        if (!r.ok) throw new Error("HTTP " + r.status);
-        const d = await r.json();
-
-        DB_MASTER = d;
-        localStorage.setItem('DB_MASTER', JSON.stringify(d));
-        localStorage.setItem('DB_MASTER_TIME', AHORA);
-        console.log("DB actualizada desde GAS");
-        cargarSelects();
-
-    } catch(e) {
-        console.error("Error DB:", e);
-        
-        if (!DB_MASTER && cache) {
+function cargarDB() {
+    return new Promise((resolve) => {
+        const cache = localStorage.getItem('DB_MASTER');
+        if (cache) {
             DB_MASTER = JSON.parse(cache);
-            alert("Sin conexión. Usando datos guardados.");
-        } else if (!DB_MASTER) {
-            alert("Error DB: " + e.message + "\nRevisa que el GAS esté desplegado como 'Anyone with the link'");
+            console.log("DB cargada desde cache ⚡");
+
+            // Cambia esto:
+            // cargarSelects();
+
+            // Por esto, según la UI que cargues:
+            if(typeof llenarDesplegablesLogistica === 'function') llenarDesplegablesLogistica();
+            if(typeof llenarDesplegablesSSO === 'function') llenarDesplegablesSSO();
+            if(typeof llenarDesplegablesOperaciones === 'function') llenarDesplegablesOperaciones();
         }
-    }
+
+        const callbackName = 'cb_' + Date.now();
+        window[callbackName] = (data) => {
+            DB_MASTER = data;
+            localStorage.setItem('DB_MASTER', JSON.stringify(data));
+            localStorage.setItem('DB_MASTER_TIME', Date.now());
+            console.log("DB actualizada desde GAS");
+
+            // Y cambia esto también:
+            if(typeof llenarDesplegablesLogistica === 'function') llenarDesplegablesLogistica();
+            if(typeof llenarDesplegablesSSO === 'function') llenarDesplegablesSSO();
+            if(typeof llenarDesplegablesOperaciones === 'function') llenarDesplegablesOperaciones();
+
+            document.body.removeChild(script);
+            delete window[callbackName];
+            resolve();
+        };
+
+        const script = document.createElement('script');
+        script.src = URL_SCRIPT + "?accion=getGlobalConfig&callback=" + callbackName;
+        script.onerror = () => {
+            if (!DB_MASTER) alert("Error cargando DB. Revisa el deploy del GAS.");
+            resolve();
+        };
+        document.body.appendChild(script);
+    });
 }
     
 // ==========================================
