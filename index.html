@@ -451,20 +451,27 @@
             return div;
         }
 
-        // --- 5. VALIDACIÓN DE PERSONAL Y BUSCADORES SEGURIDAD ---
-        function check() {
-            const id = document.getElementById('id-in').value.trim();
-            const box = document.getElementById('piloto-box');
-            const p = DB_MASTER.PILOTO? DB_MASTER.PILOTO.find(x => x.id.toString() === id) : null;
-            if (p) {
-                if ((p.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
-                    alert("🚫 ACCESO DENEGADO: Piloto " + p.nombre + " está INACTIVO.");
-                    document.getElementById('id-in').value = ""; box.style.display = 'none'; return;
-                }
-                box.style.display = 'block';
-                box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>🚛 Cabezal: ${p.extra1} | 💳 Placa: ${p.extra2}`;
-            } else box.style.display = 'none';
+       function check() {
+    const id = document.getElementById('id-in').value.trim();
+    const box = document.getElementById('piloto-box');
+    const p = DB_MASTER.PILOTO? DB_MASTER.PILOTO.find(x => x.id.toString() === id) : null;
+    
+    if (p) {
+        if ((p.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
+            alert("🚫 ACCESO DENEGADO: Piloto " + p.nombre + " está INACTIVO.");
+            document.getElementById('id-in').value = ""; 
+            box.style.display = 'none'; 
+            return;
         }
+        
+        box.style.display = 'block';
+        box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
+                         🚛 Transporte: ${p.extra3 || 'N/A'}<br>
+                         🚚 Cabezal: ${p.extra1} | 💳 Placa: ${p.extra2}`;
+    } else {
+        box.style.display = 'none';
+    }
+}
 
         function checkSSO_Dinamico(inp) {
             const id = inp.value.trim().toUpperCase(), box = inp.parentElement.nextElementSibling;
