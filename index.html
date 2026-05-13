@@ -339,21 +339,26 @@
             } catch(e) { console.error("Error pildoras:", e); }
         }
 
-        async function cargarCerebroSistema() {
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
-                DB_MASTER = await res.json();
-                console.log("✅ Cerebro Sincronizado", DB_MASTER);
-                return true;
-            } catch (e) {
-                console.error("❌ Error cargando DB:", e);
-                DB_MASTER = {USUARIOS:[], TECNICO:[], PILOTO:[], PRODUCTO:[], MOVIMIENTO:[],
-                             PRIORIDAD_OT:[], DEPTO_OT:[], GRAVEDAD:[], TRABAJO:[], UBICACION:[],
-                             EPP:[], HERRAMIENTA:[], COLECTIVA:[], ESTADO_SALUD:[]};
-                alert("⚠️ No se pudo conectar a la base de datos. Revisa el ID de la hoja en Apps Script.");
-                return false;
-            }
+       async function cargarCerebroSistema() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
+        
+        if (!res.ok) {
+            throw new Error("HTTP " + res.status + " - " + res.statusText);
         }
+        
+        DB_MASTER = await res.json();
+        console.log("✅ Cerebro Sincronizado", DB_MASTER);
+        return true;
+    } catch (e) {
+        console.error("❌ Error cargando DB:", e);
+        DB_MASTER = {USUARIOS:[], TECNICO:[], PILOTO:[], PRODUCTO:[], MOVIMIENTO:[],
+                     PRIORIDAD_OT:[], DEPTO_OT:[], GRAVEDAD:[], TRABAJO:[], UBICACION:[],
+                     EPP:[], HERRAMIENTA:[], COLECTIVA:[], ESTADO_SALUD:[]};
+        alert("⚠️ No se pudo conectar: " + e.message);
+        return false;
+    }
+}
 
         async function entrar() {
             const u = document.getElementById('u').value.toLowerCase().trim();
