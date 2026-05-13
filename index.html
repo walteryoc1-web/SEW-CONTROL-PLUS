@@ -325,7 +325,7 @@
             <button class="btn-salir" onclick="document.getElementById('ui-extintores-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
         </div>
     </div>
-    <script>
+<script>
 // ==========================================
 // 1. CONFIGURACIÓN GLOBAL Q28K
 // ==========================================
@@ -374,6 +374,81 @@ async function cargarDB() {
         alert("Error DB: " + e.message);
     }
 }
+
+// ==========================================
+// 2.1 LOGIN - AGREGADO
+// ==========================================
+async function entrar() {
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const btn = document.getElementById('btn-login');
+    const originalText = "INGRESAR";
+
+    if(btn) {
+        btn.innerText = "INGRESANDO... ⏳";
+        btn.disabled = true;
+    }
+
+    // Carga la DB si no está cargada
+    if (!DB_MASTER || !DB_MASTER.USUARIOS) {
+        await cargarDB();
+    }
+
+    // Busca el usuario - cambié 'u' por 'usr' para evitar choque
+    const user = DB_MASTER.USUARIOS.find(usr =>
+        usr.ESTADO === 'ACTIVO' &&
+        usr.USUARIO.toLowerCase() === u &&
+        usr.PASSWORD === p
+    );
+
+    if (!user) {
+        alert("❌ Credenciales incorrectas");
+        document.getElementById('login').style.display='block';
+        if(btn) {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+        return;
+    }
+
+    // Login ok
+    USUARIO_ACTIVO = user;
+    document.getElementById('login').style.display='none';
+
+    // Manda a la interfaz según el ROL
+    switch(user.ROL) {
+        case 'OPERADOR':
+            mostrarUI('ui-operador-logistica');
+            llenarDesplegablesLogistica();
+            break;
+        case 'SUPERVISOR':
+            mostrarUI('ui-supervisor');
+            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+            break;
+        case 'SUPERVISOR_SSO':
+            mostrarUI('ui-monitor-sso');
+            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+            break;
+        case 'SSO':
+            mostrarUI('ui-sso-ats');
+            llenarDesplegablesSSO();
+            break;
+        case 'OPERACIONES':
+            mostrarUI('ui-ot');
+            llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
+            break;
+        case 'ADMIN':
+            mostrarUI('ui-admin-datos');
+            ajustarLabelsAdmin();
+            break;
+        default:
+            alert("Rol no configurado: " + user.ROL);
+            document.getElementById('login').style.display='block';
+    }
+
+    console.log("Login ok:", user.USUARIO, "Rol:", user.ROL);
+}
+
 // ==========================================
 // 3. NAVEGACIÓN UI
 // ==========================================
@@ -400,6 +475,78 @@ function mostrarUI(idUI) {
         generarFolioIncidente();
         llenarSelectsIncidente();
     }
+}
+
+// ==========================================
+// 3.1 FUNCIONES LLENAR DESPLEGABLES - AGREGADAS
+// ==========================================
+function llenarDesplegablesLogistica() {
+    const selProd = document.getElementById('op-producto');
+    const selMov = document.getElementById('op-movimiento');
+
+    if (selProd && DB_MASTER.PRODUCTO) {
+        selProd.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.PRODUCTO.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selProd.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selMov && DB_MASTER.MOVIMIENTO) {
+        selMov.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.MOVIMIENTO.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selMov.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    console.log("Desplegables logística cargados");
+}
+
+function llenarDesplegablesSSO() {
+    const selPersonal = document.getElementById('sso-personal');
+    const selFase = document.getElementById('sso-fase');
+
+    if (selPersonal && DB_MASTER.TECNICO) {
+        selPersonal.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.TECNICO.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selPersonal.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selFase && DB_MASTER.UBICACION) {
+        selFase.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.UBICACION.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selFase.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    console.log("Desplegables SSO cargados");
+}
+
+function llenarDesplegablesOperaciones() {
+    const selTec = document.getElementById('ot-tec');
+    const selDepto = document.getElementById('ot-depto');
+
+    if (selTec && DB_MASTER.TECNICO) {
+        selTec.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.TECNICO.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selTec.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    if (selDepto && DB_MASTER.DEPTO_OT) {
+        selDepto.innerHTML = '<option value="">Seleccione</option>';
+        DB_MASTER.DEPTO_OT.forEach(x => {
+            if (x.extra4 !== 'INACTIVO') {
+                selDepto.innerHTML += `<option value="${x.id}">${x.nombre}</option>`;
+            }
+        });
+    }
+    console.log("Desplegables operaciones cargados");
 }
 
 // ==========================================
@@ -630,8 +777,7 @@ async function finalizarOT() {
         if (res.includes("Q28K_OK")) mostrarUI('menu-principal');
     } catch(e) { alert("Error: " + e); }
 }
-
-// ==========================================
+    // ==========================================
 // 8. INCIDENTES
 // ==========================================
 function generarFolioIncidente() {
@@ -778,32 +924,32 @@ function descargarCSV_Medico() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteMedico&ini=${ini}&fin=${fin}`)
-     .then(r => r.json())
-     .then(d => exportarCSV(d, 'medico'));
+    .then(r => r.json())
+    .then(d => exportarCSV(d, 'medico'));
 }
 
 function descargarCSV_Extintores() {
     const ini = document.getElementById('f-ini-sso').value;
     const fin = document.getElementById('f-fin-sso').value;
     fetch(URL_SCRIPT + `?accion=reporteExtintores&ini=${ini}&fin=${fin}`)
-     .then(r => r.json())
-     .then(d => exportarCSV(d, 'extintores'));
+    .then(r => r.json())
+    .then(d => exportarCSV(d, 'extintores'));
 }
 
 function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot').value;
     const fin = document.getElementById('f-fin-ot').value;
     fetch(URL_SCRIPT + `?accion=reporteOT&ini=${ini}&fin=${fin}`)
-     .then(r => r.json())
-     .then(d => exportarCSV(d, 'ot'));
+    .then(r => r.json())
+    .then(d => exportarCSV(d, 'ot'));
 }
 
 function descargarCSV_Logistica() {
     const ini = document.getElementById('f-ini-log').value;
     const fin = document.getElementById('f-fin-log').value;
     fetch(URL_SCRIPT + `?accion=reporte&ini=${ini}&fin=${fin}`)
-     .then(r => r.json())
-     .then(d => exportarCSV(d, 'logistica'));
+    .then(r => r.json())
+    .then(d => exportarCSV(d, 'logistica'));
 }
 
 function exportarCSV(data, nombre) {
@@ -842,93 +988,25 @@ async function vincularDatosPermiso(folio) {
     const data = await r.json();
     const encontrado = data.find(x => x.datos.includes(folio));
     document.getElementById('datos-vinculados-sso').innerHTML = encontrado
-     ? `<p style="color:green">ATS ${folio} encontrado</p>`
-        : `<p style="color:red">ATS no existe</p>`;
+    ? `<p style="color:green">ATS ${folio} encontrado</p>`
+     : `<p style="color:red">ATS no existe</p>`;
 }
-       async function entrar() {
-    const u = document.getElementById('u').value.toLowerCase().trim();
-    const p = document.getElementById('p').value;
-    const btn = document.getElementById('btn-login');
-    const originalText = "INGRESAR";
 
-    if(btn) {
-        btn.innerText = "INGRESANDO... ⏳";
-        btn.disabled = true;
-    }
-
-    // Carga la DB si no está cargada
-    if (!DB_MASTER ||!DB_MASTER.USUARIOS) {
-        await cargarDB();
-    }
-
-    // Busca el usuario - cambié u por usr para que no choque
-    const user = DB_MASTER.USUARIOS.find(usr =>
-        usr.ESTADO === 'ACTIVO' &&
-        usr.USUARIO.toLowerCase() === u &&
-        usr.PASSWORD === p
-    );
-
-    if (!user) {
-        alert("❌ Credenciales incorrectas");
-        document.getElementById('login').style.display='block';
-        if(btn) {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }
-        return;
-    }
-
-    // Login ok
-    document.getElementById('login').style.display='none';
-
-    // Manda a la interfaz según el ROL
-    switch(user.ROL) {
-        case 'OPERADOR':
-            document.getElementById('ui-app').style.display='block';
-            llenarDesplegablesLogistica();
-            break;
-        case 'SUPERVISOR':
-            document.getElementById('ui-supervisor').style.display='block';
-            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-            break;
-        case 'SUPERVISOR_SSO':
-            document.getElementById('ui-monitor-sso').style.display='block';
-            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-            break;
-        case 'SSO':
-            document.getElementById('ui-seguridad').style.display='block';
-            llenarDesplegablesSSO();
-            break;
-        case 'OPERACIONES':
-            document.getElementById('ui-operaciones').style.display='block';
-            llenarDesplegablesOperaciones(); setOrigenOT('SISTEMA');
-            break;
-        case 'ADMIN':
-            document.getElementById('ui-admin-datos').style.display='block';
-            ajustarLabelsAdmin();
-            break;
-    }
-
-    console.log("Login ok:", user.USUARIO, "Rol:", user.ROL);
-}
-        function mostrarMenu() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainMenu').style.display = 'block';
-}
-    function mostrarMenu() {
+// ==========================================
+// 14. FUNCIONES DE NAVEGACIÓN - UNIFICADAS
+// ==========================================
+function mostrarMenu() {
     const login = document.getElementById('loginScreen');
     const menu = document.getElementById('mainMenu');
-    
+
     if (login) login.style.display = 'none';
     if (menu) menu.style.display = 'block';
-    
-    if (!login || !menu) {
-        console.error("No encontré los divs. Revisa los IDs en tu HTML");
+
+    if (!login ||!menu) {
+        console.error;
         alert("Error: No encontré loginScreen o mainMenu en el HTML. Abre F12 > Elements y revisa los IDs.");
     }
 }
-        
 </script>
-
-   </body>
+</body>
 </html>
