@@ -348,40 +348,39 @@ async function cargarDB() {
     const AHORA = Date.now();
     const TIEMPO_CACHE = 600000; // 10 min
 
-    // 1. Carga cache primero para que la UI no quede en blanco
-    if (cache && cacheTime && (AHORA - cacheTime) < TIEMPO_CACHE) {
+    // 1. Carga cache primero para que no quede en blanco
+    if (cache && cacheTime && (AHORA - parseInt(cacheTime)) < TIEMPO_CACHE) {
         DB_MASTER = JSON.parse(cache);
         console.log("DB cargada desde cache ⚡");
-        cargarSelects(); // Llama aquí a tu función que llena los dropdowns
+        cargarSelects();
     }
 
     try {
-        // 2. Intenta actualizar en segundo plano con no-cors
-        await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
+        // 2. Pide datos nuevos con CORS normal
+        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
             method: 'GET',
-            mode: 'no-cors',
+            mode: 'cors',
             cache: 'no-cache'
         });
-        
-        // Con no-cors no podés leer r.ok ni r.text(), así que asumimos OK si no tira error
-        console.log("Fetch a GAS enviado. Si hay datos nuevos, se verán en la próxima recarga.");
-        
+
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const d = await r.json();
+
+        DB_MASTER = d;
+        localStorage.setItem('DB_MASTER', JSON.stringify(d));
+        localStorage.setItem('DB_MASTER_TIME', AHORA);
+        console.log("DB actualizada desde GAS");
+        cargarSelects();
+
     } catch(e) {
         console.error("Error DB:", e);
         
-        // 3. Si no hay cache y falla, recién ahí tira error
-        if (!DB_MASTER) {
+        if (!DB_MASTER && cache) {
+            DB_MASTER = JSON.parse(cache);
+            alert("Sin conexión. Usando datos guardados.");
+        } else if (!DB_MASTER) {
             alert("Error DB: " + e.message + "\nRevisa que el GAS esté desplegado como 'Anyone with the link'");
-        } else {
-            console.log("Usando cache viejo por error de red");
-            alert("Sin conexión al servidor. Usando datos guardados.");
         }
-    }
-    
-    // 4. Si no había cache antes, intenta parsear de nuevo por si se actualizó
-    if (!DB_MASTER && cache) {
-        DB_MASTER = JSON.parse(cache);
-        cargarSelects();
     }
 }
     
