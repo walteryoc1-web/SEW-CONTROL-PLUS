@@ -342,47 +342,42 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(actualizarPildoras, 30000);
 });
 
-function cargarDB() {
-    return new Promise((resolve) => {
-        const cache = localStorage.getItem('DB_MASTER');
-        if (cache) {
-            DB_MASTER = JSON.parse(cache);
-            console.log("DB cargada desde cache ⚡");
+async function cargarDB() {
+    const cache = localStorage.getItem('DB_MASTER');
+    const cacheTime = localStorage.getItem('DB_MASTER_TIME');
+    const AHORA = Date.now();
 
-            // Cambia esto:
-            // cargarSelects();
+    if (cache && cacheTime && (AHORA - parseInt(cacheTime)) < 600000) {
+        DB_MASTER = JSON.parse(cache);
+        console.log("DB desde cache ⚡");
+        return; // Si hay cache, no hagas fetch y entra directo
+    }
 
-            // Por esto, según la UI que cargues:
-            if(typeof llenarDesplegablesLogistica === 'function') llenarDesplegablesLogistica();
-            if(typeof llenarDesplegablesSSO === 'function') llenarDesplegablesSSO();
-            if(typeof llenarDesplegablesOperaciones === 'function') llenarDesplegablesOperaciones();
-        }
+    console.log("Intentando fetch a:", URL_SCRIPT);
+    
+    try {
+        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache'
+        });
 
-        const callbackName = 'cb_' + Date.now();
-        window[callbackName] = (data) => {
-            DB_MASTER = data;
-            localStorage.setItem('DB_MASTER', JSON.stringify(data));
-            localStorage.setItem('DB_MASTER_TIME', Date.now());
-            console.log("DB actualizada desde GAS");
+        console.log("Status del fetch:", r.status);
 
-            // Y cambia esto también:
-            if(typeof llenarDesplegablesLogistica === 'function') llenarDesplegablesLogistica();
-            if(typeof llenarDesplegablesSSO === 'function') llenarDesplegablesSSO();
-            if(typeof llenarDesplegablesOperaciones === 'function') llenarDesplegablesOperaciones();
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        
+        const d = await r.json();
+        console.log("JSON recibido:", d);
 
-            document.body.removeChild(script);
-            delete window[callbackName];
-            resolve();
-        };
+        DB_MASTER = d;
+        localStorage.setItem('DB_MASTER', JSON.stringify(d));
+        localStorage.setItem('DB_MASTER_TIME', AHORA);
+        console.log("DB guardada en cache");
 
-        const script = document.createElement('script');
-        script.src = URL_SCRIPT + "?accion=getGlobalConfig&callback=" + callbackName;
-        script.onerror = () => {
-            if (!DB_MASTER) alert("Error cargando DB. Revisa el deploy del GAS.");
-            resolve();
-        };
-        document.body.appendChild(script);
-    });
+    } catch(e) {
+        console.error("Error completo:", e);
+        throw new Error("No se pudo cargar la base de usuarios: " + e.message);
+    }
 }
     
 // ==========================================
