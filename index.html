@@ -845,7 +845,7 @@ async function vincularDatosPermiso(folio) {
      ? `<p style="color:green">ATS ${folio} encontrado</p>`
         : `<p style="color:red">ATS no existe</p>`;
 }
-        async function entrar() {
+       async function entrar() {
     const u = document.getElementById('u').value.toLowerCase().trim();
     const p = document.getElementById('p').value;
     const btn = document.getElementById('btn-login');
@@ -861,11 +861,11 @@ async function vincularDatosPermiso(folio) {
         await cargarDB();
     }
 
-    // Busca el usuario en DB_MASTER.USUARIOS
-    const user = DB_MASTER.USUARIOS.find(u =>
-        u.ESTADO === 'ACTIVO' &&
-        u.USUARIO.toLowerCase() === u.toLowerCase() &&
-        u.PASSWORD === p
+    // Busca el usuario - cambié u por usr para que no choque
+    const user = DB_MASTER.USUARIOS.find(usr =>
+        usr.ESTADO === 'ACTIVO' &&
+        usr.USUARIO.toLowerCase() === u &&
+        usr.PASSWORD === p
     );
 
     if (!user) {
@@ -911,7 +911,7 @@ async function vincularDatosPermiso(folio) {
 
     console.log("Login ok:", user.USUARIO, "Rol:", user.ROL);
 }
-function mostrarMenu() {
+        function mostrarMenu() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('mainMenu').style.display = 'block';
 }
