@@ -560,7 +560,7 @@
 
         // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
         // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
-       async function enviar() {
+      async function enviar() {
   try {
     const id = document.getElementById('id-in').value.trim();
     if(!id) throw new Error("Ingresa ID de piloto");
@@ -568,30 +568,31 @@
     const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
     
-   const ahora = new Date();
-const fechaHora = [
-  String(ahora.getDate()).padStart(2, '0'),
-  String(ahora.getMonth() + 1).padStart(2, '0'),
-  ahora.getFullYear()
-].join('/') + ' + [
-  String(ahora.getHours()).padStart(2, '0'),
-  String(ahora.getMinutes()).padStart(2, '0'),
-  String(ahora.getSeconds()).padStart(2, '0')
-].join(':');
+    const ahora = new Date();
+    const fechaHora = [
+      String(ahora.getDate()).padStart(2, '0'),
+      String(ahora.getMonth() + 1).padStart(2, '0'),
+      ahora.getFullYear()
+    ].join('/') + ' + [
+      String(ahora.getHours()).padStart(2, '0'),
+      String(ahora.getMinutes()).padStart(2, '0'),
+      String(ahora.getSeconds()).padStart(2, '0')
+    ].join(':');
 
-const payload = {
-    action: "registrarLogistica",
-    fechaHora: fechaHora,
-    id: id,
-    nombre: p.nombre,
-    movimiento: document.getElementById('mov').value,
-    producto: document.getElementById('prod').value,
-    cliente: p.extra4 || "", // F - viene de extra4
-    placa: p.extra1 || "", // G - cabezal
-    ciclo_terpac: document.getElementById('CicloTer').value || "",
-    ciclo_epq: document.getElementById('CicloEPQ').value || ""
-};
-      await fetch(URL_SCRIPT, { 
+    const payload = {
+        action: "registrarLogistica",
+        fechaHora: fechaHora,
+        id: id,
+        nombre: p.nombre,
+        movimiento: document.getElementById('mov').value,
+        producto: document.getElementById('prod').value,
+        cliente: p.extra4 || "",
+        placa: p.extra1 || "",
+        ciclo_terpac: document.getElementById('CicloTer').value || "",
+        ciclo_epq: document.getElementById('CicloEPQ').value || ""
+    };
+
+    await fetch(URL_SCRIPT, { 
       method: 'POST', 
       body: JSON.stringify(payload), 
       headers: { 'Content-Type': 'text/plain' } 
