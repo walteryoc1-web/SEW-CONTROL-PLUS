@@ -346,8 +346,9 @@ async function cargarDB() {
     const cache = localStorage.getItem('DB_MASTER');
     const cacheTime = localStorage.getItem('DB_MASTER_TIME');
     const AHORA = Date.now();
-    const TIEMPO_CACHE = 600000;
+    const TIEMPO_CACHE = 600000; // 10 min
 
+    // Si hay cache válido, úsalo
     if (cache && cacheTime && (AHORA - cacheTime) < TIEMPO_CACHE) {
         DB_MASTER = JSON.parse(cache);
         console.log("DB cargada desde cache ⚡");
@@ -355,17 +356,35 @@ async function cargarDB() {
     }
 
     try {
-        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA);
+        const r = await fetch(URL_SCRIPT + "?accion=getGlobalConfig&t=" + AHORA, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache'
+        });
+        
         if (!r.ok) throw new Error("HTTP " + r.status);
+        
         const text = await r.text();
-        const d = JSON.parse(text);
+        
+        // GAS a veces devuelve con espacios o texto extra
+        const d = JSON.parse(text.trim());
+        
         DB_MASTER = d;
         localStorage.setItem('DB_MASTER', text);
         localStorage.setItem('DB_MASTER_TIME', AHORA);
         console.log("DB descargada del GAS y guardada en cache");
+        
     } catch(e) {
         console.error("Error DB:", e);
-        alert("Error DB: " + e.message);
+        
+        // Si falla pero hay cache viejo, úsalo igual
+        if (cache) {
+            DB_MASTER = JSON.parse(cache);
+            console.log("Usando cache viejo por error de red");
+            alert("Sin conexión al servidor. Usando datos guardados.");
+        } else {
+            alert("Error DB: " + e.message + "\nRevisa que el GAS esté desplegado como 'Anyone with the link'");
+        }
     }
 }
 
