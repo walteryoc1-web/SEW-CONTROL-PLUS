@@ -517,26 +517,60 @@
             }
         }
 
-        async function enviarIncidenteCompleto() {
-            if (!window.datosVinculados) return alert("❌ Primero vincule un Folio ATS");
-            const ids = Array.from(document.querySelectorAll('.inc-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
-            const involucradosNombres = ids.map(id => {
-                const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
-                return t? `${t.nombre} (${id})` : id;
-            }).join(" | ");
-            const payload = {
-                action: "registrarIncidente", folio: window.datosVinculados.folioATS, area: window.datosVinculados.fase, ubicacion: window.datosVinculados.ubi, trabajo: window.datosVinculados.tipo,
-                involucrados: involucradosNombres, salud: document.getElementById('inc-salud').value, intervencion: document.getElementById('inc-intervencion-momento').value,
-                tipoEvento: document.getElementById('inc-tipo').value, gravedad: document.getElementById('inc-gravedad').value, riesgo: document.getElementById('inc-riesgo').value,
-                contaminacion: document.getElementById('inc-contaminacion').value, estructura: document.getElementById('inc-estructura').value, reparacion: document.getElementById('inc-reparacion').value,
-                obsEstructura: document.getElementById('inc-obs-estructura').value, reincidencia: document.getElementById('inc-reincidencia').value, seguridad: document.getElementById('inc-riesgo-seguridad').value,
-                recomendacion: document.getElementById('inc-recomendacion').value, estadoFinal: document.getElementById('inc-estado-final').value
-            };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text();
-            if (txt.length > 500) descargarBase64PDF(txt, `INCIDENTE_${payload.folio}.pdf`);
-            alert("✅ REGISTRADO"); location.reload();
-        }
+      async function enviarFichaMedica() {
+    const id = document.getElementById('med-id').value;
+    const payload = { 
+        action: "registrarMedico", 
+        id: id, 
+        fecha: document.getElementById('med-fecha').value, 
+        tipo: document.getElementById('med-tipo').value, 
+        glucosa: document.getElementById('med-glucosa').value, 
+        presion: document.getElementById('med-presion').value, 
+        temp: document.getElementById('med-temp').value, 
+        peso: document.getElementById('med-peso').value, 
+        oxigeno: document.getElementById('med-oxigeno').value, 
+        ritmo: document.getElementById('med-ritmo').value, 
+        resultado: document.getElementById('med-resultado').value, 
+        obs: document.getElementById('med-obs').value 
+    };
+    
+    const res = await fetch(URL_SCRIPT, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain' }, // <- agrega esto
+        body: JSON.stringify(payload) 
+    });
+    
+    const txt = await res.text(); 
+    if(txt.length > 500) descargarBase64PDF(txt, `MED_${id}.pdf`);
+    alert("✅ GUARDADO"); 
+    location.reload();
+}
+
+async function enviarInspeccionExtintor() {
+    const id = document.getElementById('ext-id').value;
+    const payload = { 
+        action: "registrarExtintor", 
+        id: id, 
+        ubi: document.getElementById('ext-ubi').value, 
+        agente: document.getElementById('ext-agente').value, 
+        presion: document.getElementById('ext-presion').value, 
+        manguera: document.getElementById('ext-manguera').value, 
+        seguro: document.getElementById('ext-seguro').value, 
+        vence: document.getElementById('ext-vence').value, 
+        obs: document.getElementById('ext-obs').value 
+    };
+    
+    const res = await fetch(URL_SCRIPT, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain' }, // <- agrega esto
+        body: JSON.stringify(payload) 
+    });
+    
+    const txt = await res.text(); 
+    if(txt.length > 500) descargarBase64PDF(txt, `EXT_${id}.pdf`);
+    alert("✅ GUARDADO"); 
+    location.reload();
+}
 
         async function enviarFichaMedica() {
             const id = document.getElementById('med-id').value;
