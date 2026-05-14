@@ -517,8 +517,13 @@
             }
         }
 
-      async function enviarFichaMedica() {
-    const id = document.getElementById('med-id').value;
+    async function enviarFichaMedica() {
+    const id = document.getElementById('med-id').value.trim();
+    if (!id) {
+        alert("❌ Falta el ID");
+        return;
+    }
+
     const payload = { 
         action: "registrarMedico", 
         id: id, 
@@ -534,20 +539,38 @@
         obs: document.getElementById('med-obs').value 
     };
     
-    const res = await fetch(URL_SCRIPT, { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'text/plain' }, // <- agrega esto
-        body: JSON.stringify(payload) 
-    });
-    
-    const txt = await res.text(); 
-    if(txt.length > 500) descargarBase64PDF(txt, `MED_${id}.pdf`);
-    alert("✅ GUARDADO"); 
-    location.reload();
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload) 
+        });
+        
+        const txt = await res.text(); 
+
+        if (txt.startsWith("Q28K_ERROR")) {
+            alert("❌ " + txt);
+            return;
+        }
+
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `MED_${id}.pdf`);
+            alert("✅ GUARDADO Y PDF GENERADO");
+        } else {
+            alert("❌ Error: " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err.message);
+    }
 }
 
 async function enviarInspeccionExtintor() {
-    const id = document.getElementById('ext-id').value;
+    const id = document.getElementById('ext-id').value.trim();
+    if (!id) {
+        alert("❌ Falta el ID");
+        return;
+    }
+
     const payload = { 
         action: "registrarExtintor", 
         id: id, 
@@ -560,34 +583,30 @@ async function enviarInspeccionExtintor() {
         obs: document.getElementById('ext-obs').value 
     };
     
-    const res = await fetch(URL_SCRIPT, { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'text/plain' }, // <- agrega esto
-        body: JSON.stringify(payload) 
-    });
-    
-    const txt = await res.text(); 
-    if(txt.length > 500) descargarBase64PDF(txt, `EXT_${id}.pdf`);
-    alert("✅ GUARDADO"); 
-    location.reload();
+    try {
+        const res = await fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload) 
+        });
+        
+        const txt = await res.text(); 
+
+        if (txt.startsWith("Q28K_ERROR")) {
+            alert("❌ " + txt);
+            return;
+        }
+
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `EXT_${id}.pdf`);
+            alert("✅ GUARDADO Y PDF GENERADO");
+        } else {
+            alert("❌ Error: " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err.message);
+    }
 }
-
-        async function enviarFichaMedica() {
-            const id = document.getElementById('med-id').value;
-            const payload = { action: "registrarMedico", id: id, fecha: document.getElementById('med-fecha').value, tipo: document.getElementById('med-tipo').value, glucosa: document.getElementById('med-glucosa').value, presion: document.getElementById('med-presion').value, temp: document.getElementById('med-temp').value, peso: document.getElementById('med-peso').value, oxigeno: document.getElementById('med-oxigeno').value, ritmo: document.getElementById('med-ritmo').value, resultado: document.getElementById('med-resultado').value, obs: document.getElementById('med-obs').value };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text(); if(txt.length > 500) descargarBase64PDF(txt, `MED_${id}.pdf`);
-            alert("✅ GUARDADO"); location.reload();
-        }
-
-        async function enviarInspeccionExtintor() {
-            const id = document.getElementById('ext-id').value;
-            const payload = { action: "registrarExtintor", id: id, ubi: document.getElementById('ext-ubi').value, agente: document.getElementById('ext-agente').value, presion: document.getElementById('ext-presion').value, manguera: document.getElementById('ext-manguera').value, seguro: document.getElementById('ext-seguro').value, vence: document.getElementById('ext-vence').value, obs: document.getElementById('ext-obs').value };
-            const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            const txt = await res.text(); if(txt.length > 500) descargarBase64PDF(txt, `EXT_${id}.pdf`);
-            alert("✅ GUARDADO"); location.reload();
-        }
-
         // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
         // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
     async function enviar() {
