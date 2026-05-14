@@ -869,11 +869,11 @@ async function cargarPermisosParaCerrar() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
-    // Q28K: Filtra solo ABIERTO. Col I = índice 8
+    // Q28K: Filtra solo ABIERTO. ESTATUS está en col J = índice 9
     const abiertos = data.filter(r => {
       const campos = (r.datos || "").split(";");
-      const estado = (campos[8] || "").toString().toUpperCase();
-      return estado === "ABIERTO" ||!estado.includes("CERRADO");
+      const estado = (campos[9] || "").toString().trim().toUpperCase();
+      return estado === "ABIERTO";
     });
 
     cont.innerHTML = "";
@@ -884,15 +884,14 @@ async function cargarPermisosParaCerrar() {
 
     abiertos.forEach(p => {
       const d = (p.datos || "").split(";");
-      const folio = (d[1] || "").toString().trim(); // Col B = Folio ATS
-      if (!folio) return; // Q28K: Salta filas vacías
+      const folio = (d[0] || "").toString().trim(); // Col B = Folio ATS
+      if (!folio) return;
 
-      const personal = (d[2] || "").toString().trim();
-      const area = (d[3] || "").toString().trim();
+      const personal = (d[1] || "").toString().trim(); // Col C
+      const area = (d[2] || "").toString().trim(); // Col D
 
       const div = document.createElement('div');
       div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
-      // Q28K: Pasa this como segundo parámetro para capturar el botón
       div.innerHTML = `
         <span><b>${folio}</b> - ${personal} - ${area}</span>
         <button onclick="cerrarPermiso('${folio}', this)" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
@@ -903,7 +902,7 @@ async function cargarPermisosParaCerrar() {
     cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
   }
 }
-
+        
 // ✅ FIX Q28K #11: CERRAR PERMISO ATS - BLINDADO
 async function cerrarPermiso(f, btn) {
   if (!confirm("¿Cerrar permiso " + f + "?")) return;
@@ -929,7 +928,7 @@ async function cerrarPermiso(f, btn) {
 
     if (txt.includes("Q28K_OK")) {
       alert("✅ " + txt);
-      cargarPermisosParaCerrar(); // Recarga lista
+      cargarPermisosParaCerrar();
     } else {
       alert("❌ " + txt);
     }
