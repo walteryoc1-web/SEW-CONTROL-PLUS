@@ -737,10 +737,11 @@ function descargarCSV_Incidentes() {
     procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes");
 }
 function descargarCSV_Medico() {
-    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico");
+    procesarDescargaUniversal("reporteMedico", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico");
 }
+
 function descargarCSV_Extintores() {
-    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores");
+    procesarDescargaUniversal("reporteExtintor", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores");
 }
 function descargarCSV_OT() {
     const ini = document.getElementById('f-ini-ot')?.value || document.getElementById('f-ini-sso').value;
