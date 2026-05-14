@@ -334,18 +334,14 @@
         }
 
         async function actualizarPildoras() {
-            try {
-                const r = await fetch(URL_SCRIPT + "?t=" + Date.now());
-                const d = await r.json();
-                if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
-                if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (d.totalSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (d.riesgoSSO || 0).toString().padStart(2,'0');
-                if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (d.personalSSO || 0).toString().padStart(2,'0');
-            } catch(e) { console.error("Error pildoras:", e); }
-        }
-
+    try {
+        const r = await fetch(URL_SCRIPT + "?modulo=LOGISTICA&t=" + Date.now());
+        const d = await r.json();
+        if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
+    } catch(e) { console.error("Error pildoras:", e); }
+}
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
             try {
@@ -560,44 +556,29 @@
 
         // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
         // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
-     async function enviar() {
+    async function enviar() {
   try {
     const id = document.getElementById('id-in').value.trim();
     if(!id) throw new Error("Ingresa ID de piloto");
-    
+
     const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
-    
-    const ahora = new Date();
-const fechaHora = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()} ${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}:${String(ahora.getSeconds()).padStart(2, '0')}`;
-const fechaISO = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')} ${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}:${String(ahora.getSeconds()).padStart(2, '0')}`;
 
-const payload = {
-    action: "registrarLogistica",
-    fechaHora: fechaHora, // 13/05/2026 08:40:57 -> para el reporte actual
-    fechaISO: fechaISO,   // 2026-05-13 08:40:57 -> para Sybase después
-    id: id,
-    nombre: p.nombre,
-    movimiento: document.getElementById('mov').value,
-    producto: document.getElementById('prod').value,
-    cliente: p.extra4 || "",
-    placa: p.extra1 || "",
-    ciclo_terpac: document.getElementById('CicloTer').value || "",
-    ciclo_epq: document.getElementById('CicloEPQ').value || ""
-};
-    await fetch(URL_SCRIPT, { 
-      method: 'POST', 
-      body: JSON.stringify(payload), 
-      headers: { 'Content-Type': 'text/plain' } 
+    const payload = `LOGISTICA;${id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra4||""};${p.extra1||""};${document.getElementById('CicloTer').value||""};${document.getElementById('CicloEPQ').value||""}`;
+
+    await fetch(URL_SCRIPT, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: payload
     });
-    
+
     alert("✅ REGISTRO EXITOSO");
     location.reload();
-  } catch(e) { 
-    alert("❌ Error: " + e.message); 
+  } catch(e) {
+    alert("❌ Error: " + e.message);
   }
 }
-       async function registrarOT() {
+        async function registrarOT() {
   const btn = document.getElementById('btn-registrar-ot');
   btn.disabled = true;
   btn.innerText = "GUARDANDO...";
@@ -641,36 +622,39 @@ const payload = {
        
         
         
-        async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-            if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
-            try {
-                const url = `${URL_SCRIPT}?accion=${accion}&t=${Date.now()}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                if (!Array.isArray(data)) return alert("❌ Error: El servidor no devolvió una lista de registros.");
-                const fil = data.filter(r => {
-                    if (!r.fecha) return false;
-                    let fISO = r.fecha.toString().substring(0, 10).replace(/\//g, '-');
-                    if(fISO.indexOf('-') === 2) {
-                        let p = fISO.split('-');
-                        fISO = `${p[2]}-${p[1]}-${p[0]}`;
-                    }
-                    return fISO >= ini && fISO <= fin;
-                });
-                if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
-                let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
-                fil.forEach(r => {
-                    const datosLimpios = r.datos? r.datos.replace(/;/g, ",") : "";
-                    csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = `${nombre}_${ini}_al_${fin}.csv`;
-                link.click();
-            } catch (e) { alert("❌ Error de comunicación con la base de datos."); }
-        }
+       async function procesarDescargaUniversal(accion, ini, fin, nombre) {
+    if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
+    try {
+        // CAMBIO: agregué &modulo=LOGISTICA
+        const url = `${URL_SCRIPT}?accion=${accion}&modulo=LOGISTICA&t=${Date.now()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!Array.isArray(data)) return alert("❌ Error: El servidor no devolvió una lista de registros.");
 
+        const fil = data.filter(r => {
+            if (!r.fecha) return false;
+            let fISO = r.fecha.toString().substring(0, 10).replace(/\//g, '-');
+            if(fISO.indexOf('-') === 2) {
+                let p = fISO.split('-');
+                fISO = `${p[2]}-${p[1]}-${p[0]}`;
+            }
+            return fISO >= ini && fISO <= fin;
+        });
+        if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
+
+        let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
+        fil.forEach(r => {
+            const datosLimpios = r.datos? r.datos.replace(/;/g, ",") : "";
+            csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${nombre}_${ini}_al_${fin}.csv`;
+        link.click();
+    } catch (e) { alert("❌ Error de comunicación con la base de datos."); }
+}
         function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
         function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO"); }
         function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
