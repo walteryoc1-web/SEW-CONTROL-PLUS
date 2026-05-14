@@ -332,15 +332,31 @@
                 if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }, 1000);
         }
-
-        async function actualizarPildoras() {
+async function actualizarPildoras() {
     try {
-        const r = await fetch(URL_SCRIPT + "?modulo=LOGISTICA&t=" + Date.now());
-        const d = await r.json();
-        if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (d.pendientes || 0).toString().padStart(2,'0');
-        if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (d.proceso || 0).toString().padStart(2,'0');
-        if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (d.despachadas || 0).toString().padStart(2,'0');
-    } catch(e) { console.error("Error pildoras:", e); }
+        // Píldoras LOGISTICA
+        const rLog = await fetch(URL_SCRIPT + "?modulo=LOGISTICA&t=" + Date.now());
+        const dLog = await rLog.json();
+        if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (dLog.pendientes || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (dLog.proceso || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (dLog.despachadas || 0).toString().padStart(2,'0');
+
+        // Píldoras SSO - ATS
+        const rSSO = await fetch(URL_SCRIPT + "?modulo=SSO&t=" + Date.now());
+        const dSSO = await rSSO.json();
+
+        if(document.getElementById('sso-pnd'))
+            document.getElementById('sso-pnd').innerText = (dSSO.totalSSO || 0).toString().padStart(2,'0');
+
+        if(document.getElementById('sso-riesgo'))
+            document.getElementById('sso-riesgo').innerText = (dSSO.riesgoSSO || 0).toString().padStart(2,'0');
+
+        if(document.getElementById('sso-personal'))
+            document.getElementById('sso-personal').innerText = (dSSO.personalSSO || 0).toString().padStart(2,'0');
+
+    } catch(e) {
+        console.error("Error pildoras:", e);
+    }
 }
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
