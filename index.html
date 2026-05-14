@@ -869,10 +869,11 @@ async function cargarPermisosParaCerrar() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
-    // Q28K: Filtra solo ABIERTO. ESTATUS está en col J = índice 9
+    // ESTATUS está en col J = índice 8 después del slice(1)
     const abiertos = data.filter(r => {
       const campos = (r.datos || "").split(";");
-      const estado = (campos[9] || "").toString().trim().toUpperCase();
+      const estado = (campos[8] || "").toString().trim().toUpperCase();
+      console.log("Folio:", campos[0], "Estado:", estado); // <- déjalo para debug
       return estado === "ABIERTO";
     });
 
@@ -884,7 +885,7 @@ async function cargarPermisosParaCerrar() {
 
     abiertos.forEach(p => {
       const d = (p.datos || "").split(";");
-      const folio = (d[0] || "").toString().trim(); // Col B = Folio ATS
+      const folio = (d[0] || "").toString().trim(); // Col B
       if (!folio) return;
 
       const personal = (d[1] || "").toString().trim(); // Col C
