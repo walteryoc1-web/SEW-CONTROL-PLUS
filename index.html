@@ -146,35 +146,23 @@
     
   <!-- ✅ SECCIÓN APERTURA OT -->
 <div id="ot-seccion-apertura">
-    
-    <!-- Vincular ATS va DENTRO aquí -->
-    <label style="font-weight:bold; color:#2c3e50;">Vincular con ATS</label>
-    <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <input type="text" id="ot-folio-ats" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="flex:1;">
-        <button type="button" onclick="vincularATSaOT(document.getElementById('ot-folio-ats').value)"
-                style="width:120px; background:#2c3e50; color:white; border:none; border-radius:5px;">
-            VINCULAR
-        </button>
-    </div>
-    <div id="ot-datos-vinculados"></div>
-
     <div style="display:flex; gap:10px; margin-bottom:10px;">
         <button class="btn" style="background:#3498db; color:white; font-size:11px;" onclick="setOrigenOT('SISTEMA')">GENERAR FOLIO</button>
         <button class="btn" style="background:#95a5a6; color:white; font-size:11px;" onclick="setOrigenOT('SAP')">MANUAL / SAP</button>
     </div>
-    
+
     <input type="text" id="ot-folio" placeholder="Folio OT">
     <input type="text" id="ot-id-tec" placeholder="ID Técnico" oninput="checkTecnicoOperaciones(this.value)">
     <div id="ot-tec-box" style="display:none; padding:10px; background:#e1f5fe; border:1px dashed #3498db; font-size:12px; margin-bottom:10px; text-align:left;"></div>
-    
+
     <select id="ot-prioridad"><option disabled selected>Prioridad</option></select>
     <select id="ot-depto"><option disabled selected>Departamento</option></select>
     <textarea id="ot-descripcion" placeholder="Descripción de la tarea..."></textarea>
-    
+
     <button class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
-    
+
     <button class="btn" style="background:#f39c12; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CERRAR ORDEN DE TRABAJO</button>
-    
+
     <div style="background:#f4f7f6; padding:10px; border-radius:10px; margin-top:15px; border:1px solid #ddd;">
         <p style="margin:0 0 5px; font-size:10px; font-weight:bold; color:#666;">DESCARGAR REPORTES OT</p>
         <div style="display:flex; gap:5px; margin-bottom:5px;">
@@ -186,27 +174,27 @@
 </div>
 
 <!-- ✅ SECCIÓN CIERRE OT -->
-      <!-- Vincular ATS va DENTRO aquí -->
-    <label style="font-weight:bold; color:#2c3e50;">Vincular con ATS</label>
+<div id="ot-seccion-cierre" style="display:none;">
+    <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
+
+    <!-- Vincular ATS solo aquí -->
+    <label style="font-weight:bold; color:#2c3e50; margin-top:10px; display:block;">Vincular con ATS</label>
     <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <input type="text" id="ot-folio-ats" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="flex:1;">
-        <button type="button" onclick="vincularATSaOT(document.getElementById('ot-folio-ats').value)"
+        <input type="text" id="ot-folio-ats-cierre" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="flex:1;">
+        <button type="button" onclick="vincularATSaOT_Cierre(document.getElementById('ot-folio-ats-cierre').value)"
                 style="width:120px; background:#2c3e50; color:white; border:none; border-radius:5px;">
             VINCULAR
         </button>
     </div>
-    <div id="ot-datos-vinculados"></div>
-<div id="ot-seccion-cierre" style="display:none;">
-    <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
-    <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
+    <div id="ot-datos-vinculados-cierre"></div>
+
     <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales..."></textarea>
-    
-    <!-- Pásale el folio y el botón -->
-    <button class="btn" style="background:#27ae60; color:white;" 
+
+    <button class="btn" style="background:#27ae60; color:white;"
             onclick="finalizarTareaOT(document.getElementById('ot-folio-cierre').value, this)">
         ✅ FINALIZAR TAREA
     </button>
-    
+
     <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
 </div>
     <!-- 7. UI ADMIN DATOS MAESTROS -->
@@ -937,7 +925,6 @@ function cancelarCierre() {
 
 // ✅ FIX Q28K #9: FINALIZAR OT - CON DEBUG DE FOLIO
 async function finalizarTareaOT(folioOT, btn) {
-  // Q28K_DEBUG: Ver qué folio recibimos
   console.log("Q28K_DEBUG folio recibido:", folioOT);
   alert("Q28K_DEBUG: Folio que voy a mandar = [" + folioOT + "]");
 
@@ -965,7 +952,8 @@ async function finalizarTareaOT(folioOT, btn) {
         action: "finalizarOT",
         folio: (folioOT || "").toString().trim(),
         obs: (obs || "").toString().trim(),
-        usuario: "ADMIN"
+        usuario: "ADMIN",
+        folioATS: window.datosVinculadosATS_Cierre || ""
       })
     });
 
@@ -988,7 +976,8 @@ async function finalizarTareaOT(folioOT, btn) {
     }
   }
 }
-        // ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
+
+// ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
 async function cargarPermisosParaCerrar() {
   const cont = document.getElementById('contenedor-tabla-sso');
   if (!cont) return;
@@ -999,11 +988,9 @@ async function cargarPermisosParaCerrar() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
-    // ESTATUS está en col J = índice 8 después del slice(1)
     const abiertos = data.filter(r => {
       const campos = (r.datos || "").split(";");
       const estado = (campos[8] || "").toString().trim().toUpperCase();
-      console.log("Folio:", campos[0], "Estado:", estado); // <- déjalo para debug
       return estado === "ABIERTO";
     });
 
@@ -1015,11 +1002,11 @@ async function cargarPermisosParaCerrar() {
 
     abiertos.forEach(p => {
       const d = (p.datos || "").split(";");
-      const folio = (d[0] || "").toString().trim(); // Col B
+      const folio = (d[0] || "").toString().trim();
       if (!folio) return;
 
-      const personal = (d[1] || "").toString().trim(); // Col C
-      const area = (d[2] || "").toString().trim(); // Col D
+      const personal = (d[1] || "").toString().trim();
+      const area = (d[2] || "").toString().trim();
 
       const div = document.createElement('div');
       div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
@@ -1033,7 +1020,7 @@ async function cargarPermisosParaCerrar() {
     cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
   }
 }
-        
+
 // ✅ FIX Q28K #11: CERRAR PERMISO ATS - BLINDADO
 async function cerrarPermiso(f, btn) {
   if (!confirm("¿Cerrar permiso " + f + "?")) return;
@@ -1055,6 +1042,10 @@ async function cerrarPermiso(f, btn) {
       })
     });
 
+    window.datosVinculadosATS_Cierre = null;
+    const divCierre = document.getElementById('ot-datos-vinculados-cierre');
+    if (divCierre) divCierre.innerHTML = '';
+
     const txt = await res.text();
 
     if (txt.includes("Q28K_OK")) {
@@ -1072,8 +1063,10 @@ async function cerrarPermiso(f, btn) {
     }
   }
 }
+
 function llenarDesplegablesOperaciones() {
-  const selPrio = document.getElementById('ot-prioridad'), selDepto = document.getElementById('ot-depto');
+  const selPrio = document.getElementById('ot-prioridad');
+  const selDepto = document.getElementById('ot-depto');
   if (DB_MASTER.PRIORIDAD_OT) {
     selPrio.innerHTML = '<option disabled selected>Prioridad</option>';
     DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
@@ -1083,41 +1076,50 @@ function llenarDesplegablesOperaciones() {
     DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
   }
 }
-        function checkTecnicoOperaciones(id) {
-            const box = document.getElementById('ot-tec-box');
-            const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id.toUpperCase());
-            if (t) { box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`; box.style.display = 'block'; } else box.style.display = 'none';
-        }
 
-        function checkInvolucradoIncidente(inp) {
-            const id = inp.value.toUpperCase().trim();
-            const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
-            inp.style.background = persona? "#e8f5e9" : "#fff";
-            inp.style.border = persona? "2px solid #27ae60" : "1px solid #ccc";
-        }
+function checkTecnicoOperaciones(id) {
+    const box = document.getElementById('ot-tec-box');
+    if (!id ||!box) { if(box) box.style.display = 'none'; return; }
+    id = id.toString().trim().toUpperCase();
+    const listaTec = DB_MASTER.TECNICO || DB_MASTER.TECNICOS || DB_MASTER.TECNICO_SSO || [];
+    const t = listaTec.find(x => x.id.toString().toUpperCase() === id);
+    if (t) {
+        box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`;
+        box.style.display = 'block';
+    } else {
+        box.innerHTML = `<span style="color:red;">Técnico ${id} no encontrado</span>`;
+        box.style.display = 'block';
+    }
+}
 
-        function agregarInvolucradoInc() {
-            const cont = document.getElementById('contenedor-involucrados-inc');
-            const d = document.createElement('div'); d.style.cssText = "display:flex; gap:10px; margin-top:5px;";
-            d.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border-radius:5px; width:40px; border:none;">X</button>`;
-            cont.appendChild(d);
-        }
+function checkInvolucradoIncidente(inp) {
+    const id = inp.value.toUpperCase().trim();
+    const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
+    inp.style.background = persona? "#e8f5e9" : "#fff";
+    inp.style.border = persona? "2px solid #27ae60" : "1px solid #ccc";
+}
 
-    window.onload = () => { 
-    cargarCerebroSistema(); 
+function agregarInvolucradoInc() {
+    const cont = document.getElementById('contenedor-involucrados-inc');
+    if (!cont) return;
+    const d = document.createElement('div');
+    d.style.cssText = "display:flex; gap:10px; margin-top:5px;";
+    d.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border-radius:5px; width:40px; border:none;">X</button>`;
+    cont.appendChild(d);
+}
+
+window.onload = () => {
+    cargarCerebroSistema();
 };
 
-// ✅ FIX Q28K #7: ABRIR PANTALLA DE CIERRE OT - LA TUYA ESTÁ VACÍA
+// ✅ FIX Q28K #7: ABRIR PANTALLA DE CIERRE OT
 function mostrarSeccionCierre() {
-    // 1. Oculta la sección de apertura de OT
     const seccionApertura = document.getElementById('ot-seccion-apertura');
     if(seccionApertura) seccionApertura.style.display = 'none';
-    
-    // 2. Oculta el contenedor principal de botones de OT
+
     const contenedorBotones = document.querySelector('#ui-operaciones > div');
     if(contenedorBotones) contenedorBotones.style.display = 'none';
-    
-    // 3. Muestra la sección de cierre que ya tienes en tu HTML
+
     const seccionCierre = document.getElementById('ot-seccion-cierre');
     if(seccionCierre) {
         seccionCierre.style.display = 'block';
@@ -1127,7 +1129,7 @@ function mostrarSeccionCierre() {
 }
 
 // ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
-        async function enviarOT() {
+async function enviarOT() {
   const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
   if (btn) {
     btn.disabled = true;
@@ -1141,12 +1143,11 @@ function mostrarSeccionCierre() {
       idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
       prioridad: document.getElementById('ot-prioridad')?.value,
       depto: document.getElementById('ot-depto')?.value,
-      descripcion: document.getElementById('ot-descripcion')?.value.trim(),
-      folioATS: window.datosVinculadosATS?.folioATS || ""  // <- AGREGA ESTO
+      descripcion: document.getElementById('ot-descripcion')?.value.trim()
     }
   };
 
-  if (!datosOT.data.folio || !datosOT.data.idTecnico || !datosOT.data.descripcion) {
+  if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
     alert('❌ Llena folio, técnico y descripción');
     if (btn) {
       btn.disabled = false;
@@ -1169,8 +1170,6 @@ function mostrarSeccionCierre() {
       document.getElementById('ot-folio').value = '';
       document.getElementById('ot-id-tec').value = '';
       document.getElementById('ot-descripcion').value = '';
-      document.getElementById('ot-datos-vinculados').innerHTML = '';
-      window.datosVinculadosATS = null;
     } else {
       alert("❌ " + txt);
     }
@@ -1183,7 +1182,8 @@ function mostrarSeccionCierre() {
     }
   }
 }
-async function vincularATSaOT(folioATS) {
+
+async function vincularATSaOT_Cierre(folioATS) {
     if (!folioATS) {
         alert("❌ Ingresa el folio ATS");
         return;
@@ -1201,44 +1201,30 @@ async function vincularATSaOT(folioATS) {
 
         if (encontrado) {
             const d = encontrado.datos.split(";");
-            // d[0]=folio, d[1]=personal, d[2]=fase, d[3]=ubi, d[4]=tipo
-            window.datosVinculadosATS = {
-                folioATS: d[0],
-                personal: d[1],
-                fase: d[2],
-                ubi: d[3],
-                tipo: d[4]
-            };
+            window.datosVinculadosATS_Cierre = d[0];
 
-            // Autocompleta el campo de técnico si existe
-            const idTecInput = document.getElementById('ot-id-tec');
-            if (idTecInput && d[1]) {
-                // Busca el ID del primer técnico en la lista
-                const tec = DB_MASTER.TECNICO?.find(t => d[1].includes(t.nombre));
-                if (tec) {
-                    idTecInput.value = tec.id;
-                    checkTecnicoOperaciones(tec.id); // para que muestre el nombre
-                }
-            }
-
-            // Muestra confirmación
-            document.getElementById('ot-datos-vinculados').innerHTML = `
-                <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60;'>
+            const div = document.getElementById('ot-datos-vinculados-cierre');
+            if (div) {
+              div.innerHTML = `
+                <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-bottom:10px;'>
                     <b>✅ ATS VINCULADO</b><br>
                     <small>🆔 Folio: ${d[0]}</small><br>
                     <small>👤 Personal: ${d[1]}</small><br>
                     <small>📍 ${d[2]} - ${d[3]}</small>
                 </div>
-            `;
-
+              `;
+            }
         } else {
             alert("❌ Folio ATS no encontrado");
-            document.getElementById('ot-datos-vinculados').innerHTML = '';
+            const div = document.getElementById('ot-datos-vinculados-cierre');
+            if (div) div.innerHTML = '';
+            window.datosVinculadosATS_Cierre = null;
         }
     } catch (e) {
         alert("❌ Error al vincular: " + e.message);
     }
-}        
+}
+
 function cancelarCierre() {
   const seccionCierre = document.getElementById('ot-seccion-cierre');
   if (seccionCierre) seccionCierre.style.display = 'none';
@@ -1248,60 +1234,14 @@ function cancelarCierre() {
 
   const contenedorBotones = document.querySelector('#ui-operaciones > div');
   if (contenedorBotones) contenedorBotones.style.display = 'block';
-}
 
-// ✅ FIX Q28K #9: FINALIZAR OT - CON DEBUG DE FOLIO
-async function finalizarTareaOT(folioOT, btn) {
-  // Q28K_DEBUG: Ver qué folio recibimos
-  console.log("Q28K_DEBUG folio recibido:", folioOT);
-  alert("Q28K_DEBUG: Folio que voy a mandar = [" + folioOT + "]");
-
-  if (!folioOT || folioOT.toString().trim() === "") {
-    alert("❌ Q28K_ERROR FRONTEND: El folio está vacío. Revisa el botón.");
-    return;
-  }
-
-  const obs = prompt("Observaciones de cierre para OT " + folioOT + ":");
-  if (obs === null) return;
-
-  if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
-
-  const boton = btn || window.event?.target;
-  if (boton) {
-    boton.disabled = true;
-    boton.innerText = "CERRANDO...";
-  }
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: "finalizarOT",
-        folio: (folioOT || "").toString().trim(),
-        obs: (obs || "").toString().trim(),
-        usuario: "ADMIN"
-      })
-    });
-
-    const txt = await res.text();
-
-    if (txt.includes("Q28K_OK") || txt.includes("Q28K_DEBUG")) {
-      alert("✅ " + txt);
-      cancelarCierre();
-      if (typeof cargarOTs === 'function') cargarOTs();
-      else location.reload();
-    } else {
-      alert("❌ " + txt);
-    }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err);
-  } finally {
-    if (boton) {
-      boton.disabled = false;
-      boton.innerText = "FINALIZAR";
-    }
-  }
+  window.datosVinculadosATS_Cierre = null;
+  const divCierre = document.getElementById('ot-datos-vinculados-cierre');
+  if (divCierre) divCierre.innerHTML = '';
+  const folioCierre = document.getElementById('ot-folio-cierre');
+  if (folioCierre) folioCierre.value = '';
+  const obsCierre = document.getElementById('ot-comentarios-cierre');
+  if (obsCierre) obsCierre.value = '';
 }
     </script>
 </body>
