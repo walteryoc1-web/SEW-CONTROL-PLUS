@@ -144,7 +144,7 @@
 <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
     <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
     
-    <!-- ✅ SECCIÓN APERTURA OT -->
+   <!-- ✅ SECCIÓN APERTURA OT -->
     <div id="ot-seccion-apertura">
         <div style="display:flex; gap:10px; margin-bottom:10px;">
             <button class="btn" style="background:#3498db; color:white; font-size:11px;" onclick="setOrigenOT('SISTEMA')">GENERAR FOLIO</button>
@@ -156,36 +156,31 @@
         <select id="ot-prioridad"><option disabled selected>Prioridad</option></select>
         <select id="ot-depto"><option disabled selected>Departamento</option></select>
         <textarea id="ot-descripcion" placeholder="Descripción de la tarea..."></textarea>
-        <button id="btnRegistrarOT" class="btn" style="background:#2ecc71; color:white;" onclick="registrarOT()">🚀 ABRIR ORDEN</button>
+        <button class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
         
-       <!-- ✅ SOLO 1 BOTÓN PARA CERRAR -->
-<button class="btn" style="background:#f39c12; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CERRAR ORDEN DE TRABAJO</button>
-
-<div style="background:#f4f7f6; padding:10px; border-radius:10px; margin-top:15px; border:1px solid #ddd;">
-    <p style="margin:0 0 5px; font-size:10px; font-weight:bold; color:#666;">DESCARGAR REPORTES OT</p>
-    <div style="display:flex; gap:5px; margin-bottom:5px;">
-        <input type="date" id="f-ini-ot" style="padding:5px; font-size:11px;">
-        <input type="date" id="f-fin-ot" style="padding:5px; font-size:11px;">
+        <!-- ✅ SOLO 1 BOTÓN PARA CERRAR -->
+        <button class="btn" style="background:#f39c12; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CERRAR ORDEN DE TRABAJO</button>
+        
+        <div style="background:#f4f7f6; padding:10px; border-radius:10px; margin-top:15px; border:1px solid #ddd;">
+            <p style="margin:0 0 5px; font-size:10px; font-weight:bold; color:#666;">DESCARGAR REPORTES OT</p>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="date" id="f-ini-ot" style="padding:5px; font-size:11px;">
+                <input type="date" id="f-fin-ot" style="padding:5px; font-size:11px;">
+            </div>
+            <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:10px; font-size:11px;">📥 DESCARGAR EXCEL OT</button>
+        </div>
+    </div> <!-- ✅ CIERRE QUE FALTABA -->
+    
+    <!-- ✅ SECCIÓN CIERRE OT -->
+    <div id="ot-seccion-cierre" style="display:none;">
+        <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
+        <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
+        <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales..."></textarea>
+        <button class="btn" style="background:#27ae60; color:white;" onclick="finalizarTareaOT()">✅ FINALIZAR TAREA</button>
+        <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
     </div>
-    <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:10px; font-size:11px;">📥 DESCARGAR EXCEL OT</button>
-</div>
-</div> <!-- ✅ CIERRE QUE FALTABA -->
-
-<!-- ✅ SECCIÓN CIERRE OT -->
-<div id="ot-seccion-cierre" style="display:none;">
-    <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
-    <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
-    <textarea id="ot-comentarios-cierre" placeholder="Observaciones finales..."></textarea>
     
-    <button class="btn" style="background:#27ae60; color:white;" 
-    onclick="finalizarTareaOT(document.getElementById('ot-folio-cierre').value, this)">
-    ✅ FINALIZAR TAREA
-    </button>
-    
-    <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
-</div>
-
-<button class="btn-salir" onclick="salir()">CERRAR SESIÓN</button>
+    <button class="btn-salir" onclick="salir()">CERRAR SESIÓN</button>
 </div>
     
     <!-- 7. UI ADMIN DATOS MAESTROS -->
@@ -1066,142 +1061,57 @@ function llenarDesplegablesOperaciones() {
     cargarCerebroSistema(); 
 };
 
-// ✅ ORIGEN DEL FOLIO
-function setOrigenOT(origen) {
-  document.getElementById('ot-folio').dataset.origen = origen;
-  if (origen === 'SISTEMA') {
-    const folio = 'OT-' + Date.now().toString().slice(-6);
-    document.getElementById('ot-folio').value = folio;
-    document.getElementById('ot-folio').readOnly = true;
-  } else {
-    document.getElementById('ot-folio').value = '';
-    document.getElementById('ot-folio').readOnly = false;
-  }
-}
-
-// ✅ VERIFICAR TÉCNICO
-function checkTecnicoOperaciones(id) {
-  const box = document.getElementById('ot-tec-box');
-  if (!id) {
-    box.style.display = 'none';
-    box.innerHTML = '';
-    return;
-  }
-
-  const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id.toString());
-  if (p) {
-    box.style.display = 'block';
-    box.innerHTML = `<b>${p.nombre}</b><br>Depto: ${p.depto || 'N/A'}`;
-  } else {
-    box.style.display = 'block';
-    box.innerHTML = '<span style="color:red;">Técnico no encontrado</span>';
-  }
-}
-
-// ✅ ABRIR OT
-async function registrarOT() {
-  const btn = document.getElementById('btnRegistrarOT');
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = "GUARDANDO...";
-  }
-
-  const folio = document.getElementById('ot-folio').value.trim();
-  const idTecnico = document.getElementById('ot-id-tec').value.trim();
-  const prioridad = document.getElementById('ot-prioridad').value;
-  const depto = document.getElementById('ot-depto').value;
-  const descripcion = document.getElementById('ot-descripcion').value.trim();
-
-  if (!folio ||!idTecnico ||!descripcion || prioridad.includes('Prioridad') || depto.includes('Departamento')) {
-    alert('❌ Llena folio, técnico, prioridad, departamento y descripción');
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "🚀 ABRIR ORDEN";
-    }
-    return;
-  }
-
-  const datosOT = {
-    action: "registrarOT",
-    data: { folio, idTecnico, prioridad, depto, descripcion }
-  };
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(datosOT)
-    });
-
-    const txt = await res.text();
-
-    if (txt.includes("Q28K_OK")) {
-      const partes = txt.split('|');
-      const mensaje = partes[0];
-      const pdfBase64 = partes[1];
-
-      alert(mensaje);
-
-      if (pdfBase64 && pdfBase64.startsWith("data:application/pdf")) {
-        const a = document.createElement('a');
-        a.href = pdfBase64;
-        a.download = `OT_${folio}.pdf`;
-        a.click();
-      }
-
-      // Limpiar form
-      document.getElementById('ot-folio').value = '';
-      document.getElementById('ot-folio').readOnly = false;
-      document.getElementById('ot-id-tec').value = '';
-      document.getElementById('ot-descripcion').value = '';
-      document.getElementById('ot-tec-box').style.display = 'none';
-      document.getElementById('ot-prioridad').selectedIndex = 0;
-      document.getElementById('ot-depto').selectedIndex = 0;
-
-      if (typeof cargarOTs === 'function') cargarOTs();
-    } else {
-      alert("❌ " + txt);
-    }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err.message);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "🚀 ABRIR ORDEN";
-    }
-  }
-}
-
-// ✅ MOSTRAR SECCIÓN CIERRE
+// ✅ FIX Q28K #7: ABRIR PANTALLA DE CIERRE OT - LA TUYA ESTÁ VACÍA
 function mostrarSeccionCierre() {
-  document.getElementById('ot-seccion-apertura').style.display = 'none';
-  document.getElementById('ot-seccion-cierre').style.display = 'block';
+    // 1. Oculta la sección de apertura de OT
+    const seccionApertura = document.getElementById('ot-seccion-apertura');
+    if(seccionApertura) seccionApertura.style.display = 'none';
+    
+    // 2. Oculta el contenedor principal de botones de OT
+    const contenedorBotones = document.querySelector('#ui-operaciones > div');
+    if(contenedorBotones) contenedorBotones.style.display = 'none';
+    
+    // 3. Muestra la sección de cierre que ya tienes en tu HTML
+    const seccionCierre = document.getElementById('ot-seccion-cierre');
+    if(seccionCierre) {
+        seccionCierre.style.display = 'block';
+    } else {
+        alert("❌ ERROR: No existe el div con id='ot-seccion-cierre' en tu HTML");
+    }
 }
 
-// ✅ CANCELAR CIERRE
+// ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
 function cancelarCierre() {
-  document.getElementById('ot-seccion-cierre').style.display = 'none';
-  document.getElementById('ot-seccion-apertura').style.display = 'block';
-  document.getElementById('ot-folio-cierre').value = '';
-  document.getElementById('ot-ats-cierre').value = '';
-  document.getElementById('ot-comentarios-cierre').value = '';
+  const seccionCierre = document.getElementById('ot-seccion-cierre');
+  if (seccionCierre) seccionCierre.style.display = 'none';
+
+  const seccionApertura = document.getElementById('ot-seccion-apertura');
+  if (seccionApertura) seccionApertura.style.display = 'block';
+
+  const contenedorBotones = document.querySelector('#ui-operaciones > div');
+  if (contenedorBotones) contenedorBotones.style.display = 'block';
 }
 
-// ✅ CERRAR OT
+// ✅ FIX Q28K #9: FINALIZAR OT - CON DEBUG DE FOLIO
 async function finalizarTareaOT(folioOT, btn) {
-  if (!folioOT) {
-    alert("❌ Ingresa el folio de la OT");
+  // Q28K_DEBUG: Ver qué folio recibimos
+  console.log("Q28K_DEBUG folio recibido:", folioOT);
+  alert("Q28K_DEBUG: Folio que voy a mandar = [" + folioOT + "]");
+
+  if (!folioOT || folioOT.toString().trim() === "") {
+    alert("❌ Q28K_ERROR FRONTEND: El folio está vacío. Revisa el botón.");
     return;
   }
 
-  const ats = document.getElementById('ot-ats-cierre').value.trim();
-  const obs = document.getElementById('ot-comentarios-cierre').value.trim();
+  const obs = prompt("Observaciones de cierre para OT " + folioOT + ":");
+  if (obs === null) return;
 
   if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
 
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = "CERRANDO...";
+  const boton = btn || window.event?.target;
+  if (boton) {
+    boton.disabled = true;
+    boton.innerText = "CERRANDO...";
   }
 
   try {
@@ -1210,28 +1120,28 @@ async function finalizarTareaOT(folioOT, btn) {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({
         action: "finalizarOT",
-        folio: folioOT,
-        ats: ats,
-        obs: obs
+        folio: (folioOT || "").toString().trim(),
+        obs: (obs || "").toString().trim(),
+        usuario: "ADMIN"
       })
     });
 
     const txt = await res.text();
-    alert(txt);
 
-    if (txt.includes("OK")) {
-      document.getElementById('ot-folio-cierre').value = '';
-      document.getElementById('ot-ats-cierre').value = '';
-      document.getElementById('ot-comentarios-cierre').value = '';
+    if (txt.includes("Q28K_OK") || txt.includes("Q28K_DEBUG")) {
+      alert("✅ " + txt);
       cancelarCierre();
       if (typeof cargarOTs === 'function') cargarOTs();
+      else location.reload();
+    } else {
+      alert("❌ " + txt);
     }
   } catch (err) {
-    alert("❌ Error: " + err);
+    alert("❌ ERROR DE RED: " + err);
   } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "✅ FINALIZAR TAREA";
+    if (boton) {
+      boton.disabled = false;
+      boton.innerText = "FINALIZAR";
     }
   }
 }
