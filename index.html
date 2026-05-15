@@ -1066,6 +1066,39 @@ function llenarDesplegablesOperaciones() {
     cargarCerebroSistema(); 
 };
 
+// ✅ ORIGEN DEL FOLIO
+function setOrigenOT(origen) {
+  document.getElementById('ot-folio').dataset.origen = origen;
+  if (origen === 'SISTEMA') {
+    const folio = 'OT-' + Date.now().toString().slice(-6);
+    document.getElementById('ot-folio').value = folio;
+    document.getElementById('ot-folio').readOnly = true;
+  } else {
+    document.getElementById('ot-folio').value = '';
+    document.getElementById('ot-folio').readOnly = false;
+  }
+}
+
+// ✅ VERIFICAR TÉCNICO
+function checkTecnicoOperaciones(id) {
+  const box = document.getElementById('ot-tec-box');
+  if (!id) {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+
+  const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id.toString());
+  if (p) {
+    box.style.display = 'block';
+    box.innerHTML = `<b>${p.nombre}</b><br>Depto: ${p.depto || 'N/A'}`;
+  } else {
+    box.style.display = 'block';
+    box.innerHTML = '<span style="color:red;">Técnico no encontrado</span>';
+  }
+}
+
+// ✅ ABRIR OT
 async function registrarOT() {
   const btn = document.getElementById('btnRegistrarOT');
   if (btn) {
@@ -1073,25 +1106,25 @@ async function registrarOT() {
     btn.innerText = "GUARDANDO...";
   }
 
-  const datosOT = {
-    action: "registrarOT",
-    data: {
-      folio: document.getElementById('ot-folio').value.trim(),
-      idTecnico: document.getElementById('ot-id-tec').value.trim(),
-      prioridad: document.getElementById('ot-prioridad').value,
-      depto: document.getElementById('ot-depto').value,
-      descripcion: document.getElementById('ot-descripcion').value.trim()
-    }
-  };
+  const folio = document.getElementById('ot-folio').value.trim();
+  const idTecnico = document.getElementById('ot-id-tec').value.trim();
+  const prioridad = document.getElementById('ot-prioridad').value;
+  const depto = document.getElementById('ot-depto').value;
+  const descripcion = document.getElementById('ot-descripcion').value.trim();
 
-  if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
-    alert('❌ Llena folio, técnico y descripción');
+  if (!folio ||!idTecnico ||!descripcion || prioridad.includes('Prioridad') || depto.includes('Departamento')) {
+    alert('❌ Llena folio, técnico, prioridad, departamento y descripción');
     if (btn) {
       btn.disabled = false;
       btn.innerText = "🚀 ABRIR ORDEN";
     }
     return;
   }
+
+  const datosOT = {
+    action: "registrarOT",
+    data: { folio, idTecnico, prioridad, depto, descripcion }
+  };
 
   try {
     const res = await fetch(URL_SCRIPT, {
@@ -1107,20 +1140,24 @@ async function registrarOT() {
       const mensaje = partes[0];
       const pdfBase64 = partes[1];
 
-      alert(mensaje); // Solo muestra "Q28K_OK: OT 123 registrada"
+      alert(mensaje);
 
-      // Descarga el PDF automáticamente
       if (pdfBase64 && pdfBase64.startsWith("data:application/pdf")) {
         const a = document.createElement('a');
         a.href = pdfBase64;
-        a.download = `OT_${datosOT.data.folio}.pdf`;
+        a.download = `OT_${folio}.pdf`;
         a.click();
       }
 
-      // Limpia form y recarga tabla
+      // Limpiar form
       document.getElementById('ot-folio').value = '';
+      document.getElementById('ot-folio').readOnly = false;
       document.getElementById('ot-id-tec').value = '';
       document.getElementById('ot-descripcion').value = '';
+      document.getElementById('ot-tec-box').style.display = 'none';
+      document.getElementById('ot-prioridad').selectedIndex = 0;
+      document.getElementById('ot-depto').selectedIndex = 0;
+
       if (typeof cargarOTs === 'function') cargarOTs();
     } else {
       alert("❌ " + txt);
@@ -1135,75 +1172,67 @@ async function registrarOT() {
   }
 }
 
-// ✅ CERRAR OT
-async function finalizarTareaOT(folioOT, btn) {
-    if (!folioOT) {
-        alert("❌ Ingresa el folio de la OT");
-        return;
-    }
-
-    const obs = document.getElementById('ot-comentarios-cierre').value.trim();
-
-    if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
-
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "CERRANDO...";
-    }
-
-    try {
-        const res = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                action: "finalizarOT",
-                folio: folioOT,
-                obs: obs
-            })
-        });
-
-        const txt = await res.text();
-        alert(txt);
-
-        if (txt.includes("OK")) {
-            document.getElementById('ot-folio-cierre').value = '';
-            document.getElementById('ot-comentarios-cierre').value = '';
-            cancelarCierre();
-            if (typeof cargarOTs === 'function') cargarOTs();
-        }
-    } catch (err) {
-        alert("❌ Error: " + err);
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "✅ FINALIZAR TAREA";
-        }
-    }
+// ✅ MOSTRAR SECCIÓN CIERRE
+function mostrarSeccionCierre() {
+  document.getElementById('ot-seccion-apertura').style.display = 'none';
+  document.getElementById('ot-seccion-cierre').style.display = 'block';
 }
 
-function salir() {
-  // Oculta todas las pantallas
-  const pantallas = ['ui-supervisor', 'ui-app', 'ui-monitor-sso', 'ui-seguridad', 'ui-operaciones', 'ui-admin-datos', 'ui-incidentes-sso', 'ui-medico-sso', 'ui-extintores-sso'];
-  pantallas.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
+// ✅ CANCELAR CIERRE
+function cancelarCierre() {
+  document.getElementById('ot-seccion-cierre').style.display = 'none';
+  document.getElementById('ot-seccion-apertura').style.display = 'block';
+  document.getElementById('ot-folio-cierre').value = '';
+  document.getElementById('ot-ats-cierre').value = '';
+  document.getElementById('ot-comentarios-cierre').value = '';
+}
 
-  // Limpia inputs de login
-  const user = document.getElementById('u');
-  const pass = document.getElementById('p');
-  if (user) user.value = '';
-  if (pass) pass.value = '';
+// ✅ CERRAR OT
+async function finalizarTareaOT(folioOT, btn) {
+  if (!folioOT) {
+    alert("❌ Ingresa el folio de la OT");
+    return;
+  }
 
-  // Muestra login
-  const login = document.getElementById('login');
-  if (login) login.style.display = 'block';
+  const ats = document.getElementById('ot-ats-cierre').value.trim();
+  const obs = document.getElementById('ot-comentarios-cierre').value.trim();
 
-  // Restaura botón login
-  const btn = document.getElementById('btn-login');
-  if(btn) {
-    btn.innerText = "INGRESAR";
-    btn.disabled = false;
+  if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "CERRANDO...";
+  }
+
+  try {
+    const res = await fetch(URL_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        action: "finalizarOT",
+        folio: folioOT,
+        ats: ats,
+        obs: obs
+      })
+    });
+
+    const txt = await res.text();
+    alert(txt);
+
+    if (txt.includes("OK")) {
+      document.getElementById('ot-folio-cierre').value = '';
+      document.getElementById('ot-ats-cierre').value = '';
+      document.getElementById('ot-comentarios-cierre').value = '';
+      cancelarCierre();
+      if (typeof cargarOTs === 'function') cargarOTs();
+    }
+  } catch (err) {
+    alert("❌ Error: " + err);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "✅ FINALIZAR TAREA";
+    }
   }
 }
     </script>
