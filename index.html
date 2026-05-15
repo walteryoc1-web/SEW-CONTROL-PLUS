@@ -975,11 +975,12 @@ function descargarCSV_OT() {
     };
 
     try {
-        const res = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {'Content-Type': 'application/json'}
-        });
+        await fetch(URL_SCRIPT, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify(payload),
+    headers: {'Content-Type': 'text/plain'}
+});
 
         const respuesta = await res.text(); // Apps Script devuelve texto, no JSON puro
         console.log("Respuesta del servidor:", respuesta);
