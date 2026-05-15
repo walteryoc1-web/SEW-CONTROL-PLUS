@@ -1132,58 +1132,57 @@ function mostrarSeccionCierre() {
 // ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
 async function enviarOT() {
   const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
-  if (btn) {
-    btn.disabled = true;
-    btn.innerText = "ENVIANDO...";
-  }
-
-  const datosOT = {
-    action: "registrarOT",
-    data: {
-      folio: document.getElementById('ot-folio')?.value.trim(),
-      idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
-      prioridad: document.getElementById('ot-prioridad')?.value,
-      depto: document.getElementById('ot-depto')?.value,
-      descripcion: document.getElementById('ot-descripcion')?.value.trim()
-    }
-  };
-
-  if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
-    alert('❌ Llena folio, técnico y descripción');
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "🚀 ABRIR ORDEN";
-    }
-    return;
-  }
+  btn.disabled = true;
+  btn.innerText = "GENERANDO OT Y PDF... ⏳";
 
   try {
+    const datosOT = {
+      action: "registrarOT",
+      data: {
+        folio: document.getElementById('ot-folio')?.value.trim(),
+        idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
+        prioridad: document.getElementById('ot-prioridad')?.value,
+        depto: document.getElementById('ot-depto')?.value,
+        descripcion: document.getElementById('ot-descripcion')?.value.trim(),
+        folioATS: window.datosVinculadosATS_Cierre || ""
+      }
+    };
+
+    if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
+      throw new Error("Llena folio, técnico y descripción");
+    }
+
     const res = await fetch(URL_SCRIPT, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(datosOT)
+      body: JSON.stringify(datosOT),
+      headers: { 'Content-Type': 'text/plain' }
     });
 
     const txt = await res.text();
 
-    if (txt.includes("Q28K_OK")) {
-      alert("✅ OT REGISTRADA");
-      document.getElementById('ot-folio').value = '';
-      document.getElementById('ot-id-tec').value = '';
-      document.getElementById('ot-descripcion').value = '';
+    if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
+
+    // Separa mensaje del PDF
+    const partes = txt.split("|");
+    const mensaje = partes[0];
+    const pdfBase64 = partes[1];
+
+    alert("✅ " + mensaje); // Solo muestra el mensaje corto
+
+    if (pdfBase64 && pdfBase64.length > 100) {
+      descargarBase64PDF(pdfBase64, `OT_${datosOT.data.folio}.pdf`);
     } else {
-      alert("❌ " + txt);
+      console.log("No llegó PDF. Response:", txt);
     }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err.message);
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = "🚀 ABRIR ORDEN";
-    }
+
+    location.reload();
+
+  } catch (e) {
+    alert("❌ Error: " + e.message);
+    btn.disabled = false;
+    btn.innerText = "🚀 ABRIR ORDEN";
   }
 }
-
 async function vincularATSaOT_Cierre(folioATS) {
     if (!folioATS) {
         alert("❌ Ingresa el folio ATS");
