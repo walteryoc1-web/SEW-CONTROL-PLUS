@@ -431,27 +431,28 @@ async function actualizarPildoras() {
     }
 }
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
-        async function cargarCerebroSistema() {
+       async function cargarSistema() {
     try {
         const res = await fetch(URL_SCRIPT, {
             method: 'POST',
-            body: JSON.stringify({ action: 'getGlobalConfig' })
+            body: JSON.stringify({ action: 'getGlobalConfig' }),
+            headers: {'Content-Type': 'text/plain'}
         });
 
-        const text = await res.text(); // lee como texto primero
+        const text = await res.text();
 
         if (text.startsWith('Q28K_ERROR')) {
-            console.error("Error del script:", text);
-            alert("❌ Error cargando configuración: " + text);
+            console.error("Error:", text);
+            alert("❌ Error cargando sistema: " + text);
             return false;
         }
 
-        DB_MASTER = JSON.parse(text); // ahora sí parsea
-        console.log("✅ Cerebro Sincronizado");
+        DB_MASTER = JSON.parse(text); // aquí queda tu objeto con PILOTO, PRODUCTO, TECNICO, etc.
+        console.log("✅ Sistema cargado", DB_MASTER);
         return true;
 
     } catch (e) {
-        console.error("Error fetch:", e);
+        console.error("Error:", e);
         alert("❌ Error de conexión");
         return false;
     }
