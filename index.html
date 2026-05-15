@@ -140,7 +140,7 @@
     </div>
 </div>
     
-   <!-- 6. UI OPERACIONES (OT) -->
+  <!-- 6. UI OPERACIONES (OT) -->
 <div id="ui-operaciones" class="card-compacta" style="display:none; border-top: 8px solid #3498db;">
     <h3 style="color:#2980b9; margin:0;">Módulo de Operaciones</h3>
     
@@ -171,6 +171,9 @@
         </div>
         <button type="button" class="btn" onclick="descargarCSV_OT()" style="background:#2980b9; color:white; padding:10px; font-size:11px;">📥 DESCARGAR EXCEL OT</button>
     </div>
+
+    <!-- BOTÓN SALIR AGREGADO AQUÍ -->
+    <button class="btn-salir" onclick="salir()">CERRAR SESIÓN</button>
 </div>
 
 <!-- ✅ SECCIÓN CIERRE OT -->
@@ -197,6 +200,8 @@
 
     <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
 </div>
+</div>
+    
     <!-- 7. UI ADMIN DATOS MAESTROS -->
     <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
         <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
@@ -1241,7 +1246,8 @@ function cancelarCierre() {
   const obsCierre = document.getElementById('ot-comentarios-cierre');
   if (obsCierre) obsCierre.value = '';
 }
-        function salir() {
+
+function salir() {
   // 1. Oculta todos los paneles
   document.getElementById('ui-app').style.display = 'none';
   document.getElementById('ui-supervisor').style.display = 'none';
@@ -1253,14 +1259,16 @@ function cancelarCierre() {
   document.getElementById('ui-medico-sso').style.display = 'none';
   document.getElementById('ui-extintores-sso').style.display = 'none';
   
-  // 2. Muestra el login - CAMBIADO A 'login'
+  // 2. Muestra el login
   const login = document.getElementById('login');
   if (login) login.style.display = 'block';
   
-  // 3. Limpia inputs si quieres
+  // 3. Limpia inputs
   const idIn = document.getElementById('id-in');
   if (idIn) idIn.value = '';
+  
+  const user = document.getElementById('u');
+  const pass = document.getElementById('p');
+  if (user) user.value = '';
+  if (pass) pass.value = '';
 }
-    </script>
-</body>
-</html>
