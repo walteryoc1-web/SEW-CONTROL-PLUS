@@ -815,13 +815,17 @@ function descargarCSV_OT() {
         }
 
         function descargarBase64PDF(b, n) {
-            if(!b || b.length < 500) return;
-            const a = document.createElement("a");
-            a.href = "data:application/pdf;base64," + b.trim();
-            a.download = n;
-            a.click();
-        }
+  if(!b || b.length < 500) return;
 
+  const a = document.createElement("a");
+  a.href = "data:application/pdf;base64," + b.trim();
+  a.download = n;
+  a.style.display = "none";
+
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
         // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
         async function guardarDatoMaestro() {
             const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
@@ -1162,20 +1166,14 @@ async function enviarOT() {
 
     if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
 
-    // Separa mensaje del PDF
-    const partes = txt.split("|");
-    const mensaje = partes[0];
-    const pdfBase64 = partes[1];
-
-    alert("✅ " + mensaje); // Solo muestra el mensaje corto
-
-    if (pdfBase64 && pdfBase64.length > 100) {
-      descargarBase64PDF(pdfBase64, `OT_${datosOT.data.folio}.pdf`);
+    if (txt.length > 500) {
+      descargarBase64PDF(txt, `OT_${datosOT.data.folio}.pdf`);
+      alert("✅ OT REGISTRADA Y PDF GENERADO");
+      location.reload();
     } else {
-      console.log("No llegó PDF. Response:", txt);
+      alert("⚠️ Guardado sin PDF: " + txt);
+      location.reload();
     }
-
-    location.reload();
 
   } catch (e) {
     alert("❌ Error: " + e.message);
