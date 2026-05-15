@@ -1081,36 +1081,52 @@ function mostrarListaAdmin(categoria) {
     html += "</table>";
     div.innerHTML = html;
 }
-        async function cambiarEstado(categoria, id, nuevoEstado) {
+       async function cambiarEstado(categoria, id, nuevoEstado) {
     if (!confirm(`¿Seguro que quieres poner ${id} en ${nuevoEstado}?`)) return;
+
+    // Primero jala el registro actual para no borrar datos
+    const res = await fetch(URL_SCRIPT, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'getGlobalConfig' })
+    });
+    const DB = await res.json();
+
+    const registro = (DB[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
+    if (!registro) {
+        alert("❌ No encontré el usuario");
+        return;
+    }
 
     const payload = {
         action: "guardarConfig",
         categoria: categoria,
         id: id,
-        nombre: "", // no cambia
-        extra1: "",
-        extra2: "",
-        extra3: nuevoEstado, // solo cambia el estado
-        extra4: ""
+        nombre: registro.nombre, // <- usa el nombre que ya tenía
+        extra1: registro.extra1,
+        extra2: registro.extra2,
+        extra3: nuevoEstado, // solo cambias esto
+        extra4: registro.extra4
     };
 
     try {
-        await fetch(URL_SCRIPT, {
+        const r = await fetch(URL_SCRIPT, {
             method: 'POST',
-            mode: 'no-cors',
             body: JSON.stringify(payload),
-            headers: {'Content-Type': 'text/plain'}
+            headers: {'Content-Type': 'text/plain'} // text/plain evita preflight
         });
 
-        alert(`✅ ${id} ahora está ${nuevoEstado}`);
-        setTimeout(() => location.reload(), 800);
+        const txt = await r.text();
+        if (txt.includes('Q28K_ERROR')) {
+            alert("❌ Error: " + txt);
+        } else {
+            alert(`✅ ${id} ahora está ${nuevoEstado}`);
+            setTimeout(() => location.reload(), 800);
+        }
 
     } catch (e) {
         alert("❌ Error: " + e.message);
     }
-}
-        
+}        
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
     document.getElementById('ui-monitor-sso').style.display='none';
