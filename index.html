@@ -387,49 +387,68 @@ async function actualizarPildoras() {
             } catch (e) { return false; }
         }
 
-        // ✅ FIX Q28K #1: LOGIN A PRUEBA DE BALAS - ya no usa event.target
-        async function entrar() {
-            const u = document.getElementById('u').value.toLowerCase().trim();
-            const p = document.getElementById('p').value;
-            const btn = document.getElementById('btn-login') || document.querySelector('#login button');
-            const originalText = "INGRESAR";
-            if(btn) { btn.innerText = "INGRESANDO... ⏳"; btn.disabled = true; }
+      async function entrar() {
+    const u = document.getElementById('u').value.toLowerCase().trim();
+    const p = document.getElementById('p').value;
+    const btn = document.getElementById('btn-login') || document.querySelector('#login button');
+    const originalText = "INGRESAR";
+    
+    if(btn) { 
+        btn.innerText = "INGRESANDO... ⏳"; 
+        btn.disabled = true; 
+    }
 
-            await cargarCerebroSistema();
+    try {
+        await cargarCerebroSistema();
+
+        if (u == "operador" && p == "1234") {
             document.getElementById('login').style.display='none';
-
-            if (u == "operador" && p == "1234") {
-                document.getElementById('ui-app').style.display='block';
-                llenarDesplegablesLogistica();
-            }
-            else if (u == "supervisor" && p == "1234") {
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-            }
-            else if (u == "supervisor sso" && p == "1234") {
-                document.getElementById('ui-monitor-sso').style.display='block';
-                actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-            }
-            else if (u == "sso" && p == "1234") {
-                document.getElementById('ui-seguridad').style.display='block';
-                llenarDesplegablesSSO();
-            }
-         else if (u == "operaciones" && p == "1234") {
-    document.getElementById('ui-operaciones').style.display='block';
-    await cargarCerebroSistema();  // <- AGREGA ESTA LÍNEA
-    llenarDesplegablesOperaciones(); 
-    setOrigenOT('SISTEMA');
-}
-            else if (u == "admin" && p == "1234") {
-                document.getElementById('ui-admin-datos').style.display='block';
-                ajustarLabelsAdmin();
-            }
-            else {
-                alert("❌ Credenciales incorrectas");
-                document.getElementById('login').style.display='block';
-                if(btn) { btn.innerText = originalText; btn.disabled = false; }
-            }
+            document.getElementById('ui-app').style.display='block';
+            llenarDesplegablesLogistica();
         }
+        else if (u == "supervisor" && p == "1234") {
+            document.getElementById('login').style.display='none';
+            document.getElementById('ui-supervisor').style.display='block';
+            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+        }
+        else if (u == "supervisor sso" && p == "1234") {
+            document.getElementById('login').style.display='none';
+            document.getElementById('ui-monitor-sso').style.display='block';
+            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+        }
+        else if (u == "sso" && p == "1234") {
+            document.getElementById('login').style.display='none';
+            document.getElementById('ui-seguridad').style.display='block';
+            llenarDesplegablesSSO();
+        }
+        else if (u == "operaciones" && p == "1234") {
+            document.getElementById('login').style.display='none';
+            document.getElementById('ui-operaciones').style.display='block';
+            await cargarCerebroSistema();  
+            llenarDesplegablesOperaciones(); 
+            setOrigenOT('SISTEMA');
+        }
+        else if (u == "admin" && p == "1234") {
+            document.getElementById('login').style.display='none';
+            document.getElementById('ui-admin-datos').style.display='block';
+            ajustarLabelsAdmin();
+        }
+        else {
+            alert("❌ Credenciales incorrectas");
+            document.getElementById('login').style.display='block';
+        }
+    } catch (err) {
+        alert("❌ Error al iniciar sesión");
+        console.error(err);
+        document.getElementById('login').style.display='block';
+    } finally {
+        // Esto se ejecuta SIEMPRE, haya éxito o error
+        if(btn) { 
+            btn.innerText = originalText; 
+            btn.disabled = false; 
+        }
+    }
+}
 
         // --- 3. MOTORES DE LLENADO DESDE DATA MAESTRA ---
         function llenarDesplegablesLogistica() {
@@ -1247,7 +1266,7 @@ function cancelarCierre() {
 }
 
 function salir() {
-  // 1. Oculta todos los paneles
+  // Oculta todos los paneles
   document.getElementById('ui-app').style.display = 'none';
   document.getElementById('ui-supervisor').style.display = 'none';
   document.getElementById('ui-monitor-sso').style.display = 'none';
@@ -1257,19 +1276,22 @@ function salir() {
   document.getElementById('ui-incidentes-sso').style.display = 'none';
   document.getElementById('ui-medico-sso').style.display = 'none';
   document.getElementById('ui-extintores-sso').style.display = 'none';
-  
-  // 2. Muestra el login
+
+  // Muestra el login
   const login = document.getElementById('login');
   if (login) login.style.display = 'block';
-  
-  // 3. Limpia inputs
-  const idIn = document.getElementById('id-in');
-  if (idIn) idIn.value = '';
-  
-  const user = document.getElementById('u');
-  const pass = document.getElementById('p');
-  if (user) user.value = '';
-  if (pass) pass.value = '';
+
+  // Limpia todo
+  document.getElementById('id-in').value = '';
+  document.getElementById('u').value = '';
+  document.getElementById('p').value = '';
+
+  // Resetea el botón de login por si se quedó trabado
+  const btn = document.getElementById('btn-login');
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = 'INGRESAR';
+  }
 }
   
     </script>
