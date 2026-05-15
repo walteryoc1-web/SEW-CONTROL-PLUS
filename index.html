@@ -186,6 +186,16 @@
 </div>
 
 <!-- ✅ SECCIÓN CIERRE OT -->
+      <!-- Vincular ATS va DENTRO aquí -->
+    <label style="font-weight:bold; color:#2c3e50;">Vincular con ATS</label>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <input type="text" id="ot-folio-ats" placeholder="DIGITE FOLIO ATS (SSO-XXXX)" style="flex:1;">
+        <button type="button" onclick="vincularATSaOT(document.getElementById('ot-folio-ats').value)"
+                style="width:120px; background:#2c3e50; color:white; border:none; border-radius:5px;">
+            VINCULAR
+        </button>
+    </div>
+    <div id="ot-datos-vinculados"></div>
 <div id="ot-seccion-cierre" style="display:none;">
     <input type="text" id="ot-folio-cierre" placeholder="Folio OT a finalizar">
     <input type="text" id="ot-ats-cierre" placeholder="VINCULAR FOLIO ATS (SSO-XXXXXX)">
