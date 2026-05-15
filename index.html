@@ -1100,6 +1100,59 @@ function mostrarSeccionCierre() {
 }
 
 // ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
+        async function enviarOT() {
+  const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "ENVIANDO...";
+  }
+
+  const datosOT = {
+    action: "registrarOT",
+    data: {
+      folio: document.getElementById('ot-folio')?.value.trim(),
+      idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
+      prioridad: document.getElementById('ot-prioridad')?.value,
+      depto: document.getElementById('ot-depto')?.value,
+      descripcion: document.getElementById('ot-descripcion')?.value.trim()
+    }
+  };
+
+  if (!datosOT.data.folio || !datosOT.data.idTecnico || !datosOT.data.descripcion) {
+    alert('❌ Llena folio, técnico y descripción');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(URL_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(datosOT)
+    });
+
+    const txt = await res.text();
+
+    if (txt.includes("Q28K_OK")) {
+      alert("✅ OT REGISTRADA");
+      document.getElementById('ot-folio').value = '';
+      document.getElementById('ot-id-tec').value = '';
+      document.getElementById('ot-descripcion').value = '';
+    } else {
+      alert("❌ " + txt);
+    }
+  } catch (err) {
+    alert("❌ ERROR DE RED: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
+    }
+  }
+}
 function cancelarCierre() {
   const seccionCierre = document.getElementById('ot-seccion-cierre');
   if (seccionCierre) seccionCierre.style.display = 'none';
