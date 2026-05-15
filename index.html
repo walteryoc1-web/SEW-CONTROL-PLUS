@@ -459,18 +459,57 @@ async function actualizarPildoras() {
             if (DB_MASTER.MOVIMIENTO) DB_MASTER.MOVIMIENTO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO").forEach(m => selMov.add(new Option(m.nombre, m.nombre)));
         }
 
-        function llenarDesplegablesSSO() {
-            const selFase = document.getElementById('p-fase'), selTipo = document.getElementById('p-tipo');
-            selFase.innerHTML = '<option disabled selected>Area Labores</option>';
-            selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
-            if (DB_MASTER.UBICACION) {
-                const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
-                fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
-            }
-            if (DB_MASTER.TRABAJO) {
-                DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO").forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
-            }
-        }
+    function llenarDesplegablesSSO() {
+    const selFase = document.getElementById('p-fase'), selTipo = document.getElementById('p-tipo');
+    selFase.innerHTML = '<option disabled selected>Area Labores</option>';
+    selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
+    
+    if (DB_MASTER.UBICACION) {
+        const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
+        fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
+    }
+    
+    if (DB_MASTER.TRABAJO) {
+        DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO")
+            .forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
+    }
+
+    llenarSelectTecnico(); // <- esta línea la agregué
+}
+
+function llenarSelectTecnico() {
+    const selTec = document.getElementById('tu-select-tecnico'); 
+    if (!selTec) return;
+
+    selTec.innerHTML = '<option disabled selected>Técnico</option>';
+    
+    DB_MASTER.TECNICO?.filter(t => (t.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
+        .forEach(t => {
+            const texto = t.extra4 ? `${t.nombre} - ${t.extra4}` : t.nombre;
+            selTec.add(new Option(texto, t.id));
+        });
+}
+        function llenarDesplegablesIncidentes() {
+    llenarSelect('inc-tipo', 'TIPO_EVENTO');
+    llenarSelect('inc-gravedad', 'GRAVEDAD');
+    llenarSelect('inc-riesgo', 'RIESGO');
+    llenarSelect('inc-contaminacion', 'CONTAMINACION');
+    llenarSelect('inc-estructura', 'ESTRUCTURA');
+    llenarSelect('inc-reparacion', 'REPARACION');
+    llenarSelect('inc-reincidencia', 'REINCIDENCIA');
+    llenarSelect('inc-estado-final', 'ESTADO_FINAL');
+    llenarSelect('inc-salud', 'ESTADO_SALUD', 'No hay afectados');
+}
+
+function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const placeholder = primerOpcionTexto || sel.options[0]?.text || 'Selecciona';
+    sel.innerHTML = `<option disabled selected>${placeholder}</option>`;
+    DB_MASTER[categoria]?.filter(x => (x.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
+     .forEach(x => sel.add(new Option(x.nombre, x.id)));
+}
+        
         function actualizarUbicaciones() {
             const fase = document.getElementById('p-fase').value, selUbi = document.getElementById('p-ubicacion');
             if (!selUbi) return;
