@@ -156,7 +156,7 @@
         <select id="ot-prioridad"><option disabled selected>Prioridad</option></select>
         <select id="ot-depto"><option disabled selected>Departamento</option></select>
         <textarea id="ot-descripcion" placeholder="Descripción de la tarea..."></textarea>
-        <button id="btnRegistrarOT" class="btn" style="background:#2ecc71; color:white;" onclick="enviarOT()">🚀 ABRIR ORDEN</button>
+        <button id="btnRegistrarOT" class="btn" style="background:#2ecc71; color:white;" onclick="registrarOT()">🚀 ABRIR ORDEN</button>
         
        <!-- ✅ SOLO 1 BOTÓN PARA CERRAR -->
 <button class="btn" style="background:#f39c12; color:white; margin-top:15px; font-size:13px;" onclick="mostrarSeccionCierre()">🔒 CERRAR ORDEN DE TRABAJO</button>
@@ -1066,58 +1066,73 @@ function llenarDesplegablesOperaciones() {
     cargarCerebroSistema(); 
 };
 
-// ✅ ABRIR OT
-function enviarOT() { 
-    const datos = {
-        folio: document.getElementById('ot-folio').value.trim(),
-        idTecnico: document.getElementById('ot-id-tec').value.trim(),
-        prioridad: document.getElementById('ot-prioridad').value,
-        depto: document.getElementById('ot-depto').value,
-        descripcion: document.getElementById('ot-descripcion').value.trim()
-    };
+async function registrarOT() {
+  const btn = document.getElementById('btnRegistrarOT');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "GUARDANDO...";
+  }
 
-    if (!datos.folio || !datos.idTecnico || !datos.descripcion) {
-        alert('❌ Llena folio, técnico y descripción');
-        return;
+  const datosOT = {
+    action: "registrarOT",
+    data: {
+      folio: document.getElementById('ot-folio').value.trim(),
+      idTecnico: document.getElementById('ot-id-tec').value.trim(),
+      prioridad: document.getElementById('ot-prioridad').value,
+      depto: document.getElementById('ot-depto').value,
+      descripcion: document.getElementById('ot-descripcion').value.trim()
     }
+  };
 
-    registrarOT(datos);
-}
-
-async function registrarOT(datos) {
-    const btn = document.getElementById('btnRegistrarOT');
+  if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
+    alert('❌ Llena folio, técnico y descripción');
     if (btn) {
-        btn.disabled = true;
-        btn.innerText = "ABRIENDO...";
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
     }
+    return;
+  }
 
-    try {
-        const res = await fetch(URL_SCRIPT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({
-                action: 'registrarOT',
-                data: datos
-            })
-        });
+  try {
+    const res = await fetch(URL_SCRIPT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(datosOT)
+    });
 
-        const txt = await res.text();
-        alert(txt);
+    const txt = await res.text();
 
-        if (txt.includes("OK")) {
-            document.getElementById('ot-folio').value = '';
-            document.getElementById('ot-id-tec').value = '';
-            document.getElementById('ot-descripcion').value = '';
-            if (typeof cargarOTs === 'function') cargarOTs();
-        }
-    } catch(e) {
-        alert('❌ Error: ' + e.message);
-    } finally {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "🚀 ABRIR ORDEN";
-        }
+    if (txt.includes("Q28K_OK")) {
+      const partes = txt.split('|');
+      const mensaje = partes[0];
+      const pdfBase64 = partes[1];
+
+      alert(mensaje); // Solo muestra "Q28K_OK: OT 123 registrada"
+
+      // Descarga el PDF automáticamente
+      if (pdfBase64 && pdfBase64.startsWith("data:application/pdf")) {
+        const a = document.createElement('a');
+        a.href = pdfBase64;
+        a.download = `OT_${datosOT.data.folio}.pdf`;
+        a.click();
+      }
+
+      // Limpia form y recarga tabla
+      document.getElementById('ot-folio').value = '';
+      document.getElementById('ot-id-tec').value = '';
+      document.getElementById('ot-descripcion').value = '';
+      if (typeof cargarOTs === 'function') cargarOTs();
+    } else {
+      alert("❌ " + txt);
     }
+  } catch (err) {
+    alert("❌ ERROR DE RED: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
+    }
+  }
 }
 
 // ✅ CERRAR OT
@@ -1128,7 +1143,7 @@ async function finalizarTareaOT(folioOT, btn) {
     }
 
     const obs = document.getElementById('ot-comentarios-cierre').value.trim();
-    
+
     if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
 
     if (btn) {
@@ -1149,7 +1164,7 @@ async function finalizarTareaOT(folioOT, btn) {
 
         const txt = await res.text();
         alert(txt);
-        
+
         if (txt.includes("OK")) {
             document.getElementById('ot-folio-cierre').value = '';
             document.getElementById('ot-comentarios-cierre').value = '';
@@ -1173,17 +1188,17 @@ function salir() {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
-  
+
   // Limpia inputs de login
   const user = document.getElementById('u');
   const pass = document.getElementById('p');
   if (user) user.value = '';
   if (pass) pass.value = '';
-  
+
   // Muestra login
   const login = document.getElementById('login');
   if (login) login.style.display = 'block';
-  
+
   // Restaura botón login
   const btn = document.getElementById('btn-login');
   if(btn) {
