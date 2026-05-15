@@ -459,6 +459,24 @@ async function actualizarPildoras() {
             if (cC && DB_MASTER.COLECTIVA) { lCol.style.display = 'block'; DB_MASTER.COLECTIVA.filter(c => c.extra1.toUpperCase() === tipoElegido).forEach(c => lCol.appendChild(crearCheck(c.nombre))); } else lCol.style.display = 'none';
         }
 
+        function checkTecnicoOperaciones(id) {
+    const box = document.getElementById('ot-tec-box');
+    if (!id) { box.style.display = 'none'; return; }
+    
+    id = id.toString().trim().toUpperCase();
+    
+    // Busca en TECNICO, TECNICOS o TECNICO_SSO
+    const listaTec = DB_MASTER.TECNICO || DB_MASTER.TECNICOS || DB_MASTER.TECNICO_SSO || [];
+    const t = listaTec.find(x => x.id.toString().toUpperCase() === id);
+    
+    if (t) { 
+        box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`; 
+        box.style.display = 'block'; 
+    } else { 
+        box.innerHTML = `<span style="color:red;">Técnico ${id} no encontrado</span>`;
+        box.style.display = 'block'; 
+    }
+}
         function crearCheck(texto) {
             const div = document.createElement('div');
             div.innerHTML = `<label class="chk-label"><input type="checkbox" class="chk-input" checked> ${texto}</label>`;
