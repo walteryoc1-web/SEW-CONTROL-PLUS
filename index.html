@@ -201,51 +201,87 @@
     <button class="btn-salir" style="background:#95a5a6;" onclick="cancelarCierre()">VOLVER</button>
 </div>
 </div>
-    <!-- 7. UI ADMIN DATOS MAESTROS -->
-    <div id="ui-admin-datos" class="card-full" style="display:none; border-top: 8px solid #2c3e50;">
-        <h3 style="color:#2c3e50; margin:0;">⚙️ Panel de Gestión Maestra</h3>
-        <span style="font-size:11px; color:#888; font-weight:bold; letter-spacing:1.5px; margin-top:5px; margin-bottom:20px; display:block; text-transform:uppercase;">CONFIGURACIÓN GLOBAL DEL SISTEMA</span>
-        <div class="card-compacta" style="max-width:500px; margin:20px auto; text-align:left; background:#f8f9fa;">
-            <label style="font-weight:bold; color:#34495e;">¿Qué desea registrar hoy?</label>
-            <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
-                <optgroup label="Personal y Carga">
-                    <option value="PILOTO">🚛 Nuevo Piloto</option>
-                    <option value="TECNICO">👨‍🔧 Personal Técnico (SSO/Taller)</option>
-                    <option value="PRODUCTO">📦 Nuevo Producto de Carga</option>
-                    <option value="MOVIMIENTO">🔁 Tipo de Movimiento (Logística)</option>
-                </optgroup>
-                <optgroup label="Seguridad e Infraestructura">
-                    <option value="UBICACION">📍 Nueva Ubicación/Silo</option>
-                    <option value="EPP">🛡️ Nuevo Equipo de Protección (EPP)</option>
-                    <option value="HERRAMIENTA">🛠️ Nueva Herramienta Especial</option>
-                    <option value="COLECTIVA">🚧 Protección Colectiva</option>
-                    <option value="TRABAJO">👷 Tipo de Trabajo</option>
-                </optgroup>
-                <optgroup label="Catálogos de Incidentes y OT">
-                    <option value="ESTADO_SALUD">🏥 Opción de Estado de Salud</option>
-                    <option value="GRAVEDAD">⚠️ Nivel de Gravedad</option>
-                    <option value="PRIORIDAD_OT">⚡ Nivel de Prioridad (OT)</option>
-                    <option value="DEPTO_OT">🏢 Departamento Operativo</option>
-                </optgroup>
-            </select>
-            <label style="font-weight:bold;">ID / Código Único:</label>
-            <input type="text" id="adm-id" placeholder="Obligatorio para Piloto/Técnico">
-            <label style="font-weight:bold;">Nombre Completo / Valor:</label>
-            <input type="text" id="adm-nombre" placeholder="Nombre o descripción">
-            <label id="lbl-adm-extra1" style="font-weight:bold;">Dato Extra 1:</label>
-            <input type="text" id="adm-extra1">
-            <label id="lbl-adm-extra2" style="font-weight:bold;">Dato Extra 2:</label>
-            <input type="text" id="adm-extra2">
-            <label style="font-weight:bold;">ESTADO DEL DATO:</label>
+    <!-- UI ADMIN DATOS MAESTROS -->
+<div id="ui-admin-datos" class="rescatada" style="display:none;">
+    <div style="background:#2d3436; color:white; padding:20px; text-align:center;">
+        <h2 style="margin:0; font-size:20px;">ADMIN - DATOS MAESTROS</h2>
+    </div>
+    <div style="padding:25px; max-width:1000px; margin:auto;">
+
+        <label style="font-weight:bold;">1. Categoría</label>
+        <select id="adm-categoria" onchange="ajustarLabelsAdmin()">
+            <option disabled selected>Selecciona categoría</option>
+
+            <!-- INCIDENTES -->
+            <optgroup label="INCIDENTES">
+                <option value="TIPO_EVENTO">Tipo de Evento</option>
+                <option value="GRAVEDAD">Gravedad</option>
+                <option value="RIESGO">Riesgo</option>
+                <option value="CONTAMINACION">Contaminación</option>
+                <option value="ESTRUCTURA">Daño Estructura</option>
+                <option value="REPARACION">Reparación</option>
+                <option value="REINCIDENCIA">Reincidencia</option>
+                <option value="ESTADO_FINAL">Estado Final</option>
+                <option value="ESTADO_SALUD">Estado de Salud</option>
+            </optgroup>
+
+            <!-- SSO / ATS -->
+            <optgroup label="SSO / ATS">
+                <option value="TRABAJO">Tipo de Trabajo</option>
+                <option value="UBICACION">Ubicación</option>
+                <option value="TECNICO">Técnico</option>
+                <option value="EPP">EPP</option>
+                <option value="HERRAMIENTA">Herramientas</option>
+                <option value="COLECTIVA">Protección Colectiva</option>
+            </optgroup>
+
+            <!-- LOGÍSTICA -->
+            <optgroup label="LOGÍSTICA">
+                <option value="PRODUCTO">Producto</option>
+                <option value="MOVIMIENTO">Movimiento</option>
+                <option value="PILOTO">Piloto</option>
+            </optgroup>
+
+            <!-- OPERACIONES -->
+            <optgroup label="OPERACIONES">
+                <option value="DEPARTAMENTO">Departamento</option>
+                <option value="PRIORIDAD">Prioridad OT</option>
+            </optgroup>
+
+            <!-- OTROS -->
+            <optgroup label="OTROS">
+                <option value="TIPO_MEDICO">Tipo Examen Médico</option>
+                <option value="AGENTE_EXTINTOR">Agente Extintor</option>
+            </optgroup>
+        </select>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <input type="text" id="adm-id" placeholder="ID Auto" readonly style="background:#eee;">
+            <input type="text" id="adm-nombre" placeholder="Nombre">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <input type="text" id="adm-extra1" placeholder="Dato Extra 1">
+            <input type="text" id="adm-extra2" placeholder="Dato Extra 2">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <input type="text" id="adm-extra4" placeholder="Dato Extra 4">
             <select id="adm-estado">
-                <option value="ACTIVO" selected>🟢 ACTIVO (Habilitado)</option>
-                <option value="INACTIVO">🔴 INACTIVO (Bloqueado)</option>
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="INACTIVO">INACTIVO</option>
             </select>
-            <button class="btn" style="background:#2c3e50; color:white; margin-top:15px;" onclick="guardarDatoMaestro()">📥 REGISTRAR EN SISTEMA</button>
-            <button class="btn" style="background:#27ae60; color:white; margin-top:10px;" onclick="descargarDataMaestra()">📊 DESCARGAR TODA LA DATA (EXCEL)</button>
-            <button class="btn-salir" style="background:#95a5a6;" onclick="salir()">VOLVER AL MENU</button>
+        </div>
+
+        <button class="btn" style="background:#0984e3; color:white; margin-top:20px;" onclick="guardarDatoMaestro()">GUARDAR / ACTUALIZAR</button>
+        <button class="btn-salir" onclick="descargarDataMaestra()">DESCARGAR BD COMPLETA</button>
+        <button class="btn-salir" onclick="document.getElementById('ui-admin-datos').style.display='none'; location.reload();">SALIR</button>
+
+        <div id="adm-lista" style="margin-top:20px; max-height:300px; overflow:auto; border:1px solid #ddd; padding:10px;">
+            <small>Selecciona una categoría para ver registros</small>
         </div>
     </div>
+</div>
     
     <!-- UI INFORME TÉCNICO INCIDENTE -->
 <div id="ui-incidentes-sso" class="rescatada" style="display:none;">
@@ -906,42 +942,134 @@ function descargarCSV_OT() {
   document.body.removeChild(a);
 }
         // --- 8. ADMIN (DUPLICADOS) Y APOYO ---
-        async function guardarDatoMaestro() {
-            const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
-            const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
-            const cat = document.getElementById('adm-categoria').value;
-            let duplicado = null;
-            for (let c in DB_MASTER) {
-                const lista = Array.isArray(DB_MASTER[c])? DB_MASTER[c] : [];
-                duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpiNuevo);
-                if (duplicado) break;
-            }
-            if (duplicado && duplicado.id!== idNuevo) {
-                return alert(`🚫 BLOQUEADO: El DPI ${dpiNuevo} ya está registrado con el ID ${duplicado.id} (${duplicado.nombre}).`);
-            }
-            const payload = {
-                action: "guardarConfig",
-                categoria: cat,
-                id: idNuevo,
-                nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(),
-                extra1: document.getElementById('adm-extra1').value.toUpperCase(),
-                extra2: dpiNuevo,
-                extra3: document.getElementById('adm-estado').value
-            };
-            await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-            alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
-            location.reload();
-        }
+      async function guardarDatoMaestro() {
+    const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
+    if (!idNuevo) return alert("❌ Selecciona una categoría primero");
 
-        function ajustarLabelsAdmin() {
-            const c = document.getElementById('adm-categoria').value;
-            const l1 = document.getElementById('lbl-adm-extra1'), l2 = document.getElementById('lbl-adm-extra2');
-            if (c === "PILOTO") { l1.innerText = "Placa Cabezal:"; l2.innerText = "Licencia:"; }
-            else if (c === "TECNICO") { l1.innerText = "Empresa:"; l2.innerText = "DPI Técnico:"; }
-            else if (c === "UBICACION") { l1.innerText = "Fase:"; l2.innerText = "Tipo:"; }
-            else { l1.innerText = "Dato Extra 1:"; l2.innerText = "Dato Extra 2:"; }
-        }
+    const cat = document.getElementById('adm-categoria').value;
+    const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
+    // Validación de duplicados por DPI solo para categorías que usan DPI
+    const categoriasConDPI = ["TECNICO", "PILOTO", "EMPLEADO"];
+    let duplicado = null;
+
+    if (categoriasConDPI.includes(cat) && dpiNuevo!== "") {
+        for (let c in DB_MASTER) {
+            const lista = Array.isArray(DB_MASTER[c])? DB_MASTER[c] : [];
+            duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpiNuevo);
+            if (duplicado) break;
+        }
+        if (duplicado && duplicado.id!== idNuevo) {
+            return alert(`🚫 BLOQUEADO: El DPI ${dpiNuevo} ya está registrado con el ID ${duplicado.id} (${duplicado.nombre}).`);
+        }
+    }
+
+    const payload = {
+        action: "guardarConfig",
+        categoria: cat,
+        id: idNuevo,
+        nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(),
+        extra1: document.getElementById('adm-extra1').value.toUpperCase(),
+        extra2: dpiNuevo,
+        extra3: document.getElementById('adm-estado').value,
+        extra4: document.getElementById('adm-extra4').value.toUpperCase()
+    };
+
+    try {
+        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
+        alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
+        location.reload();
+    } catch (e) {
+        alert("❌ Error al guardar: " + e.message);
+    }
+}
+
+// Genera ID automático tipo TIP-001, GRA-002, etc
+function generarID(categoria) {
+    const lista = DB_MASTER[categoria] || [];
+    let maxNum = 0;
+
+    lista.forEach(x => {
+        if (!x.id) return;
+        const partes = x.id.split('-');
+        const num = parseInt(partes[1]);
+        if (!isNaN(num) && num > maxNum) maxNum = num;
+    });
+
+    const siguiente = maxNum + 1;
+    const prefijo = categoria.substring(0, 3).toUpperCase();
+    return `${prefijo}-${String(siguiente).padStart(3, '0')}`;
+}
+
+// Cambia labels y genera ID al elegir categoría
+function ajustarLabelsAdmin() {
+    const c = document.getElementById('adm-categoria').value;
+    const l1 = document.getElementById('adm-extra1');
+    const l2 = document.getElementById('adm-extra2');
+    const l4 = document.getElementById('adm-extra4');
+
+    const labels = {
+        PILOTO: ["Placa Cabezal", "Licencia", "Cliente"],
+        TECNICO: ["Especialidad", "DPI", "Empresa"],
+        UBICACION: ["Fase", "Tipo", "Área"],
+        TRABAJO: ["Área", "Riesgo", "Descripción"],
+        EPP: ["Tipo Trabajo", "Descripción", "Talla"],
+        HERRAMIENTA: ["Tipo Trabajo", "Descripción", "Código"],
+        COLECTIVA: ["Tipo Trabajo", "Descripción", "Ubicación"],
+        PRODUCTO: ["SKU", "Línea", "Unidad"],
+        MOVIMIENTO: ["Tipo", "Descripción", ""],
+        DEPARTAMENTO: ["Código", "Jefe", ""],
+        PRIORIDAD: ["Nivel", "Tiempo Respuesta", ""],
+        TIPO_MEDICO: ["Tipo", "Descripción", ""],
+        AGENTE_EXTINTOR: ["Tipo", "Capacidad", ""]
+    };
+
+    const [e1, e2, e4] = labels[c] || ["Dato Extra 1", "Dato Extra 2", "Dato Extra 4"];
+    l1.placeholder = e1;
+    l2.placeholder = e2;
+    l4.placeholder = e4;
+
+    // Genera ID automático y limpia campos
+    if (c && c!== "Selecciona categoría") {
+        document.getElementById('adm-id').value = generarID(c);
+        document.getElementById('adm-nombre').value = '';
+        document.getElementById('adm-extra1').value = '';
+        document.getElementById('adm-extra2').value = '';
+        document.getElementById('adm-extra4').value = '';
+        document.getElementById('adm-estado').value = 'ACTIVO';
+    }
+
+    mostrarListaAdmin(c);
+}
+
+// Muestra la tabla de registros existentes
+function mostrarListaAdmin(categoria) {
+    const div = document.getElementById('adm-lista');
+    const lista = DB_MASTER[categoria] || [];
+
+    if (lista.length === 0) {
+        div.innerHTML = "<small>No hay registros en esta categoría</small>";
+        return;
+    }
+
+    let html = "<table style='width:100%; font-size:12px; border-collapse:collapse;'>";
+    html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th></tr>";
+
+    lista.forEach(x => {
+        html += `<tr style="border-bottom:1px solid #eee;">
+            <td>${x.id}</td>
+            <td>${x.nombre}</td>
+            <td>${x.extra1 || ''}</td>
+            <td>${x.extra2 || ''}</td>
+            <td>${x.extra4 || ''}</td>
+            <td>${x.extra3 || 'ACTIVO'}</td>
+        </tr>`;
+    });
+
+    html += "</table>";
+    div.innerHTML = html;
+}
+        
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
     document.getElementById('ui-monitor-sso').style.display='none';
