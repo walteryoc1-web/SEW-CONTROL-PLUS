@@ -629,9 +629,9 @@ async function enviarInspeccionExtintor() {
         alert("❌ ERROR DE RED: " + err.message);
     }
 }
-        // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
-        // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
-    async function enviar() {
+      // --- 7. LOGÍSTICA, OT Y REPORTES CSV ---
+// ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
+async function enviar() {
   try {
     const id = document.getElementById('id-in').value.trim();
     if(!id) throw new Error("Ingresa ID de piloto");
@@ -653,48 +653,61 @@ async function enviarInspeccionExtintor() {
     alert("❌ Error: " + e.message);
   }
 }
-        async function registrarOT() {
-  const btn = document.getElementById('btn-registrar-ot');
-  btn.disabled = true;
-  btn.innerText = "GUARDANDO...";
+
+async function registrarOT() {
+  const btn = document.getElementById('btnRegistrarOT');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "GUARDANDO...";
+  }
 
   const datosOT = {
     action: "registrarOT",
-    folio: document.getElementById('folioOT').value,
-    tecnico: document.getElementById('tecnicoOT').value,
-    prioridad: document.getElementById('prioridadOT').value,
-    departamento: document.getElementById('deptoOT').value,
-    ats: document.getElementById('atsOT').value,
-    descripcion: document.getElementById('descOT').value
+    data: {
+      folio: document.getElementById('ot-folio').value.trim(),
+      idTecnico: document.getElementById('ot-id-tec').value.trim(),
+      prioridad: document.getElementById('ot-prioridad').value,
+      depto: document.getElementById('ot-depto').value,
+      descripcion: document.getElementById('ot-descripcion').value.trim()
+    }
   };
+
+  if (!datosOT.data.folio || !datosOT.data.idTecnico || !datosOT.data.descripcion) {
+    alert('❌ Llena folio, técnico y descripción');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
+    }
+    return;
+  }
 
   try {
     const res = await fetch(URL_SCRIPT, {
       method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(datosOT)
     });
 
     const txt = await res.text();
 
-    if (txt.includes("Q28K_OK") || txt.startsWith("data:application/pdf")) {
+    if (txt.includes("Q28K_OK")) {
       alert("✅ OT REGISTRADA");
-      // Si devuelve PDF base64:
-      if (txt.startsWith("data:application/pdf")) {
-        window.open().document.write('<iframe src="' + txt + '" style="width:100%;height:100vh;"></iframe>');
-      }
-      location.reload();
+      document.getElementById('ot-folio').value = '';
+      document.getElementById('ot-id-tec').value = '';
+      document.getElementById('ot-descripcion').value = '';
+      if (typeof cargarOTs === 'function') cargarOTs();
     } else {
       alert("❌ " + txt);
-      btn.disabled = false;
-      btn.innerText = "REGISTRAR OT";
     }
   } catch (err) {
-    alert("❌ ERROR DE RED: " + err);
-    btn.disabled = false;
-    btn.innerText = "REGISTRAR OT";
+    alert("❌ ERROR DE RED: " + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "🚀 ABRIR ORDEN";
+    }
   }
 }
-       
        async function procesarDescargaUniversal(accion, ini, fin, nombre) {
     if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
     try {
