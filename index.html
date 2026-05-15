@@ -691,15 +691,16 @@ async function registrarOT() {
   }
 
   const datosOT = {
-    action: "registrarOT",
-    data: {
-      folio: document.getElementById('ot-folio').value.trim(),
-      idTecnico: document.getElementById('ot-id-tec').value.trim(),
-      prioridad: document.getElementById('ot-prioridad').value,
-      depto: document.getElementById('ot-depto').value,
-      descripcion: document.getElementById('ot-descripcion').value.trim()
-    }
-  };
+  action: "registrarOT",
+  data: {
+    folio: document.getElementById('ot-folio')?.value.trim(),
+    idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
+    prioridad: document.getElementById('ot-prioridad')?.value,
+    depto: document.getElementById('ot-depto')?.value,
+    descripcion: document.getElementById('ot-descripcion')?.value.trim(),
+    folioATS: window.datosVinculadosATS_Cierre || ""  
+  }
+};
 
   if (!datosOT.data.folio || !datosOT.data.idTecnico || !datosOT.data.descripcion) {
     alert('❌ Llena folio, técnico y descripción');
