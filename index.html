@@ -431,7 +431,7 @@ async function actualizarPildoras() {
     }
 }
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
-       async function cargarSistema() {
+       async function cargarCerebroSistema() { // <- así
     try {
         const res = await fetch(URL_SCRIPT, {
             method: 'POST',
@@ -447,8 +447,8 @@ async function actualizarPildoras() {
             return false;
         }
 
-        DB_MASTER = JSON.parse(text); // aquí queda tu objeto con PILOTO, PRODUCTO, TECNICO, etc.
-        console.log("✅ Sistema cargado", DB_MASTER);
+        DB_MASTER = JSON.parse(text);
+        console.log("✅ Cerebro Sincronizado", DB_MASTER);
         return true;
 
     } catch (e) {
