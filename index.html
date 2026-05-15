@@ -396,8 +396,9 @@ async function actualizarPildoras() {
                 document.getElementById('ui-seguridad').style.display='block';
                 llenarDesplegablesSSO();
             }
-           else if (u == "operaciones" && p == "1234") {
+         else if (u == "operaciones" && p == "1234") {
     document.getElementById('ui-operaciones').style.display='block';
+    await cargarCerebroSistema();  // <- AGREGA ESTA LÍNEA
     llenarDesplegablesOperaciones(); 
     setOrigenOT('SISTEMA');
 }
