@@ -1059,21 +1059,56 @@ function mostrarListaAdmin(categoria) {
     }
 
     let html = "<table style='width:100%; font-size:12px; border-collapse:collapse;'>";
-    html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th></tr>";
+    html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th><th>Acción</th></tr>";
 
     lista.forEach(x => {
+        const estado = x.extra3 || 'ACTIVO';
+        const color = estado === 'ACTIVO'? 'green' : 'red';
+        const btnTexto = estado === 'ACTIVO'? 'Desactivar' : 'Activar';
+        const nuevoEstado = estado === 'ACTIVO'? 'INACTIVO' : 'ACTIVO';
+
         html += `<tr style="border-bottom:1px solid #eee;">
             <td>${x.id}</td>
             <td>${x.nombre}</td>
             <td>${x.extra1 || ''}</td>
             <td>${x.extra2 || ''}</td>
             <td>${x.extra4 || ''}</td>
-            <td>${x.extra3 || 'ACTIVO'}</td>
+            <td style="color:${color}; font-weight:bold;">${estado}</td>
+            <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
         </tr>`;
     });
 
     html += "</table>";
     div.innerHTML = html;
+}
+        async function cambiarEstado(categoria, id, nuevoEstado) {
+    if (!confirm(`¿Seguro que quieres poner ${id} en ${nuevoEstado}?`)) return;
+
+    const payload = {
+        action: "guardarConfig",
+        categoria: categoria,
+        id: id,
+        nombre: "", // no cambia
+        extra1: "",
+        extra2: "",
+        extra3: nuevoEstado, // solo cambia el estado
+        extra4: ""
+    };
+
+    try {
+        await fetch(URL_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload),
+            headers: {'Content-Type': 'text/plain'}
+        });
+
+        alert(`✅ ${id} ahora está ${nuevoEstado}`);
+        setTimeout(() => location.reload(), 800);
+
+    } catch (e) {
+        alert("❌ Error: " + e.message);
+    }
 }
         
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
