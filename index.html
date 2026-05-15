@@ -432,13 +432,16 @@ async function actualizarPildoras() {
 }
         // --- 2. SINCRONIZACIÓN Y ACCESO POR ROLES ---
         async function cargarCerebroSistema() {
-            try {
-                const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
-                DB_MASTER = await res.json();
-                console.log("✅ Cerebro Sincronizado");
-                return true;
-            } catch (e) { return false; }
-        }
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
+        DB_MASTER = await res.json();
+        console.log("✅ Cerebro Sincronizado");
+        return true;
+    } catch (e) { 
+        console.error(e);
+        return false; 
+    }
+}
 
       async function entrar() {
     const u = document.getElementById('u').value.toLowerCase().trim();
