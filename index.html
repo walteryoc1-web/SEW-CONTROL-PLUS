@@ -248,50 +248,67 @@
     </div>
     
     <!-- UI INFORME TÉCNICO INCIDENTE -->
-    <div id="ui-incidentes-sso" class="rescatada">
-        <div style="background:#d63031; color:white; padding:20px; text-align:center;"><h2 style="margin:0; font-size:20px;">INFORME TÉCNICO SSO</h2></div>
-        <div style="padding:25px; max-width:800px; margin:auto;">
-            <label style="font-weight:bold; color:#d63031;">1. 🔍 VINCULACIÓN CON PERMISO SSO</label>
-            <div style="display:flex; gap:10px; margin-bottom:5px;">
-                <input type="text" id="inc-folio" placeholder="DIGITE FOLIO (SSO-XXXX)" style="flex:1;">
-                <button type="button" class="btn" onclick="vincularDatosPermiso(document.getElementById('inc-folio').value)" style="width:120px; background:#2c3e50; color:white;">VINCULAR</button>
-            </div>
-            <div id="datos-vinculados-sso"></div>
-            <label style="font-weight:bold; color:#3498db; display:block; margin-top:15px;">2. 👥 COLABORADORES AFECTADOS</label>
-            <div id="contenedor-involucrados-inc">
-                <div style="display:flex; gap:10px; margin-top:5px;">
-                    <input type="text" class="inc-id-clase" placeholder="ID colaborador" onblur="checkInvolucradoIncidente(this)" style="flex:1;">
-                    <button type="button" class="btn" style="width:50px; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
-                </div>
-            </div>
-            <label style="font-weight:bold; display:block; margin-top:15px;">Estado de Salud:</label>
-            <select id="inc-salud"><option value="SIN_AFECTADOS">No hay afectados</option></select>
-            <label style="font-weight:bold; color:#e67e22; margin-top:20px; display:block;">3. ⚖️ ACCIONES Y RIESGO</label>
-            <input type="text" id="inc-intervencion-momento" placeholder="Acciones realizadas...">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <select id="inc-tipo"><option disabled selected>Tipo</option><option>Incidente</option><option>Accidente</option><option>Condición Insegura</option></select>
-                <select id="inc-gravedad"></select>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
-                <select id="inc-riesgo"><option disabled selected>Riesgo</option><option>Bajo</option><option>Medio</option><option>Alto</option></select>
-                <select id="inc-contaminacion"><option disabled selected>Contaminación</option><option>Nulo</option><option>Moderado</option><option>Crítico</option></select>
-            </div>
-            <label style="font-weight:bold; color:#636e72; margin-top:20px; display:block;">4. 🏗️ INFRAESTRUCTURA</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <select id="inc-estructura"><option disabled selected>Daño Estructura</option><option>Sin daños</option><option>Superficial</option><option>Comprometida</option></select>
-                <select id="inc-reparacion"><option disabled selected>Reparación</option><option>No requerida</option><option>Preventiva</option><option>Urgente</option></select>
-            </div>
-            <select id="inc-reincidencia" style="margin-top:10px;"><option value="No">¿Reincidente?: No</option><option value="Si">¿Reincidente?: Si</option></select>
-            <input type="text" id="inc-obs-estructura" placeholder="Observación Infraestructura">
-            <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos Seguridad Industrial">
-            <label style="font-weight:bold; color:#2d3436; margin-top:20px; display:block;">5. 📝 RECOMENDACIONES Y CIERRE</label>
-            <textarea id="inc-recomendacion" placeholder="Medidas correctivas..." rows="4"></textarea>
-            <select id="inc-estado-final"><option>Caso cerrado</option><option>Pendiente</option></select>
-            <button class="btn" style="background:#d63031; color:white; margin-top:20px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
-            <button class="btn-salir" onclick="document.getElementById('ui-incidentes-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
-        </div>
+<div id="ui-incidentes-sso" class="rescatada" style="display:none;">
+    <div style="background:#d63031; color:white; padding:20px; text-align:center;">
+        <h2 style="margin:0; font-size:20px;">INFORME TÉCNICO SSO</h2>
     </div>
+    <div style="padding:25px; max-width:800px; margin:auto;">
+        
+        <!-- 1. VINCULACIÓN CON PERMISO SSO -->
+        <label style="font-weight:bold; color:#d63031;">1. 🔍 VINCULACIÓN CON PERMISO SSO</label>
+        <div style="display:flex; gap:10px; margin-bottom:5px;">
+            <input type="text" id="inc-folio" placeholder="DIGITE FOLIO (SSO-XXXX)" style="flex:1;">
+            <button type="button" class="btn" onclick="vincularDatosPermiso(document.getElementById('inc-folio').value)" style="width:120px; background:#2c3e50; color:white;">VINCULAR</button>
+        </div>
+        <div id="datos-vinculados-sso"></div>
 
+        <!-- 2. COLABORADORES AFECTADOS -->
+        <label style="font-weight:bold; color:#3498db; display:block; margin-top:15px;">2. 👥 COLABORADORES AFECTADOS</label>
+        <div id="contenedor-involucrados-inc">
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <input type="text" class="inc-id-clase" placeholder="ID colaborador" onblur="checkInvolucradoIncidente(this)" style="flex:1;">
+                <button type="button" class="btn" style="width:50px; background:#3498db; color:white;" onclick="agregarInvolucradoInc()">+</button>
+            </div>
+        </div>
+        
+        <label style="font-weight:bold; display:block; margin-top:15px;">Estado de Salud:</label>
+        <select id="inc-salud"><option value="SIN_AFECTADOS">No hay afectados</option></select>
+
+        <!-- 3. ACCIONES Y RIESGO -->
+        <label style="font-weight:bold; color:#e67e22; margin-top:20px; display:block;">3. ⚖️ ACCIONES Y RIESGO</label>
+        <input type="text" id="inc-intervencion-momento" placeholder="Acciones realizadas...">
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="inc-tipo"><option disabled selected>Tipo</option></select>
+            <select id="inc-gravedad"><option disabled selected>Gravedad</option></select>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <select id="inc-riesgo"><option disabled selected>Riesgo</option></select>
+            <select id="inc-contaminacion"><option disabled selected>Contaminación</option></select>
+        </div>
+
+        <!-- 4. INFRAESTRUCTURA -->
+        <label style="font-weight:bold; color:#636e72; margin-top:20px; display:block;">4. 🏗️ INFRAESTRUCTURA</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <select id="inc-estructura"><option disabled selected>Daño Estructura</option></select>
+            <select id="inc-reparacion"><option disabled selected>Reparación</option></select>
+        </div>
+        
+        <select id="inc-reincidencia" style="margin-top:10px;"><option disabled selected>¿Reincidente?</option></select>
+        <input type="text" id="inc-obs-estructura" placeholder="Observación Infraestructura">
+        <input type="text" id="inc-riesgo-seguridad" placeholder="Riesgos Seguridad Industrial">
+
+        <!-- 5. RECOMENDACIONES Y CIERRE -->
+        <label style="font-weight:bold; color:#2d3436; margin-top:20px; display:block;">5. 📝 RECOMENDACIONES Y CIERRE</label>
+        <textarea id="inc-recomendacion" placeholder="Medidas correctivas..." rows="4"></textarea>
+        
+        <select id="inc-estado-final"><option disabled selected>Estado Final</option></select>
+        
+        <button class="btn" style="background:#d63031; color:white; margin-top:20px;" onclick="enviarIncidenteCompleto()">REGISTRAR INFORME 🚩</button>
+        <button class="btn-salir" onclick="document.getElementById('ui-incidentes-sso').style.display='none'; document.getElementById('ui-monitor-sso').style.display='block';">CANCELAR</button>
+    </div>
+</div>
     <!-- UI MÉDICO -->
     <div id="ui-medico-sso" class="rescatada">
         <div style="background:#16a085; color:white; padding:20px; text-align:center;"><h2 style="margin:0; font-size:20px;">FICHA DE CONTROL MÉDICO</h2></div>
@@ -489,7 +506,7 @@ function llenarSelectTecnico() {
             selTec.add(new Option(texto, t.id));
         });
 }
-        function llenarDesplegablesIncidentes() {
+      function llenarDesplegablesIncidentes() {
     llenarSelect('inc-tipo', 'TIPO_EVENTO');
     llenarSelect('inc-gravedad', 'GRAVEDAD');
     llenarSelect('inc-riesgo', 'RIESGO');
@@ -507,7 +524,7 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
     const placeholder = primerOpcionTexto || sel.options[0]?.text || 'Selecciona';
     sel.innerHTML = `<option disabled selected>${placeholder}</option>`;
     DB_MASTER[categoria]?.filter(x => (x.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
-     .forEach(x => sel.add(new Option(x.nombre, x.id)));
+   .forEach(x => sel.add(new Option(x.nombre, x.id)));
 }
         
         function actualizarUbicaciones() {
@@ -927,11 +944,10 @@ function descargarCSV_OT() {
 
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
-            document.getElementById('ui-monitor-sso').style.display='none';
-            document.getElementById('ui-incidentes-sso').style.display='block';
-            llenarListasIncidentes();
-        }
-
+    document.getElementById('ui-monitor-sso').style.display='none';
+    document.getElementById('ui-incidentes-sso').style.display='block';
+    llenarDesplegablesIncidentes(); // <- esto es lo nuevo
+}
         function llenarListasIncidentes() {
             const selSalud = document.getElementById('inc-salud');
             const selGrav = document.getElementById('inc-gravedad');
