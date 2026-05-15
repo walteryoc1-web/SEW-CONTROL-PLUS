@@ -941,7 +941,7 @@ function descargarCSV_OT() {
   a.click();
   document.body.removeChild(a);
 }
-     async function guardarDatoMaestro() {
+    async function guardarDatoMaestro() {
     const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
     if (!idNuevo) return alert("❌ Selecciona una categoría primero");
 
@@ -971,18 +971,32 @@ function descargarCSV_OT() {
         extra1: document.getElementById('adm-extra1').value.toUpperCase(),
         extra2: dpiNuevo,
         extra3: document.getElementById('adm-estado').value,
-        extra4: document.getElementById('adm-extra4').value.toUpperCase() // <- esto faltaba
+        extra4: document.getElementById('adm-extra4').value.toUpperCase()
     };
 
     try {
-        await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload) });
-        alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
-        location.reload();
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {'Content-Type': 'application/json'}
+        });
+
+        const respuesta = await res.text(); // Apps Script devuelve texto, no JSON puro
+        console.log("Respuesta del servidor:", respuesta);
+
+        if (respuesta.includes('"status":"ok"')) {
+            alert("✅ REGISTRO ACTUALIZADO EN GOOGLE SHEETS");
+            location.reload();
+        } else {
+            alert("❌ Error: " + respuesta);
+        }
+
     } catch (e) {
-        alert("❌ Error al guardar: " + e.message);
+        alert("❌ Error de conexión: " + e.message);
+        console.error(e);
     }
 }
-// Genera ID automático tipo TIP-001, GRA-002, etc
+        // Genera ID automático tipo TIP-001, GRA-002, etc
 function generarID(categoria) {
     const lista = DB_MASTER[categoria] || [];
     let maxNum = 0;
