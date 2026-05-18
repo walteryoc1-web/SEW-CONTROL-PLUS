@@ -436,93 +436,44 @@ async function cargarCerebroSistema() {
 }
 
 async function entrar() {
-    const u = document.getElementById('u').value.toLowerCase().trim();
+    const u = document.getElementById('u').value.trim();
     const p = document.getElementById('p').value;
-    const btn = document.getElementById('btn-login') || document.querySelector('#login button');
-    const originalText = "INGRESAR";
+    const btn = document.getElementById('btn-login');
 
-    if(btn) {
-        btn.innerText = "INGRESANDO... ⏳";
-        btn.disabled = true;
-    }
+    btn.innerText = "INGRESANDO... ⏳";
+    btn.disabled = true;
 
     try {
-        await cargarCerebroSistema();
-
-        if (!DB_MASTER.USUARIOS || DB_MASTER.USUARIOS.length === 0) {
-            alert("❌ No se cargó la tabla USUARIOS");
-            console.log("DB_MASTER:", DB_MASTER);
-            return;
-        }
-
-        // Busca en BD_CONFIG -> categoria USUARIOS
-        const usuario = DB_MASTER.USUARIOS.find(x => {
-            const userSheet = (x.nombre || "").toString().toLowerCase().trim();
-            const passSheet = (x.extra1 || "").toString().trim();
-            return userSheet === u && passSheet === p;
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify({
+                action: "login",
+                usuario: u,
+                password: p
+            })
         });
 
-        if (!usuario) {
-            alert("❌ Credenciales incorrectas");
-            console.log("Usuarios cargados:", DB_MASTER.USUARIOS);
+        const data = await res.json();
+
+        if (data.error) {
+            alert("❌ " + data.error);
             return;
         }
 
-        const estado = (usuario.extra3 || "ACTIVO").toString().toUpperCase();
-        if (estado !== "ACTIVO") {
-            alert("🚫 Usuario BLOQUEADO");
-            return;
-        }
-
-        const rol = (usuario.extra2 || "").toString().toUpperCase();
-        
+        await cargarCerebroSistema();
         document.getElementById('login').style.display='none';
-
-        switch(rol) {
-            case "OPERADOR":
-                document.getElementById('ui-app').style.display='block';
-                llenarDesplegablesLogistica();
-                break;
-            case "SUPERVISOR":
-                document.getElementById('ui-supervisor').style.display='block';
-                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-                break;
-            case "SUPERVISOR_SSO":
-                document.getElementById('ui-monitor-sso').style.display='block';
-                actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-                break;
-            case "SSO":
-                document.getElementById('ui-seguridad').style.display='block';
-                llenarDesplegablesSSO();
-                break;
-            case "OPERACIONES":
-                document.getElementById('ui-operaciones').style.display='block';
-                llenarDesplegablesOperaciones();
-                setOrigenOT('SISTEMA');
-                break;
-            case "ADMIN":
-                document.getElementById('ui-admin-datos').style.display='block';
-                ajustarLabelsAdmin();
-                break;
-            default:
-                alert("❌ Rol no reconocido: " + rol);
-                document.getElementById('login').style.display='block';
-        }
-
-        console.log("✅ Login OK:", usuario.nombre, "Rol:", rol);
-        window.usuarioLogueado = usuario; // lo guardas por si lo necesitas después
+        abrirModulo(data.rol);
 
     } catch (err) {
-        alert("❌ Error al iniciar sesión");
+        alert("❌ Error de conexión");
         console.error(err);
-        document.getElementById('login').style.display='block';
     } finally {
-        if(btn) {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }
+        btn.innerText = "INGRESAR";
+        btn.disabled = false;
     }
 }
+       
 function salir() {
     document.getElementById('ui-app').style.display = 'none';
     document.getElementById('ui-supervisor').style.display = 'none';
