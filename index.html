@@ -406,7 +406,9 @@
         }
       function esActivo(categoria, id) {
     if (!id) return false;
-    if (!DB_MASTER[categoria]) return true; // deja pasar si no cargó aún
+
+    // Si la categoría no cargó, deja pasar. Se valida al enviar
+    if (!DB_MASTER[categoria]) return true;
 
     const lista = DB_MASTER[categoria];
     const registro = lista.find(x =>
@@ -673,10 +675,11 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
         return;
     }
 
-    // Si DB_MASTER aún no carga, deja pasar para no bloquear todo
+    // Si no cargó DB_MASTER, muestra "cargando" pero no bloquea
     if (!DB_MASTER.TECNICO) {
         box.innerText = "⏳ Cargando datos...";
         box.style.display = 'block';
+        if(btn) btn.disabled = false;
         return;
     }
 
