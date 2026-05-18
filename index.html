@@ -446,26 +446,30 @@ async function entrar() {
 
   try {
    const res = await fetch(URL_SCRIPT, {
-  method: 'POST',
-  headers: {'Content-Type': 'text/plain'},
-  body: JSON.stringify({
-    action: "login",
-    usuario: usuario,
-    password: password
-  })
-});
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({
+        action: "login",
+        usuario: usuario,
+        password: password
+      })
+    });
 
     const data = await res.json();
 
     if(data.ok){
-      console.log("Login OK. Rol:", data.rol);
       sessionStorage.setItem('rol', data.rol);
       sessionStorage.setItem('usuario', data.usuario);
       
-      if (typeof cargarMenu === 'function') {
-        cargarMenu(data.rol);
+      // Redirige según el rol
+      if (data.rol === "ADMIN") {
+        window.location.href = "admin.html";
+      } else if (data.rol === "SUPERVISOR_SSO") {
+        window.location.href = "sso.html";
+      } else if (data.rol === "OPERADOR") {
+        window.location.href = "operador.html";
       } else {
-        alert("Login OK. Rol: " + data.rol);
+        window.location.href = "dashboard.html";
       }
       
     } else {
@@ -476,7 +480,7 @@ async function entrar() {
     alert("Error de conexión: " + e.message);
   }
 }
-// ===== TÉCNICO SSO =====
+       // ===== TÉCNICO SSO =====
 function checkSSO_Dinamico(inp) {
     const id = inp.value.trim().toUpperCase();
     const box = inp.parentElement.nextElementSibling;
