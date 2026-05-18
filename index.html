@@ -404,11 +404,11 @@
                 if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }, 1000);
         }
-      function esActivo(categoria, id) {
+     function esActivo(categoria, id) {
     if (!id) return false;
 
-    // Si la categoría no cargó, deja pasar. Se valida al enviar
-    if (!DB_MASTER[categoria]) return true;
+    // Si no cargó la BD, deja pasar. La validación real es en "Registrar"
+    if (!DB_MASTER ||!DB_MASTER[categoria]) return true;
 
     const lista = DB_MASTER[categoria];
     const registro = lista.find(x =>
@@ -420,14 +420,47 @@
     const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
     return estado === "ACTIVO";
 }
+        function checkSSO_Dinamico(inp) {
+    const id = inp.value.trim().toUpperCase();
+    const box = inp.parentElement.nextElementSibling;
+    const btn = document.getElementById('btn-sso');
 
-function getRegistro(categoria, id) {
-    if (!DB_MASTER[categoria]) return null;
-    return DB_MASTER[categoria].find(x =>
-        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
-    );
+    if (!id) {
+        box.style.display = 'none';
+        if(btn) btn.disabled = false;
+        return;
+    }
+
+    // Si la BD no cargó, no hagas nada. Deja escribir.
+    if (!DB_MASTER.TECNICO) {
+        box.innerText = "⏳ Cargando datos...";
+        box.style.display = 'block';
+        if(btn) btn.disabled = false;
+        return;
+    }
+
+    const t = getRegistro('TECNICO', id);
+    if (!t) {
+        box.innerText = "❌ Código no encontrado";
+        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    if (t.extra3 && t.extra3.toString().trim().toUpperCase() === 'INACTIVO') {
+        alert("🚫 TÉCNICO BLOQUEADO en sistema.");
+        inp.value = "";
+        box.style.display = 'none';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`;
+    box.style.display = 'block';
+    if(btn) btn.disabled = false;
 }
-async function actualizarPildoras() {
+        
+        async function actualizarPildoras() {
     try {
         // Píldoras LOGISTICA
         const rLog = await fetch(URL_SCRIPT + "?modulo=LOGISTICA&t=" + Date.now());
