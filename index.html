@@ -462,8 +462,11 @@ async function entrar() {
       sessionStorage.setItem('rol', data.rol);
       sessionStorage.setItem('usuario', data.usuario);
       
-      // Aquí cargas tu menú principal
-      cargarMenu(data.rol);
+      if (typeof cargarMenu === 'function') {
+        cargarMenu(data.rol);
+      } else {
+        alert("Login OK. Rol: " + data.rol);
+      }
       
     } else {
       alert("❌ " + data.error);
@@ -521,7 +524,6 @@ function agregarFilaEjecutor() {
     div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:red; color:white; border-radius:50%; width:30px; border:none;">-</button></div><div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>`;
     cont.appendChild(div);
 }
-
 // ===== PILOTO LOGISTICA =====
 function check() {
     const id = document.getElementById('id-in').value.trim().toUpperCase();
