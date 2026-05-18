@@ -421,15 +421,15 @@
     return estado === "ACTIVO";
 }
         function checkSSO_Dinamico(inp) {
-    const id = inp.value.trim().toUpperCase();
-    const box = inp.parentElement.nextElementSibling;
-    const btn = document.getElementById('btn-sso');
-
-    if (!id) {
-        box.style.display = 'none';
-        if(btn) btn.disabled = false;
-        return;
-    }
+            const id = inp.value.trim().toUpperCase(), box = inp.parentElement.nextElementSibling;
+            const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
+            if (t) {
+                if ((t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
+                    alert("🚫 TÉCNICO BLOQUEADO en sistema."); inp.value = ""; box.style.display = 'none'; return;
+                }
+                box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`; box.style.display = 'block';
+            } else box.style.display = 'none';
+        }
 
     // Si la BD no cargó, no hagas nada. Deja escribir.
     if (!DB_MASTER.TECNICO) {
