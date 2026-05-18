@@ -646,36 +646,34 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
 
     if (!id) { box.style.display = 'none'; btn.disabled = false; return; }
 
-    if (!esActivo('PILOTO', id)) {
-        box.style.display = 'block';
-        box.innerHTML = `❌ PILOTO INACTIVO - No se puede operar`;
-        box.style.background = '#ffebee';
-        box.style.color = '#c62828';
-        btn.disabled = true;
-        return;
-    }
+    unction esActivo(categoria, id) {
+    if (!id) return false;
 
-    const p = getRegistro('PILOTO', id);
-    box.style.display = 'block';
-    box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
-                     🏢 Cliente: ${p.extra4 || 'N/A'}<br>
-                     🚚 Cabezal: ${p.extra1} | 🪪 Licencia: ${p.extra2}`;
-    box.style.background = '#f0fdf0';
-    box.style.color = 'var(--verde-oscuro)';
-    btn.disabled = false;
+    // Si no cargó la BD, deja pasar. La validación real es en "Registrar"
+    if (!DB_MASTER ||!DB_MASTER[categoria]) return true;
+
+    const lista = DB_MASTER[categoria];
+    const registro = lista.find(x =>
+        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
+    );
+
+    if (!registro) return false;
+
+    const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
+    return estado === "ACTIVO";
 }
-
-       function checkSSO_Dinamico(inp) {
+         function checkSSO_Dinamico(inp) {
     const id = inp.value.trim().toUpperCase();
     const box = inp.parentElement.nextElementSibling;
     const btn = document.getElementById('btn-sso');
 
     if (!id) {
         box.style.display = 'none';
+        if(btn) btn.disabled = false;
         return;
     }
 
-    // Si no cargó DB_MASTER, muestra "cargando" pero no bloquea
+    // Si la BD no cargó, no hagas nada. Deja escribir.
     if (!DB_MASTER.TECNICO) {
         box.innerText = "⏳ Cargando datos...";
         box.style.display = 'block';
@@ -683,7 +681,15 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
         return;
     }
 
-    if (!esActivo('TECNICO', id)) {
+    const t = getRegistro('TECNICO', id);
+    if (!t) {
+        box.innerText = "❌ Código no encontrado";
+        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    if (t.extra3 && t.extra3.toString().trim().toUpperCase() === 'INACTIVO') {
         alert("🚫 TÉCNICO BLOQUEADO en sistema.");
         inp.value = "";
         box.style.display = 'none';
@@ -691,7 +697,6 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
         return;
     }
 
-    const t = getRegistro('TECNICO', id);
     box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`;
     box.style.display = 'block';
     if(btn) btn.disabled = false;
