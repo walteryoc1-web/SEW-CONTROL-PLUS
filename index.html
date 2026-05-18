@@ -1087,24 +1087,14 @@ function mostrarListaAdmin(categoria) {
        async function cambiarEstado(categoria, id, nuevoEstado) {
     if (!confirm(`¿Seguro que quieres poner ${id} en ${nuevoEstado}?`)) return;
 
-    // Primero jala el registro actual para no borrar datos
-    const res = await fetch(URL_SCRIPT, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'getGlobalConfig' })
-    });
-    const DB = await res.json();
-
-    const registro = (DB[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
-    if (!registro) {
-        alert("❌ No encontré el usuario");
-        return;
-    }
+    const registro = (DB_MASTER[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
+    if (!registro) return alert("❌ No encontré el registro");
 
     const payload = {
         action: "guardarConfig",
         categoria: categoria,
         id: id,
-        nombre: registro.nombre, // <- usa el nombre que ya tenía
+        nombre: registro.nombre,
         extra1: registro.extra1,
         extra2: registro.extra2,
         extra3: nuevoEstado, // solo cambias esto
@@ -1115,21 +1105,24 @@ function mostrarListaAdmin(categoria) {
         const r = await fetch(URL_SCRIPT, {
             method: 'POST',
             body: JSON.stringify(payload),
-            headers: {'Content-Type': 'text/plain'} // text/plain evita preflight
+            headers: {'Content-Type': 'text/plain'}
+            // BORRA mode: 'no-cors'
         });
 
         const txt = await r.text();
-        if (txt.includes('Q28K_ERROR')) {
-            alert("❌ Error: " + txt);
-        } else {
+
+        if (txt.includes('OK') || txt === '') {
             alert(`✅ ${id} ahora está ${nuevoEstado}`);
-            setTimeout(() => location.reload(), 800);
+            mostrarListaAdmin(categoria); // recarga solo la lista
+        } else {
+            alert("❌ Error: " + txt);
         }
 
     } catch (e) {
         alert("❌ Error: " + e.message);
     }
-}        
+}
+        
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
     document.getElementById('ui-monitor-sso').style.display='none';
