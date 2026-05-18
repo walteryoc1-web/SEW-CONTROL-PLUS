@@ -404,20 +404,27 @@
                 if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }, 1000);
         }
-       function esActivo(categoria, id) {
+      function esActivo(categoria, id) {
     if (!id) return false;
+    if (!DB_MASTER[categoria]) return true; // deja pasar si no cargó aún
 
-    // Espera a que DB_MASTER cargue
-    if (!DB_MASTER || Object.keys(DB_MASTER).length === 0) return true;
-
-    const lista = DB_MASTER[categoria] || [];
-    const registro = lista.find(x => x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase());
+    const lista = DB_MASTER[categoria];
+    const registro = lista.find(x =>
+        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
+    );
 
     if (!registro) return false;
 
     const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
     return estado === "ACTIVO";
-}        
+}
+
+function getRegistro(categoria, id) {
+    if (!DB_MASTER[categoria]) return null;
+    return DB_MASTER[categoria].find(x =>
+        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
+    );
+}
 async function actualizarPildoras() {
     try {
         // Píldoras LOGISTICA
