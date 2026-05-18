@@ -445,7 +445,7 @@ async function entrar() {
   }
 
   try {
-    const res = await fetch(URL_APPS_SCRIPT, {
+    const res = await fetch(URL_SCRIPT, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
