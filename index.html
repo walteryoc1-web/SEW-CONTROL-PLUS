@@ -435,27 +435,43 @@ async function cargarCerebroSistema() {
     }
 }
 
-function entrar() {
-  const usuario = document.getElementById('user').value;
-  const password = document.getElementById('pass').value;
+async function entrar() {
+  const usuario = document.getElementById('usuario').value.trim().toLowerCase();
+  const password = document.getElementById('password').value.trim();
 
-  fetch(URL_APPS_SCRIPT, {
-    method: 'POST',
-    body: JSON.stringify({
-      action: "login",
-      usuario: usuario,
-      password: password
-    })
-  })
-  .then(r => r.json())
-  .then(res => {
-    if(res.ok){
-      console.log("Login ok, rol:", res.rol);
-      // aquí cargas el menú según res.rol
+  if(!usuario || !password){
+    alert("Pon usuario y contraseña");
+    return;
+  }
+
+  try {
+    const res = await fetch(URL_APPS_SCRIPT, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        action: "login",
+        usuario: usuario,
+        password: password
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.ok){
+      console.log("Login OK. Rol:", data.rol);
+      sessionStorage.setItem('rol', data.rol);
+      sessionStorage.setItem('usuario', data.usuario);
+      
+      // Aquí cargas tu menú principal
+      cargarMenu(data.rol);
+      
     } else {
-      alert(res.error);
+      alert("❌ " + data.error);
     }
-  });
+
+  } catch(e){
+    alert("Error de conexión: " + e.message);
+  }
 }
 // ===== TÉCNICO SSO =====
 function checkSSO_Dinamico(inp) {
