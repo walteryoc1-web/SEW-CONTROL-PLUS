@@ -404,23 +404,7 @@
                 if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }, 1000);
         }
-     function esActivo(categoria, id) {
-    if (!id) return false;
-
-    // Si no cargó la BD, deja pasar. La validación real es en "Registrar"
-    if (!DB_MASTER ||!DB_MASTER[categoria]) return true;
-
-    const lista = DB_MASTER[categoria];
-    const registro = lista.find(x =>
-        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
-    );
-
-    if (!registro) return false;
-
-    const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
-    return estado === "ACTIVO";
-}
-        function checkSSO_Dinamico(inp) {
+   function checkSSO_Dinamico(inp) {
             const id = inp.value.trim().toUpperCase(), box = inp.parentElement.nextElementSibling;
             const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
             if (t) {
@@ -430,6 +414,8 @@
                 box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`; box.style.display = 'block';
             } else box.style.display = 'none';
         }
+
+
 
     // Si la BD no cargó, no hagas nada. Deja escribir.
     if (!DB_MASTER.TECNICO) {
