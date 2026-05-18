@@ -445,15 +445,15 @@ async function entrar() {
   }
 
   try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        action: "login",
-        usuario: usuario,
-        password: password
-      })
-    });
+   const res = await fetch(URL_SCRIPT, {
+  method: 'POST',
+  headers: {'Content-Type': 'text/plain'},
+  body: JSON.stringify({
+    action: "login",
+    usuario: usuario,
+    password: password
+  })
+});
 
     const data = await res.json();
 
