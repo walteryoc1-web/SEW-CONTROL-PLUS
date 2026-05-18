@@ -449,42 +449,66 @@ async function entrar() {
     try {
         await cargarCerebroSistema();
 
-        if (u == "operador" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-app').style.display='block';
-            llenarDesplegablesLogistica();
-        }
-        else if (u == "supervisor" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-supervisor').style.display='block';
-            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
-        }
-        else if (u == "supervisor sso" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-monitor-sso').style.display='block';
-            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
-        }
-        else if (u == "sso" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-seguridad').style.display='block';
-            llenarDesplegablesSSO();
-        }
-        else if (u == "operaciones" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-operaciones').style.display='block';
-            await cargarCerebroSistema();
-            llenarDesplegablesOperaciones();
-            setOrigenOT('SISTEMA');
-        }
-        else if (u == "admin" && p == "1234") {
-            document.getElementById('login').style.display='none';
-            document.getElementById('ui-admin-datos').style.display='block';
-            ajustarLabelsAdmin();
-        }
-        else {
+        // Busca el usuario en la hoja USUARIOS
+        const usuario = DB_MASTER.USUARIOS?.find(x => 
+            x.USUARIO.toLowerCase().trim() === u && 
+            x.PASSWORD === p
+        );
+
+        if (!usuario) {
             alert("❌ Credenciales incorrectas");
             document.getElementById('login').style.display='block';
+            return;
         }
+
+        if ((usuario.ESTADO || "ACTIVO").toUpperCase() !== "ACTIVO") {
+            alert("🚫 Usuario BLOQUEADO");
+            document.getElementById('login').style.display='block';
+            return;
+        }
+
+        // Redirige según el ROL
+        document.getElementById('login').style.display='none';
+        
+        switch(usuario.ROL) {
+            case "OPERADOR":
+                document.getElementById('ui-app').style.display='block';
+                llenarDesplegablesLogistica();
+                break;
+                
+            case "SUPERVISOR":
+                document.getElementById('ui-supervisor').style.display='block';
+                iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+                break;
+                
+            case "SUPERVISOR_SSO":
+                document.getElementById('ui-monitor-sso').style.display='block';
+                actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+                break;
+                
+            case "SSO":
+                document.getElementById('ui-seguridad').style.display='block';
+                llenarDesplegablesSSO();
+                break;
+                
+            case "OPERACIONES":
+                document.getElementById('ui-operaciones').style.display='block';
+                llenarDesplegablesOperaciones();
+                setOrigenOT('SISTEMA');
+                break;
+                
+            case "ADMIN":
+                document.getElementById('ui-admin-datos').style.display='block';
+                ajustarLabelsAdmin();
+                break;
+                
+            default:
+                alert("❌ Rol no reconocido: " + usuario.ROL);
+                document.getElementById('login').style.display='block';
+        }
+
+        console.log("✅ Login OK:", usuario.USUARIO, "Rol:", usuario.ROL);
+
     } catch (err) {
         alert("❌ Error al iniciar sesión");
         console.error(err);
@@ -496,7 +520,6 @@ async function entrar() {
         }
     }
 }
-
 function salir() {
     document.getElementById('ui-app').style.display = 'none';
     document.getElementById('ui-supervisor').style.display = 'none';
