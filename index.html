@@ -842,15 +842,15 @@ async function enviarInspeccionExtintor() {
 // ✅ FIX Q28K #2: LOGÍSTICA AHORA SÍ GUARDA EN SHEETS
 async function enviar() {
   try {
-    const id = document.getElementById('id-in').value.trim();
+    const id = document.getElementById('id-in').value.trim().toUpperCase();
     if(!id) throw new Error("Ingresa ID de piloto");
 
-    const p = DB_MASTER.PILOTO?.find(x => x.id.toString() === id);
+    if(!esActivo('PILOTO', id)) throw new Error("Piloto INACTIVO. No se puede registrar");
+
+    const p = getRegistro('PILOTO', id);
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
 
     const payload = `LOGISTICA;${id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra4||""};${p.extra1||""};${document.getElementById('CicloTer').value||""};${document.getElementById('CicloEPQ').value||""}`;
-    const id = document.getElementById('id-in').value.trim().toUpperCase();
-     if(!esActivo('PILOTO', id)) throw new Error("Piloto INACTIVO. No se puede registrar");
 
     await fetch(URL_SCRIPT, {
       method: 'POST',
@@ -864,7 +864,6 @@ async function enviar() {
     alert("❌ Error: " + e.message);
   }
 }
-
 async function registrarOT() {
   const btn = document.getElementById('btnRegistrarOT');
   if (btn) {
