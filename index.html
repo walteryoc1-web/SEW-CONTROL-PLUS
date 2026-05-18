@@ -449,65 +449,68 @@ async function entrar() {
     try {
         await cargarCerebroSistema();
 
-        // Busca el usuario en la hoja USUARIOS
-        const usuario = DB_MASTER.USUARIOS?.find(x => 
-            x.USUARIO.toLowerCase().trim() === u && 
-            x.PASSWORD === p
-        );
+        if (!DB_MASTER.USUARIOS || DB_MASTER.USUARIOS.length === 0) {
+            alert("❌ No se cargó la tabla USUARIOS");
+            console.log("DB_MASTER:", DB_MASTER);
+            return;
+        }
+
+        // Busca en BD_CONFIG -> categoria USUARIOS
+        const usuario = DB_MASTER.USUARIOS.find(x => {
+            const userSheet = (x.nombre || "").toString().toLowerCase().trim();
+            const passSheet = (x.extra1 || "").toString().trim();
+            return userSheet === u && passSheet === p;
+        });
 
         if (!usuario) {
             alert("❌ Credenciales incorrectas");
-            document.getElementById('login').style.display='block';
+            console.log("Usuarios cargados:", DB_MASTER.USUARIOS);
             return;
         }
 
-        if ((usuario.ESTADO || "ACTIVO").toUpperCase() !== "ACTIVO") {
+        const estado = (usuario.extra3 || "ACTIVO").toString().toUpperCase();
+        if (estado !== "ACTIVO") {
             alert("🚫 Usuario BLOQUEADO");
-            document.getElementById('login').style.display='block';
             return;
         }
 
-        // Redirige según el ROL
-        document.getElementById('login').style.display='none';
+        const rol = (usuario.extra2 || "").toString().toUpperCase();
         
-        switch(usuario.ROL) {
+        document.getElementById('login').style.display='none';
+
+        switch(rol) {
             case "OPERADOR":
                 document.getElementById('ui-app').style.display='block';
                 llenarDesplegablesLogistica();
                 break;
-                
             case "SUPERVISOR":
                 document.getElementById('ui-supervisor').style.display='block';
                 iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
                 break;
-                
             case "SUPERVISOR_SSO":
                 document.getElementById('ui-monitor-sso').style.display='block';
                 actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
                 break;
-                
             case "SSO":
                 document.getElementById('ui-seguridad').style.display='block';
                 llenarDesplegablesSSO();
                 break;
-                
             case "OPERACIONES":
                 document.getElementById('ui-operaciones').style.display='block';
                 llenarDesplegablesOperaciones();
                 setOrigenOT('SISTEMA');
                 break;
-                
             case "ADMIN":
                 document.getElementById('ui-admin-datos').style.display='block';
                 ajustarLabelsAdmin();
                 break;
-                
             default:
-                alert("❌ Rol no reconocido: " + usuario.ROL);
+                alert("❌ Rol no reconocido: " + rol);
                 document.getElementById('login').style.display='block';
         }
 
-        console.log("✅ Login OK:", usuario.USUARIO, "Rol:", usuario.ROL);
+        console.log("✅ Login OK:", usuario.nombre, "Rol:", rol);
+        window.usuarioLogueado = usuario; // lo guardas por si lo necesitas después
 
     } catch (err) {
         alert("❌ Error al iniciar sesión");
