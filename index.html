@@ -404,6 +404,16 @@
                 if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             }, 1000);
         }
+        function esActivo(categoria, id) {
+    if (!id) return false;
+    const lista = DB_MASTER[categoria] || [];
+    return lista.some(x => x.id.toUpperCase() === id.toUpperCase() && (x.extra3 || "ACTIVO").toUpperCase() === "ACTIVO");
+}
+
+function getRegistro(categoria, id) {
+    return (DB_MASTER[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
+}
+        
 async function actualizarPildoras() {
     try {
         // Píldoras LOGISTICA
@@ -616,32 +626,52 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
             return div;
         }
 
-       function check() {
-    const id = document.getElementById('id-in').value.trim();
+     function check() {
+    const id = document.getElementById('id-in').value.trim().toUpperCase();
     const box = document.getElementById('piloto-box');
-    const p = DB_MASTER.PILOTO? DB_MASTER.PILOTO.find(x => x.id.toString() === id) : null;
+    const btn = document.getElementById('btn-env');
 
-    if (p) {
+    if (!id) { box.style.display = 'none'; btn.disabled = false; return; }
+
+    if (!esActivo('PILOTO', id)) {
         box.style.display = 'block';
-        box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
-                         🏢 Cliente: ${p.extra4 || 'N/A'}<br>
-                         🚚 Cabezal: ${p.extra1} | 🪪 Licencia: ${p.extra2}`;
-    } else {
-        box.style.display = 'none';
+        box.innerHTML = `❌ PILOTO INACTIVO - No se puede operar`;
+        box.style.background = '#ffebee';
+        box.style.color = '#c62828';
+        btn.disabled = true;
+        return;
     }
+
+    const p = getRegistro('PILOTO', id);
+    box.style.display = 'block';
+    box.innerHTML = `👨‍✈️ Piloto: <b>${p.nombre}</b><br>
+                     🏢 Cliente: ${p.extra4 || 'N/A'}<br>
+                     🚚 Cabezal: ${p.extra1} | 🪪 Licencia: ${p.extra2}`;
+    box.style.background = '#f0fdf0';
+    box.style.color = 'var(--verde-oscuro)';
+    btn.disabled = false;
 }
 
-        function checkSSO_Dinamico(inp) {
-            const id = inp.value.trim().toUpperCase(), box = inp.parentElement.nextElementSibling;
-            const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
-            if (t) {
-                if ((t.extra3 || "ACTIVO").toUpperCase() === "INACTIVO") {
-                    alert("🚫 TÉCNICO BLOQUEADO en sistema."); inp.value = ""; box.style.display = 'none'; return;
-                }
-                box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`; box.style.display = 'block';
-            } else box.style.display = 'none';
-        }
+       function checkSSO_Dinamico(inp) {
+    const id = inp.value.trim().toUpperCase();
+    const box = inp.parentElement.nextElementSibling;
+    const btn = document.getElementById('btn-sso');
 
+    if (!id) { box.style.display = 'none'; return; }
+
+    if (!esActivo('TECNICO', id)) {
+        alert("🚫 TÉCNICO BLOQUEADO en sistema.");
+        inp.value = "";
+        box.style.display = 'none';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    const t = getRegistro('TECNICO', id);
+    box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`;
+    box.style.display = 'block';
+    if(btn) btn.disabled = false;
+}
         function agregarFilaEjecutor() {
             const cont = document.getElementById('contenedor-ejecutores');
             const div = document.createElement('div'); div.className = 'grupo-ejecutor'; div.style.marginTop = "10px";
@@ -650,42 +680,74 @@ function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
         }
 
         // --- 6. ENVÍOS TÉCNICOS SSO Y OT ---
-        async function enviarPermisoSSO() {
-            const btn = document.getElementById('btn-sso');
-            btn.disabled = true; btn.innerText = "GENERANDO ATS Y PDF... ⏳";
-            try {
-                const ids = Array.from(document.querySelectorAll('.p-id-clase')).map(i => i.value.toUpperCase().trim()).filter(v => v);
-                if(ids.length === 0) throw new Error("Agrega al menos 1 técnico");
-                const nombres = ids.map(id => { const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id); return t? `${t.nombre} (${t.extra2})` : id; }).join(" / ");
-                const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked')).map(c => c.parentElement.innerText.trim()).join(" | ");
-                const fase = document.getElementById('p-fase').value, tipo = document.getElementById('p-tipo').value, ubi = document.getElementById('p-ubicacion').value;
-                if(!fase ||!tipo ||!ubi) throw new Error("Completa Área, Lugar y Tipo de Trabajo");
-                const payload = { action: "registrarPermiso", personal: nombres, fase: fase, ubi: ubi, tipo: tipo, desc: document.getElementById('p-descripcion').value, checklist: marcados };
-                const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain' } });
-                const txt = await res.text();
-                if (txt.startsWith("ERROR:")) throw new Error(txt);
-                if (txt.length > 500) { descargarBase64PDF(txt, `ATS_${payload.fase}_${Date.now()}.pdf`); alert("✅ ATS REGISTRADO Y PDF GENERADO"); location.reload(); }
-                else { alert("⚠️ Guardado sin PDF: " + txt); location.reload(); }
-            } catch (e) { alert("❌ Error: " + e.message); btn.disabled = false; btn.innerText = "REGISTRAR PERMISO"; }
+      async function enviarPermisoSSO() {
+    const btn = document.getElementById('btn-sso');
+    btn.disabled = true;
+    btn.innerText = "GENERANDO ATS Y PDF... ⏳";
+
+    try {
+        const ids = Array.from(document.querySelectorAll('.p-id-clase'))
+           .map(i => i.value.toUpperCase().trim())
+           .filter(v => v);
+
+        if(ids.length === 0) throw new Error("Agrega al menos 1 técnico");
+
+        // VALIDACIÓN: Bloquea si hay técnicos inactivos
+        const tecnicoInactivo = ids.find(id =>!esActivo('TECNICO', id));
+        if(tecnicoInactivo) {
+            throw new Error(`🚫 El técnico ${tecnicoInactivo} está INACTIVO. No se puede generar el permiso.`);
         }
 
-        async function vincularDatosPermiso(folio) {
-            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), { cache: "no-store" });
-            const data = await res.json();
-            const busqueda = String(folio || "").toUpperCase().trim();
-            const encontrado = data.find(r => {
-                const d = r.datos.split(";");
-                return String(d[0] || "").toUpperCase().trim() === busqueda;
-            });
-            if (encontrado) {
-                const d = encontrado.datos.split(";");
-                window.datosVinculados = { folioATS: d[0], personal: d[1], fase: d[2], ubi: d[3], tipo: d[4] };
-                document.getElementById('datos-vinculados-sso').innerHTML = `<div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60;'><b>✅ ATS VINCULADO</b><br><small>🆔 Folio: ${d[0]}</small><br><small>👤 Personal: ${d[1]}</small></div>`;
-            } else {
-                alert("❌ Folio no encontrado");
-            }
+        const nombres = ids.map(id => {
+            const t = getRegistro('TECNICO', id);
+            return t? `${t.nombre} (${t.extra2})` : id;
+        }).join(" / ");
+
+        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+           .map(c => c.parentElement.innerText.trim())
+           .join(" | ");
+
+        const fase = document.getElementById('p-fase').value;
+        const tipo = document.getElementById('p-tipo').value;
+        const ubi = document.getElementById('p-ubicacion').value;
+
+        if(!fase ||!tipo ||!ubi) throw new Error("Completa Área, Lugar y Tipo de Trabajo");
+
+        const payload = {
+            action: "registrarPermiso",
+            personal: nombres,
+            fase: fase,
+            ubi: ubi,
+            tipo: tipo,
+            desc: document.getElementById('p-descripcion').value,
+            checklist: marcados
+        };
+
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain' }
+        });
+
+        const txt = await res.text();
+
+        if (txt.startsWith("ERROR:")) throw new Error(txt);
+
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `ATS_${payload.fase}_${Date.now()}.pdf`);
+            alert("✅ ATS REGISTRADO Y PDF GENERADO");
+            location.reload();
+        } else {
+            alert("⚠️ Guardado sin PDF: " + txt);
+            location.reload();
         }
 
+    } catch (e) {
+        alert("❌ Error: " + e.message);
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR PERMISO";
+    }
+}
     async function enviarFichaMedica() {
     const id = document.getElementById('med-id').value.trim();
     if (!id) {
@@ -787,6 +849,8 @@ async function enviar() {
     if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
 
     const payload = `LOGISTICA;${id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra4||""};${p.extra1||""};${document.getElementById('CicloTer').value||""};${document.getElementById('CicloEPQ').value||""}`;
+    const id = document.getElementById('id-in').value.trim().toUpperCase();
+     if(!esActivo('PILOTO', id)) throw new Error("Piloto INACTIVO. No se puede registrar");
 
     await fetch(URL_SCRIPT, {
       method: 'POST',
@@ -828,6 +892,10 @@ async function registrarOT() {
     }
     return;
   }
+    const idTec = datosOT.data.idTecnico.toUpperCase();
+if(idTec &&!esActivo('TECNICO', idTec)) {
+    throw new Error("Técnico INACTIVO. No se puede abrir OT");
+}
 
   try {
     const res = await fetch(URL_SCRIPT, {
@@ -1343,17 +1411,23 @@ function llenarDesplegablesOperaciones() {
 
 function checkTecnicoOperaciones(id) {
     const box = document.getElementById('ot-tec-box');
+    const btn = document.querySelector('#ot-seccion-apertura button[onclick="enviarOT()"]');
+
     if (!id ||!box) { if(box) box.style.display = 'none'; return; }
+
     id = id.toString().trim().toUpperCase();
-    const listaTec = DB_MASTER.TECNICO || DB_MASTER.TECNICOS || DB_MASTER.TECNICO_SSO || [];
-    const t = listaTec.find(x => x.id.toString().toUpperCase() === id);
-    if (t) {
-        box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`;
+
+    if (!esActivo('TECNICO', id)) {
+        box.innerHTML = `<span style="color:red;">❌ Técnico ${id} INACTIVO</span>`;
         box.style.display = 'block';
-    } else {
-        box.innerHTML = `<span style="color:red;">Técnico ${id} no encontrado</span>`;
-        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
     }
+
+    const t = getRegistro('TECNICO', id);
+    box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`;
+    box.style.display = 'block';
+    if(btn) btn.disabled = false;
 }
 
 function checkInvolucradoIncidente(inp) {
