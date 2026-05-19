@@ -1414,18 +1414,52 @@ async function cambiarEstado(categoria, id, nuevoEstado) {
         alert("❌ Error: " + e.message);
     }
 }
-    /* ===========================
+   /* ===========================
    13. MÓDULO NAVEGACIÓN SSO Y OT
 =========================== */
+function mostrarSeccionCierre() {
+    const seccionApertura = document.getElementById('ot-seccion-apertura');
+    if(seccionApertura) seccionApertura.style.display = 'none';
+
+    const contenedorBotones = document.querySelector('#ui-operaciones > div');
+    if(contenedorBotones) contenedorBotones.style.display = 'none';
+
+    const seccionCierre = document.getElementById('ot-seccion-cierre');
+    if(seccionCierre) {
+        seccionCierre.style.display = 'block';
+    } else {
+        alert("❌ ERROR: No existe el div con id='ot-seccion-cierre' en tu HTML");
+    }
+}
+
+function cancelarCierre() {
+    const seccionCierre = document.getElementById('ot-seccion-cierre');
+    if (seccionCierre) seccionCierre.style.display = 'none';
+
+    const seccionApertura = document.getElementById('ot-seccion-apertura');
+    if (seccionApertura) seccionApertura.style.display = 'block';
+
+    const contenedorBotones = document.querySelector('#ui-operaciones > div');
+    if (contenedorBotones) contenedorBotones.style.display = 'block';
+
+    window.datosVinculadosATS_Cierre = null;
+    const divCierre = document.getElementById('ot-datos-vinculados-cierre');
+    if (divCierre) divCierre.innerHTML = '';
+    const folioCierre = document.getElementById('ot-folio-cierre');
+    if (folioCierre) folioCierre.value = '';
+    const obsCierre = document.getElementById('ot-comentarios-cierre');
+    if (obsCierre) obsCierre.value = '';
+}
+
 async function recargarDatosMaestros() {
     return new Promise((resolve, reject) => {
         fetch(URL_SCRIPT + '?accion=getAdminConfig')
-     .then(r => r.json())
-     .then(d => {
+    .then(r => r.json())
+    .then(d => {
             DB_MASTER = d;
             resolve();
         })
-     .catch(reject);
+    .catch(reject);
     });
 }
 
