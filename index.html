@@ -430,9 +430,9 @@ function iniciarReloj() {
 
 async function cargarCerebroSistema() {
     try {
-        const res = await fetch(URL_SCRIPT + "?accion=getGlobalConfig");
+        const res = await fetch(URL_SCRIPT + "?accion=getAdminConfig"); // <-- cambia aquí
         DB_MASTER = await res.json();
-        console.log("✅ Cerebro Sincronizado");
+        console.log("✅ Cerebro Sincronizado", DB_MASTER);
         return true;
     } catch (e) {
         console.error(e);
