@@ -42,7 +42,7 @@
     <!-- 2. UI OPERADOR LOGÍSTICA -->
     <div id="ui-app" class="card-compacta" style="display:none;">
         <h3 style="color:var(--verde-oscuro); margin:0;">Captura Terpac</h3>
-        <input type="text" id="id-in" placeholder="ID PILOTO" oninput="check()">
+        <input type="text" id="id-in" onchange="checkPiloto(this)" placeholder="ID Piloto">
         <div id="piloto-box"></div>
         <select id="mov"></select>
         <select id="prod"></select>
@@ -569,9 +569,8 @@ function agregarFilaEjecutor() {
     cont.appendChild(div);
 }
 // ===== PILOTO LOGISTICA =====
-function check() {
-    const input = document.getElementById('id-in');
-    const id = input.value.trim().toUpperCase();
+function checkPiloto(inp) {
+    const id = inp.value.trim().toUpperCase();
     const box = document.getElementById('piloto-box');
     const btn = document.getElementById('btn-env');
 
@@ -581,23 +580,34 @@ function check() {
         return;
     }
 
-    if (!esActivo('PILOTO', id)) {
-        alert("🚫 PILOTO BLOQUEADO en sistema.");
-        input.value = "";
-        box.style.display = 'none';
-        if(btn) btn.disabled = false; // <-- CAMBIO AQUÍ: déjalo habilitado
-        input.focus(); // vuelve el cursor al input
+    if (!DB_MASTER.PILOTO) {
+        box.innerText = "⏳ Cargando datos...";
+        box.style.display = 'block';
+        if(btn) btn.disabled = false;
         return;
     }
 
     const p = getRegistro('PILOTO', id);
-    if(p) {
-        box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1})`;
+    if (!p) {
+        box.innerText = "❌ Código no encontrado";
         box.style.display = 'block';
-        if(btn) btn.disabled = false;
+        if(btn) btn.disabled = true;
+        return;
     }
-}
 
+    // Misma lógica que SSO: valida bloqueo aquí
+    if ((p.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'BLOQUEADO') {
+        alert("🚫 PILOTO BLOQUEADO en sistema.");
+        inp.value = "";
+        box.style.display = 'none';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1})`;
+    box.style.display = 'block';
+    if(btn) btn.disabled = false;
+}
 async function enviar() {
     try {
         const id = document.getElementById('id-in').value.trim().toUpperCase();
