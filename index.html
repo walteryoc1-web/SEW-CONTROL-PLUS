@@ -595,7 +595,6 @@ function checkPiloto(inp) {
         return;
     }
 
-    // Misma lógica que SSO: valida bloqueo aquí
     if ((p.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'BLOQUEADO') {
         alert("🚫 PILOTO BLOQUEADO en sistema.");
         inp.value = "";
@@ -604,11 +603,12 @@ function checkPiloto(inp) {
         return;
     }
 
-    box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1})`;
+    // Muestra nombre, extra1 y licencia extra2
+    box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1}) cliente:(${p.extra4})- Lic: ${p.extra2 || 'N/A'}`;
     box.style.display = 'block';
     if(btn) btn.disabled = false;
 }
-async function enviar() {
+       async function enviar() {
     try {
         const id = document.getElementById('id-in').value.trim().toUpperCase();
         if(!id) throw new Error("Ingresa ID de piloto");
