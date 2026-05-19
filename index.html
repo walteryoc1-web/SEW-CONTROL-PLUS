@@ -570,7 +570,8 @@ function agregarFilaEjecutor() {
 }
 // ===== PILOTO LOGISTICA =====
 function check() {
-    const id = document.getElementById('id-in').value.trim().toUpperCase();
+    const input = document.getElementById('id-in');
+    const id = input.value.trim().toUpperCase();
     const box = document.getElementById('piloto-box');
     const btn = document.getElementById('btn-env');
 
@@ -582,9 +583,10 @@ function check() {
 
     if (!esActivo('PILOTO', id)) {
         alert("🚫 PILOTO BLOQUEADO en sistema.");
-        document.getElementById('id-in').value = "";
+        input.value = "";
         box.style.display = 'none';
-        if(btn) btn.disabled = true;
+        if(btn) btn.disabled = false; // <-- CAMBIO AQUÍ: déjalo habilitado
+        input.focus(); // vuelve el cursor al input
         return;
     }
 
