@@ -436,45 +436,42 @@ async function cargarCerebroSistema() {
 }
 
 async function entrar() {
-  const usuario = document.getElementById('usuario').value.trim().toLowerCase();
-  const password = document.getElementById('password').value.trim();
+    const u = document.getElementById('u').value.trim();
+    const p = document.getElementById('p').value;
+    const btn = document.getElementById('btn-login');
 
-  if(!usuario || !password){
-    alert("Pon usuario y contraseña");
-    return;
-  }
+    btn.innerText = "INGRESANDO... ⏳";
+    btn.disabled = true;
 
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        action: "login",
-        usuario: usuario,
-        password: password
-      })
-    });
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify({
+                action: "login",
+                usuario: u,
+                password: p
+            })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if(data.ok){
-      console.log("Login OK. Rol:", data.rol);
-      sessionStorage.setItem('rol', data.rol);
-      sessionStorage.setItem('usuario', data.usuario);
-      
-      if (typeof cargarMenu === 'function') {
-        cargarMenu(data.rol);
-      } else {
-        alert("Login OK. Rol: " + data.rol);
-      }
-      
-    } else {
-      alert("❌ " + data.error);
+        if (data.error) {
+            alert("❌ " + data.error);
+            return;
+        }
+
+        await cargarCerebroSistema();
+        document.getElementById('login').style.display='none';
+        abrirModulo(data.rol);
+
+    } catch (err) {
+        alert("❌ Error de conexión");
+        console.error(err);
+    } finally {
+        btn.innerText = "INGRESAR";
+        btn.disabled = false;
     }
-
-  } catch(e){
-    alert("Error de conexión: " + e.message);
-  }
 }
        // ===== TÉCNICO SSO =====
 function checkSSO_Dinamico(inp) {
