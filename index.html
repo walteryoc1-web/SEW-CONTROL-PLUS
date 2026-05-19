@@ -461,15 +461,11 @@ async function entrar() {
       sessionStorage.setItem('rol', data.rol);
       sessionStorage.setItem('usuario', data.usuario);
       
-      // Redirige según el rol
-      if (data.rol === "ADMIN") {
-        window.location.href = "admin.html";
-      } else if (data.rol === "SUPERVISOR_SSO") {
-        window.location.href = "sso.html";
-      } else if (data.rol === "OPERADOR") {
-        window.location.href = "operador.html";
+      // Carga el menú en la misma página index.html
+      if (typeof cargarMenu === 'function') {
+        cargarMenu(data.rol);
       } else {
-        window.location.href = "dashboard.html";
+        alert("Login OK. Rol: " + data.rol);
       }
       
     } else {
