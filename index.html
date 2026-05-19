@@ -476,17 +476,6 @@ async function entrar() {
     alert("Error de conexión: " + e.message);
   }
 }
-  // Muestra botón de salir
-  let menuDiv = document.getElementById('menu');
-  if (!menuDiv) {
-    menuDiv = document.createElement('div');
-    menuDiv.id = 'menu';
-    menuDiv.className = 'card-compacta';
-    document.body.appendChild(menuDiv);
-  }
-  menuDiv.innerHTML = `<h2 style="color:var(--verde-oscuro);">Bienvenido ${rol}</h2>
-                       <button class="btn" onclick="salir()">Cerrar Sesión</button>`;
-}
        // ===== TÉCNICO SSO =====
 function checkSSO_Dinamico(inp) {
     const id = inp.value.trim().toUpperCase();
