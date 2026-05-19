@@ -476,7 +476,7 @@ async function entrar() {
     alert("Error de conexión: " + e.message);
   }
 }
-       function cargarMenu(rol) {
+      function cargarMenu(rol) {
   // Oculta el login
   document.getElementById('login').style.display = 'none';
   
@@ -489,19 +489,23 @@ async function entrar() {
       <button class="btn" onclick="alert('Reportes')">Reportes</button>
     `;
   } else if (rol === "SUPERVISOR_SSO") {
-    menuHTML += `
-      <button class="btn" onclick="alert('Aquí va el panel SSO')">Panel SSO</button>
-    `;
+    menuHTML += `<button class="btn" onclick="alert('Aquí va el panel SSO')">Panel SSO</button>`;
   } else if (rol === "OPERADOR") {
-    menuHTML += `
-      <button class="btn" onclick="alert('Aquí va el panel Operador')">Panel Operador</button>
-    `;
+    menuHTML += `<button class="btn" onclick="alert('Aquí va el panel Operador')">Panel Operador</button>`;
   }
   
   menuHTML += `<br><button class="btn" onclick="salir()">Cerrar Sesión</button>`;
   
-  // Muestra el menú
-  document.body.innerHTML += `<div id="menu" class="card-compacta">${menuHTML}</div>`;
+  // Crea un div para el menú si no existe
+  let menuDiv = document.getElementById('menu');
+  if (!menuDiv) {
+    menuDiv = document.createElement('div');
+    menuDiv.id = 'menu';
+    menuDiv.className = 'card-compacta';
+    document.body.appendChild(menuDiv);
+  }
+  
+  menuDiv.innerHTML = menuHTML; // <-- usa = en vez de +=
 }
 
 function salir() {
