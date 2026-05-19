@@ -1229,10 +1229,21 @@ function generarID(categoria) {
     });
 
     const siguiente = maxNum + 1;
-    const prefijo = categoria.substring(0, 3).toUpperCase();
+
+    // Prefijos especiales
+    const prefijos = {
+        USUARIOS: 'USU',
+        TIPO_EVENTO: 'TEV',
+        ESTADO_FINAL: 'EFN',
+        ESTADO_SALUD: 'ESL',
+        TIPO_MEDICO: 'TME',
+        AGENTE_EXTINTOR: 'AEX',
+        COLECTIVA: 'COL'
+    };
+
+    const prefijo = prefijos[categoria] || categoria.substring(0, 3).toUpperCase();
     return `${prefijo}-${String(siguiente).padStart(3, '0')}`;
 }
-
 // Cambia labels y genera ID al elegir categoría
 function ajustarLabelsAdmin() {
     const c = document.getElementById('adm-categoria').value;
@@ -1339,7 +1350,7 @@ function mostrarListaAdmin(categoria) {
     html += "</table>";
     div.innerHTML = html;
 }
-       async function cambiarEstado(categoria, id, nuevoEstado) {
+    async function cambiarEstado(categoria, id, nuevoEstado) {
     if (!confirm(`¿Seguro que quieres poner ${id} en ${nuevoEstado}?`)) return;
 
     const registro = (DB_MASTER[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
@@ -1361,14 +1372,17 @@ function mostrarListaAdmin(categoria) {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: {'Content-Type': 'text/plain'}
-            // BORRA mode: 'no-cors'
         });
 
         const txt = await r.text();
 
         if (txt.includes('OK') || txt === '') {
             alert(`✅ ${id} ahora está ${nuevoEstado}`);
-            mostrarListaAdmin(categoria); // recarga solo la lista
+
+            // Recarga DB_MASTER completa y luego pinta la lista
+            await recargarDatosMaestros();
+            mostrarListaAdmin(categoria);
+
         } else {
             alert("❌ Error: " + txt);
         }
@@ -1377,7 +1391,18 @@ function mostrarListaAdmin(categoria) {
         alert("❌ Error: " + e.message);
     }
 }
-        
+
+async function recargarDatosMaestros() {
+    return new Promise((resolve, reject) => {
+        fetch(URL_SCRIPT + '?accion=getAdminConfig') // <-- usa getAdminConfig
+      .then(r => r.json())
+      .then(d => {
+            DB_MASTER = d;
+            resolve();
+        })
+      .catch(reject);
+    });
+}
         // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
     document.getElementById('ui-monitor-sso').style.display='none';
