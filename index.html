@@ -286,7 +286,8 @@
             <small>Selecciona una categoría para ver registros</small>
         </div>
     </div>
-</div>    
+</div>
+
     <!-- UI INFORME TÉCNICO INCIDENTE -->
 <div id="ui-incidentes-sso" class="rescatada" style="display:none;">
     <div style="background:#d63031; color:white; padding:20px; text-align:center;">
@@ -1235,10 +1236,11 @@ function generarID(categoria) {
 // Cambia labels y genera ID al elegir categoría
 function ajustarLabelsAdmin() {
     const c = document.getElementById('adm-categoria').value;
+    const nombre = document.getElementById('adm-nombre');
     const l1 = document.getElementById('adm-extra1');
     const l2 = document.getElementById('adm-extra2');
     const l4 = document.getElementById('adm-extra4');
-    const nombre = document.getElementById('adm-nombre');
+    const estado = document.getElementById('adm-estado');
 
     const labels = {
         PILOTO: ["Placa Cabezal", "Licencia", "Cliente"],
@@ -1254,37 +1256,38 @@ function ajustarLabelsAdmin() {
         PRIORIDAD: ["Nivel", "Tiempo Respuesta", ""],
         TIPO_MEDICO: ["Tipo", "Descripción", ""],
         AGENTE_EXTINTOR: ["Tipo", "Capacidad", ""],
-        USUARIOS: ["Contraseña", "Rol", "Email/Obs"] // nuevo
+        USUARIOS: ["Usuario interfaz", "Contraseña", "Rol"]
     };
 
     if (c === 'USUARIOS') {
-        nombre.placeholder = 'Usuario';
-        l1.type = 'password';
-        l1.placeholder = 'Contraseña';
-        l2.placeholder = 'Rol: ADMIN, OPERADOR, SUPERVISOR, SSO';
-        l4.placeholder = 'Email u Observación';
+        nombre.placeholder = 'Nombre de la persona';
+        l1.placeholder = 'Usuario interfaz';
+        l2.placeholder = 'Contraseña';
+        l2.type = 'password';
+        l4.placeholder = 'Rol';
+        estado.innerHTML = '<option value="ACTIVO">ACTIVO</option><option value="BLOQUEADO">BLOQUEADO</option>';
     } else {
         nombre.placeholder = 'Nombre';
-        l1.type = 'text';
+        l2.type = 'text';
         const [e1, e2, e4] = labels[c] || ["Dato Extra 1", "Dato Extra 2", "Dato Extra 4"];
         l1.placeholder = e1;
         l2.placeholder = e2;
         l4.placeholder = e4;
+        estado.innerHTML = '<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
     }
 
-    // Genera ID automático y limpia campos
     if (c && c!== "Selecciona categoría") {
         document.getElementById('adm-id').value = generarID(c);
         document.getElementById('adm-nombre').value = '';
         document.getElementById('adm-extra1').value = '';
         document.getElementById('adm-extra2').value = '';
         document.getElementById('adm-extra4').value = '';
-        document.getElementById('adm-estado').value = 'ACTIVO';
+        estado.value = 'ACTIVO';
     }
 
     mostrarListaAdmin(c);
 }
-// Muestra la tabla de registros existentes
+
 function mostrarListaAdmin(categoria) {
     const div = document.getElementById('adm-lista');
     const lista = DB_MASTER[categoria] || [];
@@ -1295,24 +1298,43 @@ function mostrarListaAdmin(categoria) {
     }
 
     let html = "<table style='width:100%; font-size:12px; border-collapse:collapse;'>";
-    html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th><th>Acción</th></tr>";
 
-    lista.forEach(x => {
-        const estado = x.extra3 || 'ACTIVO';
-        const color = estado === 'ACTIVO'? 'green' : 'red';
-        const btnTexto = estado === 'ACTIVO'? 'Desactivar' : 'Activar';
-        const nuevoEstado = estado === 'ACTIVO'? 'INACTIVO' : 'ACTIVO';
+    if (categoria === 'USUARIOS') {
+        html += "<tr style='background:#eee;'><th>ID</th><th>Persona</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr>";
+        lista.forEach(x => {
+            const estado = x.extra3 || 'ACTIVO';
+            const color = estado === 'ACTIVO'? 'green' : 'red';
+            const btnTexto = estado === 'ACTIVO'? 'Bloquear' : 'Activar';
+            const nuevoEstado = estado === 'ACTIVO'? 'BLOQUEADO' : 'ACTIVO';
 
-        html += `<tr style="border-bottom:1px solid #eee;">
-            <td>${x.id}</td>
-            <td>${x.nombre}</td>
-            <td>${x.extra1 || ''}</td>
-            <td>${x.extra2 || ''}</td>
-            <td>${x.extra4 || ''}</td>
-            <td style="color:${color}; font-weight:bold;">${estado}</td>
-            <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
-        </tr>`;
-    });
+            html += `<tr style="border-bottom:1px solid #eee;">
+                <td>${x.id}</td>
+                <td>${x.nombre}</td>
+                <td>${x.extra1 || ''}</td>
+                <td>${x.extra4 || ''}</td>
+                <td style="color:${color}; font-weight:bold;">${estado}</td>
+                <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
+            </tr>`;
+        });
+    } else {
+        html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th><th>Acción</th></tr>";
+        lista.forEach(x => {
+            const estado = x.extra3 || 'ACTIVO';
+            const color = estado === 'ACTIVO'? 'green' : 'red';
+            const btnTexto = estado === 'ACTIVO'? 'Desactivar' : 'Activar';
+            const nuevoEstado = estado === 'ACTIVO'? 'INACTIVO' : 'ACTIVO';
+
+            html += `<tr style="border-bottom:1px solid #eee;">
+                <td>${x.id}</td>
+                <td>${x.nombre}</td>
+                <td>${x.extra1 || ''}</td>
+                <td>${x.extra2 || ''}</td>
+                <td>${x.extra4 || ''}</td>
+                <td style="color:${color}; font-weight:bold;">${estado}</td>
+                <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
+            </tr>`;
+        });
+    }
 
     html += "</table>";
     div.innerHTML = html;
