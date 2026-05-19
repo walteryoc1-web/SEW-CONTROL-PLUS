@@ -1066,6 +1066,35 @@ async function finalizarTareaOT(folioOT, btn) {
         return;
     }
 
+    // 🔒 CANDADO: Verifica que el ATS vinculado esté cerrado
+    if (window.datosVinculadosATS_Cierre) {
+        try {
+            const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
+            const data = await res.json();
+
+            const ats = data.find(r => {
+                const d = r.datos.split(";");
+                return String(d[0] || "").toUpperCase().trim() === String(window.datosVinculadosATS_Cierre).toUpperCase().trim();
+            });
+
+            if (ats) {
+                const campos = ats.datos.split(";");
+                const estadoATS = (campos[8] || "").toString().trim().toUpperCase();
+
+                if (estadoATS === "ABIERTO") {
+                    alert("🔒 No puedes cerrar la OT. El ATS " + window.datosVinculadosATS_Cierre + " sigue ABIERTO.");
+                    return;
+                }
+            } else {
+                alert("⚠️ No se encontró el ATS vinculado. Verifica el folio.");
+                return;
+            }
+        } catch (e) {
+            alert("❌ Error verificando estado del ATS: " + e.message);
+            return;
+        }
+    }
+
     if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
 
     const boton = btn || window.event?.target;
@@ -1106,7 +1135,6 @@ async function finalizarTareaOT(folioOT, btn) {
         }
     }
 }
-
 /* ===========================
    11. MÓDULO REPORTES CSV
 =========================== */
