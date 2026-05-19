@@ -476,6 +476,38 @@ async function entrar() {
     alert("Error de conexión: " + e.message);
   }
 }
+       function cargarMenu(rol) {
+  // Oculta el login
+  document.getElementById('login').style.display = 'none';
+  
+  // Crea el menú según el rol
+  let menuHTML = `<h2 style="color:var(--verde-oscuro);">Bienvenido ${rol}</h2>`;
+  
+  if (rol === "ADMIN") {
+    menuHTML += `
+      <button class="btn" onclick="alert('Aquí va el panel Admin')">Panel Admin</button>
+      <button class="btn" onclick="alert('Reportes')">Reportes</button>
+    `;
+  } else if (rol === "SUPERVISOR_SSO") {
+    menuHTML += `
+      <button class="btn" onclick="alert('Aquí va el panel SSO')">Panel SSO</button>
+    `;
+  } else if (rol === "OPERADOR") {
+    menuHTML += `
+      <button class="btn" onclick="alert('Aquí va el panel Operador')">Panel Operador</button>
+    `;
+  }
+  
+  menuHTML += `<br><button class="btn" onclick="salir()">Cerrar Sesión</button>`;
+  
+  // Muestra el menú
+  document.body.innerHTML += `<div id="menu" class="card-compacta">${menuHTML}</div>`;
+}
+
+function salir() {
+  sessionStorage.clear();
+  location.reload();
+}
        // ===== TÉCNICO SSO =====
 function checkSSO_Dinamico(inp) {
     const id = inp.value.trim().toUpperCase();
