@@ -396,1090 +396,1237 @@
     </div>
    <!-- SECCIÓN DE SCRIPTS -->
 <script>
-// ===== VARIABLES GLOBALES =====
 const URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbwSOcY6Tm4LJUNN6rT0iMcBgY5fteF7noSWQ2dwfXGRlNMnNjVTmcDuRgMOitTKnSyR/exec';
 let DB_MASTER = {};
 let datosVinculados = null;
 let datosVinculadosATS_Cierre = null;
 
-// ===== UTILIDADES BASE =====
+/* ===========================
+   1. UTILIDADES BASE
+=========================== */
 function getRegistro(categoria, id) {
-  if (!DB_MASTER[categoria]) return null;
-  return DB_MASTER[categoria].find(x => x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase());
+    if (!DB_MASTER[categoria]) return null;
+    return DB_MASTER[categoria].find(x =>
+        x.id.toString().trim().toUpperCase() === id.toString().trim().toUpperCase()
+    );
 }
 
 function esActivo(categoria, id) {
-  if (!id) return false;
-  if (!DB_MASTER ||!DB_MASTER[categoria]) return true;
-  const registro = getRegistro(categoria, id);
-  if (!registro) return false;
-  const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
-  return estado === "ACTIVO";
-}
-
-function iniciarReloj() {
-  setInterval(() => {
-    const r = document.getElementById('reloj');
-    if (r) r.innerText = new Date().toLocaleTimeString();
-    const f = document.getElementById('fecha-actual');
-    if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-  }, 1000);
-}
-
-async function cargarCerebroSistema() {
-  try {
-    const res = await fetch(URL_SCRIPT + "?accion=getAdminConfig");
-    DB_MASTER = await res.json();
-    console.log("✅ Cerebro Sincronizado", DB_MASTER);
-    return true;
-  } catch (e) {
-    console.error(e);
-    return false;
-  }
+    if (!id) return false;
+    if (!DB_MASTER ||!DB_MASTER[categoria]) return true;
+    const registro = getRegistro(categoria, id);
+    if (!registro) return false;
+    const estado = (registro.extra3 || "ACTIVO").toString().trim().toUpperCase();
+    return estado === "ACTIVO";
 }
 
 function descargarBase64PDF(b, n) {
-  if (!b || b.length < 500) return;
-  const a = document.createElement("a");
-  a.href = "data:application/pdf;base64," + b.trim();
-  a.download = n;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+    if (!b || b.length < 500) return;
+    const a = document.createElement("a");
+    a.href = "data:application/pdf;base64," + b.trim();
+    a.download = n;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
 
-// ===== LOGIN Y NAVEGACIÓN =====
+/* ===========================
+   2. ARRANQUE Y LOGIN
+=========================== */
+function iniciarReloj() {
+    setInterval(() => {
+        const r = document.getElementById('reloj');
+        if (r) r.innerText = new Date().toLocaleTimeString();
+        const f = document.getElementById('fecha-actual');
+        if (f) f.innerText = new Date().toLocaleDateString('es-GT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }, 1000);
+}
+
+async function cargarCerebroSistema() {
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=getAdminConfig");
+        DB_MASTER = await res.json();
+        console.log("✅ Cerebro Sincronizado", DB_MASTER);
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+
 async function entrar() {
-  const u = document.getElementById('u')?.value.trim();
-  const p = document.getElementById('p')?.value;
-  const btn = document.getElementById('btn-login');
-  const originalText = "INGRESAR";
+    const u = document.getElementById('u')?.value.trim();
+    const p = document.getElementById('p')?.value;
+    const btn = document.getElementById('btn-login');
+    const originalText = "INGRESAR";
 
-  if (!u ||!p) {
-    alert("Pon usuario y contraseña");
-    return;
-  }
-
-  btn.innerText = "INGRESANDO... ⏳";
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({ action: "login", usuario: u, password: p })
-    });
-    const data = await res.json();
-
-    if (data.error) {
-      alert("❌ " + data.error);
-      return;
+    if (!u ||!p) {
+        alert("Pon usuario y contraseña");
+        return;
     }
 
-    await cargarCerebroSistema();
-    document.getElementById('login').style.display='none';
-    abrirModulo(data.rol);
-    window.usuarioLogueado = data;
+    btn.innerText = "INGRESANDO... ⏳";
+    btn.disabled = true;
 
-  } catch (err) {
-    alert("❌ Error de conexión");
-    console.error(err);
-  } finally {
-    btn.innerText = originalText;
-    btn.disabled = false;
-  }
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: {'Content-Type': 'text/plain'},
+            body: JSON.stringify({
+                action: "login",
+                usuario: u,
+                password: p
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+            alert("❌ " + data.error);
+            return;
+        }
+
+        await cargarCerebroSistema();
+        document.getElementById('login').style.display='none';
+        abrirModulo(data.rol);
+
+        console.log("✅ Login OK:", data.usuario, "Rol:", data.rol);
+        window.usuarioLogueado = data;
+
+    } catch (err) {
+        alert("❌ Error de conexión");
+        console.error(err);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
 }
 
 function abrirModulo(rol) {
-  switch(rol.toUpperCase()) {
-    case "OPERADOR":
-      document.getElementById('ui-app').style.display='block';
-      llenarDesplegablesLogistica();
-      break;
-    case "SUPERVISOR":
-      document.getElementById('ui-supervisor').style.display='block';
-      iniciarReloj();
-      actualizarPildoras();
-      setInterval(actualizarPildoras, 30000);
-      break;
-    case "SUPERVISOR_SSO":
-      document.getElementById('ui-monitor-sso').style.display='block';
-      actualizarPildoras();
-      cargarPermisosParaCerrar();
-      setInterval(actualizarPildoras, 30000);
-      break;
-    case "SSO":
-      document.getElementById('ui-seguridad').style.display='block';
-      llenarDesplegablesSSO();
-      break;
-    case "OPERACIONES":
-      document.getElementById('ui-operaciones').style.display='block';
-      llenarDesplegablesOperaciones();
-      setOrigenOT('SISTEMA');
-      break;
-    case "ADMIN":
-      document.getElementById('ui-admin-datos').style.display='block';
-      ajustarLabelsAdmin();
-      break;
-    default:
-      alert("❌ Rol no reconocido: " + rol);
-      document.getElementById('login').style.display='block';
-  }
+    switch(rol.toUpperCase()) {
+        case "OPERADOR":
+            document.getElementById('ui-app').style.display='block';
+            llenarDesplegablesLogistica();
+            break;
+        case "SUPERVISOR":
+            document.getElementById('ui-supervisor').style.display='block';
+            iniciarReloj();
+            actualizarPildoras();
+            setInterval(actualizarPildoras, 30000);
+            break;
+        case "SUPERVISOR_SSO":
+            document.getElementById('ui-monitor-sso').style.display='block';
+            actualizarPildoras();
+            cargarPermisosParaCerrar();
+            setInterval(actualizarPildoras, 30000);
+            break;
+        case "SSO":
+            document.getElementById('ui-seguridad').style.display='block';
+            llenarDesplegablesSSO();
+            break;
+        case "OPERACIONES":
+            document.getElementById('ui-operaciones').style.display='block';
+            llenarDesplegablesOperaciones();
+            setOrigenOT('SISTEMA');
+            break;
+        case "ADMIN":
+            document.getElementById('ui-admin-datos').style.display='block';
+            ajustarLabelsAdmin();
+            break;
+        default:
+            alert("❌ Rol no reconocido: " + rol);
+            document.getElementById('login').style.display='block';
+    }
 }
 
-function salir() {
-  ['ui-app', 'ui-supervisor', 'ui-monitor-sso', 'ui-seguridad', 'ui-operaciones', 'ui-admin-datos', 'ui-incidentes-sso', 'ui-medico-sso', 'ui-extintores-sso']
-.forEach(id => document.getElementById(id).style.display = 'none');
-
-  document.getElementById('login').style.display = 'block';
-  document.getElementById('id-in').value = '';
-  document.getElementById('u').value = '';
-  document.getElementById('p').value = '';
-
-  const btn = document.getElementById('btn-login');
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = 'INGRESAR';
-  }
-}
-
-// ===== MÓDULO LOGÍSTICA =====
+/* ===========================
+   3. MÓDULO LOGÍSTICA
+=========================== */
 function checkPiloto(inp) {
-  const id = inp.value.trim().toUpperCase();
-  const box = document.getElementById('piloto-box');
-  const btn = document.getElementById('btn-env');
+    const id = inp.value.trim().toUpperCase();
+    const box = document.getElementById('piloto-box');
+    const btn = document.getElementById('btn-env');
 
-  if (!id) {
-    box.style.display = 'none';
-    if(btn) btn.disabled = false;
-    return;
-  }
+    if (!id) {
+        box.style.display = 'none';
+        if(btn) btn.disabled = false;
+        return;
+    }
 
-  if (!DB_MASTER.PILOTO) {
-    box.innerText = "⏳ Cargando datos...";
+    if (!DB_MASTER.PILOTO) {
+        box.innerText = "⏳ Cargando datos...";
+        box.style.display = 'block';
+        if(btn) btn.disabled = false;
+        return;
+    }
+
+    const p = getRegistro('PILOTO', id);
+    if (!p) {
+        box.innerText = "❌ Código no encontrado";
+        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    if ((p.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'BLOQUEADO') {
+        alert("🚫 PILOTO BLOQUEADO en sistema.");
+        inp.value = "";
+        box.style.display = 'none';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1}) cliente:(${p.extra4})- Lic: ${p.extra2 || 'N/A'}`;
     box.style.display = 'block';
     if(btn) btn.disabled = false;
-    return;
-  }
-
-  const p = getRegistro('PILOTO', id);
-  if (!p) {
-    box.innerText = "❌ Código no encontrado";
-    box.style.display = 'block';
-    if(btn) btn.disabled = true;
-    return;
-  }
-
-  if ((p.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'BLOQUEADO') {
-    alert("🚫 PILOTO BLOQUEADO en sistema.");
-    inp.value = "";
-    box.style.display = 'none';
-    if(btn) btn.disabled = true;
-    return;
-  }
-
-  box.innerText = `👨‍✈️ ${p.nombre} (${p.extra1}) cliente:(${p.extra4})- Lic: ${p.extra2 || 'N/A'}`;
-  box.style.display = 'block';
-  if(btn) btn.disabled = false;
 }
 
 async function enviar() {
-  try {
-    const id = document.getElementById('id-in').value.trim().toUpperCase();
-    if(!id) throw new Error("Ingresa ID de piloto");
-    if(!esActivo('PILOTO', id)) throw new Error("Piloto INACTIVO. No se puede registrar");
+    try {
+        const id = document.getElementById('id-in').value.trim().toUpperCase();
+        if(!id) throw new Error("Ingresa ID de piloto");
 
-    const p = getRegistro('PILOTO', id);
-    if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
+        if(!esActivo('PILOTO', id)) throw new Error("Piloto INACTIVO. No se puede registrar");
 
-    const payload = `LOGISTICA;${id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra4||""};${p.extra1||""};${document.getElementById('CicloTer').value||""};${document.getElementById('CicloEPQ').value||""}`;
+        const p = getRegistro('PILOTO', id);
+        if(!p) throw new Error("Piloto no encontrado en BD_CONFIG");
 
-    await fetch(URL_SCRIPT, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: payload
-    });
+        const payload = `LOGISTICA;${id};${p.nombre};${document.getElementById('mov').value};${document.getElementById('prod').value};${p.extra4||""};${p.extra1||""};${document.getElementById('CicloTer').value||""};${document.getElementById('CicloEPQ').value||""}`;
 
-    alert("✅ REGISTRO EXITOSO");
-    location.reload();
-  } catch(e) {
-    alert("❌ Error: " + e.message);
-  }
+        await fetch(URL_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: payload
+        });
+
+        alert("✅ REGISTRO EXITOSO");
+        location.reload();
+    } catch(e) {
+        alert("❌ Error: " + e.message);
+    }
 }
 
 function llenarDesplegablesLogistica() {
-  const selProd = document.getElementById('prod');
-  const selMov = document.getElementById('mov');
-
-  if(selProd) selProd.innerHTML = '<option disabled selected>Producto</option>';
-  if(selMov) selMov.innerHTML = '<option disabled selected>Movimiento</option>';
-
-  if (DB_MASTER.PRODUCTO) {
-    DB_MASTER.PRODUCTO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO")
-  .forEach(p => selProd.add(new Option(p.nombre, p.nombre)));
-  }
-  if (DB_MASTER.MOVIMIENTO) {
-    DB_MASTER.MOVIMIENTO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO")
-  .forEach(m => selMov.add(new Option(m.nombre, m.nombre)));
-  }
+    const selProd = document.getElementById('prod'), selMov = document.getElementById('mov');
+    if(selProd) selProd.innerHTML = '<option disabled selected>Producto</option>';
+    if(selMov) selMov.innerHTML = '<option disabled selected>Movimiento</option>';
+    if (DB_MASTER.PRODUCTO) DB_MASTER.PRODUCTO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO").forEach(p => selProd.add(new Option(p.nombre, p.nombre)));
+    if (DB_MASTER.MOVIMIENTO) DB_MASTER.MOVIMIENTO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO").forEach(m => selMov.add(new Option(m.nombre, m.nombre)));
 }
 
-// ===== MÓDULO SSO =====
+/* ===========================
+   4. MÓDULO SSO
+=========================== */
 function checkSSO_Dinamico(inp) {
-  const id = inp.value.trim().toUpperCase();
-  const box = inp.parentElement.nextElementSibling;
-  const btn = document.getElementById('btn-sso');
+    const id = inp.value.trim().toUpperCase();
+    const box = inp.parentElement.nextElementSibling;
+    const btn = document.getElementById('btn-sso');
 
-  if (!id) {
-    box.style.display = 'none';
-    if(btn) btn.disabled = false;
-    return;
-  }
+    if (!id) {
+        box.style.display = 'none';
+        if(btn) btn.disabled = false;
+        return;
+    }
 
-  if (!DB_MASTER.TECNICO) {
-    box.innerText = "⏳ Cargando datos...";
+    if (!DB_MASTER.TECNICO) {
+        box.innerText = "⏳ Cargando datos...";
+        box.style.display = 'block';
+        if(btn) btn.disabled = false;
+        return;
+    }
+
+    const t = getRegistro('TECNICO', id);
+    if (!t) {
+        box.innerText = "❌ Código no encontrado";
+        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    if ((t.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'INACTIVO') {
+        alert("🚫 TÉCNICO BLOQUEADO en sistema.");
+        inp.value = "";
+        box.style.display = 'none';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`;
     box.style.display = 'block';
     if(btn) btn.disabled = false;
-    return;
-  }
-
-  const t = getRegistro('TECNICO', id);
-  if (!t) {
-    box.innerText = "❌ Código no encontrado";
-    box.style.display = 'block';
-    if(btn) btn.disabled = true;
-    return;
-  }
-
-  if ((t.extra3 || "ACTIVO").toString().trim().toUpperCase() === 'INACTIVO') {
-    alert("🚫 TÉCNICO BLOQUEADO en sistema.");
-    inp.value = "";
-    box.style.display = 'none';
-    if(btn) btn.disabled = true;
-    return;
-  }
-
-  box.innerText = `👨‍🔧 ${t.nombre} (${t.extra2})`;
-  box.style.display = 'block';
-  if(btn) btn.disabled = false;
 }
 
 function agregarFilaEjecutor() {
-  const cont = document.getElementById('contenedor-ejecutores');
-  const div = document.createElement('div');
-  div.className = 'grupo-ejecutor';
-  div.style.marginTop = "10px";
-  div.innerHTML = `<div style="display:flex; gap:10px;">
-    <input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;">
-    <button type="button" onclick="this.parentElement.parentElement.remove()" style="background:red; color:white; border-radius:50%; width:30px; border:none;">-</button>
-  </div>
-  <div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>`;
-  cont.appendChild(div);
+    const cont = document.getElementById('contenedor-ejecutores');
+    const div = document.createElement('div');
+    div.className = 'grupo-ejecutor';
+    div.style.marginTop = "10px";
+    div.innerHTML = `<div style="display:flex; gap:10px;"><input type="text" class="p-id-clase" placeholder="ID" oninput="checkSSO_Dinamico(this)" style="flex:1;"><button type="button" onclick="this.parentElement.parentElement.remove()" style="background:red; color:white; border-radius:50%; width:30px; border:none;">-</button></div><div class="personal-box-clase" style="font-weight:bold; color:var(--verde-oscuro); display:none; padding:10px; background:#f0fdf0; border:1px dashed var(--verde); font-size:13px; margin-top:5px;"></div>`;
+    cont.appendChild(div);
 }
 
 async function enviarPermisoSSO() {
-  const btn = document.getElementById('btn-sso');
-  btn.disabled = true;
-  btn.innerText = "GENERANDO ATS Y PDF... ⏳";
+    const btn = document.getElementById('btn-sso');
+    btn.disabled = true;
+    btn.innerText = "GENERANDO ATS Y PDF... ⏳";
 
-  try {
-    const ids = Array.from(document.querySelectorAll('.p-id-clase'))
-  .map(i => i.value.toUpperCase().trim())
-  .filter(v => v);
+    try {
+        const ids = Array.from(document.querySelectorAll('.p-id-clase'))
+         .map(i => i.value.toUpperCase().trim())
+         .filter(v => v);
 
-    if(ids.length === 0) throw new Error("Agrega al menos 1 técnico");
+        if(ids.length === 0) throw new Error("Agrega al menos 1 técnico");
 
-    const tecnicoInactivo = ids.find(id =>!esActivo('TECNICO', id));
-    if(tecnicoInactivo) throw new Error(`🚫 El técnico ${tecnicoInactivo} está INACTIVO`);
+        const tecnicoInactivo = ids.find(id =>!esActivo('TECNICO', id));
+        if(tecnicoInactivo) {
+            throw new Error(`🚫 El técnico ${tecnicoInactivo} está INACTIVO. No se puede generar el permiso.`);
+        }
 
-    const nombres = ids.map(id => {
-      const t = getRegistro('TECNICO', id);
-      return t? `${t.nombre} (${t.extra2})` : id;
-    }).join(" / ");
+        const nombres = ids.map(id => {
+            const t = getRegistro('TECNICO', id);
+            return t? `${t.nombre} (${t.extra2})` : id;
+        }).join(" / ");
 
-    const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
-  .map(c => c.parentElement.innerText.trim())
-  .join(" | ");
+        const marcados = Array.from(document.querySelectorAll('#contenedor-checklist input:checked'))
+         .map(c => c.parentElement.innerText.trim())
+         .join(" | ");
 
-    const fase = document.getElementById('p-fase').value;
-    const tipo = document.getElementById('p-tipo').value;
-    const ubi = document.getElementById('p-ubicacion').value;
+        const fase = document.getElementById('p-fase').value;
+        const tipo = document.getElementById('p-tipo').value;
+        const ubi = document.getElementById('p-ubicacion').value;
 
-    if(!fase ||!tipo ||!ubi) throw new Error("Completa Área, Lugar y Tipo de Trabajo");
+        if(!fase ||!tipo ||!ubi) throw new Error("Completa Área, Lugar y Tipo de Trabajo");
 
-    const payload = {
-      action: "registrarPermiso",
-      personal: nombres,
-      fase: fase,
-      ubi: ubi,
-      tipo: tipo,
-      desc: document.getElementById('p-descripcion').value,
-      checklist: marcados
-    };
+        const payload = {
+            action: "registrarPermiso",
+            personal: nombres,
+            fase: fase,
+            ubi: ubi,
+            tipo: tipo,
+            desc: document.getElementById('p-descripcion').value,
+            checklist: marcados
+        };
 
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'text/plain' }
-    });
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain' }
+        });
 
-    const txt = await res.text();
-    if (txt.startsWith("ERROR:")) throw new Error(txt);
+        const txt = await res.text();
+        if (txt.startsWith("ERROR:")) throw new Error(txt);
 
-    if (txt.length > 500) {
-      descargarBase64PDF(txt, `ATS_${payload.fase}_${Date.now()}.pdf`);
-      alert("✅ ATS REGISTRADO Y PDF GENERADO");
-      location.reload();
-    } else {
-      alert("⚠️ Guardado sin PDF: " + txt);
-      location.reload();
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `ATS_${payload.fase}_${Date.now()}.pdf`);
+            alert("✅ ATS REGISTRADO Y PDF GENERADO");
+            location.reload();
+        } else {
+            alert("⚠️ Guardado sin PDF: " + txt);
+            location.reload();
+        }
+
+    } catch (e) {
+        alert("❌ Error: " + e.message);
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR PERMISO";
     }
-
-  } catch (e) {
-    alert("❌ Error: " + e.message);
-    btn.disabled = false;
-    btn.innerText = "REGISTRAR PERMISO";
-  }
 }
 
 function llenarDesplegablesSSO() {
-  const selFase = document.getElementById('p-fase');
-  const selTipo = document.getElementById('p-tipo');
+    const selFase = document.getElementById('p-fase'), selTipo = document.getElementById('p-tipo');
+    if(selFase) selFase.innerHTML = '<option disabled selected>Area Labores</option>';
+    if(selTipo) selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
 
-  if(selFase) selFase.innerHTML = '<option disabled selected>Area Labores</option>';
-  if(selTipo) selTipo.innerHTML = '<option disabled selected>Tipo de Trabajo</option>';
+    if (DB_MASTER.UBICACION) {
+        const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
+        fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
+    }
 
-  if (DB_MASTER.UBICACION) {
-    const fases = [...new Set(DB_MASTER.UBICACION.map(u => u.extra1))];
-    fases.forEach(f => { if(f) selFase.add(new Option(f, f)); });
-  }
-
-  if (DB_MASTER.TRABAJO) {
-    DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO")
-  .forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
-  }
-  llenarSelectTecnico();
+    if (DB_MASTER.TRABAJO) {
+        DB_MASTER.TRABAJO.filter(x => (x.extra3||"ACTIVO").toUpperCase()!== "INACTIVO")
+         .forEach(t => selTipo.add(new Option(t.nombre, t.nombre.toUpperCase())));
+    }
+    llenarSelectTecnico();
 }
 
 function llenarSelectTecnico() {
-  const selTec = document.getElementById('tu-select-tecnico');
-  if (!selTec) return;
-  selTec.innerHTML = '<option disabled selected>Técnico</option>';
-  DB_MASTER.TECNICO?.filter(t => (t.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
-.forEach(t => {
-      const texto = t.extra4? `${t.nombre} - ${t.extra4}` : t.nombre;
-      selTec.add(new Option(texto, t.id));
-    });
+    const selTec = document.getElementById('tu-select-tecnico');
+    if (!selTec) return;
+    selTec.innerHTML = '<option disabled selected>Técnico</option>';
+    DB_MASTER.TECNICO?.filter(t => (t.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
+     .forEach(t => {
+            const texto = t.extra4? `${t.nombre} - ${t.extra4}` : t.nombre;
+            selTec.add(new Option(texto, t.id));
+        });
 }
 
 function actualizarUbicaciones() {
-  const fase = document.getElementById('p-fase')?.value;
-  const selUbi = document.getElementById('p-ubicacion');
-  if (!selUbi ||!fase) return;
-
-  selUbi.innerHTML = '<option disabled selected>Lugar específico</option>';
-  if (DB_MASTER.UBICACION) {
-    DB_MASTER.UBICACION.filter(u => u.extra1 === fase)
-  .forEach(u => selUbi.add(new Option(u.nombre, u.nombre)));
-    selUbi.disabled = false;
-  }
+    const fase = document.getElementById('p-fase')?.value;
+    const selUbi = document.getElementById('p-ubicacion');
+    if (!selUbi ||!fase) return;
+    selUbi.innerHTML = '<option disabled selected>Lugar específico</option>';
+    if (DB_MASTER.UBICACION) {
+        DB_MASTER.UBICACION.filter(u => u.extra1 === fase).forEach(u => selUbi.add(new Option(u.nombre, u.nombre)));
+        selUbi.disabled = false;
+    }
 }
 
 function actualizarChecklist() {
-  const selector = document.getElementById('p-tipo');
-  if (!selector ||!selector.value) return;
+    const selector = document.getElementById('p-tipo');
+    if (!selector ||!selector.value) return;
+    const tipoElegido = selector.options[selector.selectedIndex].text.toUpperCase().trim();
+    const contCheck = document.getElementById('contenedor-checklist');
+    const lEpp = document.getElementById('lista-epp');
+    const lHerr = document.getElementById('lista-herramientas');
+    const lCol = document.getElementById('lista-colectiva');
+    const hC = document.getElementById('check-herramientas')?.checked;
+    const cC = document.getElementById('check-colectiva')?.checked;
 
-  const tipoElegido = selector.options[selector.selectedIndex].text.toUpperCase().trim();
-  const contCheck = document.getElementById('contenedor-checklist');
-  const lEpp = document.getElementById('lista-epp');
-  const lHerr = document.getElementById('lista-herramientas');
-  const lCol = document.getElementById('lista-colectiva');
-  const hC = document.getElementById('check-herramientas')?.checked;
-  const cC = document.getElementById('check-colectiva')?.checked;
+    if(contCheck) contCheck.style.display = 'block';
+    if(lEpp) lEpp.innerHTML = "<b>✅ EPP REQUERIDO:</b>";
+    if(lHerr) lHerr.innerHTML = "<b>🛠️ HERRAMIENTAS:</b>";
+    if(lCol) lCol.innerHTML = "<b>🚧 COLECTIVA:</b>";
 
-  if(contCheck) contCheck.style.display = 'block';
-  if(lEpp) lEpp.innerHTML = "<b>✅ EPP REQUERIDO:</b>";
-  if(lHerr) lHerr.innerHTML = "<b>🛠️ HERRAMIENTAS:</b>";
-  if(lCol) lCol.innerHTML = "<b>🚧 COLECTIVA:</b>";
+    if (DB_MASTER.EPP) DB_MASTER.EPP.filter(e => e.extra1.toUpperCase() === tipoElegido).forEach(e => lEpp.appendChild(crearCheck(e.nombre)));
+    if (hC && DB_MASTER.HERRAMIENTA) {
+        lHerr.style.display = 'block';
+        DB_MASTER.HERRAMIENTA.filter(h => h.extra1.toUpperCase() === tipoElegido).forEach(h => lHerr.appendChild(crearCheck(h.nombre)));
+    } else if(lHerr) lHerr.style.display = 'none';
 
-  if (DB_MASTER.EPP) {
-    DB_MASTER.EPP.filter(e => e.extra1.toUpperCase() === tipoElegido)
-  .forEach(e => lEpp.appendChild(crearCheck(e.nombre)));
-  }
-
-  if (hC && DB_MASTER.HERRAMIENTA) {
-    lHerr.style.display = 'block';
-    DB_MASTER.HERRAMIENTA.filter(h => h.extra1.toUpperCase() === tipoElegido)
-  .forEach(h => lHerr.appendChild(crearCheck(h.nombre)));
-  } else if(lHerr) lHerr.style.display = 'none';
-
-  if (cC && DB_MASTER.COLECTIVA) {
-    lCol.style.display = 'block';
-    DB_MASTER.COLECTIVA.filter(c => c.extra1.toUpperCase() === tipoElegido)
-  .forEach(c => lCol.appendChild(crearCheck(c.nombre)));
-  } else if(lCol) lCol.style.display = 'none';
+    if (cC && DB_MASTER.COLECTIVA) {
+        lCol.style.display = 'block';
+        DB_MASTER.COLECTIVA.filter(c => c.extra1.toUpperCase() === tipoElegido).forEach(c => lCol.appendChild(crearCheck(c.nombre)));
+    } else if(lCol) lCol.style.display = 'none';
 }
 
 function crearCheck(texto) {
-  const div = document.createElement('div');
-  div.innerHTML = `<label class="chk-label"><input type="checkbox" class="chk-input" checked> ${texto}</label>`;
-  return div;
-}
-    // ===== MÓDULO OPERACIONES OT =====
-function llenarDesplegablesOperaciones() {
-  const selPrio = document.getElementById('ot-prioridad');
-  const selDepto = document.getElementById('ot-depto');
-
-  if (DB_MASTER.PRIORIDAD_OT) {
-    selPrio.innerHTML = '<option disabled selected>Prioridad</option>';
-    DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
-  }
-  if (DB_MASTER.DEPTO_OT) {
-    selDepto.innerHTML = '<option disabled selected>Departamento</option>';
-    DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
-  }
+    const div = document.createElement('div');
+    div.innerHTML = `<label class="chk-label"><input type="checkbox" class="chk-input" checked> ${texto}</label>`;
+    return div;
 }
 
+/* ===========================
+   5. MÓDULO OPERACIONES
+=========================== */
 function checkTecnicoOperaciones(id) {
-  const box = document.getElementById('ot-tec-box');
-  const btn = document.querySelector('#ot-seccion-apertura button[onclick*="enviarOT"]');
+    const box = document.getElementById('ot-tec-box');
+    const btn = document.querySelector('#ot-seccion-apertura button[onclick*="enviarOT"]');
 
-  if (!id) {
-    if(box) box.style.display = 'none';
-    return;
-  }
+    if (!id) {
+        if(box) box.style.display = 'none';
+        return;
+    }
 
-  id = id.toString().trim().toUpperCase();
+    id = id.toString().trim().toUpperCase();
 
-  if (!esActivo('TECNICO', id)) {
-    box.innerHTML = `<span style="color:red;">❌ Técnico ${id} INACTIVO</span>`;
+    if (!esActivo('TECNICO', id)) {
+        box.innerHTML = `<span style="color:red;">❌ Técnico ${id} INACTIVO</span>`;
+        box.style.display = 'block';
+        if(btn) btn.disabled = true;
+        return;
+    }
+
+    const t = getRegistro('TECNICO', id);
+    box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`;
     box.style.display = 'block';
-    if(btn) btn.disabled = true;
-    return;
-  }
-
-  const t = getRegistro('TECNICO', id);
-  box.innerHTML = `👨‍🔧 Técnico: ${t.nombre}`;
-  box.style.display = 'block';
-  if(btn) btn.disabled = false;
+    if(btn) btn.disabled = false;
 }
 
-function setOrigenOT(t) {
-  if(t === 'SISTEMA') {
-    document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6);
-  }
-}
-
-function mostrarSeccionCierre() {
-  document.getElementById('ot-seccion-apertura').style.display = 'none';
-  document.querySelector('#ui-operaciones > div').style.display = 'none';
-  document.getElementById('ot-seccion-cierre').style.display = 'block';
-}
-
-function cancelarCierre() {
-  document.getElementById('ot-seccion-cierre').style.display = 'none';
-  document.getElementById('ot-seccion-apertura').style.display = 'block';
-  document.querySelector('#ui-operaciones > div').style.display = 'block';
-  window.datosVinculadosATS_Cierre = null;
-  document.getElementById('ot-datos-vinculados-cierre').innerHTML = '';
-  document.getElementById('ot-folio-cierre').value = '';
-  document.getElementById('ot-comentarios-cierre').value = '';
-}
-
-async function enviarOT() {
-  const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
-  btn.disabled = true;
-  btn.innerText = "GENERANDO OT Y PDF... ⏳";
-
-  try {
-    const datosOT = {
-      action: "registrarOT",
-      data: {
-        folio: document.getElementById('ot-folio')?.value.trim(),
-        idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
-        prioridad: document.getElementById('ot-prioridad')?.value,
-        depto: document.getElementById('ot-depto')?.value,
-        descripcion: document.getElementById('ot-descripcion')?.value.trim(),
-        folioATS: window.datosVinculadosATS_Cierre || ""
-      }
-    };
-
-    if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
-      throw new Error("Llena folio, técnico y descripción");
-    }
-
-    if(datosOT.data.idTecnico &&!esActivo('TECNICO', datosOT.data.idTecnico)) {
-      throw new Error("Técnico INACTIVO. No se puede abrir OT");
-    }
-
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      body: JSON.stringify(datosOT),
-      headers: { 'Content-Type': 'text/plain' }
-    });
-
-    const txt = await res.text();
-    if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
-
-    if (txt.length > 500) {
-      descargarBase64PDF(txt, `OT_${datosOT.data.folio}.pdf`);
-      alert("✅ OT REGISTRADA Y PDF GENERADO");
-      location.reload();
-    } else {
-      alert("⚠️ Guardado sin PDF: " + txt);
-      location.reload();
-    }
-
-  } catch (e) {
-    alert("❌ Error: " + e.message);
-    btn.disabled = false;
-    btn.innerText = "🚀 ABRIR ORDEN";
-  }
-}
-
-async function finalizarTareaOT(folioOT, btn) {
-  if (!folioOT || folioOT.toString().trim() === "") {
-    alert("❌ El folio está vacío.");
-    return;
-  }
-
-  const obs = document.getElementById('ot-comentarios-cierre').value.trim();
-  if (!obs) {
-    alert("❌ Escribe las observaciones de cierre.");
-    return;
-  }
-
-  if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
-
-  const boton = btn || window.event?.target;
-  if (boton) {
-    boton.disabled = true;
-    boton.innerText = "CERRANDO...";
-  }
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: "finalizarOT",
-        folio: folioOT.trim(),
-        obs: obs,
-        usuario: "ADMIN",
-        folioATS: window.datosVinculadosATS_Cierre || ""
-      })
-    });
-
-    const txt = await res.text();
-    if (txt.includes("Q28K_OK")) {
-      alert("✅ " + txt);
-      cancelarCierre();
-      if (typeof cargarOTs === 'function') cargarOTs();
-      else location.reload();
-    } else {
-      alert("❌ " + txt);
-    }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err);
-  } finally {
-    if (boton) {
-      boton.disabled = false;
-      boton.innerText = "FINALIZAR";
-    }
-  }
-}
-
-async function vincularATSaOT_Cierre(folioATS) {
-  if (!folioATS) {
-    alert("❌ Ingresa el folio ATS");
-    return;
-  }
-
-  try {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), { cache: "no-store" });
-    const data = await res.json();
-
-    const busqueda = String(folioATS).toUpperCase().trim();
-    const encontrado = data.find(r => {
-      const d = r.datos.split(";");
-      return String(d[0] || "").toUpperCase().trim() === busqueda;
-    });
-
-    if (encontrado) {
-      const d = encontrado.datos.split(";");
-      window.datosVinculadosATS_Cierre = d[0];
-
-      document.getElementById('ot-datos-vinculados-cierre').innerHTML = `
-        <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-bottom:10px;'>
-          <b>✅ ATS VINCULADO</b><br>
-          <small>🆔 Folio: ${d[0]}</small><br>
-          <small>👤 Personal: ${d[1]}</small><br>
-          <small>📍 ${d[2]} - ${d[3]}</small>
-        </div>`;
-    } else {
-      alert("❌ Folio ATS no encontrado");
-      document.getElementById('ot-datos-vinculados-cierre').innerHTML = '';
-      window.datosVinculadosATS_Cierre = null;
-    }
-  } catch (e) {
-    alert("❌ Error al vincular: " + e.message);
-  }
-}
-
-// ===== MÓDULO INCIDENTES =====
+/* ===========================
+   6. MÓDULO INCIDENTES
+=========================== */
 function llenarDesplegablesIncidentes() {
-  llenarSelect('inc-tipo', 'TIPO_EVENTO');
-  llenarSelect('inc-gravedad', 'GRAVEDAD');
-  llenarSelect('inc-riesgo', 'RIESGO');
-  llenarSelect('inc-contaminacion', 'CONTAMINACION');
-  llenarSelect('inc-estructura', 'ESTRUCTURA');
-  llenarSelect('inc-reparacion', 'REPARACION');
-  llenarSelect('inc-reincidencia', 'REINCIDENCIA');
-  llenarSelect('inc-estado-final', 'ESTADO_FINAL');
-  llenarSelect('inc-salud', 'ESTADO_SALUD', 'No hay afectados');
+    llenarSelect('inc-tipo', 'TIPO_EVENTO');
+    llenarSelect('inc-gravedad', 'GRAVEDAD');
+    llenarSelect('inc-riesgo', 'RIESGO');
+    llenarSelect('inc-contaminacion', 'CONTAMINACION');
+    llenarSelect('inc-estructura', 'ESTRUCTURA');
+    llenarSelect('inc-reparacion', 'REPARACION');
+    llenarSelect('inc-reincidencia', 'REINCIDENCIA');
+    llenarSelect('inc-estado-final', 'ESTADO_FINAL');
+    llenarSelect('inc-salud', 'ESTADO_SALUD', 'No hay afectados');
 }
 
 function llenarSelect(selectId, categoria, primerOpcionTexto = null) {
-  const sel = document.getElementById(selectId);
-  if (!sel) return;
-  const placeholder = primerOpcionTexto || sel.options[0]?.text || 'Selecciona';
-  sel.innerHTML = `<option disabled selected>${placeholder}</option>`;
-  DB_MASTER[categoria]?.filter(x => (x.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
-.forEach(x => sel.add(new Option(x.nombre, x.id)));
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const placeholder = primerOpcionTexto || sel.options[0]?.text || 'Selecciona';
+    sel.innerHTML = `<option disabled selected>${placeholder}</option>`;
+    DB_MASTER[categoria]?.filter(x => (x.extra3 || "ACTIVO").toUpperCase() === "ACTIVO")
+     .forEach(x => sel.add(new Option(x.nombre, x.id)));
 }
 
 function checkInvolucradoIncidente(inp) {
-  const id = inp.value.toUpperCase().trim();
-  const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
-  inp.style.background = persona? "#e8f5e9" : "#fff";
-  inp.style.border = persona? "2px solid #27ae60" : "1px solid #ccc";
+    const id = inp.value.toUpperCase().trim();
+    const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
+    inp.style.background = persona? "#e8f5e9" : "#fff";
+    inp.style.border = persona? "2px solid #27ae60" : "1px solid #ccc";
 }
 
 function agregarInvolucradoInc() {
-  const cont = document.getElementById('contenedor-involucrados-inc');
-  if (!cont) return;
-  const d = document.createElement('div');
-  d.style.cssText = "display:flex; gap:10px; margin-top:5px;";
-  d.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="flex:1;">
-    <button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border-radius:5px; width:40px; border:none;">X</button>`;
-  cont.appendChild(d);
+    const cont = document.getElementById('contenedor-involucrados-inc');
+    if (!cont) return;
+    const d = document.createElement('div');
+    d.style.cssText = "display:flex; gap:10px; margin-top:5px;";
+    d.innerHTML = `<input type="text" class="inc-id-clase" placeholder="ID" onblur="checkInvolucradoIncidente(this)" style="flex:1;"><button type="button" onclick="this.parentElement.remove()" style="background:red; color:white; border-radius:5px; width:40px; border:none;">X</button>`;
+    cont.appendChild(d);
 }
 
-// ===== MÓDULO MÉDICO =====
+/* ===========================
+   7. MÓDULO MÉDICO Y EXTINTORES
+=========================== */
 async function enviarFichaMedica() {
-  const id = document.getElementById('med-id').value.trim();
-  if (!id) {
-    alert("❌ Falta el ID");
-    return;
-  }
-
-  const payload = {
-    action: "registrarMedico",
-    id: id,
-    fecha: document.getElementById('med-fecha').value,
-    tipo: document.getElementById('med-tipo').value,
-    glucosa: document.getElementById('med-glucosa').value,
-    presion: document.getElementById('med-presion').value,
-    temp: document.getElementById('med-temp').value,
-    peso: document.getElementById('med-peso').value,
-    oxigeno: document.getElementById('med-oxigeno').value,
-    ritmo: document.getElementById('med-ritmo').value,
-    resultado: document.getElementById('med-resultado').value,
-    obs: document.getElementById('med-obs').value
-  };
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-
-    const txt = await res.text();
-    if (txt.startsWith("Q28K_ERROR")) {
-      alert("❌ " + txt);
-      return;
+    const id = document.getElementById('med-id').value.trim();
+    if (!id) {
+        alert("❌ Falta el ID");
+        return;
     }
 
-    if (txt.length > 500) {
-      descargarBase64PDF(txt, `MED_${id}.pdf`);
-      alert("✅ GUARDADO Y PDF GENERADO");
-    } else {
-      alert("❌ Error: " + txt);
-    }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err.message);
-  }
-}
-
-// ===== MÓDULO EXTINTORES =====
-async function enviarInspeccionExtintor() {
-  const id = document.getElementById('ext-id').value.trim();
-  if (!id) {
-    alert("❌ Falta el ID");
-    return;
-  }
-
-  const payload = {
-    action: "registrarExtintor",
-    id: id,
-    ubi: document.getElementById('ext-ubi').value,
-    agente: document.getElementById('ext-agente').value,
-    presion: document.getElementById('ext-presion').value,
-    manguera: document.getElementById('ext-manguera').value,
-    seguro: document.getElementById('ext-seguro').value,
-    vence: document.getElementById('ext-vence').value,
-    obs: document.getElementById('ext-obs').value
-  };
-
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
-    });
-
-    const txt = await res.text();
-    if (txt.startsWith("Q28K_ERROR")) {
-      alert("❌ " + txt);
-      return;
-    }
-
-    if (txt.length > 500) {
-      descargarBase64PDF(txt, `EXT_${id}.pdf`);
-      alert("✅ GUARDADO Y PDF GENERADO");
-    } else {
-      alert("❌ Error: " + txt);
-    }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err.message);
-  }
-}
-
-// ===== MÓDULO REPORTES =====
-async function procesarDescargaUniversal(accion, ini, fin, nombre) {
-  if (!ini ||!fin) return alert("❌ Selecciona un rango de fechas");
-
-  try {
-    const moduloMap = {
-      "reporte": "LOGISTICA",
-      "reporteSSO": "SSO",
-      "reporteIncidentes": "SSO",
-      "reporteOT": "OPERACIONES",
-      "reporteMedico": "SSO",
-      "reporteExtintor": "SSO"
+    const payload = {
+        action: "registrarMedico",
+        id: id,
+        fecha: document.getElementById('med-fecha').value,
+        tipo: document.getElementById('med-tipo').value,
+        glucosa: document.getElementById('med-glucosa').value,
+        presion: document.getElementById('med-presion').value,
+        temp: document.getElementById('med-temp').value,
+        peso: document.getElementById('med-peso').value,
+        oxigeno: document.getElementById('med-oxigeno').value,
+        ritmo: document.getElementById('med-ritmo').value,
+        resultado: document.getElementById('med-resultado').value,
+        obs: document.getElementById('med-obs').value
     };
-    const modulo = moduloMap[accion] || "LOGISTICA";
 
-    const url = `${URL_SCRIPT}?accion=${accion}&modulo=${modulo}&t=${Date.now()}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!Array.isArray(data)) return alert("❌ Error del servidor");
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
 
-    const fil = data.filter(r => r.fecha && r.fecha >= ini && r.fecha <= fin);
-    if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
+        const txt = await res.text();
+        if (txt.startsWith("Q28K_ERROR")) {
+            alert("❌ " + txt);
+            return;
+        }
 
-    let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
-    fil.forEach(r => {
-      const datosLimpios = r.datos? r.datos.replace(/;/g, ",") : "";
-      csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${nombre}_${ini}_al_${fin}.csv`;
-    link.click();
-  } catch (e) {
-    alert("❌ Error de comunicación: " + e.message);
-  }
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `MED_${id}.pdf`);
+            alert("✅ GUARDADO Y PDF GENERADO");
+        } else {
+            alert("❌ Error: " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err.message);
+    }
 }
 
-function descargarCSV() { procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica"); }
-function descargarCSV_SSO() { procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO"); }
-function descargarCSV_Incidentes() { procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes"); }
-function descargarCSV_Medico() { procesarDescargaUniversal("reporteMedico", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico"); }
-function descargarCSV_Extintores() { procesarDescargaUniversal("reporteExtintor", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores"); }
+async function enviarInspeccionExtintor() {
+    const id = document.getElementById('ext-id').value.trim();
+    if (!id) {
+        alert("❌ Falta el ID");
+        return;
+    }
+}
+
+/* ===========================
+   8. PÍLDORAS
+=========================== */
+async function actualizarPildoras() {
+    try {
+        const rLog = await fetch(URL_SCRIPT + "?modulo=LOGISTICA&t=" + Date.now());
+        const dLog = await rLog.json();
+        if(document.getElementById('count-pendientes')) document.getElementById('count-pendientes').innerText = (dLog.pendientes || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-proceso')) document.getElementById('count-proceso').innerText = (dLog.proceso || 0).toString().padStart(2,'0');
+        if(document.getElementById('count-despachadas')) document.getElementById('count-despachadas').innerText = (dLog.despachadas || 0).toString().padStart(2,'0');
+
+        const rSSO = await fetch(URL_SCRIPT + "?modulo=SSO&t=" + Date.now());
+        const dSSO = await rSSO.json();
+        if(document.getElementById('sso-pnd')) document.getElementById('sso-pnd').innerText = (dSSO.totalSSO || 0).toString().padStart(2,'0');
+        if(document.getElementById('sso-riesgo')) document.getElementById('sso-riesgo').innerText = (dSSO.riesgoSSO || 0).toString().padStart(2,'0');
+        if(document.getElementById('sso-personal')) document.getElementById('sso-personal').innerText = (dSSO.personalSSO || 0).toString().padStart(2,'0');
+    } catch(e) {
+        console.error("Error pildoras:", e);
+    }
+}
+/* ===========================
+   9. MÓDULO EXTINTORES - CONTINUACIÓN
+=========================== */
+async function enviarInspeccionExtintor() {
+    const id = document.getElementById('ext-id').value.trim();
+    if (!id) {
+        alert("❌ Falta el ID");
+        return;
+    }
+
+    const payload = {
+        action: "registrarExtintor",
+        id: id,
+        ubi: document.getElementById('ext-ubi').value,
+        agente: document.getElementById('ext-agente').value,
+        presion: document.getElementById('ext-presion').value,
+        manguera: document.getElementById('ext-manguera').value,
+        seguro: document.getElementById('ext-seguro').value,
+        vence: document.getElementById('ext-vence').value,
+        obs: document.getElementById('ext-obs').value
+    };
+
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        });
+
+        const txt = await res.text();
+        if (txt.startsWith("Q28K_ERROR")) {
+            alert("❌ " + txt);
+            return;
+        }
+
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `EXT_${id}.pdf`);
+            alert("✅ GUARDADO Y PDF GENERADO");
+        } else {
+            alert("❌ Error: " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err.message);
+    }
+}
+
+/* ===========================
+   10. MÓDULO OT
+=========================== */
+async function enviarOT() {
+    const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
+    if(btn) {
+        btn.disabled = true;
+        btn.innerText = "GENERANDO OT Y PDF... ⏳";
+    }
+
+    try {
+        const datosOT = {
+            action: "registrarOT",
+            data: {
+                folio: document.getElementById('ot-folio')?.value.trim(),
+                idTecnico: document.getElementById('ot-id-tec')?.value.trim(),
+                prioridad: document.getElementById('ot-prioridad')?.value,
+                depto: document.getElementById('ot-depto')?.value,
+                descripcion: document.getElementById('ot-descripcion')?.value.trim(),
+                folioATS: window.datosVinculadosATS_Cierre || ""
+            }
+        };
+
+        if (!datosOT.data.folio ||!datosOT.data.idTecnico ||!datosOT.data.descripcion) {
+            throw new Error("Llena folio, técnico y descripción");
+        }
+
+        if(datosOT.data.idTecnico &&!esActivo('TECNICO', datosOT.data.idTecnico)) {
+            throw new Error("Técnico INACTIVO. No se puede abrir OT");
+        }
+
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(datosOT),
+            headers: { 'Content-Type': 'text/plain' }
+        });
+
+        const txt = await res.text();
+        if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
+
+        if (txt.length > 500) {
+            descargarBase64PDF(txt, `OT_${datosOT.data.folio}.pdf`);
+            alert("✅ OT REGISTRADA Y PDF GENERADO");
+            location.reload();
+        } else {
+            alert("⚠️ Guardado sin PDF: " + txt);
+            location.reload();
+        }
+
+    } catch (e) {
+        alert("❌ Error: " + e.message);
+        if(btn) {
+            btn.disabled = false;
+            btn.innerText = "🚀 ABRIR ORDEN";
+        }
+    }
+}
+
+async function finalizarTareaOT(folioOT, btn) {
+    if (!folioOT || folioOT.toString().trim() === "") {
+        alert("❌ El folio está vacío.");
+        return;
+    }
+
+    const obs = document.getElementById('ot-comentarios-cierre').value.trim();
+    if (!obs) {
+        alert("❌ Escribe las observaciones de cierre.");
+        return;
+    }
+
+    if (!confirm("¿Finalizar OT " + folioOT + "?")) return;
+
+    const boton = btn || window.event?.target;
+    if (boton) {
+        boton.disabled = true;
+        boton.innerText = "CERRANDO...";
+    }
+
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: "finalizarOT",
+                folio: folioOT.trim(),
+                obs: obs,
+                usuario: "ADMIN",
+                folioATS: window.datosVinculadosATS_Cierre || ""
+            })
+        });
+
+        const txt = await res.text();
+
+        if (txt.includes("Q28K_OK")) {
+            alert("✅ " + txt);
+            cancelarCierre();
+            if (typeof cargarOTs === 'function') cargarOTs();
+            else location.reload();
+        } else {
+            alert("❌ " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err);
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.innerText = "FINALIZAR";
+        }
+    }
+}
+
+/* ===========================
+   11. MÓDULO REPORTES CSV
+=========================== */
+async function procesarDescargaUniversal(accion, ini, fin, nombre) {
+    if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
+    try {
+        const moduloMap = {
+            "reporte": "LOGISTICA",
+            "reporteSSO": "SSO",
+            "reporteIncidentes": "SSO",
+            "reporteOT": "OPERACIONES",
+            "reporteMedico": "SSO",
+            "reporteExtintor": "SSO"
+        };
+        const modulo = moduloMap[accion] || "LOGISTICA";
+
+        const url = `${URL_SCRIPT}?accion=${accion}&modulo=${modulo}&t=${Date.now()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!Array.isArray(data)) return alert("❌ Error: El servidor no devolvió una lista de registros.");
+
+        const fil = data.filter(r => r.fecha && r.fecha >= ini && r.fecha <= fin);
+
+        if (fil.length === 0) return alert("⚠️ No hay datos del " + ini + " al " + fin);
+
+        let csv = "\uFEFFFECHA,HORA,DATOS REGISTRADOS\n";
+        fil.forEach(r => {
+            const datosLimpios = r.datos? r.datos.replace(/;/g, ",") : "";
+            csv += `${r.fecha},${r.hora},"${datosLimpios}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${nombre}_${ini}_al_${fin}.csv`;
+        link.click();
+    } catch (e) {
+        alert("❌ Error de comunicación con la base de datos: " + e.message);
+    }
+}
+
+function descargarCSV() {
+    procesarDescargaUniversal("reporte", document.getElementById('f-inicio').value, document.getElementById('f-fin').value, "Logistica");
+}
+
+function descargarCSV_SSO() {
+    procesarDescargaUniversal("reporteSSO", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "ATS_SSO");
+}
+
+function descargarCSV_Incidentes() {
+    procesarDescargaUniversal("reporteIncidentes", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Incidentes");
+}
+
+function descargarCSV_Medico() {
+    procesarDescargaUniversal("reporteMedico", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Control_Medico");
+}
+
+function descargarCSV_Extintores() {
+    procesarDescargaUniversal("reporteExtintor", document.getElementById('f-ini-sso').value, document.getElementById('f-fin-sso').value, "Extintores");
+}
+
 function descargarCSV_OT() {
-  const ini = document.getElementById('f-ini-ot')?.value || document.getElementById('f-ini-sso').value;
-  const fin = document.getElementById('f-fin-ot')?.value || document.getElementById('f-fin-sso').value;
-  procesarDescargaUniversal("reporteOT", ini, fin, "Ordenes_Trabajo");
-}
-    // ===== MÓDULO ADMIN =====
-function generarID(categoria) {
-  const lista = DB_MASTER[categoria] || [];
-  let maxNum = 0;
-
-  lista.forEach(x => {
-    if (!x.id) return;
-    const partes = x.id.split('-');
-    const num = parseInt(partes[1]);
-    if (!isNaN(num) && num > maxNum) maxNum = num;
-  });
-
-  const prefijos = {
-    USUARIOS: 'USU',
-    TIPO_EVENTO: 'TEV',
-    ESTADO_FINAL: 'EFN',
-    ESTADO_SALUD: 'ESL',
-    TIPO_MEDICO: 'TME',
-    AGENTE_EXTINTOR: 'AEX',
-    COLECTIVA: 'COL'
-  };
-
-  const prefijo = prefijos[categoria] || categoria.substring(0, 3).toUpperCase();
-  return `${prefijo}-${String(maxNum + 1).padStart(3, '0')}`;
+    const ini = document.getElementById('f-ini-ot')?.value || document.getElementById('f-ini-sso').value;
+    const fin = document.getElementById('f-fin-ot')?.value || document.getElementById('f-fin-sso').value;
+    procesarDescargaUniversal("reporteOT", ini, fin, "Ordenes_Trabajo");
 }
 
-function ajustarLabelsAdmin() {
-  const c = document.getElementById('adm-categoria').value;
-  const nombre = document.getElementById('adm-nombre');
-  const l1 = document.getElementById('adm-extra1');
-  const l2 = document.getElementById('adm-extra2');
-  const l4 = document.getElementById('adm-extra4');
-  const estado = document.getElementById('adm-estado');
-
-  const labels = {
-    PILOTO: ["Placa Cabezal", "Licencia", "Cliente"],
-    TECNICO: ["Especialidad", "DPI", "Empresa"],
-    UBICACION: ["Fase", "Tipo", "Área"],
-    TRABAJO: ["Área", "Riesgo", "Descripción"],
-    EPP: ["Tipo Trabajo", "Descripción", "Talla"],
-    HERRAMIENTA: ["Tipo Trabajo", "Descripción", "Marca"],
-    COLECTIVA: ["Tipo Trabajo", "Descripción", "Ubicación"],
-    PRODUCTO: ["Código", "Proveedor", "Stock"],
-    MOVIMIENTO: ["Tipo", "Destino", "Responsable"],
-    DEPARTAMENTO: ["Área", "Jefe", "Teléfono"],
-    PRIORIDAD: ["Nivel", "Color", "SLA"],
-    USUARIOS: ["Rol", "Email", "Teléfono"]
-  };
-
-  const campos = labels[c] || ["Dato Extra 1", "Dato Extra 2", "Dato Extra 4"];
-
-  l1.placeholder = campos[0] || "Dato Extra 1";
-  l2.placeholder = campos[1] || "Dato Extra 2";
-  l4.placeholder = campos[2] || "Dato Extra 4";
-
-  if (c) {
-    document.getElementById('adm-id').value = generarID(c);
-    cargarListaAdmin(c);
-  }
-}
-
-function cargarListaAdmin(categoria) {
-  const cont = document.getElementById('adm-lista');
-  if (!cont) return;
-
-  const lista = DB_MASTER[categoria] || [];
-
-  if (lista.length === 0) {
-    cont.innerHTML = "<small>No hay registros</small>";
-    return;
-  }
-
-  let html = '';
-  lista.forEach(item => {
-    const estado = (item.extra3 || "ACTIVO").toUpperCase();
-    const color = estado === "ACTIVO"? "#27ae60" : "#e74c3c";
-    html += `
-      <div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee;">
-        <div>
-          <b>${item.id}</b> - ${item.nombre}
-          <br><small style="color:#666;">${item.extra1 || ''} ${item.extra2 || ''}</small>
-        </div>
-        <span style="color:${color}; font-weight:bold;">${estado}</span>
-      </div>
-    `;
-  });
-
-  cont.innerHTML = html;
+/* ===========================
+   12. MÓDULO ADMIN DATOS MAESTROS
+=========================== */
+function descargarDataMaestra() {
+    try {
+        let csv = "\uFEFFCATEGORIA,ID,NOMBRE,EXTRA1,EXTRA2,ESTADO\n";
+        for (let cat in DB_MASTER) {
+            const lista = Array.isArray(DB_MASTER[cat])? DB_MASTER[cat] : [];
+            lista.forEach(i => {
+                csv += `${cat},${i.id},"${(i.nombre||"").replace(/"/g,'') || ""}","${(i.extra1||"").replace(/"/g,'') || ""}","${(i.extra2||"").replace(/"/g,'') || ""}",${i.extra3 || 'ACTIVO'}\n`;
+            });
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        a.download = `DB_MAESTRA_TERPAC_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+    } catch (e) { alert("❌ Error exportando base de datos."); }
 }
 
 async function guardarDatoMaestro() {
-  const categoria = document.getElementById('adm-categoria').value;
-  if (!categoria) {
-    alert("❌ Selecciona una categoría");
-    return;
-  }
+    const idNuevo = document.getElementById('adm-id').value.toUpperCase().trim();
+    if (!idNuevo) return alert("❌ Selecciona una categoría primero");
 
-  const payload = {
-    action: "guardarDatoMaestro",
-    categoria: categoria,
-    id: document.getElementById('adm-id').value,
-    nombre: document.getElementById('adm-nombre').value,
-    extra1: document.getElementById('adm-extra1').value,
-    extra2: document.getElementById('adm-extra2').value,
-    extra4: document.getElementById('adm-extra4').value,
-    extra3: document.getElementById('adm-estado').value
-  };
+    const cat = document.getElementById('adm-categoria').value;
+    const dpiNuevo = document.getElementById('adm-extra2').value.toUpperCase().trim();
 
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
+    // Validación de duplicados por DPI solo para categorías que usan DPI
+    const categoriasConDPI = ["TECNICO", "PILOTO", "EMPLEADO"];
+    let duplicado = null;
+
+    if (categoriasConDPI.includes(cat) && dpiNuevo!== "") {
+        for (let c in DB_MASTER) {
+            const lista = Array.isArray(DB_MASTER[c])? DB_MASTER[c] : [];
+            duplicado = lista.find(x => (x.extra2 || "").toString().toUpperCase().trim() === dpiNuevo);
+            if (duplicado) break;
+        }
+        if (duplicado && duplicado.id!== idNuevo) {
+            return alert(`🚫 BLOQUEADO: El DPI ${dpiNuevo} ya está registrado con el ID ${duplicado.id} (${duplicado.nombre}).`);
+        }
+    }
+
+    const payload = {
+        action: "guardarConfig",
+        categoria: cat,
+        id: idNuevo,
+        nombre: document.getElementById('adm-nombre').value.toUpperCase().trim(),
+        extra1: document.getElementById('adm-extra1').value.toUpperCase(),
+        extra2: dpiNuevo,
+        extra3: document.getElementById('adm-estado').value,
+        extra4: document.getElementById('adm-extra4').value.toUpperCase()
+    };
+
+    try {
+        await fetch(URL_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload),
+            headers: {'Content-Type': 'text/plain'}
+        });
+
+        alert("✅ ENVIADO A GOOGLE SHEETS. Recarga y revisa si se guardó.");
+        setTimeout(() => location.reload(), 1200);
+
+    } catch (e) {
+        alert("❌ Error de conexión: " + e.message);
+        console.error(e);
+    }
+}
+
+function generarID(categoria) {
+    const lista = DB_MASTER[categoria] || [];
+    let maxNum = 0;
+
+    lista.forEach(x => {
+        if (!x.id) return;
+        const partes = x.id.split('-');
+        const num = parseInt(partes[1]);
+        if (!isNaN(num) && num > maxNum) maxNum = num;
     });
 
-    const txt = await res.text();
-    if (txt.includes("OK")) {
-      alert("✅ Guardado correctamente");
-      await cargarCerebroSistema();
-      cargarListaAdmin(categoria);
-      document.getElementById('adm-nombre').value = '';
-      document.getElementById('adm-extra1').value = '';
-      document.getElementById('adm-extra2').value = '';
-      document.getElementById('adm-extra4').value = '';
+    const siguiente = maxNum + 1;
+
+    // Prefijos especiales
+    const prefijos = {
+        USUARIOS: 'USU',
+        TIPO_EVENTO: 'TEV',
+        ESTADO_FINAL: 'EFN',
+        ESTADO_SALUD: 'ESL',
+        TIPO_MEDICO: 'TME',
+        AGENTE_EXTINTOR: 'AEX',
+        COLECTIVA: 'COL'
+    };
+
+    const prefijo = prefijos[categoria] || categoria.substring(0, 3).toUpperCase();
+    return `${prefijo}-${String(siguiente).padStart(3, '0')}`;
+}
+
+function ajustarLabelsAdmin() {
+    const c = document.getElementById('adm-categoria').value;
+    const nombre = document.getElementById('adm-nombre');
+    const l1 = document.getElementById('adm-extra1');
+    const l2 = document.getElementById('adm-extra2');
+    const l4 = document.getElementById('adm-extra4');
+    const estado = document.getElementById('adm-estado');
+
+    const labels = {
+        PILOTO: ["Placa Cabezal", "Licencia", "Cliente"],
+        TECNICO: ["Especialidad", "DPI", "Empresa"],
+        UBICACION: ["Fase", "Tipo", "Área"],
+        TRABAJO: ["Área", "Riesgo", "Descripción"],
+        EPP: ["Tipo Trabajo", "Descripción", "Talla"],
+        HERRAMIENTA: ["Tipo Trabajo", "Descripción", "Código"],
+        COLECTIVA: ["Tipo Trabajo", "Descripción", "Ubicación"],
+        PRODUCTO: ["SKU", "Línea", "Unidad"],
+        MOVIMIENTO: ["Tipo", "Descripción", ""],
+        DEPARTAMENTO: ["Código", "Jefe", ""],
+        PRIORIDAD: ["Nivel", "Tiempo Respuesta", ""],
+        TIPO_MEDICO: ["Tipo", "Descripción", ""],
+        AGENTE_EXTINTOR: ["Tipo", "Capacidad", ""],
+        USUARIOS: ["Usuario interfaz", "Contraseña", "Rol"]
+    };
+
+    if (c === 'USUARIOS') {
+        nombre.placeholder = 'Nombre de la persona';
+        l1.placeholder = 'Usuario interfaz';
+        l2.placeholder = 'Contraseña';
+        l2.type = 'password';
+        l4.placeholder = 'Rol';
+        estado.innerHTML = '<option value="ACTIVO">ACTIVO</option><option value="BLOQUEADO">BLOQUEADO</option>';
     } else {
-      alert("❌ Error: " + txt);
-    }
-  } catch (err) {
-    alert("❌ Error de red: " + err.message);
-  }
-}
-
-async function descargarDataMaestra() {
-  try {
-    const res = await fetch(URL_SCRIPT + "?accion=descargarDB");
-    const data = await res.json();
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `BD_CONFIG_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-  } catch (err) {
-    alert("❌ Error al descargar: " + err.message);
-  }
-}
-
-// ===== PÍLDORAS Y PERMISOS =====
-async function actualizarPildoras() {
-  try {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now());
-    const data = await res.json();
-
-    const generados = data.length;
-    const abiertos = data.filter(r => {
-      const campos = (r.datos || "").split(";");
-      return (campos[8] || "").toString().trim().toUpperCase() === "ABIERTO";
-    }).length;
-    const cerrados = generados - abiertos;
-
-    document.getElementById('sso-pnd').innerText = generados.toString().padStart(2, '0');
-    document.getElementById('sso-riesgo').innerText = abiertos.toString().padStart(2, '0');
-    document.getElementById('sso-personal').innerText = cerrados.toString().padStart(2, '0');
-  } catch (err) {
-    console.error("Error actualizando pildoras:", err);
-  }
-}
-
-async function cargarPermisosParaCerrar() {
-  const cont = document.getElementById('contenedor-tabla-sso');
-  if (!cont) return;
-  cont.innerHTML = "Cargando...";
-
-  try {
-    const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-
-    const abiertos = data.filter(r => {
-      const campos = (r.datos || "").split(";");
-      const estado = (campos[8] || "").toString().trim().toUpperCase();
-      return estado === "ABIERTO";
-    });
-
-    cont.innerHTML = "";
-    if (abiertos.length === 0) {
-      cont.innerHTML = "<p>No hay ATS abiertos</p>";
-      return;
+        nombre.placeholder = 'Nombre';
+        l2.type = 'text';
+        const [e1, e2, e4] = labels[c] || ["Dato Extra 1", "Dato Extra 2", "Dato Extra 4"];
+        l1.placeholder = e1;
+        l2.placeholder = e2;
+        l4.placeholder = e4;
+        estado.innerHTML = '<option value="ACTIVO">ACTIVO</option><option value="INACTIVO">INACTIVO</option>';
     }
 
-    abiertos.forEach(p => {
-      const d = (p.datos || "").split(";");
-      const folio = (d[0] || "").toString().trim();
-      if (!folio) return;
+    if (c && c!== "Selecciona categoría") {
+        document.getElementById('adm-id').value = generarID(c);
+        document.getElementById('adm-nombre').value = '';
+        document.getElementById('adm-extra1').value = '';
+        document.getElementById('adm-extra2').value = '';
+        document.getElementById('adm-extra4').value = '';
+        estado.value = 'ACTIVO';
+    }
 
-      const personal = (d[1] || "").toString().trim();
-      const area = (d[2] || "").toString().trim();
-
-      const div = document.createElement('div');
-      div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
-      div.innerHTML = `
-        <span><b>${folio}</b> - ${personal} - ${area}</span>
-        <button onclick="cerrarPermiso('${folio}', this)" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
-      cont.appendChild(div);
-    });
-
-  } catch (err) {
-    cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
-  }
+    mostrarListaAdmin(c);
 }
 
-async function cerrarPermiso(f, btn) {
-  if (!confirm("¿Cerrar permiso " + f + "?")) return;
+function mostrarListaAdmin(categoria) {
+    const div = document.getElementById('adm-lista');
+    const lista = DB_MASTER[categoria] || [];
 
-  const boton = btn || window.event?.target;
-  if (boton) {
-    boton.disabled = true;
-    boton.innerText = "CERRANDO...";
-  }
+    if (lista.length === 0) {
+        div.innerHTML = "<small>No hay registros en esta categoría</small>";
+        return;
+    }
 
-  try {
-    const res = await fetch(URL_SCRIPT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        action: "cerrarATS",
-        folio: (f || "").toString().trim(),
-        usuario: "ADMIN"
-      })
-    });
+    let html = "<table style='width:100%; font-size:12px; border-collapse:collapse;'>";
 
-    window.datosVinculadosATS_Cierre = null;
-    const divCierre = document.getElementById('ot-datos-vinculados-cierre');
-    if (divCierre) divCierre.innerHTML = '';
+    if (categoria === 'USUARIOS') {
+        html += "<tr style='background:#eee;'><th>ID</th><th>Persona</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acción</th></tr>";
+        lista.forEach(x => {
+            const estado = x.extra3 || 'ACTIVO';
+            const color = estado === 'ACTIVO'? 'green' : 'red';
+            const btnTexto = estado === 'ACTIVO'? 'Bloquear' : 'Activar';
+            const nuevoEstado = estado === 'ACTIVO'? 'BLOQUEADO' : 'ACTIVO';
 
-    const txt = await res.text();
-
-    if (txt.includes("Q28K_OK")) {
-      alert("✅ " + txt);
-      cargarPermisosParaCerrar();
+            html += `<tr style="border-bottom:1px solid #eee;">
+                <td>${x.id}</td>
+                <td>${x.nombre}</td>
+                <td>${x.extra1 || ''}</td>
+                <td>${x.extra4 || ''}</td>
+                <td style="color:${color}; font-weight:bold;">${estado}</td>
+                <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
+            </tr>`;
+        });
     } else {
-      alert("❌ " + txt);
+        html += "<tr style='background:#eee;'><th>ID</th><th>Nombre</th><th>Extra1</th><th>Extra2</th><th>Extra4</th><th>Estado</th><th>Acción</th></tr>";
+        lista.forEach(x => {
+            const estado = x.extra3 || 'ACTIVO';
+            const color = estado === 'ACTIVO'? 'green' : 'red';
+            const btnTexto = estado === 'ACTIVO'? 'Desactivar' : 'Activar';
+            const nuevoEstado = estado === 'ACTIVO'? 'INACTIVO' : 'ACTIVO';
+
+            html += `<tr style="border-bottom:1px solid #eee;">
+                <td>${x.id}</td>
+                <td>${x.nombre}</td>
+                <td>${x.extra1 || ''}</td>
+                <td>${x.extra2 || ''}</td>
+                <td>${x.extra4 || ''}</td>
+                <td style="color:${color}; font-weight:bold;">${estado}</td>
+                <td><button onclick="cambiarEstado('${categoria}', '${x.id}', '${nuevoEstado}')" style="padding:2px 6px; font-size:11px;">${btnTexto}</button></td>
+            </tr>`;
+        });
     }
-  } catch (err) {
-    alert("❌ ERROR DE RED: " + err);
-  } finally {
-    if (boton) {
-      boton.disabled = false;
-      boton.innerText = "CERRAR";
-    }
-  }
+
+    html += "</table>";
+    div.innerHTML = html;
 }
 
-// ===== INICIO =====
-window.onload = () => {
-  cargarCerebroSistema();
-};
+async function cambiarEstado(categoria, id, nuevoEstado) {
+    if (!confirm(`¿Seguro que quieres poner ${id} en ${nuevoEstado}?`)) return;
 
-// ===== NAVEGACIÓN MÓDULOS SSO =====
+    const registro = (DB_MASTER[categoria] || []).find(x => x.id.toUpperCase() === id.toUpperCase());
+    if (!registro) return alert("❌ No encontré el registro");
+
+    const payload = {
+        action: "guardarConfig",
+        categoria: categoria,
+        id: id,
+        nombre: registro.nombre,
+        extra1: registro.extra1,
+        extra2: registro.extra2,
+        extra3: nuevoEstado,
+        extra4: registro.extra4
+    };
+
+    try {
+        const r = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: {'Content-Type': 'text/plain'}
+        });
+
+        const txt = await r.text();
+
+        if (txt.includes('OK') || txt === '') {
+            alert(`✅ ${id} ahora está ${nuevoEstado}`);
+            await recargarDatosMaestros();
+            mostrarListaAdmin(categoria);
+        } else {
+            alert("❌ Error: " + txt);
+        }
+    } catch (e) {
+        alert("❌ Error: " + e.message);
+    }
+}
+    /* ===========================
+   13. MÓDULO NAVEGACIÓN SSO Y OT
+=========================== */
+async function recargarDatosMaestros() {
+    return new Promise((resolve, reject) => {
+        fetch(URL_SCRIPT + '?accion=getAdminConfig')
+     .then(r => r.json())
+     .then(d => {
+            DB_MASTER = d;
+            resolve();
+        })
+     .catch(reject);
+    });
+}
+
 function irAIncidentes() {
-  document.getElementById('ui-monitor-sso').style.display = 'none';
-  document.getElementById('ui-incidentes-sso').style.display = 'block';
-  llenarDesplegablesIncidentes();
+    document.getElementById('ui-monitor-sso').style.display='none';
+    document.getElementById('ui-incidentes-sso').style.display='block';
+    llenarDesplegablesIncidentes();
 }
 
 function irAMedico() {
-  document.getElementById('ui-monitor-sso').style.display = 'none';
-  document.getElementById('ui-medico-sso').style.display = 'block';
+    document.getElementById('ui-monitor-sso').style.display='none';
+    document.getElementById('ui-medico-sso').style.display='block';
 }
 
 function irAExtintores() {
-  document.getElementById('ui-monitor-sso').style.display = 'none';
-  document.getElementById('ui-extintores-sso').style.display = 'block';
+    document.getElementById('ui-monitor-sso').style.display='none';
+    document.getElementById('ui-extintores-sso').style.display='block';
 }
+
+function setOrigenOT(t) {
+    if(t==='SISTEMA') document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6);
+}
+
+function llenarDesplegablesOperaciones() {
+    const selPrio = document.getElementById('ot-prioridad');
+    const selDepto = document.getElementById('ot-depto');
+    if (DB_MASTER.PRIORIDAD_OT) {
+        selPrio.innerHTML = '<option disabled selected>Prioridad</option>';
+        DB_MASTER.PRIORIDAD_OT.forEach(p => selPrio.add(new Option(p.nombre, p.nombre)));
+    }
+    if (DB_MASTER.DEPTO_OT) {
+        selDepto.innerHTML = '<option disabled selected>Departamento</option>';
+        DB_MASTER.DEPTO_OT.forEach(d => selDepto.add(new Option(d.nombre, d.nombre)));
+    }
+}
+
+async function vincularATSaOT_Cierre(folioATS) {
+    if (!folioATS) {
+        alert("❌ Ingresa el folio ATS");
+        return;
+    }
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO&t=" + Date.now(), { cache: "no-store" });
+        const data = await res.json();
+
+        const busqueda = String(folioATS).toUpperCase().trim();
+        const encontrado = data.find(r => {
+            const d = r.datos.split(";");
+            return String(d[0] || "").toUpperCase().trim() === busqueda;
+        });
+
+        if (encontrado) {
+            const d = encontrado.datos.split(";");
+            window.datosVinculadosATS_Cierre = d[0];
+
+            const div = document.getElementById('ot-datos-vinculados-cierre');
+            if (div) {
+              div.innerHTML = `
+                <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-bottom:10px;'>
+                    <b>✅ ATS VINCULADO</b><br>
+                    <small>🆔 Folio: ${d[0]}</small><br>
+                    <small>👤 Personal: ${d[1]}</small><br>
+                    <small>📍 ${d[2]} - ${d[3]}</small>
+                </div>
+              `;
+            }
+        } else {
+            alert("❌ Folio ATS no encontrado");
+            const div = document.getElementById('ot-datos-vinculados-cierre');
+            if (div) div.innerHTML = '';
+            window.datosVinculadosATS_Cierre = null;
+        }
+    } catch (e) {
+        alert("❌ Error al vincular: " + e.message);
+    }
+}
+
+/* ===========================
+   14. MÓDULO CIERRE ATS
+=========================== */
+async function cargarPermisosParaCerrar() {
+    const cont = document.getElementById('contenedor-tabla-sso');
+    if (!cont) return;
+    cont.innerHTML = "Cargando...";
+
+    try {
+        const res = await fetch(URL_SCRIPT + "?accion=reporteSSO");
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        const abiertos = data.filter(r => {
+            const campos = (r.datos || "").split(";");
+            const estado = (campos[8] || "").toString().trim().toUpperCase();
+            return estado === "ABIERTO";
+        });
+
+        cont.innerHTML = "";
+        if (abiertos.length === 0) {
+            cont.innerHTML = "<p>No hay ATS abiertos</p>";
+            return;
+        }
+
+        abiertos.forEach(p => {
+            const d = (p.datos || "").split(";");
+            const folio = (d[0] || "").toString().trim();
+            if (!folio) return;
+
+            const personal = (d[1] || "").toString().trim();
+            const area = (d[2] || "").toString().trim();
+
+            const div = document.createElement('div');
+            div.style.cssText = "display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;";
+            div.innerHTML = `
+                <span><b>${folio}</b> - ${personal} - ${area}</span>
+                <button onclick="cerrarPermiso('${folio}', this)" style="background:#27ae60; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer;">CERRAR</button>`;
+            cont.appendChild(div);
+        });
+
+    } catch (err) {
+        cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
+    }
+}
+
+async function cerrarPermiso(f, btn) {
+    if (!confirm("¿Cerrar permiso " + f + "?")) return;
+
+    const boton = btn || window.event?.target;
+    if (boton) {
+        boton.disabled = true;
+        boton.innerText = "CERRANDO...";
+    }
+
+    try {
+        const res = await fetch(URL_SCRIPT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+                action: "cerrarATS",
+                folio: (f || "").toString().trim(),
+                usuario: "ADMIN"
+            })
+        });
+
+        window.datosVinculadosATS_Cierre = null;
+        const divCierre = document.getElementById('ot-datos-vinculados-cierre');
+        if (divCierre) divCierre.innerHTML = '';
+
+        const txt = await res.text();
+
+        if (txt.includes("Q28K_OK")) {
+            alert("✅ " + txt);
+            cargarPermisosParaCerrar();
+        } else {
+            alert("❌ " + txt);
+        }
+    } catch (err) {
+        alert("❌ ERROR DE RED: " + err);
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+            boton.innerText = "CERRAR";
+        }
+    }
+}
+
+/* ===========================
+   15. SALIR Y ARRANQUE
+=========================== */
+function salir() {
+    // Oculta todos los paneles
+    document.getElementById('ui-app').style.display = 'none';
+    document.getElementById('ui-supervisor').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'none';
+    document.getElementById('ui-seguridad').style.display = 'none';
+    document.getElementById('ui-operaciones').style.display = 'none';
+    document.getElementById('ui-admin-datos').style.display = 'none';
+    document.getElementById('ui-incidentes-sso').style.display = 'none';
+    document.getElementById('ui-medico-sso').style.display = 'none';
+    document.getElementById('ui-extintores-sso').style.display = 'none';
+
+    // Muestra el login
+    const login = document.getElementById('login');
+    if (login) login.style.display = 'block';
+
+    // Limpia todo
+    document.getElementById('id-in').value = '';
+    document.getElementById('u').value = '';
+    document.getElementById('p').value = '';
+
+    // Resetea el botón de login
+    const btn = document.getElementById('btn-login');
+    if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'INGRESAR';
+    }
+}
+
+window.onload = () => {
+    cargarCerebroSistema();
+};
 </script>
 </body>
 </html>
