@@ -894,7 +894,7 @@ async function enviarFichaMedica() {
         });
 
         const txt = await res.text();
-        if (txt.startsWith("Q28K_ERROR")) {
+        if (txt.startsWith("ERROR")) {
             alert("❌ " + txt);
             return;
         }
@@ -937,7 +937,7 @@ async function enviarInspeccionExtintor() {
         });
 
         const txt = await res.text();
-        if (txt.startsWith("Q28K_ERROR")) {
+        if (txt.startsWith("ERROR")) {
             alert("❌ " + txt);
             return;
         }
@@ -989,7 +989,7 @@ async function enviarOT() {
         });
 
         const txt = await res.text();
-        if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
+        if (txt.startsWith("ERROR")) throw new Error(txt);
 
         if (txt.length > 500) {
             descargarBase64PDF(txt, `OT_${datosOT.data.folio}.pdf`);
@@ -1044,7 +1044,7 @@ async function finalizarTareaOT(folioOT, btn) {
 
         const txt = await res.text();
 
-        if (txt.includes("Q28K_OK")) {
+        if (txt.includes("OK")) {
             alert("✅ " + txt);
             cancelarCierre();
             if (typeof cargarOTs === 'function') cargarOTs();
@@ -1415,7 +1415,7 @@ async function recargarDatosMaestros() {
       .catch(reject);
     });
 }
-        // ✅ FIX Q28K #3: NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
+        // NAVEGACIÓN SSO - AHORA SÍ OCULTA EL MONITOR
         function irAIncidentes() {
     document.getElementById('ui-monitor-sso').style.display='none';
     document.getElementById('ui-incidentes-sso').style.display='block';
@@ -1448,7 +1448,7 @@ async function recargarDatosMaestros() {
             if(t==='SISTEMA') document.getElementById('ot-folio').value = "OT-" + Date.now().toString().slice(-6);
         }
 
-        // ✅ FIX Q28K #7: ABRIR PANTALLA DE CIERRE OT - LA TUYA ESTÁ VACÍA
+        // ABRIR PANTALLA DE CIERRE OT - LA TUYA ESTÁ VACÍA
 function mostrarSeccionCierre() {
     // 1. Oculta la sección de apertura de OT
     const seccionApertura = document.getElementById('ot-seccion-apertura');
@@ -1467,7 +1467,7 @@ function mostrarSeccionCierre() {
     }
 }
 
-// ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
+// VOLVER A PANTALLA PRINCIPAL OT
 function cancelarCierre() {
   const seccionCierre = document.getElementById('ot-seccion-cierre');
   if (seccionCierre) seccionCierre.style.display = 'none';
@@ -1479,7 +1479,7 @@ function cancelarCierre() {
   if (contenedorBotones) contenedorBotones.style.display = 'block';
 }
 
-// ✅ FIX Q28K #9: FINALIZAR OT - CON DEBUG DE FOLIO
+//FINALIZAR OT - CON DEBUG DE FOLIO
 async function finalizarTareaOT(folioOT, btn) {
   if (!folioOT || folioOT.toString().trim() === "") {
     alert("❌ El folio está vacío.");
@@ -1515,7 +1515,7 @@ async function finalizarTareaOT(folioOT, btn) {
 
     const txt = await res.text();
 
-    if (txt.includes("Q28K_OK")) {
+    if (txt.includes("OK")) {
       alert("✅ " + txt);
       cancelarCierre();
       if (typeof cargarOTs === 'function') cargarOTs();
@@ -1533,7 +1533,7 @@ async function finalizarTareaOT(folioOT, btn) {
   }
 }
         
-// ✅ FIX Q28K #10: CARGAR ATS ABIERTOS
+// CARGAR ATS ABIERTOS
 async function cargarPermisosParaCerrar() {
   const cont = document.getElementById('contenedor-tabla-sso');
   if (!cont) return;
@@ -1573,11 +1573,11 @@ async function cargarPermisosParaCerrar() {
     });
 
   } catch (err) {
-    cont.innerHTML = `<p style="color:red;">Q28K_ERROR: ${err.message || err}</p>`;
+    cont.innerHTML = `<p style="color:red;">ERROR: ${err.message || err}</p>`;
   }
 }
 
-// ✅ FIX Q28K #11: CERRAR PERMISO ATS - BLINDADO
+// CERRAR PERMISO ATS - BLINDADO
 async function cerrarPermiso(f, btn) {
   if (!confirm("¿Cerrar permiso " + f + "?")) return;
 
@@ -1604,7 +1604,7 @@ async function cerrarPermiso(f, btn) {
 
     const txt = await res.text();
 
-    if (txt.includes("Q28K_OK")) {
+    if (txt.includes("OK")) {
       alert("✅ " + txt);
       cargarPermisosParaCerrar();
     } else {
@@ -1674,7 +1674,7 @@ window.onload = () => {
     cargarCerebroSistema();
 };
 
-// ✅ FIX Q28K #7: ABRIR PANTALLA DE CIERRE OT
+//  ABRIR PANTALLA DE CIERRE OT
 function mostrarSeccionCierre() {
     const seccionApertura = document.getElementById('ot-seccion-apertura');
     if(seccionApertura) seccionApertura.style.display = 'none';
@@ -1690,7 +1690,7 @@ function mostrarSeccionCierre() {
     }
 }
 
-// ✅ FIX Q28K #8: VOLVER A PANTALLA PRINCIPAL OT
+//  VOLVER A PANTALLA PRINCIPAL OT
 async function enviarOT() {
   const btn = document.querySelector('#ui-operaciones button[onclick*="enviarOT"]');
   btn.disabled = true;
@@ -1721,7 +1721,7 @@ async function enviarOT() {
 
     const txt = await res.text();
 
-    if (txt.startsWith("Q28K_ERROR")) throw new Error(txt);
+    if (txt.startsWith("ERROR")) throw new Error(txt);
 
     if (txt.length > 500) {
       descargarBase64PDF(txt, `OT_${datosOT.data.folio}.pdf`);
