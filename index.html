@@ -439,11 +439,13 @@ async function entrar() {
     const u = document.getElementById('u').value.trim();
     const p = document.getElementById('p').value;
     const btn = document.getElementById('btn-login');
+    const originalText = "INGRESAR";
 
     btn.innerText = "INGRESANDO... ⏳";
     btn.disabled = true;
 
     try {
+        // 1. Valida login en el servidor
         const res = await fetch(URL_SCRIPT, {
             method: 'POST',
             headers: {'Content-Type': 'text/plain'},
@@ -461,16 +463,53 @@ async function entrar() {
             return;
         }
 
-        await cargarCerebroSistema();
+        // 2. Si OK, carga solo lo necesario y abre el módulo
+        await cargarCerebroSistema(); // ahora ya no trae USUARIOS
         document.getElementById('login').style.display='none';
         abrirModulo(data.rol);
+
+        console.log("✅ Login OK:", data.usuario, "Rol:", data.rol);
+        window.usuarioLogueado = data;
 
     } catch (err) {
         alert("❌ Error de conexión");
         console.error(err);
     } finally {
-        btn.innerText = "INGRESAR";
+        btn.innerText = originalText;
         btn.disabled = false;
+    }
+}
+
+function abrirModulo(rol) {
+    switch(rol.toUpperCase()) {
+        case "OPERADOR":
+            document.getElementById('ui-app').style.display='block';
+            llenarDesplegablesLogistica();
+            break;
+        case "SUPERVISOR":
+            document.getElementById('ui-supervisor').style.display='block';
+            iniciarReloj(); actualizarPildoras(); setInterval(actualizarPildoras, 30000);
+            break;
+        case "SUPERVISOR_SSO":
+            document.getElementById('ui-monitor-sso').style.display='block';
+            actualizarPildoras(); cargarPermisosParaCerrar(); setInterval(actualizarPildoras, 30000);
+            break;
+        case "SSO":
+            document.getElementById('ui-seguridad').style.display='block';
+            llenarDesplegablesSSO();
+            break;
+        case "OPERACIONES":
+            document.getElementById('ui-operaciones').style.display='block';
+            llenarDesplegablesOperaciones();
+            setOrigenOT('SISTEMA');
+            break;
+        case "ADMIN":
+            document.getElementById('ui-admin-datos').style.display='block';
+            ajustarLabelsAdmin();
+            break;
+        default:
+            alert("❌ Rol no reconocido: " + rol);
+            document.getElementById('login').style.display='block';
     }
 }
        // ===== TÉCNICO SSO =====
