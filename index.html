@@ -1062,6 +1062,7 @@ async function finalizarTareaOT(folioOT, btn) {
     }
 }
 
+       
 // ===== REPORTES CSV =====
 async function procesarDescargaUniversal(accion, ini, fin, nombre) {
     if (!ini ||!fin) return alert("❌ Por favor, seleccione un rango de fechas (Inicio y Fin).");
@@ -1654,13 +1655,6 @@ function checkTecnicoOperaciones(id) {
     if(btn) btn.disabled = false;
 }
 
-function checkInvolucradoIncidente(inp) {
-    const id = inp.value.toUpperCase().trim();
-    const persona = DB_MASTER.TECNICO?.find(x => x.id.toString().toUpperCase() === id);
-    inp.style.background = persona? "#e8f5e9" : "#fff";
-    inp.style.border = persona? "2px solid #27ae60" : "1px solid #ccc";
-}
-
 function agregarInvolucradoInc() {
     const cont = document.getElementById('contenedor-involucrados-inc');
     if (!cont) return;
@@ -1827,6 +1821,145 @@ function salir() {
     btn.textContent = 'INGRESAR';
   }
 }
+       // ===== FUNCION REPORTE DE INCIDENTE=====
+async function enviarIncidenteCompleto() {
+  const btn = document.querySelector('button[onclick="enviarIncidenteCompleto()"]');
+  btn.disabled = true;
+  btn.innerText = "REGISTRANDO... ⏳";
+
+  try {
+    if (!window.datosVinculados) throw new Error("Primero vincula un folio SSO válido");
+
+    // SOLO ESTE BLOQUE DE IDS
+    const ids = Array.from(document.querySelectorAll('#contenedor-involucrados-inc .inc-id-clase'))
+      .map(i => i.value.toUpperCase().trim())
+      .filter(v => v);
+
+    console.log('IDs encontrados:', ids); 
+
+    if (ids.length === 0) throw new Error("Agrega al menos 1 colaborador afectado");
+
+    const involucrados = ids.map(id => {
+      const t = DB_MASTER.TECNICO?.find(x => x.id.toString() === id);
+      return t ? `${t.nombre} (${id})` : id;
+    }).join(" | ");
+
+    const payload = {
+  folio: window.datosVinculados.folioATS,
+  area: window.datosVinculados.fase,
+  ubicacion: window.datosVinculados.ubi,
+  tipoEvento: document.getElementById('inc-tipo').value,
+  gravedad: document.getElementById('inc-gravedad').value,
+  riesgo: document.getElementById('inc-riesgo').value,
+  contaminacion: document.getElementById('inc-contaminacion').value,
+  estructura: document.getElementById('inc-estructura').value,
+  reparacion: document.getElementById('inc-reparacion').value,
+  reincidencia: document.getElementById('inc-reincidencia').value,
+  estadoFinal: document.getElementById('inc-estado-final').value,
+  salud: document.getElementById('inc-salud').value,
+  creado_por: window.usuarioLogueado?.usuario || 'SISTEMA', 
+  involucrados: involucrados,
+  desc: document.getElementById('inc-recomendacion').value, 
+  tecnico_principal: document.getElementById('inc-tecnico')?.value || null
+};
+    
+    const camposObligatorios = ['tipoEvento', 'gravedad', 'riesgo', 'estadoFinal'];
+    for (let campo of camposObligatorios) {
+      if (!payload[campo] || payload[campo].includes('disabled selected')) {
+        throw new Error(`Selecciona una opción válida en ${campo}`);
+      }
+    }
+
+    
+    const res = await fetch("${URL_SCRIPT}/registrarIncidente", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    const folio = data.folio;
+
+    
+    btn.innerText = "DESCARGANDO PDF... ⏳";
+    const pdfRes = await fetch(`${URL_SCRIPT}/incidente/pdf/${folio}`);
+
+    if (!pdfRes.ok) {
+      const errText = await pdfRes.text();
+      throw new Error('Error generando PDF: ' + errText);
+    }
+
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${folio}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+
+    alert("✅ INFORME SSO REGISTRADO CORRECTAMENTE");
+    document.getElementById('ui-incidentes-sso').style.display = 'none';
+    document.getElementById('ui-monitor-sso').style.display = 'block';
+    setTimeout(() => location.reload(), 1000);
+
+  } catch (e) {
+    alert("❌ Error: " + e.message);
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "REGISTRAR INFORME 🚩";
+  }
+}
+
+async function vincularDatosPermiso(folioATS) {
+    try {
+        folioATS = folioATS.trim().toUpperCase();
+        if (!folioATS) throw new Error("Ingresa el folio ATS");
+
+        const div = document.getElementById('datos-vinculados-sso');
+        div.innerHTML = '';
+
+        const r = await fetch(`${URL_SCRIPT}/sso/vincularPermiso?folio=${encodeURIComponent(folioATS)}`, {
+            method: 'GET'
+        });
+
+        const data = await r.json();
+
+        if (!data.ok) throw new Error(data.error);
+
+        const p = data.datos;
+
+        
+        window.datosVinculados = {
+            folioATS: folioATS,
+            fase: p.area,
+            ubi: p.lugar,
+            tipo: p.tipo
+        };
+
+        div.innerHTML = `
+          <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-top:5px;'>
+            <b>✅ SSO VINCULADO</b><br>
+            <small>🏢 Área: ${p.area}</small><br>
+            <small>📍 Lugar: ${p.lugar}</small><br>
+            <small>🔧 Tipo: ${p.tipo || 'N/A'}</small>
+          </div>
+        `;
+        alert("✅ SSO VINCULADO");
+
+    } catch(e) {
+        alert("❌ Error: " + e.message);
+        console.error(e);
+        document.getElementById('datos-vinculados-sso').innerHTML = '';
+        window.datosVinculados = null; // limpia si falla
+    }
+}
+      
+
 
     </script>
 </body>
