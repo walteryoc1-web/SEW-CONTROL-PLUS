@@ -1794,7 +1794,7 @@ function cancelarCierre() {
 }
 
 function salir() {
-  // Oculta todos los paneles
+ 
   document.getElementById('ui-app').style.display = 'none';
   document.getElementById('ui-supervisor').style.display = 'none';
   document.getElementById('ui-monitor-sso').style.display = 'none';
@@ -1814,7 +1814,7 @@ function salir() {
   document.getElementById('u').value = '';
   document.getElementById('p').value = '';
 
-  // Resetea el botón de login por si se quedó trabado
+  
   const btn = document.getElementById('btn-login');
   if (btn) {
     btn.disabled = false;
@@ -1846,9 +1846,9 @@ async function enviarIncidenteCompleto() {
       return t ? `${t.nombre} (${id})` : id;
     }).join(" | ");
 
-    // Construcción del objeto JSON esperado por tu doPost
+    
     const payload = {
-      action: 'registrarIncidente', // CRÍTICO: Indica la acción al doPost unificado
+      action: 'registrarIncidente', 
       folio: window.datosVinculados.folioATS,
       area: window.datosVinculados.fase,
       ubicacion: window.datosVinculados.ubi,
@@ -1874,7 +1874,7 @@ async function enviarIncidenteCompleto() {
       }
     }
 
-    // CORREGIDO: Comillas invertidas, modo cors y text/plain para evitar bloqueos
+    
     const res = await fetch(`${URL_SCRIPT}`, {
       method: 'POST',
       mode: 'cors',
@@ -1882,7 +1882,7 @@ async function enviarIncidenteCompleto() {
       body: JSON.stringify(payload)
     });
 
-    // Tu doPost de Google responde directamente con el PDF codificado en Base64 (MimeType.TEXT)
+    
     const pdfBase64 = await res.text();
     
     if (!pdfBase64 || pdfBase64.indexOf("ERROR") > -1) {
@@ -1891,7 +1891,7 @@ async function enviarIncidenteCompleto() {
 
     if (btn) btn.innerText = "DESCARGANDO PDF... ⏳";
 
-    // Convertir el texto Base64 que envía tu script de Google en un archivo PDF descargable
+    
     const byteCharacters = atob(pdfBase64);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
@@ -1900,7 +1900,6 @@ async function enviarIncidenteCompleto() {
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: 'application/pdf' });
     
-    // Ejecución de la descarga automática en el navegador
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1925,6 +1924,7 @@ async function enviarIncidenteCompleto() {
     }
   }
 }
+       
 async function vincularDatosPermiso(folioATS) {
     try {
         // Si el parámetro llega vacío desde el botón onclick, lo busca en el input
