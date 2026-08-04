@@ -1917,14 +1917,29 @@ async function enviarIncidenteCompleto() {
 
 async function vincularDatosPermiso(folioATS) {
     try {
+        // Si el parámetro llega vacío desde el botón onclick, lo busca en el input
+        if (!folioATS) {
+            const inputFolio = document.getElementById('input-folio-ats'); // Asegúrate de usar el ID real de tu input
+            folioATS = inputFolio ? inputFolio.value : '';
+        }
+
+        if (!folioATS || folioATS.trim() === "") throw new Error("Ingresa el folio ATS");
         folioATS = folioATS.trim().toUpperCase();
-        if (!folioATS) throw new Error("Ingresa el folio ATS");
 
         const div = document.getElementById('datos-vinculados-sso');
-        div.innerHTML = '';
+        if (div) div.innerHTML = 'Buscando folio... ⏳';
 
-        const r = await fetch(`${URL_SCRIPT}/sso/vincularPermiso?folio=${encodeURIComponent(folioATS)}`, {
-            method: 'GET'
+        // ===== EL CAMBIO CRÍTICO: USA POST PLANO AL EXEC DIRECTO =====
+        const r = await fetch(`${URL_SCRIPT}`, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'text/plain' // Evita solicitudes preflight OPTIONS de CORS
+            },
+            body: JSON.stringify({
+                action: 'vincularPermiso',
+                folio: folioATS
+            })
         });
 
         const data = await r.json();
@@ -1933,7 +1948,7 @@ async function vincularDatosPermiso(folioATS) {
 
         const p = data.datos;
 
-        
+       
         window.datosVinculados = {
             folioATS: folioATS,
             fase: p.area,
@@ -1941,20 +1956,23 @@ async function vincularDatosPermiso(folioATS) {
             tipo: p.tipo
         };
 
-        div.innerHTML = `
-          <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-top:5px;'>
-            <b>✅ SSO VINCULADO</b><br>
-            <small>🏢 Área: ${p.area}</small><br>
-            <small>📍 Lugar: ${p.lugar}</small><br>
-            <small>🔧 Tipo: ${p.tipo || 'N/A'}</small>
-          </div>
-        `;
+        if (div) {
+            div.innerHTML = `
+              <div style='background:#e8f5e9; padding:10px; border-radius:10px; color:#27ae60; margin-top:5px;'>
+                <b>✅ SSO VINCULADO</b><br>
+                <small>🏢 Área: ${p.area}</small><br>
+                <small>📍 Lugar: ${p.lugar}</small><br>
+                <small>🔧 Tipo: ${p.tipo || 'N/A'}</small>
+              </div>
+            `;
+        }
         alert("✅ SSO VINCULADO");
 
     } catch(e) {
         alert("❌ Error: " + e.message);
         console.error(e);
-        document.getElementById('datos-vinculados-sso').innerHTML = '';
+        const div = document.getElementById('datos-vinculados-sso');
+        if (div) div.innerHTML = '';
         window.datosVinculados = null; 
     }
 }
