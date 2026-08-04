@@ -1821,11 +1821,13 @@ function salir() {
     btn.textContent = 'INGRESAR';
   }
 }
-       // ===== FUNCION REPORTE DE INCIDENTE=====
+     // ===== FUNCION REPORTE DE INCIDENTE (CORREGIDA) =====
 async function enviarIncidenteCompleto() {
   const btn = document.querySelector('button[onclick="enviarIncidenteCompleto()"]');
-  btn.disabled = true;
-  btn.innerText = "REGISTRANDO... ⏳";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "REGISTRANDO... ⏳";
+  }
 
   try {
     if (!window.datosVinculados) throw new Error("Primero vincula un folio SSO válido");
@@ -1844,24 +1846,26 @@ async function enviarIncidenteCompleto() {
       return t ? `${t.nombre} (${id})` : id;
     }).join(" | ");
 
+    // Construcción del objeto JSON esperado por tu doPost
     const payload = {
-  folio: window.datosVinculados.folioATS,
-  area: window.datosVinculados.fase,
-  ubicacion: window.datosVinculados.ubi,
-  tipoEvento: document.getElementById('inc-tipo').value,
-  gravedad: document.getElementById('inc-gravedad').value,
-  riesgo: document.getElementById('inc-riesgo').value,
-  contaminacion: document.getElementById('inc-contaminacion').value,
-  estructura: document.getElementById('inc-estructura').value,
-  reparacion: document.getElementById('inc-reparacion').value,
-  reincidencia: document.getElementById('inc-reincidencia').value,
-  estadoFinal: document.getElementById('inc-estado-final').value,
-  salud: document.getElementById('inc-salud').value,
-  creado_por: window.usuarioLogueado?.usuario || 'SISTEMA', 
-  involucrados: involucrados,
-  desc: document.getElementById('inc-recomendacion').value, 
-  tecnico_principal: document.getElementById('inc-tecnico')?.value || null
-};
+      action: 'registrarIncidente', // CRÍTICO: Indica la acción al doPost unificado
+      folio: window.datosVinculados.folioATS,
+      area: window.datosVinculados.fase,
+      ubicacion: window.datosVinculados.ubi,
+      tipoEvento: document.getElementById('inc-tipo').value,
+      gravedad: document.getElementById('inc-gravedad').value,
+      riesgo: document.getElementById('inc-riesgo').value,
+      contaminacion: document.getElementById('inc-contaminacion').value,
+      estructura: document.getElementById('inc-estructura').value,
+      reparacion: document.getElementById('inc-reparacion').value,
+      reincidencia: document.getElementById('inc-reincidencia').value,
+      estadoFinal: document.getElementById('inc-estado-final').value,
+      salud: document.getElementById('inc-salud').value,
+      creado_por: window.usuarioLogueado?.usuario || 'SISTEMA', 
+      involucrados: involucrados,
+      desc: document.getElementById('inc-recomendacion').value, 
+      tecnico_principal: document.getElementById('inc-tecnico')?.value || null
+    };
     
     const camposObligatorios = ['tipoEvento', 'gravedad', 'riesgo', 'estadoFinal'];
     for (let campo of camposObligatorios) {
@@ -1870,32 +1874,37 @@ async function enviarIncidenteCompleto() {
       }
     }
 
-    
-    const res = await fetch("${URL_SCRIPT}/registrarIncidente", {
+    // CORREGIDO: Comillas invertidas, modo cors y text/plain para evitar bloqueos
+    const res = await fetch(`${URL_SCRIPT}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      mode: 'cors',
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-
-    const folio = data.folio;
-
+    // Tu doPost de Google responde directamente con el PDF codificado en Base64 (MimeType.TEXT)
+    const pdfBase64 = await res.text();
     
-    btn.innerText = "DESCARGANDO PDF... ⏳";
-    const pdfRes = await fetch(`${URL_SCRIPT}/incidente/pdf/${folio}`);
-
-    if (!pdfRes.ok) {
-      const errText = await pdfRes.text();
-      throw new Error('Error generando PDF: ' + errText);
+    if (!pdfBase64 || pdfBase64.indexOf("ERROR") > -1) {
+      throw new Error("Error en el servidor de Google: " + pdfBase64);
     }
 
-    const blob = await pdfRes.blob();
+    if (btn) btn.innerText = "DESCARGANDO PDF... ⏳";
+
+    // Convertir el texto Base64 que envía tu script de Google en un archivo PDF descargable
+    const byteCharacters = atob(pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'application/pdf' });
+    
+    // Ejecución de la descarga automática en el navegador
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${folio}.pdf`;
+    a.download = `INCIDENTE_${window.datosVinculados.folioATS}.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1910,16 +1919,17 @@ async function enviarIncidenteCompleto() {
     alert("❌ Error: " + e.message);
     console.error(e);
   } finally {
-    btn.disabled = false;
-    btn.innerText = "REGISTRAR INFORME 🚩";
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "REGISTRAR INFORME 🚩";
+    }
   }
 }
-
 async function vincularDatosPermiso(folioATS) {
     try {
         // Si el parámetro llega vacío desde el botón onclick, lo busca en el input
         if (!folioATS) {
-            const inputFolio = document.getElementById('input-folio-ats'); // Asegúrate de usar el ID real de tu input
+            const inputFolio = document.getElementById('input-folio-ats'); 
             folioATS = inputFolio ? inputFolio.value : '';
         }
 
