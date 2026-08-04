@@ -1958,7 +1958,35 @@ async function vincularDatosPermiso(folioATS) {
         window.datosVinculados = null; 
     }
 }
-    
+
+       function generarPDFFromTemplate(templateId, reemplazos, nombreArchivo) {
+  try {
+        if (!templateId || templateId === "") {
+      console.warn("Falta ID de plantilla, usando plantilla de respaldo...");
+      templateId = "18IkYy-cANqcrOimeSGb1jM2mD5J_NNqMZMzjfUqoo2g"; 
+    }
+
+    const file = DriveApp.getFileById(templateId);
+    const tempFile = file.makeCopy('TEMP_' + nombreArchivo);
+    const tempDocId = tempFile.getId();
+    const doc = DocumentApp.openById(tempDocId);
+    const body = doc.getBody();
+
+    for (let key in reemplazos) {
+      body.replaceText('{{' + key + '}}', reemplazos[key] || '');
+    }
+
+    doc.saveAndClose();
+
+    const pdfBlob = DriveApp.getFileById(tempDocId).getAs(MimeType.PDF);
+    DriveApp.getFileById(tempDocId).setTrashed(true);
+
+    return Utilities.base64Encode(pdfBlob.getBytes());
+
+  } catch (e) {
+    throw new Error('Error crítico al generar PDF (' + nombreArchivo + '). Detalle: ' + e.message);
+  }
+}
     </script>
 </body>
 </html
